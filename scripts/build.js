@@ -96,6 +96,10 @@ const copies = [
   // app.js importa cardHtml/money/offerActive de acá — sin esto la portada
   // publicada quedaría con un import roto en el navegador.
   ['src/templates.js', 'src/templates.js'],
+  // templates.js/app.js/assistant.js importan cloudinaryUrl de acá — sin
+  // esto las fotos de producto rompen en el sitio publicado (404 del import,
+  // no se nota en local porque el dev server sirve /src/* directo del disco).
+  ['src/cloudinary-config.js', 'src/cloudinary-config.js'],
 ];
 
 for (const [from, to] of copies) {

@@ -4,6 +4,12 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # La API key de Firebase en src/firebase-config.js NO es secreta — el
+  # acceso a Firestore se controla con Security Rules, no ocultando esta
+  # clave (Google la documenta como pública a propósito). El scanner de
+  # Netlify la marca como "likely secret" igual, así que se excluye ese
+  # archivo puntual en vez de desactivar el scan entero.
+  SECRETS_SCAN_OMIT_PATHS = "src/firebase-config.js"
 
 # El build (scripts/build.js) ya escribe dist/_redirects con el 404 real
 # para /p/lo-que-sea. Nada más que agregar acá.
