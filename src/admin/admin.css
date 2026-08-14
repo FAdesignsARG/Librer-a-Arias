@@ -19,6 +19,12 @@
   padding: 20px;
   background: var(--ink);
 }
+/* [hidden] del navegador pierde contra un display puesto por clase con la
+   misma especificidad — sin esto, JS pone hidden=true al loguearse pero
+   la pantalla de login se sigue viendo (y empuja el panel real más abajo). */
+.loginscreen[hidden] {
+  display: none;
+}
 .logincard {
   width: min(380px, 100%);
   display: flex;
@@ -495,6 +501,9 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.offerbox__fields[hidden] {
+  display: none;
 }
 .offerbox__fields input[type='datetime-local'] {
   color-scheme: dark;

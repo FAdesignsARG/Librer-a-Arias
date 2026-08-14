@@ -359,6 +359,13 @@ button {
 .btn:active {
   transform: scale(0.96);
 }
+/* Mismo motivo que .loginscreen[hidden] más abajo en admin.css: display
+   puesto por clase le gana a [hidden] del navegador en igualdad de
+   especificidad. Sin esto, un botón oculto por JS (hidden=true) sigue
+   ocupando su lugar y siendo clickeable. */
+.btn[hidden] {
+  display: none;
+}
 .btn svg {
   width: 18px;
   height: 18px;
