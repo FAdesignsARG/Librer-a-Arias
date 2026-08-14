@@ -17,29 +17,49 @@
   display: grid;
   place-items: center;
   padding: 20px;
+  background: var(--ink);
 }
 .logincard {
-  width: min(360px, 100%);
+  width: min(380px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 4px;
+  padding: clamp(28px, 5vw, 40px) clamp(24px, 5vw, 32px) clamp(30px, 5vw, 36px);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  animation: login-in 0.5s var(--ease-out) both;
+}
+@keyframes login-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logincard {
+    animation: none;
+  }
 }
 .logincard img {
-  width: 46px;
-  height: 46px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
+}
+:root[data-theme='light'] .logincard img {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
 }
 .logincard h1 {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 .logincard > p {
   margin-top: 6px;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
   font-size: 0.88rem;
   color: var(--text-2);
 }
@@ -49,7 +69,8 @@
   margin-bottom: 14px;
 }
 .logincard .btn {
-  margin-top: 6px;
+  margin-top: 8px;
+  width: 100%;
 }
 .loginerror {
   width: 100%;
@@ -164,19 +185,22 @@
 
 .item {
   display: grid;
-  grid-template-columns: 20px 22px 52px minmax(0, 1fr) auto;
+  grid-template-columns: 20px 22px 58px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  padding: 9px 12px 9px 4px;
+  padding: 10px 14px 10px 4px;
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   background: var(--surface);
   transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
     opacity var(--dur-fast) var(--ease-soft);
 }
 .item:hover {
   border-color: var(--line-strong);
   background: var(--surface-hi);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 /* La fila que se está arrastrando queda fantasma en su lugar original */
 .item[data-dragging='true'] {
@@ -222,8 +246,8 @@
 }
 
 .item__img {
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
   border-radius: var(--r-sm);
   background: var(--media);
   object-fit: contain;
