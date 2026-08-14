@@ -1,0 +1,207 @@
+/* ==========================================================================
+   Librería Arias — campanita de novedades
+   Comparte los tokens de siempre. El panel usa exactamente el mismo patrón
+   de <dialog> fijo al viewport que .chat y .sheet — nada de position:absolute
+   dependiente del top layer, que es lo que rompía el cierre en esos dos.
+   ========================================================================== */
+
+.bellbtn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+}
+.bellbtn:hover {
+  background: var(--fill);
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.bellbtn:active {
+  transform: scale(0.92);
+}
+.bellbtn svg {
+  width: 18px;
+  height: 18px;
+}
+.bellbtn__dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.bellbtn__dot[hidden] {
+  display: none;
+}
+
+.notify {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(400px, 100%);
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+.notify:not([open]) {
+  display: none;
+}
+.notify::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+.notify[open] {
+  animation: sheet-in var(--dur) var(--ease-out);
+}
+.notify[data-closing='true'] {
+  animation: sheet-out 0.2s var(--ease-soft) forwards;
+}
+@media (max-width: 560px) {
+  .notify {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 82vh;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+  .notify[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .notify[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+}
+
+.notify__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.notify__head h2 {
+  font-size: 1.08rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+
+.notify__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notify__empty {
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--text-3);
+}
+.notify__empty svg {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
+  opacity: 0.5;
+}
+
+.notify__group {
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 640;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.notify__group:first-child {
+  margin-top: 4px;
+}
+
+/* Fila de novedad: mismo esqueleto que .pick del chat, para que la marca
+   se sienta consistente entre el asistente y el centro de novedades. */
+.nitem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 8px;
+  border-radius: var(--r-md);
+  transition: background var(--dur-fast) var(--ease-soft);
+  animation: msg-in 0.3s var(--ease-out) backwards;
+}
+.nitem:hover {
+  background: var(--fill);
+}
+.nitem__ico {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold-wash);
+  color: var(--gold-text);
+}
+.nitem__ico svg {
+  width: 16px;
+  height: 16px;
+}
+.nitem--offer .nitem__ico {
+  background: var(--gold-wash);
+  color: var(--gold-text);
+}
+.nitem img.nitem__ico {
+  object-fit: contain;
+  background: var(--media);
+  padding: 4px;
+}
+.nitem__info {
+  flex: 1;
+  min-width: 0;
+}
+.nitem__title {
+  font-size: 0.88rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  line-height: 1.32;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nitem__meta {
+  margin-top: 2px;
+  font-size: 0.79rem;
+  color: var(--text-3);
+}
+.nitem__go {
+  flex: none;
+  color: var(--text-3);
+}
+.nitem__go svg {
+  width: 14px;
+  height: 14px;
+}

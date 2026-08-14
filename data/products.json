@@ -1,0 +1,2256 @@
+[
+  {
+    "id": "dinosaurio-dino-world",
+    "slug": "dinosaurio-dino-world",
+    "name": "Dinosaurio Dino World",
+    "category": "Juguetería",
+    "description": "Camina, ruge, tiene luces de colores y hasta “escupe fuego” (vapor con agua) por la boca. Recomendado desde los 3 años.",
+    "price": 56000,
+    "images": [
+      "dinosaurio-dino-world.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 0,
+    "createdAt": "2026-08-12T18:15:52.471Z",
+    "visible": true,
+    "offer": null,
+    "updatedAt": "2026-08-13T19:43:50.691Z"
+  },
+  {
+    "id": "bebe-de-mama-carinito",
+    "slug": "bebe-de-mama-carinito",
+    "name": "Bebé de Mamá Cariñito",
+    "category": "Juguetería",
+    "description": "Tiembla y se ríe, viene con su mamadera. Ideal para que las más chicas jueguen a ser mamás.",
+    "price": 60000,
+    "images": [
+      "bebe-de-mama-carinito.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 1,
+    "createdAt": "2026-08-12T18:15:52.622Z",
+    "updatedAt": "2026-08-13T19:43:51.467Z",
+    "visible": true
+  },
+  {
+    "id": "almohada-cervical-masajeadora",
+    "slug": "almohada-cervical-masajeadora",
+    "name": "Almohada Cervical Masajeadora",
+    "category": "Tecnología",
+    "description": "Masaje por vibración, compresa térmica y 3 niveles de intensidad, con diseño ergonómico en U.",
+    "price": 54500,
+    "images": [
+      "almohada-cervical-masajeadora.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 2,
+    "createdAt": "2026-08-12T18:15:52.780Z",
+    "updatedAt": "2026-08-13T19:43:52.548Z",
+    "visible": true
+  },
+  {
+    "id": "fascia-gun-profesional-6-en-1",
+    "slug": "fascia-gun-profesional-6-en-1",
+    "name": "Fascia Gun Profesional 6 en 1",
+    "category": "Tecnología",
+    "description": "30 niveles de velocidad, 6 cabezales intercambiables y funda de transporte incluida.",
+    "price": 48000,
+    "images": [
+      "fascia-gun-profesional-6-en-1.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 3,
+    "createdAt": "2026-08-12T18:15:52.921Z",
+    "updatedAt": "2026-08-13T19:43:53.793Z"
+  },
+  {
+    "id": "smart-scalp-massager-seis",
+    "slug": "smart-scalp-massager-seis",
+    "name": "Smart Scalp Massager SEIS",
+    "category": "Tecnología",
+    "description": "Masaje profundo resistente al agua, ideal para usar en la ducha. Recargable y portátil.",
+    "price": 32000,
+    "images": [
+      "smart-scalp-massager-seis.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 4,
+    "createdAt": "2026-08-12T18:15:53.104Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "nebulizador-mesh-portatil-jsl-w302",
+    "slug": "nebulizador-mesh-portatil-jsl-w302",
+    "name": "Nebulizador Mesh Portátil JSL-W302",
+    "category": "Tecnología",
+    "description": "Silencioso, compacto y a batería: usalo donde quieras, cuando quieras.",
+    "price": 32000,
+    "images": [
+      "nebulizador-mesh-portatil-jsl-w302.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 5,
+    "createdAt": "2026-08-12T18:15:53.197Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "puzzle-tetris-3d-building-block",
+    "slug": "puzzle-tetris-3d-building-block",
+    "name": "Puzzle Tetris 3D Building Block",
+    "category": "Juguetería",
+    "description": "Estimula la lógica y la coordinación, ideal para jugar en familia. Recomendado desde los 3 años.",
+    "price": 14500,
+    "images": [
+      "puzzle-tetris-3d-building-block.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 6,
+    "createdAt": "2026-08-12T18:15:53.332Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "basta-2-0-electronico",
+    "slug": "basta-2-0-electronico",
+    "name": "¡BASTA! 2.0 Electrónico",
+    "category": "Juguetería",
+    "description": "Tomá una carta, pensá rápido y contestá antes que se acabe el tiempo.",
+    "price": 27500,
+    "images": [
+      "basta-2-0-electronico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 7,
+    "createdAt": "2026-08-12T18:15:53.475Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "helicoptero-de-esfera-luminosa-gadnic-rcb41",
+    "slug": "helicoptero-de-esfera-luminosa-gadnic-rcb41",
+    "name": "Helicóptero de Esfera Luminosa GADNIC RCB41",
+    "category": "Juguetería",
+    "description": "Vuela solo, detecta tu mano y se ilumina con luces de colores tipo disco.",
+    "price": 23500,
+    "images": [
+      "helicoptero-de-esfera-luminosa-gadnic-rcb41.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 8,
+    "createdAt": "2026-08-12T18:15:53.610Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "funko-pop-exciting-macaron",
+    "slug": "funko-pop-exciting-macaron",
+    "name": "Funko Pop Exciting Macaron",
+    "category": "Regalería",
+    "description": "Figura de colección oficial, ideal para fans o para regalar.",
+    "price": 9500,
+    "images": [
+      "funko-pop-exciting-macaron.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 9,
+    "createdAt": "2026-08-12T18:15:53.754Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "basta-el-original",
+    "slug": "basta-el-original",
+    "name": "¡BASTA! El Original",
+    "category": "Juguetería",
+    "description": "Tomá una carta, girá la ruleta de letras y contestá antes que nadie.",
+    "price": 25500,
+    "images": [
+      "basta-el-original.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 10,
+    "createdAt": "2026-08-12T18:15:53.905Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "flying-spinner",
+    "slug": "flying-spinner",
+    "name": "Flying Spinner",
+    "category": "Juguetería",
+    "description": "Vuela solo entre tus manos, sin control ni pilas que cambiar. Recomendado desde los 6 años.",
+    "price": 23500,
+    "images": [
+      "flying-spinner.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 11,
+    "createdAt": "2026-08-12T18:15:54.050Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "drone-e88-pro-plegable",
+    "slug": "drone-e88-pro-plegable",
+    "name": "Drone E88 Pro Plegable",
+    "category": "Tecnología",
+    "description": "Con cámara, función hover y control de altura, ideal para grabar desde las alturas. Recomendado desde los 14 años.",
+    "price": 82500,
+    "images": [
+      "drone-e88-pro-plegable.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 12,
+    "createdAt": "2026-08-12T18:15:54.158Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "dancing-cactus",
+    "slug": "dancing-cactus",
+    "name": "Dancing Cactus",
+    "category": "Juguetería",
+    "description": "Baila, canta y repite lo que decís. ¡Diversión asegurada para toda la familia!",
+    "price": 15000,
+    "images": [
+      "dancing-cactus.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 13,
+    "createdAt": "2026-08-12T18:15:54.281Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "lampara-star-master",
+    "slug": "lampara-star-master",
+    "name": "Lámpara Star Master",
+    "category": "Regalería",
+    "description": "Proyecta estrellas y luna girando en el techo, ideal para crear un ambiente relajante.",
+    "price": 12000,
+    "images": [
+      "lampara-star-master.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 14,
+    "createdAt": "2026-08-12T18:15:54.426Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "mazo-de-naipes-casino",
+    "slug": "mazo-de-naipes-casino",
+    "name": "Mazo de Naipes Casino",
+    "category": "Juguetería",
+    "description": "54 cartas plastificadas, ideales para el truco, póker o cualquier juego de mesa.",
+    "price": 3500,
+    "images": [
+      "mazo-de-naipes-casino.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 15,
+    "createdAt": "2026-08-12T18:15:54.560Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "uno",
+    "slug": "uno",
+    "name": "UNO",
+    "category": "Juguetería",
+    "description": "Diversión para toda la familia, fácil de aprender e imposible de dejar. Desde 7 años, de 2 a 10 jugadores.",
+    "price": 2900,
+    "images": [
+      "uno.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 16,
+    "createdAt": "2026-08-12T18:15:54.678Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "mazo-poker-100-plastico",
+    "slug": "mazo-poker-100-plastico",
+    "name": "Mazo Poker 100% Plástico",
+    "category": "Juguetería",
+    "description": "Cartas resistentes al agua y al uso, para partidas que duran toda la noche.",
+    "price": 6500,
+    "images": [
+      "mazo-poker-100-plastico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 17,
+    "createdAt": "2026-08-12T18:15:54.796Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cartas-sushi-do",
+    "slug": "cartas-sushi-do",
+    "name": "Cartas Sushi Do",
+    "category": "Juguetería",
+    "description": "Intercambiá piezas de sushi, sumá puntos y convertite en el Sushi Master. De 2 a 5 jugadores, desde 5 años.",
+    "price": 12000,
+    "images": [
+      "cartas-sushi-do.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 18,
+    "createdAt": "2026-08-12T18:15:54.936Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "alcancia-mini-bank-kuromi",
+    "slug": "alcancia-mini-bank-kuromi",
+    "name": "Alcancía Mini Bank Kuromi",
+    "category": "Juguetería",
+    "description": "Con traba de seguridad, ¡ideal para que los peques ahorren sus monedas! Versión con sistema manual $15.000 y con sistema automático $19.000.",
+    "price": 15000,
+    "images": [
+      "alcancia-mini-bank-kuromi.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 19,
+    "createdAt": "2026-08-12T18:15:55.068Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "quitapelusas-waken-wk-101",
+    "slug": "quitapelusas-waken-wk-101",
+    "name": "Quitapelusas WAKEN WK-101",
+    "category": "Electrónica",
+    "description": "Cuchillas rotativas que sacan las pelusas rápido, dejá tu ropa y mantas como nuevas.",
+    "price": 14500,
+    "images": [
+      "quitapelusas-waken-wk-101.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 20,
+    "createdAt": "2026-08-12T18:15:55.172Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "dispenser-de-agua-automatico",
+    "slug": "dispenser-de-agua-automatico",
+    "name": "Dispenser de Agua Automático",
+    "category": "Electrónica",
+    "description": "Se recarga por USB y bombea agua con un solo toque, directo desde el bidón.",
+    "price": 12000,
+    "images": [
+      "dispenser-de-agua-automatico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 21,
+    "createdAt": "2026-08-12T18:15:55.285Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "conejito-bailarin-dancing-rec",
+    "slug": "conejito-bailarin-dancing-rec",
+    "name": "Conejito Bailarín Dancing REC",
+    "category": "Juguetería",
+    "description": "Baila, graba tu voz y la repite, con luces 3D y música. ¡Pura diversión!",
+    "price": 38500,
+    "images": [
+      "conejito-bailarin-dancing-rec.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 22,
+    "createdAt": "2026-08-12T18:15:55.410Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "camara-vehicle-blackbox-dvr-full-hd-1080",
+    "slug": "camara-vehicle-blackbox-dvr-full-hd-1080",
+    "name": "Cámara Vehicle Blackbox DVR Full HD 1080",
+    "category": "Tecnología",
+    "description": "Grabá tus viajes en alta definición, con sensor G, visión y grabación de video (GPS opcional).",
+    "price": 48500,
+    "images": [
+      "camara-vehicle-blackbox-dvr-full-hd-1080.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 23,
+    "createdAt": "2026-08-12T18:15:55.523Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pava-electrica-brilia-br-20a",
+    "slug": "pava-electrica-brilia-br-20a",
+    "name": "Pava Eléctrica Brilia BR-20A",
+    "category": "Bazar",
+    "description": "2 litros de capacidad, apagado automático y protección contra hervido en seco, en acero inoxidable.",
+    "price": 29500,
+    "images": [
+      "pava-electrica-brilia-br-20a.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 24,
+    "createdAt": "2026-08-12T18:15:55.642Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cargador-de-notebook-universal-milech",
+    "slug": "cargador-de-notebook-universal-milech",
+    "name": "Cargador de Notebook Universal MILECH",
+    "category": "Tecnología",
+    "description": "Con 9 conectores intercambiables, compatible con la mayoría de las notebooks (12V a 24V, 120W).",
+    "price": 26500,
+    "images": [
+      "cargador-de-notebook-universal-milech.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 25,
+    "createdAt": "2026-08-12T18:15:55.773Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "molinillo-de-cafe-inalambrico",
+    "slug": "molinillo-de-cafe-inalambrico",
+    "name": "Molinillo de Café Inalámbrico",
+    "category": "Bazar",
+    "description": "Molienda uniforme y tamaño de partícula ajustable, portátil y recargable.",
+    "price": 41500,
+    "images": [
+      "molinillo-de-cafe-inalambrico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 26,
+    "createdAt": "2026-08-12T18:15:55.916Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "massage-gun",
+    "slug": "massage-gun",
+    "name": "Massage Gun",
+    "category": "Tecnología",
+    "description": "Batería de larga duración y funcionamiento silencioso, ideal para relajar músculos después de entrenar.",
+    "price": 33000,
+    "images": [
+      "massage-gun.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 27,
+    "createdAt": "2026-08-12T18:15:56.029Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "compresor-de-aire-portatil-gadnic",
+    "slug": "compresor-de-aire-portatil-gadnic",
+    "name": "Compresor de Aire Portátil GADNIC",
+    "category": "Tecnología",
+    "description": "Con pantalla digital, varios modos de presión y batería recargable, ideal para auto, bici o pelota.",
+    "price": 52500,
+    "images": [
+      "compresor-de-aire-portatil-gadnic.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 28,
+    "createdAt": "2026-08-12T18:15:56.156Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "handy-heater",
+    "slug": "handy-heater",
+    "name": "Handy Heater",
+    "category": "Electrónica",
+    "description": "Se enchufa directo al tomacorriente, con termostato ajustable y timer de 12 hs (400W).",
+    "price": 34500,
+    "images": [
+      "handy-heater.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 29,
+    "createdAt": "2026-08-12T18:15:56.305Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "tv-box-mx9-4k",
+    "slug": "tv-box-mx9-4k",
+    "name": "TV Box MX9 4K",
+    "category": "Tecnología",
+    "description": "Convertí tu TV en Smart TV: YouTube, Netflix, Facebook y más, con memoria 3G y almacenamiento 16G.",
+    "price": 55000,
+    "images": [
+      "tv-box-mx9-4k.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 30,
+    "createdAt": "2026-08-12T18:15:56.416Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cafetera-moka-cuk-by-gadnic",
+    "slug": "cafetera-moka-cuk-by-gadnic",
+    "name": "Cafetera Moka CUK by Gadnic",
+    "category": "Bazar",
+    "description": "Para uso en cocina tradicional, con mango de madera y diseño clásico italiano.",
+    "price": 49500,
+    "images": [
+      "cafetera-moka-cuk-by-gadnic.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 31,
+    "createdAt": "2026-08-12T18:15:56.532Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "climb-lizard-r-c",
+    "slug": "climb-lizard-r-c",
+    "name": "Climb Lizard R/C",
+    "category": "Juguetería",
+    "description": "Trepa paredes y superficies con control remoto, luces LED y función de escalada real. Desde 4 años, de 1 a 2 jugadores.",
+    "price": 72500,
+    "images": [
+      "climb-lizard-r-c.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 32,
+    "createdAt": "2026-08-12T18:15:56.673Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "avion-speed-plane-zy-320",
+    "slug": "avion-speed-plane-zy-320",
+    "name": "Avión Speed Plane ZY-320",
+    "category": "Juguetería",
+    "description": "Fácil de volar, control 2.4Ghz, ideal para los primeros vuelos con acrobacias.",
+    "price": 72500,
+    "images": [
+      "avion-speed-plane-zy-320.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 33,
+    "createdAt": "2026-08-12T18:15:56.827Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cepillo-alisador-dinax-style",
+    "slug": "cepillo-alisador-dinax-style",
+    "name": "Cepillo Alisador Dinax Style",
+    "category": "Electrónica",
+    "description": "2 niveles de temperatura, calentado rápido e indicador luminoso, para todo tipo de cabello.",
+    "price": 18000,
+    "images": [
+      "cepillo-alisador-dinax-style.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 34,
+    "createdAt": "2026-08-12T18:15:56.970Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-de-poker-chips-profesional",
+    "slug": "set-de-poker-chips-profesional",
+    "name": "Set de Poker Chips Profesional",
+    "category": "Juguetería",
+    "description": "100 fichas profesionales, 2 mazos de cartas y botón dealer, calidad premium. Desde 10 años.",
+    "price": 28500,
+    "images": [
+      "set-de-poker-chips-profesional.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 35,
+    "createdAt": "2026-08-12T18:15:57.111Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "m416-shooting-elite",
+    "slug": "m416-shooting-elite",
+    "name": "M416 Shooting Elite",
+    "category": "Juguetería",
+    "description": "2 en 1: dispara dardos de goma o bolitas de gel, fácil de usar y recargar. Desde 8 años.",
+    "price": 42500,
+    "images": [
+      "m416-shooting-elite.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 36,
+    "createdAt": "2026-08-12T18:15:57.277Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "auto-360-stunt-rotation",
+    "slug": "auto-360-stunt-rotation",
+    "name": "Auto 360° Stunt Rotation",
+    "category": "Juguetería",
+    "description": "Con giros 360°, luces LED y música. ¡Acrobacias sin límites! Desde 3 años.",
+    "price": 42000,
+    "images": [
+      "auto-360-stunt-rotation.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 37,
+    "createdAt": "2026-08-12T18:15:57.440Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "velero-sailboat-a-bateria",
+    "slug": "velero-sailboat-a-bateria",
+    "name": "Velero Sailboat a Batería",
+    "category": "Juguetería",
+    "description": "Navega en agua de verdad, ideal para la pileta, el río o la bañera. Desde 3 años.",
+    "price": 24500,
+    "images": [
+      "velero-sailboat-a-bateria.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 38,
+    "createdAt": "2026-08-12T18:15:57.609Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "perrito-peludo",
+    "slug": "perrito-peludo",
+    "name": "Perrito Peludo",
+    "category": "Juguetería",
+    "description": "Viene con luces y su pelaje suave tipo fibra óptica en colores llamativos, ideal para calmar la ansiedad.",
+    "price": 21000,
+    "images": [
+      "perrito-peludo.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 39,
+    "createdAt": "2026-08-12T18:15:57.747Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "muneca-carinito-mi-gordito-campeon-mundial",
+    "slug": "muneca-carinito-mi-gordito-campeon-mundial",
+    "name": "Muñeca Cariñito Mi Gordito Campeón Mundial",
+    "category": "Juguetería",
+    "description": "Vestido con la camiseta de la selección y su pelota, ideal para los más fanáticos del fútbol.",
+    "price": 41000,
+    "images": [
+      "muneca-carinito-mi-gordito-campeon-mundial.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 40,
+    "createdAt": "2026-08-12T18:15:57.900Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "osito-squeeze-me",
+    "slug": "osito-squeeze-me",
+    "name": "Osito Squeeze Me",
+    "category": "Juguetería",
+    "description": "Texturado, suave y anti-estrés, en colores flúo bien llamativos.",
+    "price": 13500,
+    "images": [
+      "osito-squeeze-me.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 41,
+    "createdAt": "2026-08-12T18:15:58.038Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "race-boat",
+    "slug": "race-boat",
+    "name": "Race Boat",
+    "category": "Juguetería",
+    "description": "Lanchita de carrera que navega de verdad, ideal para la pileta o para tu bañera.",
+    "price": 24200,
+    "images": [
+      "race-boat.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 42,
+    "createdAt": "2026-08-12T18:15:58.227Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "race-boat-speedboat-roja",
+    "slug": "race-boat-speedboat-roja",
+    "name": "Race Boat Speedboat Roja",
+    "category": "Juguetería",
+    "description": "Lanchita de carrera que navega de verdad, ideal para la pileta o la bañera. Desde 3 años.",
+    "price": 21000,
+    "images": [
+      "race-boat-speedboat-roja.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 43,
+    "createdAt": "2026-08-12T18:15:58.371Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "dinosaur-variant-car",
+    "slug": "dinosaur-variant-car",
+    "name": "Dinosaur Variant Car",
+    "category": "Juguetería",
+    "description": "Se transforma de dinosaurio a auto, con luces, sonido y música dinámica. Desde 3 años.",
+    "price": 37000,
+    "images": [
+      "dinosaur-variant-car.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 44,
+    "createdAt": "2026-08-12T18:15:58.510Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "plancha-de-rizado-seis-pp24-a",
+    "slug": "plancha-de-rizado-seis-pp24-a",
+    "name": "Plancha de Rizado SEIS PP24-A",
+    "category": "Electrónica",
+    "description": "Con 3 barrilletes, ondas definidas, calentamiento rápido y revestimiento cerámico (55W).",
+    "price": 39500,
+    "images": [
+      "plancha-de-rizado-seis-pp24-a.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 45,
+    "createdAt": "2026-08-12T18:15:58.632Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "aerobat-bubble-series",
+    "slug": "aerobat-bubble-series",
+    "name": "Aérobat Bubble Series",
+    "category": "Juguetería",
+    "description": "Vuela solo con sensor inteligente y larga burbujas mágicas mientras flota. ¡Diversión sin límites! Desde 8 años.",
+    "price": 24500,
+    "images": [
+      "aerobat-bubble-series.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 46,
+    "createdAt": "2026-08-12T18:15:58.763Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "linterna-lambo-tech",
+    "slug": "linterna-lambo-tech",
+    "name": "Linterna Lambo Tech",
+    "category": "Electrónica",
+    "description": "Compacta, resistente y con luz COB potente, ideal para tener siempre a mano.",
+    "price": 9500,
+    "images": [
+      "linterna-lambo-tech.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 47,
+    "createdAt": "2026-08-12T18:15:58.879Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "gesture-control-spiderman",
+    "slug": "gesture-control-spiderman",
+    "name": "Gesture Control Spiderman",
+    "category": "Juguetería",
+    "description": "Vuela por sensor de mano, luces LED y rotación 360°, sin control remoto. Desde 14 años.",
+    "price": 32600,
+    "images": [
+      "gesture-control-spiderman.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 48,
+    "createdAt": "2026-08-12T18:15:59.031Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "balanza-digital-de-cocina-con-recipiente",
+    "slug": "balanza-digital-de-cocina-con-recipiente",
+    "name": "Balanza Digital de Cocina con Recipiente",
+    "category": "Bazar",
+    "description": "Medí tus ingredientes con precisión y prepará recetas perfectas. Cuenta con pantalla LCD, función de tara, distintas unidades de medición y apagado automático.",
+    "price": 16500,
+    "images": [
+      "balanza-digital-de-cocina-con-recipiente.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 49,
+    "createdAt": "2026-08-12T18:15:59.169Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "balanza-digital-de-cocina-sf-400",
+    "slug": "balanza-digital-de-cocina-sf-400",
+    "name": "Balanza Digital de Cocina SF-400",
+    "category": "Bazar",
+    "description": "Pesá tus ingredientes con precisión y prepará cada receta sin errores. Soporta hasta 10 kg e incluye pantalla digital, función de tara y distintas unidades de medición.",
+    "price": 12500,
+    "images": [
+      "balanza-digital-de-cocina-sf-400.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 50,
+    "createdAt": "2026-08-12T18:15:59.301Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "tablero-de-mensajes-led-omg",
+    "slug": "tablero-de-mensajes-led-omg",
+    "name": "Tablero de Mensajes LED OMG",
+    "category": "Regalería",
+    "description": "Escribí mensajes, dibujá y dejá volar la creatividad con un increíble efecto luminoso. Incluye 7 marcadores de colores y paño para borrar. ¡Ideal para decorar cualquier habitación!",
+    "price": 32000,
+    "images": [
+      "tablero-de-mensajes-led-omg.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 51,
+    "createdAt": "2026-08-12T18:15:59.433Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "dispositivo-de-belleza-para-cuello-y-mandibula",
+    "slug": "dispositivo-de-belleza-para-cuello-y-mandibula",
+    "name": "Dispositivo de Belleza para Cuello y Mandíbula",
+    "category": "Tecnología",
+    "description": "Complementá tu rutina de cuidado con masaje EMS, luz LED roja y 5 niveles ajustables. Ideal para usar en el cuello, debajo de la barbilla y sobre la línea mandibular. Es recargable, liviano y portátil.",
+    "price": 29500,
+    "images": [
+      "dispositivo-de-belleza-para-cuello-y-mandibula.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 52,
+    "createdAt": "2026-08-12T18:15:59.580Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pizarra-lcd-gigante-de-16-pulgadas",
+    "slug": "pizarra-lcd-gigante-de-16-pulgadas",
+    "name": "Pizarra LCD Gigante de 16 pulgadas",
+    "category": "Librería",
+    "description": "Más espacio para dibujar, escribir, practicar y dejar volar la imaginación. Es reutilizable, incluye lápiz y se borra por completo presionando un solo botón.",
+    "price": 18500,
+    "images": [
+      "pizarra-lcd-gigante-de-16-pulgadas.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 53,
+    "createdAt": "2026-08-12T18:15:59.709Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pizarra-lcd-de-12-pulgadas",
+    "slug": "pizarra-lcd-de-12-pulgadas",
+    "name": "Pizarra LCD de 12 pulgadas",
+    "category": "Librería",
+    "description": "Dibujá, escribí y practicá todas las veces que quieras. Es liviana, reutilizable y se borra con solo presionar un botón. ¡Diversión sin gastar papel!",
+    "price": 15500,
+    "images": [
+      "pizarra-lcd-de-12-pulgadas.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 54,
+    "createdAt": "2026-08-12T18:15:59.844Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "lampara-led-multifuncion-de-escritorio",
+    "slug": "lampara-led-multifuncion-de-escritorio",
+    "name": "Lámpara LED Multifunción de Escritorio",
+    "category": "Librería",
+    "description": "Iluminá tus horas de estudio o trabajo con intensidad regulable y control táctil. Su diseño plegable incorpora portalápices y luz LED cómoda para la vista.",
+    "price": 22500,
+    "images": [
+      "lampara-led-multifuncion-de-escritorio.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 55,
+    "createdAt": "2026-08-12T18:15:59.956Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-barbie-un-mundo-de-diversion",
+    "slug": "set-barbie-un-mundo-de-diversion",
+    "name": "Set Barbie ¡Un Mundo de Diversión!",
+    "category": "Juguetería",
+    "description": "Muñeca articulada, mascotas, carrito y un montón de accesorios: todo en un solo set. Desde 3 años.",
+    "price": 41600,
+    "images": [
+      "set-barbie-un-mundo-de-diversion.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 56,
+    "createdAt": "2026-08-12T18:16:00.104Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "camion-volcador-listo-para-explorar",
+    "slug": "camion-volcador-listo-para-explorar",
+    "name": "Camión Volcador ¡Listo para Explorar!",
+    "category": "Juguetería",
+    "description": "Cargá, excavá y transportá sin parar: incluye pala y rastrillo, ideal para arena y patio.",
+    "price": 19000,
+    "images": [
+      "camion-volcador-listo-para-explorar.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 57,
+    "createdAt": "2026-08-12T18:16:00.255Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "camioneta-todoterreno",
+    "slug": "camioneta-todoterreno",
+    "name": "Camioneta Todoterreno",
+    "category": "Juguetería",
+    "description": "Con ruedas grandes y diseño aventurero, está lista para imaginar recorridos llenos de acción. ¡Ideal para los chicos que aman los autos y las aventuras!",
+    "price": 3500,
+    "images": [
+      "camioneta-todoterreno.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 58,
+    "createdAt": "2026-08-12T18:16:00.390Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "camioncito-pequenos-pero-listos-para-jugar",
+    "slug": "camioncito-pequenos-pero-listos-para-jugar",
+    "name": "Camioncito ¡Pequeños, pero Listos para Jugar!",
+    "category": "Juguetería",
+    "description": "Súper resistente, ruedas grandes y tamaño ideal para manitos chiquitas.",
+    "price": 1500,
+    "images": [
+      "camioncito-pequenos-pero-listos-para-jugar.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 59,
+    "createdAt": "2026-08-12T18:16:00.534Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "autito-listo-para-la-accion",
+    "slug": "autito-listo-para-la-accion",
+    "name": "Autito ¡Listo para la Acción!",
+    "category": "Juguetería",
+    "description": "Plástico resistente, ruedas anchas y carita divertida: ideal para los más peques.",
+    "price": 3500,
+    "images": [
+      "autito-listo-para-la-accion.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 60,
+    "createdAt": "2026-08-12T18:16:00.682Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "avioncito-planeador",
+    "slug": "avioncito-planeador",
+    "name": "Avioncito Planeador",
+    "category": "Juguetería",
+    "description": "Armalo, lanzalo y mirá cómo surca el aire. Un juguete clásico, divertido y perfecto para jugar al aire libre.",
+    "price": 1350,
+    "images": [
+      "avioncito-planeador.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 61,
+    "createdAt": "2026-08-12T18:16:00.833Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pollito-a-cuerda",
+    "slug": "pollito-a-cuerda",
+    "name": "Pollito a Cuerda",
+    "category": "Juguetería",
+    "description": "Girá la perilla y ¡mirá cómo camina solo! Suave al tacto, súper liviano y diversión sin parar.",
+    "price": 2500,
+    "images": [
+      "pollito-a-cuerda.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 62,
+    "createdAt": "2026-08-12T18:16:00.974Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-de-construccion-magnetico-de-42-piezas",
+    "slug": "set-de-construccion-magnetico-de-42-piezas",
+    "name": "Set de Construcción Magnético de 42 Piezas",
+    "category": "Juguetería",
+    "description": "Creá figuras en 2D y 3D mientras desarrollás la imaginación, la coordinación y la creatividad. Sus piezas coloridas se conectan fácilmente para construir todo lo que imagines.",
+    "price": 36500,
+    "images": [
+      "set-de-construccion-magnetico-de-42-piezas.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 63,
+    "createdAt": "2026-08-12T18:16:01.134Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "juego-de-dados",
+    "slug": "juego-de-dados",
+    "name": "Juego de Dados",
+    "category": "Juguetería",
+    "description": "Agitá el vaso, lanzá los dados y disfrutá una partida diferente en cada tirada. Compacto, fácil de jugar e ideal para compartir con familiares y amigos.",
+    "price": 7500,
+    "images": [
+      "juego-de-dados.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 64,
+    "createdAt": "2026-08-12T18:16:01.295Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "tic-tac-toe-games-console",
+    "slug": "tic-tac-toe-games-console",
+    "name": "Tic-Tac-Toe Games Console",
+    "category": "Juguetería",
+    "description": "9 modos de dificultad, pantalla LCD con puntaje y sonidos. ¡El clásico ahora en tu mano! Desde 3 años.",
+    "price": 19500,
+    "images": [
+      "tic-tac-toe-games-console.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 65,
+    "createdAt": "2026-08-12T18:16:01.439Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "bebe-llorona-dressy-daisy",
+    "slug": "bebe-llorona-dressy-daisy",
+    "name": "Bebé Llorona Dressy Daisy",
+    "category": "Juguetería",
+    "description": "¡Llora lágrimas de verdad! Calmala con su biberón mágico, ponele el chupete y escuchá sus sonidos reales. Desde 3 años.",
+    "price": 70000,
+    "images": [
+      "bebe-llorona-dressy-daisy.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 66,
+    "createdAt": "2026-08-12T18:16:01.585Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "ball-grabber",
+    "slug": "ball-grabber",
+    "name": "Ball Grabber",
+    "category": "Juguetería",
+    "description": "¡Atrapá las pelotas con la pinza y ganá! Luces, sonidos y toda la diversión de la máquina de arcade en tu casa. Desde 3 años.",
+    "price": 66000,
+    "images": [
+      "ball-grabber.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 67,
+    "createdAt": "2026-08-12T18:16:01.752Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "my-baby-bag-set",
+    "slug": "my-baby-bag-set",
+    "name": "My Baby Bag Set",
+    "category": "Juguetería",
+    "description": "Todo lo que tu bebé necesita para cuidar, alimentar y jugar: incluye bebé realista, mamadera, bolsito portabebé y juguetito. Desde 12 meses.",
+    "price": 39600,
+    "images": [
+      "my-baby-bag-set.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 68,
+    "createdAt": "2026-08-12T18:16:01.886Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "baby-maymay",
+    "slug": "baby-maymay",
+    "name": "Baby MayMay",
+    "category": "Juguetería",
+    "description": "¡Tan tierna, suave y abrazable! Viene con chupete, mamadera y su bolsito transparente para llevarla a todos lados. Desde 3 años.",
+    "price": 26500,
+    "images": [
+      "baby-maymay.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 69,
+    "createdAt": "2026-08-12T18:16:02.044Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "goma-de-borrar-botellita-de-gaseosa",
+    "slug": "goma-de-borrar-botellita-de-gaseosa",
+    "name": "Goma de Borrar Botellita de Gaseosa",
+    "category": "Librería",
+    "description": "¡Borra todo lo que te hace infeliz! Suave, sin marcas y súper divertida: ¡coleccionalas todas! Desde 3 años.",
+    "price": 3500,
+    "images": [
+      "goma-de-borrar-botellita-de-gaseosa.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 70,
+    "createdAt": "2026-08-12T18:16:02.209Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "slime-kapibala",
+    "slug": "slime-kapibala",
+    "name": "Slime Kapibala",
+    "category": "Juguetería",
+    "description": "¡Amasá, modelá y soplá burbujas! Súper suave, no mancha las manos y viene con accesorios de capibara para decorar.",
+    "price": 5800,
+    "images": [
+      "slime-kapibala.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 71,
+    "createdAt": "2026-08-12T18:16:02.354Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "caja-registradora-multifuncional",
+    "slug": "caja-registradora-multifuncional",
+    "name": "Caja Registradora Multifuncional",
+    "category": "Juguetería",
+    "description": "¡La más completa! Calculadora que funciona de verdad, micrófono, sonidos reales, lector de tarjeta y accesorios de compras incluidos. Desde 3 años.",
+    "price": 38200,
+    "images": [
+      "caja-registradora-multifuncional.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 72,
+    "createdAt": "2026-08-12T18:16:02.499Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "gorra-capybara",
+    "slug": "gorra-capybara",
+    "name": "Gorra Capybara",
+    "category": "Regalería",
+    "description": "¡Lindas, cómodas y divertidas! Talle único con broche regulable, en azul, blanca y café: elegí la tuya.",
+    "price": 4000,
+    "images": [
+      "gorra-capybara.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 73,
+    "createdAt": "2026-08-12T18:16:02.643Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-barbie-vogue-girl",
+    "slug": "set-barbie-vogue-girl",
+    "name": "Set Barbie Vogue Girl",
+    "category": "Juguetería",
+    "description": "¡Creá peinados increíbles! Incluye muñeca, tocador con espejo, secador, plancha, cepillo, peine, tijeras y accesorios para el pelo. Desde 3 años.",
+    "price": 25500,
+    "images": [
+      "set-barbie-vogue-girl.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 74,
+    "createdAt": "2026-08-12T18:16:02.790Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "mi-bomboncito",
+    "slug": "mi-bomboncito",
+    "name": "Mi Bomboncito",
+    "category": "Juguetería",
+    "description": "¡Presioná su barriguita y escuchá sus dulces sonidos de bebé! Carita tierna y realista, cuerpito blandito ideal para abrazar. Desde 3 años.",
+    "price": 35000,
+    "images": [
+      "mi-bomboncito.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 75,
+    "createdAt": "2026-08-12T18:16:02.953Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "estrella-repetidora",
+    "slug": "estrella-repetidora",
+    "name": "Estrella Repetidora",
+    "category": "Juguetería",
+    "description": "¡Cuidado! Repite TODO lo que decís y se mueve como renegando: risas aseguradas en casa. Funciona con pilas.",
+    "price": 9500,
+    "images": [
+      "estrella-repetidora.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 76,
+    "createdAt": "2026-08-12T18:16:03.101Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "game-stick-lite-de-gamiko",
+    "slug": "game-stick-lite-de-gamiko",
+    "name": "Game Stick Lite de Gamiko",
+    "category": "Tecnología",
+    "description": "Se conecta directo al TV, incluye más de 1000 juegos clásicos y 2 controles inalámbricos.",
+    "price": 65500,
+    "images": [
+      "game-stick-lite-de-gamiko.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 77,
+    "createdAt": "2026-08-12T18:16:03.236Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "rompecabezas-3d-new-swan-stone-castle",
+    "slug": "rompecabezas-3d-new-swan-stone-castle",
+    "name": "Rompecabezas 3D New Swan Stone Castle",
+    "category": "Juguetería",
+    "description": "Arquitectura mundialmente famosa, sin herramientas ni pegamento, fácil de armar. Desde 3 años.",
+    "price": 28000,
+    "images": [
+      "rompecabezas-3d-new-swan-stone-castle.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 78,
+    "createdAt": "2026-08-12T18:16:03.394Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "muneca-hada-voladora",
+    "slug": "muneca-hada-voladora",
+    "name": "Muñeca Hada Voladora",
+    "category": "Juguetería",
+    "description": "¡La magia cobra vida! Mirala elevarse, girar y volar mientras sus alas iluminan cada momento de juego. Un regalo emocionante que sorprenderá a las más pequeñas.",
+    "price": 18500,
+    "images": [
+      "muneca-hada-voladora.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 79,
+    "createdAt": "2026-08-12T18:16:03.532Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "masajeador-corporal-de-9-bolas",
+    "slug": "masajeador-corporal-de-9-bolas",
+    "name": "Masajeador Corporal de 9 Bolas",
+    "category": "Tecnología",
+    "description": "Alivia tensiones en cuello, espalda, piernas y glúteos con masaje 360°, liviano y portátil.",
+    "price": 14500,
+    "images": [
+      "masajeador-corporal-de-9-bolas.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 80,
+    "createdAt": "2026-08-12T18:16:03.680Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "fetal-doppler-jsl-t501",
+    "slug": "fetal-doppler-jsl-t501",
+    "name": "Fetal Doppler JSL-T501",
+    "category": "Tecnología",
+    "description": "Sonido nítido, pantalla digital y sonda de alta sensibilidad, para escuchar el latido de tu bebé desde casa.",
+    "price": 26000,
+    "images": [
+      "fetal-doppler-jsl-t501.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 81,
+    "createdAt": "2026-08-12T18:16:03.820Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cesto-de-basura-inteligente",
+    "slug": "cesto-de-basura-inteligente",
+    "name": "Cesto de Basura Inteligente",
+    "category": "Bazar",
+    "description": "Apertura automática sin contacto, sensor inteligente y recargable por USB (15 litros).",
+    "price": 55500,
+    "images": [
+      "cesto-de-basura-inteligente.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 82,
+    "createdAt": "2026-08-12T18:16:03.941Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cesto-de-basura-con-sensor-om-tienda",
+    "slug": "cesto-de-basura-con-sensor-om-tienda",
+    "name": "Cesto de Basura con Sensor OM Tienda",
+    "category": "Bazar",
+    "description": "Apertura automática sin contacto, recargable por USB y resistente a salpicaduras (15L).",
+    "price": 55500,
+    "images": [
+      "cesto-de-basura-con-sensor-om-tienda.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 83,
+    "createdAt": "2026-08-12T18:16:04.053Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "race-boat-rubber-dinghy-amarillo",
+    "slug": "race-boat-rubber-dinghy-amarillo",
+    "name": "Race Boat Rubber Dinghy Amarillo",
+    "category": "Juguetería",
+    "description": "Lanchita tipo bote inflable que navega de verdad, ideal para pileta o bañera. Desde 3 años.",
+    "price": 21500,
+    "images": [
+      "race-boat-rubber-dinghy-amarillo.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 84,
+    "createdAt": "2026-08-12T18:16:04.203Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-space-station-toy-series",
+    "slug": "set-space-station-toy-series",
+    "name": "Set Space Station Toy Series",
+    "category": "Juguetería",
+    "description": "Incluye astronauta, cohete, rover lunar y accesorios, ideal para recrear misiones espaciales.",
+    "price": 44500,
+    "images": [
+      "set-space-station-toy-series.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "",
+    "sub": null,
+    "order": 85,
+    "createdAt": "2026-08-12T18:16:04.392Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "robot-proyector-de-galaxia",
+    "slug": "robot-proyector-de-galaxia",
+    "name": "Robot Proyector de Galaxia",
+    "category": "Regalería",
+    "description": "Convertí tu habitación en el espacio: estrellas, nebulosas y luz suave para dormir o para armar el ambiente.",
+    "price": 45000,
+    "images": [
+      "robot-proyector-de-galaxia.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "robot galaxia estrellas nebulosa luz nocturna velador proyector",
+    "sub": null,
+    "order": 86,
+    "createdAt": "2026-08-12T18:16:04.516Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "camara-black-box-super-hd-1296p",
+    "slug": "camara-black-box-super-hd-1296p",
+    "name": "Cámara Black Box Super HD 1296P",
+    "category": "Tecnología",
+    "description": "Graba, protege y conducí seguro: ángulo de 170°, grabación en loop, G-sensor y monitoreo de estacionamiento.",
+    "price": 60000,
+    "images": [
+      "camara-black-box-super-hd-1296p.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "blackbox dvr vehicle camara para el auto g sensor grabadora de viaje",
+    "sub": null,
+    "order": 87,
+    "createdAt": "2026-08-12T18:16:04.658Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "sets-baby-dreamy",
+    "slug": "sets-baby-dreamy",
+    "name": "Sets Baby Dreamy",
+    "category": "Juguetería",
+    "description": "Conejitos con su mundo en miniatura: tocador, bañera, motito, carrito de golosinas y gimnasio de bebé. ¡Elegí el tuyo y coleccionalos!",
+    "price": 26000,
+    "images": [
+      "sets-baby-dreamy.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "conejito muneca coleccionable casa de munecas juego simbolico miniatura",
+    "sub": null,
+    "order": 88,
+    "createdAt": "2026-08-12T18:16:04.792Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "ukelele-performer",
+    "slug": "ukelele-performer",
+    "name": "Ukelele Performer",
+    "category": "Juguetería",
+    "description": "Cuatro cuerdas afinables y un diseño precioso: el primer instrumento ideal para que arranquen a hacer música. Desde 3 años.",
+    "price": 19500,
+    "images": [
+      "ukelele-performer.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "ukelele guitarra instrumento musical musica juguete musical",
+    "sub": null,
+    "order": 89,
+    "createdAt": "2026-08-12T18:16:04.925Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pizarra-magnetica-de-madera",
+    "slug": "pizarra-magnetica-de-madera",
+    "name": "Pizarra Magnética de Madera",
+    "category": "Librería",
+    "description": "¡Aprendé jugando! Letras, números y símbolos imantados, tangram de colores, marcador y borrador: todo en una.",
+    "price": 19600,
+    "images": [
+      "pizarra-magnetica-de-madera.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "magnetico abecedario letras numeros tangram aprender didactico",
+    "sub": null,
+    "order": 90,
+    "createdAt": "2026-08-12T18:16:05.056Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "lanzador-dino-shooting",
+    "slug": "lanzador-dino-shooting",
+    "name": "Lanzador Dino Shooting",
+    "category": "Juguetería",
+    "description": "¡Apuntá, dispará y sumá puntos! Dispara pelotitas de goma blanditas: perfecto para desafiar a tus amigos. Desde 3 años.",
+    "price": 31200,
+    "images": [
+      "lanzador-dino-shooting.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "lanzador dino dinosaurio punteria pelotitas juego de accion",
+    "sub": null,
+    "order": 91,
+    "createdAt": "2026-08-12T18:16:05.187Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "dinosaur-jurassic-stegosaurus",
+    "slug": "dinosaur-jurassic-stegosaurus",
+    "name": "Dinosaur Jurassic Stegosaurus",
+    "category": "Juguetería",
+    "description": "75 piezas encastrables para armar tu propio dino… ¡y después desarmarlo y crear lo que quieras! Desde 3 años.",
+    "price": 36800,
+    "images": [
+      "dinosaur-jurassic-stegosaurus.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "encastre construccion bloques didactico dinosaurio armado",
+    "sub": null,
+    "order": 92,
+    "createdAt": "2026-08-12T18:16:05.336Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "cocodrilo-bailarin",
+    "slug": "cocodrilo-bailarin",
+    "name": "Cocodrilo Bailarín",
+    "category": "Juguetería",
+    "description": "¡Camina, baila y canta! Con música y luces de colores en sus patitas: pura fiesta en el living. Desde 3 años.",
+    "price": 41900,
+    "images": [
+      "cocodrilo-bailarin.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "cocodrilo animal luces sonido juguete musical",
+    "sub": null,
+    "order": 93,
+    "createdAt": "2026-08-12T18:16:05.478Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "sword-flying-drone",
+    "slug": "sword-flying-drone",
+    "name": "Sword-Flying Drone",
+    "category": "Juguetería",
+    "description": "Diseño de nave futurista y control remoto de precisión: despegá y hacé del cielo tu cancha. Desde 14 años.",
+    "price": 57000,
+    "images": [
+      "sword-flying-drone.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "drone dron control remoto volador nave",
+    "sub": null,
+    "order": 94,
+    "createdAt": "2026-08-12T18:16:05.612Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "puzzle-ball",
+    "slug": "puzzle-ball",
+    "name": "Puzzle Ball",
+    "category": "Juguetería",
+    "description": "¡Entrená tu cerebro! Girá y ordená las bolitas por color: un desafío que engancha a chicos y grandes. Desde 3 años.",
+    "price": 5800,
+    "images": [
+      "puzzle-ball.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "puzzle pelota ingenio destreza antiestres didactico",
+    "sub": null,
+    "order": 95,
+    "createdAt": "2026-08-12T18:16:05.753Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "avion-air-conflicts",
+    "slug": "avion-air-conflicts",
+    "name": "Avión Air Conflicts",
+    "category": "Juguetería",
+    "description": "¡Lanzalo y mirá cómo planea! Liviano y resistente: pura diversión en la plaza o el patio. Desde 3 años.",
+    "price": 16500,
+    "images": [
+      "avion-air-conflicts.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "avion planeador avioncito jet volador",
+    "sub": null,
+    "order": 96,
+    "createdAt": "2026-08-12T18:16:05.908Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "proyector-de-estrellas-onica",
+    "slug": "proyector-de-estrellas-onica",
+    "name": "Proyector de Estrellas ONICA",
+    "category": "Regalería",
+    "description": "Transformá el techo en un cielo estrellado: rotación 360°, luz nocturna suave y conexión USB. ¡Ideal para dormir!",
+    "price": 12500,
+    "images": [
+      "proyector-de-estrellas-onica.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "proyector luz nocturna velador estrellas cielo habitacion",
+    "sub": null,
+    "order": 97,
+    "createdAt": "2026-08-12T18:16:06.032Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "reloj-despertador-con-proyector",
+    "slug": "reloj-despertador-con-proyector",
+    "name": "Reloj Despertador con Proyector",
+    "category": "Electrónica",
+    "description": "Hora, calendario, temperatura y humedad en pantalla a color, ¡y proyecta la hora en la pared! Alarma con snooze y alimentación USB.",
+    "price": 18000,
+    "images": [
+      "reloj-despertador-con-proyector.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "reloj despertador alarma termometro humedad estacion meteorologica escritorio",
+    "sub": null,
+    "order": 98,
+    "createdAt": "2026-08-12T18:16:06.150Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "luz-moon-light",
+    "slug": "luz-moon-light",
+    "name": "Luz Moon Light",
+    "category": "Regalería",
+    "description": "Luz suave para noches tranquilas: LED cálido, tacto suavecito y material no tóxico. La compañera perfecta para dormir.",
+    "price": 7500,
+    "images": [
+      "luz-moon-light.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "luna velador luz nocturna silicona lampara regalo",
+    "sub": null,
+    "order": 99,
+    "createdAt": "2026-08-12T18:16:06.261Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "muneca-angel-beauty",
+    "slug": "muneca-angel-beauty",
+    "name": "Muñeca Angel Beauty",
+    "category": "Juguetería",
+    "description": "Con su vestido de gala rosa y dorado, lista para brillar en cualquier historia. Desde 3 años.",
+    "price": 5200,
+    "images": [
+      "muneca-angel-beauty.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "muneca princesa vestido de gala munequita",
+    "sub": null,
+    "order": 100,
+    "createdAt": "2026-08-12T18:16:06.396Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "muneca-barbie-clasica",
+    "slug": "muneca-barbie-clasica",
+    "name": "Muñeca Barbie Clásica",
+    "category": "Juguetería",
+    "description": "Con su vestido floral y todo el estilo de siempre: la muñeca que nunca pasa de moda. Desde 3 años.",
+    "price": 9500,
+    "images": [
+      "muneca-barbie-clasica.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "barbie muneca munequita moda",
+    "sub": null,
+    "order": 101,
+    "createdAt": "2026-08-12T18:16:06.532Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "classic-train",
+    "slug": "classic-train",
+    "name": "Classic Train",
+    "category": "Juguetería",
+    "description": "Con luces y movilidad a través de las vías, set completo de 23 piezas con vías y accesorios. Desde 3 años.",
+    "price": 37000,
+    "images": [
+      "classic-train.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "tren locomotora vias vagones ferrocarril luces y sonido",
+    "sub": null,
+    "order": 102,
+    "createdAt": "2026-08-12T18:16:06.708Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "tanque-a-control-remoto-dong-yang-toys",
+    "slug": "tanque-a-control-remoto-dong-yang-toys",
+    "name": "Tanque a Control Remoto Dong Yang Toys",
+    "category": "Juguetería",
+    "description": "Control 4 canales, luces, sonido y torreta giratoria, simulación realista.",
+    "price": 49500,
+    "images": [
+      "tanque-a-control-remoto-dong-yang-toys.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "tanque militar control remoto radiocontrol rc",
+    "sub": null,
+    "order": 103,
+    "createdAt": "2026-08-12T18:16:06.850Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "soplador-jet-inalambrico",
+    "slug": "soplador-jet-inalambrico",
+    "name": "Soplador Jet Inalámbrico",
+    "category": "Tecnología",
+    "description": "Limpieza potente en cualquier lugar: teclados, CPU, cámaras, interior del auto y rincones difíciles. Batería recargable de larga duración.",
+    "price": 59500,
+    "images": [
+      "soplador-jet-inalambrico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "soplador aire comprimido limpieza pc teclado auto inalambrico recargable",
+    "sub": null,
+    "order": 104,
+    "createdAt": "2026-08-12T18:16:06.994Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "mesa-porta-notebook-oryx",
+    "slug": "mesa-porta-notebook-oryx",
+    "name": "Mesa Porta Notebook Oryx",
+    "category": "Bazar",
+    "description": "Trabajá, estudiá o mirá series desde la cama o el sillón: bandeja ergonómica de 60x40 cm, plegable y súper cómoda.",
+    "price": 28500,
+    "images": [
+      "mesa-porta-notebook-oryx.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "mesa plegable notebook laptop cama escritorio bandeja hogar",
+    "sub": null,
+    "order": 105,
+    "createdAt": "2026-08-12T18:16:07.144Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "manguera-magica-extensible-15-m",
+    "slug": "manguera-magica-extensible-15-m",
+    "name": "Manguera Mágica Extensible 15 m",
+    "category": "Bazar",
+    "description": "Se estira hasta 3 veces su tamaño con la presión del agua y vuelve sola a su medida: 15 metros que se guardan en nada.",
+    "price": 17800,
+    "images": [
+      "manguera-magica-extensible-15-m.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "manguera jardin riego patio extensible hogar",
+    "sub": null,
+    "order": 106,
+    "createdAt": "2026-08-12T18:16:07.330Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pizarra-luminosa-acrilica-para-locales",
+    "slug": "pizarra-luminosa-acrilica-para-locales",
+    "name": "Pizarra Luminosa Acrílica para Locales",
+    "category": "Regalería",
+    "description": "Tu cartel personalizado con efecto neón: ideal para bares, cafeterías, heladerías y locales. Incluye 7 marcadores, paño y cable USB.",
+    "price": 32000,
+    "images": [
+      "pizarra-luminosa-acrilica-para-locales.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "cartel neon luminoso led negocio bar marcadores decoracion pizarra acrilica",
+    "sub": null,
+    "order": 107,
+    "createdAt": "2026-08-12T18:16:07.457Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "combo-gamer-kt288-teclado-mouse-rgb",
+    "slug": "combo-gamer-kt288-teclado-mouse-rgb",
+    "name": "Combo Gamer KT288 Teclado + Mouse RGB",
+    "category": "Tecnología",
+    "description": "Teclado + mouse con luces RGB: iluminá tu setup y jugá con estilo. Diseño ergonómico y conexión USB.",
+    "price": 28500,
+    "images": [
+      "combo-gamer-kt288-teclado-mouse-rgb.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "teclado mouse gamer rgb gaming pc computadora setup",
+    "sub": null,
+    "order": 108,
+    "createdAt": "2026-08-12T18:16:07.609Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "teclado-usb-noga",
+    "slug": "teclado-usb-noga",
+    "name": "Teclado USB Noga",
+    "category": "Tecnología",
+    "description": "104 teclas, conexión USB directa y en español con Ñ: lo enchufás y funciona, sin pilas ni configuraciones.",
+    "price": 18500,
+    "images": [
+      "teclado-usb-noga.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "teclado usb computadora pc espanol oficina",
+    "sub": null,
+    "order": 109,
+    "createdAt": "2026-08-12T18:16:07.755Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "teclado-inalambrico-bluetooth",
+    "slug": "teclado-inalambrico-bluetooth",
+    "name": "Teclado Inalámbrico Bluetooth",
+    "category": "Tecnología",
+    "description": "Recargable y sin cables: hasta 150 hs de uso continuo. Diseño finito, teclas silenciosas y color verde menta.",
+    "price": 24500,
+    "images": [
+      "teclado-inalambrico-bluetooth.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "teclado bluetooth inalambrico recargable tablet celular computadora",
+    "sub": null,
+    "order": 110,
+    "createdAt": "2026-08-12T18:16:07.891Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "smartwatch",
+    "slug": "smartwatch",
+    "name": "Smartwatch",
+    "category": "Tecnología",
+    "description": "Tecnología para tu día a día en 4 colores: verde, azul oscuro, rosa y gris. Pantalla a color, malla de silicona y carga magnética por USB.",
+    "price": 14500,
+    "images": [
+      "smartwatch.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "smartwatch reloj inteligente pulsera celular regalo tecnologico",
+    "sub": null,
+    "order": 111,
+    "createdAt": "2026-08-12T18:16:08.021Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "organizador-de-calzado-melech",
+    "slug": "organizador-de-calzado-melech",
+    "name": "Organizador de Calzado MELECH",
+    "category": "Bazar",
+    "description": "4 estantes para tener todos tus pares a la vista y en su lugar: ideal para el placard, la entrada o el vestidor.",
+    "price": 26500,
+    "images": [
+      "organizador-de-calzado-melech.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "zapatero organizador calzado zapatillas placard orden hogar",
+    "sub": null,
+    "order": 112,
+    "createdAt": "2026-08-12T18:16:08.151Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "blocky-chicas-veterinaria",
+    "slug": "blocky-chicas-veterinaria",
+    "name": "Blocky Chicas Veterinaria",
+    "category": "Juguetería",
+    "description": "150 piezas para armar tu propia veterinaria: incluye figura, mascotas, camioneta y stickers para decorar. Desde 4 años.",
+    "price": 33000,
+    "images": [
+      "blocky-chicas-veterinaria.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "bloques construccion encastre veterinaria stickers didactico nena",
+    "sub": null,
+    "order": 113,
+    "createdAt": "2026-08-12T18:16:08.315Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-nails-art-marker",
+    "slug": "set-nails-art-marker",
+    "name": "Set Nails Art Marker",
+    "category": "Regalería",
+    "description": "12 colores con punta finita de 0,5 mm: dibujá tus propios diseños en las uñas, fácil y de secado rápido.",
+    "price": 18500,
+    "images": [
+      "set-nails-art-marker.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "unas manicura belleza marcadores nail art regalo para mujer",
+    "sub": null,
+    "order": 114,
+    "createdAt": "2026-08-12T18:16:08.533Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "presentador-inalambrico",
+    "slug": "presentador-inalambrico",
+    "name": "Presentador Inalámbrico",
+    "category": "Tecnología",
+    "description": "Pasá tus diapositivas a distancia y señalá con puntero láser: presentaciones sin quedar atado a la notebook.",
+    "price": 18000,
+    "images": [
+      "presentador-inalambrico.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "presentador puntero laser diapositivas oficina notebook usb",
+    "sub": null,
+    "order": 115,
+    "createdAt": "2026-08-12T18:16:08.639Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "lupa-de-cabeza-con-luz-led",
+    "slug": "lupa-de-cabeza-con-luz-led",
+    "name": "Lupa de Cabeza con Luz LED",
+    "category": "Electrónica",
+    "description": "5 lentes intercambiables (1.0X a 3.5X) y 2 luces LED: ¡trabajá con las dos manos libres! Ideal para electrónica, relojería y bijou.",
+    "price": 37500,
+    "images": [
+      "lupa-de-cabeza-con-luz-led.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "lupa aumento led relojeria electronica bijou manualidades",
+    "sub": null,
+    "order": 116,
+    "createdAt": "2026-08-12T18:16:08.776Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "reloj-con-auto-a-control-remoto",
+    "slug": "reloj-con-auto-a-control-remoto",
+    "name": "Reloj con Auto a Control Remoto",
+    "category": "Juguetería",
+    "description": "¡Abrí el reloj y sale el auto! Mini deportivo con luces que manejás desde tu muñeca. Desde 3 años.",
+    "price": 26500,
+    "images": [
+      "reloj-con-auto-a-control-remoto.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "auto control remoto reloj mini vehiculo rc luces",
+    "sub": null,
+    "order": 117,
+    "createdAt": "2026-08-12T18:16:08.899Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pava-electrica-dryx-2l",
+    "slug": "pava-electrica-dryx-2l",
+    "name": "Pava Eléctrica DRYX 2L",
+    "category": "Bazar",
+    "description": "Con corte automático a temperatura de mate: ni muy fría ni hervida, siempre en el punto justo. Acero inoxidable y 2 litros de capacidad.",
+    "price": 39000,
+    "images": [
+      "pava-electrica-dryx-2l.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "pava electrica mate cocina acero inoxidable hogar",
+    "sub": null,
+    "order": 118,
+    "createdAt": "2026-08-12T18:16:09.016Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "brick-toys-blanditos",
+    "slug": "brick-toys-blanditos",
+    "name": "Brick Toys Blanditos",
+    "category": "Juguetería",
+    "description": "¡Apretá, armá y jugá! Bloques encastrables con tacto tipo gelatina: súper suaves, seguros y de colores translúcidos.",
+    "price": 19000,
+    "images": [
+      "brick-toys-blanditos.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "bloques encastre construccion sensorial antiestres didactico",
+    "sub": null,
+    "order": 119,
+    "createdAt": "2026-08-12T18:16:09.168Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "pizarra-luminosa-acrilica-de-notas",
+    "slug": "pizarra-luminosa-acrilica-de-notas",
+    "name": "Pizarra Luminosa Acrílica de Notas",
+    "category": "Regalería",
+    "description": "Escribí tus notas, listas y recordatorios… ¡y que brillen! Incluye marcadores de colores, se borra fácil y la usás mil veces.",
+    "price": 32500,
+    "images": [
+      "pizarra-luminosa-acrilica-de-notas.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "pizarra acrilica luminosa led notas escritorio marcadores decoracion",
+    "sub": null,
+    "order": 120,
+    "createdAt": "2026-08-12T18:16:09.293Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "espejo-retrovisor-con-camara-full-hd",
+    "slug": "espejo-retrovisor-con-camara-full-hd",
+    "name": "Espejo Retrovisor con Cámara Full HD",
+    "category": "Tecnología",
+    "description": "Más visión, más seguridad: graba en 1080P con gran angular de 170°, visión nocturna y detección de impacto.",
+    "price": 48500,
+    "images": [
+      "espejo-retrovisor-con-camara-full-hd.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "camara para el auto dvr blackbox espejo retrovisor vehicle g sensor",
+    "sub": null,
+    "order": 121,
+    "createdAt": "2026-08-12T18:16:09.428Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "movil-musical-de-cuna",
+    "slug": "movil-musical-de-cuna",
+    "name": "Móvil Musical de Cuna",
+    "category": "Juguetería",
+    "description": "Melodías suaves y abejitas que giran para acompañar la siesta y estimular la vista del bebé. Se coloca fácil en la cuna.",
+    "price": 16400,
+    "images": [
+      "movil-musical-de-cuna.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "movil de cuna bebe musical melodia abejitas regalo baby shower",
+    "sub": null,
+    "order": 122,
+    "createdAt": "2026-08-12T18:16:09.573Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "set-tienda-de-donuts",
+    "slug": "set-tienda-de-donuts",
+    "name": "Set Tienda de Donuts",
+    "category": "Juguetería",
+    "description": "¡Creá tu propia donutería! Incluye muñeca, caja registradora, exhibidor con donuts y accesorios. Diversión sin límites. Desde 3 años.",
+    "price": 19500,
+    "images": [
+      "set-tienda-de-donuts.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "muneca caja registradora juego de rol tienda donuts accesorios",
+    "sub": null,
+    "order": 123,
+    "createdAt": "2026-08-12T18:16:09.731Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  },
+  {
+    "id": "extension-de-pelo-monster-high",
+    "slug": "extension-de-pelo-monster-high",
+    "name": "Extensión de Pelo Monster High",
+    "category": "Regalería",
+    "description": "¡Clip y listo! Mechón fucsia suave y brillante para un peinado único: transformá tu look en segundos. Desde 8 años.",
+    "price": 5000,
+    "images": [
+      "extension-de-pelo-monster-high.webp"
+    ],
+    "inStock": true,
+    "featured": false,
+    "tags": "extension de pelo mechas monster high peinado accesorio nena",
+    "sub": null,
+    "order": 124,
+    "createdAt": "2026-08-12T18:16:09.884Z",
+    "updatedAt": "2026-08-13T18:14:03.421Z"
+  }
+]

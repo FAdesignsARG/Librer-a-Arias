@@ -1,0 +1,140 @@
+/**
+ * Genera el sitio estático en dist/.
+ *
+ * Sale una carpeta que se sube tal cual a cualquier hosting (Netlify,
+ * Vercel, Hostinger, un VPS con nginx). No necesita Node en el servidor.
+ *
+ * El panel de administración NO se copia: vive sólo en la máquina local,
+ * así que lo publicado no tiene forma de escribir nada.
+ *
+ *   npm run build
+ */
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+import { renderHome, renderProduct } from '../src/templates.js';
+import { buildSitemap } from '../src/sitemap.js';
+import { getDb } from '../src/firebase-admin.js';
+import { loadEnv } from '../src/ai.js';
+
+const ROOT = path.resolve(import.meta.dirname, '..');
+const DIST = path.join(ROOT, 'dist');
+
+const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
+
+/* ---------- datos ----------
+   Firestore es la fuente de verdad — el panel escribe ahí directo desde
+   cualquier PC, así que el build siempre tiene que leer de ahí y no de
+   data/products.json (que quedó de la versión anterior, sin sincronizar). */
+
+await loadEnv(ROOT);
+const db = await getDb(ROOT);
+const [productsSnap, settingsDoc] = await Promise.all([
+  db.collection('products').get(),
+  db.collection('settings').doc('main').get(),
+]);
+const products = productsSnap.docs.map((d) => d.data());
+const settings = settingsDoc.data();
+
+const visible = products
+  .filter((p) => p.visible !== false)
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+const hidden = products.length - visible.length;
+
+const relatedTo = (product) =>
+  visible
+    .filter((p) => p.slug !== product.slug && p.category === product.category)
+    .sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price))
+    .slice(0, 4);
+
+/* ---------- limpiar dist ---------- */
+
+await fs.rm(DIST, { recursive: true, force: true });
+await fs.mkdir(DIST, { recursive: true });
+
+const write = async (rel, content) => {
+  const file = path.join(DIST, rel);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, content, 'utf8');
+  return Buffer.byteLength(content);
+};
+
+/* ---------- páginas ---------- */
+
+const homeBytes = await write('index.html', renderHome({ products: visible, settings }));
+console.log(`index.html                    ${kb(homeBytes)}`);
+
+let productBytes = 0;
+for (const product of visible) {
+  productBytes += await write(
+    path.join('p', product.slug, 'index.html'),
+    renderProduct({ product, related: relatedTo(product), settings })
+  );
+}
+console.log(`${String(visible.length).padStart(3)} landings de producto      ${kb(productBytes)}`);
+
+/* ---------- estáticos ----------
+   Sólo lo que el sitio público necesita. Nada de src/admin ni scripts. */
+
+await write('data/products.json', JSON.stringify(products));
+await write('data/settings.json', JSON.stringify(settings));
+
+const copies = [
+  ['assets', 'assets'],
+  ['src/styles.css', 'src/styles.css'],
+  ['src/styles-parts.css', 'src/styles-parts.css'],
+  ['src/theme.css', 'src/theme.css'],
+  ['src/assistant.css', 'src/assistant.css'],
+  ['src/notify.css', 'src/notify.css'],
+  ['src/app.js', 'src/app.js'],
+  ['src/ui.js', 'src/ui.js'],
+  ['src/theme.js', 'src/theme.js'],
+  // El asistente se publica: sin servidor detrás cae solo al buscador local.
+  ['src/assistant.js', 'src/assistant.js'],
+  ['src/search-engine.js', 'src/search-engine.js'],
+  // app.js importa cardHtml/money/offerActive de acá — sin esto la portada
+  // publicada quedaría con un import roto en el navegador.
+  ['src/templates.js', 'src/templates.js'],
+];
+
+for (const [from, to] of copies) {
+  const src = path.join(ROOT, from);
+  const dest = path.join(DIST, to);
+  await fs.mkdir(path.dirname(dest), { recursive: true });
+  await fs.cp(src, dest, { recursive: true });
+}
+console.log(`assets + css + js             copiados`);
+
+/* ---------- SEO ---------- */
+
+await write('sitemap.xml', buildSitemap(visible, settings));
+await write(
+  'robots.txt',
+  `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${settings.siteUrl}/sitemap.xml\n`
+);
+
+// Netlify: sin esto, /p/algo-que-no-existe/ devuelve el index en vez de un 404
+await write(
+  '_redirects',
+  `# Cualquier ruta desconocida cae en la portada con código 404 real\n/*  /index.html  404\n`
+);
+
+console.log('sitemap.xml, robots.txt       ok');
+
+/* ---------- resumen ---------- */
+
+async function dirSize(dir) {
+  let total = 0;
+  for (const e of await fs.readdir(dir, { withFileTypes: true })) {
+    const f = path.join(dir, e.name);
+    total += e.isDirectory() ? await dirSize(f) : (await fs.stat(f)).size;
+  }
+  return total;
+}
+
+const total = await dirSize(DIST);
+console.log(`\nListo — dist/ ${(total / 1024 / 1024).toFixed(1)} MB`);
+console.log(`  ${visible.length} productos publicados${hidden ? `, ${hidden} ocultos sin publicar` : ''}`);
+console.log(`  URL configurada: ${settings.siteUrl}`);
+console.log(`\n  Subí el contenido de dist/ al servidor.`);

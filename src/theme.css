@@ -1,0 +1,469 @@
+/* ==========================================================================
+   Librería Arias — splash de entrada, selector de tema y pop-up de bienvenida
+   ========================================================================== */
+
+/* ==========================================================================
+   SPLASH
+   Dos cortinas que se abren dejando ver la página, con el logo saliendo
+   de un pop. Usa los tokens del tema, así que en claro entra en blanco
+   y en oscuro en negro, sin tocar nada.
+   ========================================================================== */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+/* Mientras corre, el fondo del documento ya es el del tema: si el usuario
+   entra con la pestaña en segundo plano y las animaciones no arrancan,
+   igual ve la página y no una pantalla en blanco. */
+.splash[hidden] {
+  display: none;
+}
+
+/* Las dos mitades que forman la cortina */
+.splash__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* medio punto de solape: evita la línea de 1px al centro */
+  background: var(--ink);
+  will-change: transform;
+}
+.splash__panel--top {
+  top: 0;
+}
+.splash__panel--bottom {
+  bottom: 0;
+}
+
+.splash__logo {
+  position: relative;
+  z-index: 1;
+  width: clamp(92px, 18vw, 132px);
+  height: clamp(92px, 18vw, 132px);
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Barra que se dibuja bajo el logo: es el "wipe" que marca el tiempo */
+.splash__bar {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  width: clamp(92px, 18vw, 132px);
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.splash__stack {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+}
+
+/* ---- Coreografía ----
+   0.00-0.52  el logo entra con overshoot
+   0.34-0.78  la barra se dibuja de izquierda a derecha
+   0.86-1.00  el logo se va y las cortinas se abren
+*/
+.splash[data-run='true'] .splash__logo {
+  animation: splash-pop 0.52s var(--ease-pop) forwards, splash-out 0.34s var(--ease-soft) 0.86s forwards;
+}
+.splash[data-run='true'] .splash__bar {
+  animation: splash-wipe 0.44s var(--ease-out) 0.34s forwards;
+}
+.splash[data-run='true'] .splash__panel--top {
+  animation: curtain-up 0.62s var(--ease-out) 0.9s forwards;
+}
+.splash[data-run='true'] .splash__panel--bottom {
+  animation: curtain-down 0.62s var(--ease-out) 0.9s forwards;
+}
+
+@keyframes splash-pop {
+  0% { opacity: 0; transform: scale(0.55) translateY(10px); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes splash-wipe {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes splash-out {
+  to { opacity: 0; transform: scale(1.08); }
+}
+@keyframes curtain-up {
+  to { transform: translateY(-100%); }
+}
+@keyframes curtain-down {
+  to { transform: translateY(100%); }
+}
+
+/* El contenido sube apenas mientras se abren las cortinas */
+html[data-splash='running'] body > *:not(.splash) {
+  animation: content-rise 0.7s var(--ease-out) 0.9s backwards;
+}
+@keyframes content-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin movimiento: se muestra el logo un instante y listo */
+  .splash[data-run='true'] .splash__logo {
+    animation: none;
+    opacity: 1;
+  }
+  .splash[data-run='true'] .splash__bar,
+  .splash[data-run='true'] .splash__panel--top,
+  .splash[data-run='true'] .splash__panel--bottom {
+    animation: none;
+  }
+  html[data-splash='running'] body > *:not(.splash) {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   BOTÓN DE TEMA
+   ========================================================================== */
+.themebtn {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+}
+.themebtn:hover {
+  background: var(--fill);
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.themebtn:active {
+  transform: scale(0.92);
+}
+.themebtn svg {
+  width: 17px;
+  height: 17px;
+}
+/* Sol en claro, luna en oscuro: se muestra el que representa el estado actual */
+.themebtn .ico-sun {
+  display: none;
+}
+:root[data-theme='light'] .themebtn .ico-sun {
+  display: block;
+}
+:root[data-theme='light'] .themebtn .ico-moon {
+  display: none;
+}
+/* Giro corto al cambiar */
+.themebtn[data-spin='true'] svg {
+  animation: theme-spin 0.45s var(--ease-out);
+}
+@keyframes theme-spin {
+  from { transform: rotate(-90deg) scale(0.6); opacity: 0.3; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ==========================================================================
+   POP-UP DE BIENVENIDA
+   ========================================================================== */
+/* `margin: auto` es lo que centra un <dialog> modal, y el reset global
+   `*{margin:0}` se lo come. Hay que reponerlo explícitamente o el pop-up
+   queda pegado arriba a la izquierda. Va con position:fixed por el mismo
+   motivo que .sheet: no depender del top layer para ubicarse. */
+.welcome {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  color: var(--text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: var(--shadow-pop);
+}
+.welcome:not([open]) {
+  display: none;
+}
+.welcome::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+}
+.welcome[open] {
+  animation: welcome-in 0.4s var(--ease-out);
+}
+@keyframes welcome-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.welcome__head {
+  padding: 26px 26px 4px;
+  text-align: center;
+}
+.welcome__head img {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  object-fit: cover;
+}
+.welcome__head h2 {
+  font-size: 1.24rem;
+  font-weight: 660;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+.welcome__head p {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.welcome__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 22px 26px 6px;
+}
+@media (max-width: 420px) {
+  .welcome__options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.themecard {
+  padding: 12px;
+  border-radius: var(--r-lg);
+  border: 2px solid var(--line);
+  background: var(--surface-hi);
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+}
+.themecard:hover {
+  border-color: var(--line-strong);
+}
+.themecard:active {
+  transform: scale(0.98);
+}
+.themecard[aria-pressed='true'] {
+  border-color: var(--gold);
+}
+
+/* Maqueta en miniatura de la app. Los colores van fijos a propósito: tiene
+   que mostrar cómo se ve CADA tema, no el que está activo ahora. */
+.themecard__preview {
+  border-radius: var(--r-md);
+  padding: 9px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(128, 128, 128, 0.22);
+}
+.themecard__bar {
+  height: 7px;
+  border-radius: 3px;
+  margin-bottom: 7px;
+}
+.themecard__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+.themecard__cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+}
+.themecard__cell:first-child {
+  background: var(--gold) !important;
+}
+
+.themecard--dark .themecard__preview {
+  background: #08080a;
+}
+.themecard--dark .themecard__bar {
+  background: #2a2a30;
+}
+.themecard--dark .themecard__cell {
+  background: #1a1a1e;
+}
+.themecard--light .themecard__preview {
+  background: #fbfbfd;
+}
+.themecard--light .themecard__bar {
+  background: #dcdce2;
+}
+.themecard--light .themecard__cell {
+  background: #ebebf0;
+}
+
+.themecard__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.themecard__label svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-2);
+}
+.themecard__hint {
+  margin-top: 3px;
+  font-size: 0.76rem;
+  color: var(--text-3);
+}
+
+/* ---- Paso 2: por dónde arrancar ---- */
+.welcome__step2 {
+  padding: 4px 26px 0;
+  animation: step2-in 0.34s var(--ease-out);
+}
+@keyframes step2-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.welcome__q {
+  margin: 20px 0 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.quick {
+  display: grid;
+  gap: 7px;
+}
+.quick__opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-hi);
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop),
+    background var(--dur-fast) var(--ease-soft);
+}
+.quick__opt:hover {
+  border-color: var(--gold-edge);
+  background: var(--gold-wash);
+}
+.quick__opt:active {
+  transform: scale(0.985);
+}
+.quick__ico {
+  font-size: 1.24rem;
+  line-height: 1;
+  flex: none;
+}
+.quick__txt {
+  display: grid;
+  min-width: 0;
+}
+.quick__txt strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.quick__txt span {
+  font-size: 0.79rem;
+  color: var(--text-3);
+  line-height: 1.35;
+  margin-top: 1px;
+}
+
+/* En celular el pop-up llegaba a ocupar el 95% de la pantalla y se sentía
+   pesado. Se comprime el ritmo vertical y se achican logo y previews: la
+   decisión es la misma, pero entra holgada y se lee de un vistazo. */
+@media (max-width: 560px), (max-height: 700px) {
+  .welcome__head {
+    padding: 20px 20px 0;
+  }
+  .welcome__head img {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 10px;
+  }
+  .welcome__head h2 {
+    font-size: 1.12rem;
+  }
+  .welcome__head p {
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+  .welcome__options {
+    padding: 16px 20px 2px;
+    gap: 10px;
+    /* Dos columnas también en celular: son dos opciones, se comparan mejor
+       lado a lado que apiladas, y ahorra la mitad del alto. */
+    grid-template-columns: 1fr 1fr;
+  }
+  .themecard {
+    padding: 9px;
+  }
+  .themecard__preview {
+    padding: 7px;
+    margin-bottom: 8px;
+  }
+  .themecard__label {
+    font-size: 0.85rem;
+  }
+  .themecard__hint {
+    display: none;
+  }
+  .welcome__q {
+    margin: 16px 0 8px;
+  }
+  .welcome__step2 {
+    padding-inline: 20px;
+  }
+  .quick__opt {
+    padding: 9px 11px;
+    gap: 10px;
+  }
+  .quick__txt span {
+    display: none;
+  }
+  .welcome__foot {
+    padding: 14px 20px 18px;
+  }
+  .welcome__note {
+    margin-top: 9px;
+  }
+}
+
+.welcome__foot {
+  padding: 16px 26px 22px;
+}
+.welcome__foot .btn {
+  width: 100%;
+}
+.welcome__note {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.45;
+}

@@ -1,0 +1,1180 @@
+/* ==========================================================================
+   Librería Arias — sistema de diseño
+   --------------------------------------------------------------------------
+   Amarillo y negro de la marca, pero el "premium" no lo pone el color:
+   lo ponen la tipografía, el aire entre elementos y el movimiento.
+   Sin gradientes en ningún lado — las superficies son planas y se
+   diferencian por elevación y borde, no por degradado.
+   ========================================================================== */
+
+:root {
+  /* Superficies. Grises neutros y algo más altos que el casi-negro que
+     tenía antes: son los del catálogo original (#1A1A1A / #242424 / #2E2E2E),
+     que con el amarillo dan un negro más cálido y menos "pantalla apagada".
+     El azulado de un #08080A enfriaba todo. */
+  --ink: #151515;
+  --surface: #1e1e1e;
+  --surface-hi: #282828;
+  --surface-max: #333333;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+
+  /* Marca.
+     #FECE01 es el amarillo medido del wordmark original — o sea, el de la
+     marca de verdad. Antes el CSS usaba #F6BE00, apenas más apagado, y eso
+     hacía que los botones no terminaran de coincidir con el logo. */
+  --gold: #fece01;
+  --gold-hi: #ffdc3d;
+  --gold-ink: #1a1200;
+  --gold-wash: rgba(246, 190, 0, 0.1);
+  --gold-edge: rgba(246, 190, 0, 0.28);
+  /* El amarillo puro sobre blanco no se lee: en claro esto se oscurece */
+  --gold-text: var(--gold);
+
+  /* Texto */
+  --text: #f5f5f7;
+  --text-2: #a1a1a6;
+  --text-3: #6e6e73;
+
+  /* Fondo de las fotos de producto: van recortadas sobre blanco */
+  --media: #ffffff;
+
+  /* Vidrio de las barras fijas */
+  --glass: rgba(21, 21, 21, 0.74);
+  --glass-solid: rgba(21, 21, 21, 0.85);
+
+  /* Rellenos neutros: en oscuro aclaran, en claro oscurecen */
+  --fill: rgba(255, 255, 255, 0.06);
+  --fill-hi: rgba(255, 255, 255, 0.11);
+
+  /* Sombras: en oscuro casi no se ven, en claro son las que dan relieve */
+  --shadow-card: 0 18px 40px -12px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.7);
+
+  /* Semánticos */
+  --ok: #32d74b;
+  --warn: #ff9f0a;
+
+  /* Radios */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* Curvas de animación.
+     out  = entradas y salidas normales (desaceleración fuerte, tipo iOS)
+     soft = movimientos de layout
+     pop  = micro rebote para feedback táctil */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --dur-fast: 0.16s;
+  --dur: 0.28s;
+  --dur-slow: 0.5s;
+
+  /* Layout */
+  --page: 1200px;
+  --gutter: clamp(18px, 4vw, 32px);
+  --nav-h: 58px;
+
+  /* Escala de espacios en pasos de ~1.5x.
+     Tener 7 valores fijos en vez de inventar píxeles en cada regla es lo
+     que hace que el conjunto se lea ordenado: dos cosas separadas por
+     --s-3 se ven hermanas de otras dos separadas por --s-3. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 18px;
+  --s-5: 26px;
+  --s-6: 40px;
+  --s-7: 60px;
+
+  /* Altura mínima de cualquier cosa tocable. Es la medida de Apple y la
+     diferencia entre una web que "anda en el celular" y una que se siente
+     una app. */
+  --tap: 44px;
+}
+
+/* ==========================================================================
+   MODO CLARO
+   Mismos tokens, otros valores: ningún componente sabe en qué tema está.
+   El gris de Apple (#F5F5F7 / #1D1D1F) en vez de blanco y negro puros,
+   que a pantalla completa cansan la vista.
+   ========================================================================== */
+:root[data-theme='light'] {
+  --ink: #fbfbfd;
+  --surface: #ffffff;
+  --surface-hi: #f5f5f7;
+  --surface-max: #ebebf0;
+  --line: rgba(0, 0, 0, 0.1);
+  --line-strong: rgba(0, 0, 0, 0.2);
+
+  --gold-wash: rgba(246, 190, 0, 0.14);
+  --gold-edge: rgba(203, 156, 0, 0.4);
+  /* Amarillo oscurecido hasta pasar contraste AA sobre blanco */
+  --gold-text: #8a6a00;
+
+  /* Contraste sobre blanco. Los grises claros de Apple funcionan en su
+     tipografía, con Inter quedaban lavados: se bajan un escalón cada uno.
+     --text-2 pasa de 4.6:1 a 7.4:1 y --text-3 de 3.1:1 (que ni siquiera
+     llegaba a AA) a 4.8:1. */
+  --text: #101012;
+  --text-2: #3d3d42;
+  --text-3: #6b6b73;
+
+  --media: #f5f5f7;
+
+  --glass: rgba(251, 251, 253, 0.75);
+  --glass-solid: rgba(251, 251, 253, 0.85);
+
+  --fill: rgba(0, 0, 0, 0.05);
+  --fill-hi: rgba(0, 0, 0, 0.09);
+
+  --shadow-card: 0 12px 28px -10px rgba(0, 0, 0, 0.18);
+  --shadow-pop: 0 12px 30px -8px rgba(0, 0, 0, 0.22);
+
+  --ok: #1a9c34;
+  --warn: #b26a00;
+}
+
+/* La transición del cambio de tema se activa recién cuando el usuario lo
+   toca. Al cargar la página no debe haber ningún fundido. */
+html[data-theme-anim] body,
+html[data-theme-anim] .nav,
+html[data-theme-anim] .controls,
+html[data-theme-anim] .card,
+html[data-theme-anim] .info-card,
+html[data-theme-anim] .footer,
+html[data-theme-anim] .sheet,
+html[data-theme-anim] .chip,
+html[data-theme-anim] .search input {
+  transition: background-color 0.35s var(--ease-soft), color 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft);
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Deja aire bajo la nav sticky al saltar a un ancla */
+  scroll-padding-top: calc(var(--nav-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+/* Sin esto, los atributos width/height del HTML fijan la altura en píxeles:
+   al achicarse el ancho por max-width la imagen queda deformada. Con
+   height:auto el par width/height pasa a funcionar como aspect-ratio, que
+   es para lo que están (reservan el espacio y evitan saltos al cargar). */
+img {
+  height: auto;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Foco visible sólo para teclado, nunca al hacer click */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------- Tipografía ----------
+   Dos reglas que sostienen todo:
+   1. El tracking se cierra a medida que crece el tamaño. Es lo que hace
+      que un título grande se lea "caro" en vez de inflado.
+   2. En mobile los tamaños NO bajan proporcionalmente. Un cuerpo de 16px
+      es 16px en el celular también: achicarlo es el error más común y es
+      lo que hace que una web se sienta web en vez de app. */
+.t-display {
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+}
+.t-h1 {
+  font-size: clamp(1.85rem, 4vw, 2.5rem);
+  font-weight: 660;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+.t-h2 {
+  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+  font-weight: 640;
+  letter-spacing: -0.022em;
+  line-height: 1.22;
+}
+.t-body {
+  font-size: 1.0625rem; /* 17px, el cuerpo de iOS */
+  color: var(--text-2);
+  line-height: 1.6;
+  letter-spacing: -0.011em;
+}
+.t-small {
+  font-size: 0.9375rem; /* 15px */
+  color: var(--text-2);
+  letter-spacing: -0.008em;
+}
+.t-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 620;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.shell {
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ==========================================================================
+   NAV
+   ========================================================================== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  background: var(--glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur) var(--ease-soft), background var(--dur) var(--ease-soft);
+}
+/* El borde aparece recién cuando hay contenido pasando por debajo */
+.nav[data-scrolled='true'] {
+  border-bottom-color: var(--line);
+}
+
+.nav__inner {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+  margin-right: auto;
+  transition: opacity var(--dur-fast) var(--ease-soft);
+}
+.nav__brand:hover {
+  opacity: 0.75;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav__link {
+  padding: 7px 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  color: var(--text-2);
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+.nav__link:hover {
+  color: var(--text);
+  background: var(--fill);
+}
+
+@media (max-width: 720px) {
+  .nav__links {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   BOTONES
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: 0 22px;
+  border-radius: var(--r-pill);
+  font-size: 0.97rem;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft),
+    opacity var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.btn--gold {
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-weight: 640;
+}
+.btn--gold:hover {
+  background: var(--gold-hi);
+}
+
+.btn--ghost {
+  background: var(--fill);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.btn--ghost:hover {
+  background: var(--fill-hi);
+  border-color: var(--line-strong);
+}
+
+.btn--sm {
+  min-height: 38px;
+  padding: 0 15px;
+  font-size: 0.9rem;
+}
+.btn--block {
+  width: 100%;
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.hero {
+  position: relative;
+  isolation: isolate;
+  text-align: center;
+  padding: clamp(40px, 8vw, 76px) var(--gutter) clamp(32px, 5vw, 52px);
+  overflow: hidden;
+}
+/* Foto de fondo muy atenuada: da textura sin competir con el contenido */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.16;
+  filter: blur(2px) saturate(115%);
+  transform: scale(1.08);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}
+/* En claro la foto ensuciaba el blanco: quedaba un manchón gris detrás del
+   logo que bajaba el contraste de todo lo que va encima. El fondo tiene que
+   ser blanco liso y punto — el protagonismo es del logo y los productos. */
+:root[data-theme='light'] .hero__bg {
+  display: none;
+}
+
+/* ---------- Logo según tema ----------
+   Las dos versiones están en el HTML y el CSS muestra la que corresponde.
+   Hacerlo por CSS y no por JS evita el parpadeo del logo equivocado
+   durante la carga. */
+.brand-light {
+  display: none;
+}
+:root[data-theme='light'] .brand-dark {
+  display: none;
+}
+:root[data-theme='light'] .brand-light {
+  display: block;
+}
+
+.hero__mark {
+  width: clamp(96px, 16vw, 132px);
+  margin: 0 auto clamp(var(--s-4), 3vw, var(--s-5));
+}
+.hero__crane {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45));
+  animation: crane-in 0.8s var(--ease-out) both, crane-float 6s ease-in-out 0.9s infinite;
+}
+:root[data-theme='light'] .hero__crane {
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.16));
+}
+@keyframes crane-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.9) rotate(-4deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes crane-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-9px) rotate(1.2deg); }
+}
+
+.nav__crane {
+  width: 32px;
+  height: auto;
+}
+
+.hero__title {
+  width: min(430px, 82%);
+  margin: 0 auto;
+}
+
+.hero__tagline {
+  margin: clamp(var(--s-4), 3vw, var(--s-5)) auto 0;
+  max-width: 42ch;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  font-weight: 480;
+  color: var(--text-2);
+  letter-spacing: -0.012em;
+}
+
+.hero__actions {
+  margin-top: clamp(22px, 3.5vw, 30px);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.social {
+  margin-top: clamp(22px, 3.5vw, 30px);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+/* Redondel negro con el ícono en el amarillo de la marca, en los dos temas.
+   Antes en claro quedaba amarillo apagado sobre gris claro y se perdía;
+   con el fondo negro el amarillo se usa a full y el par negro+amarillo es
+   justamente el de la marca. */
+.social a {
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #101012;
+  border: 1px solid transparent;
+  color: var(--gold);
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
+}
+.social a:hover {
+  transform: translateY(-2px);
+  background: #24242a;
+}
+.social svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================================================================
+   BANNER DEL CANAL
+   ========================================================================== */
+.banner {
+  padding: 0 var(--gutter);
+  text-align: center;
+}
+.banner a {
+  display: inline-block;
+  max-width: 760px;
+  width: 100%;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease-out);
+}
+.banner a:hover {
+  transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   BARRA DE CONTROLES (búsqueda + rubros + orden)
+   ========================================================================== */
+.controls {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 90;
+  background: var(--glass-solid);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+.controls__row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.search svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.search input {
+  width: 100%;
+  height: var(--tap);
+  padding: 0 42px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  /* 16px justo: por debajo de eso iOS hace zoom solo al enfocar */
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+.search input::placeholder {
+  color: var(--text-3);
+}
+/* Chrome dibuja su propia X en los input[type=search]. Como ya tenemos la
+   nuestra (que además limpia el filtro, no sólo el texto), se saca la
+   nativa: si no, aparecen dos cruces pegadas. */
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+.search input:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+  background: var(--surface-hi);
+}
+.search__clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 26px;
+  height: 26px;
+  display: none;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+.search__clear:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.09);
+}
+.search[data-filled='true'] .search__clear {
+  display: grid;
+}
+
+.sort {
+  height: var(--tap);
+  padding: 0 34px 0 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.94rem;
+  cursor: pointer;
+  appearance: none;
+  /* Chevron dibujado inline para no depender de un asset */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.sort:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+}
+@media (max-width: 620px) {
+  .sort {
+    display: none;
+  }
+}
+
+.chips {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-top: var(--s-3);
+  /* Difumina el corte lateral en vez de tajarlo en seco */
+  mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 20px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 10px, #000 calc(100% - 20px), transparent 100%);
+  padding-inline: 2px;
+}
+.chips::-webkit-scrollbar {
+  display: none;
+}
+.chip {
+  flex: none;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.92rem;
+  font-weight: 540;
+  letter-spacing: -0.01em;
+  color: var(--text-2);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft),
+    border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+}
+.chip:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.chip:active {
+  transform: scale(0.95);
+}
+.chip[aria-pressed='true'] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.results-line {
+  padding-top: var(--s-4);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-3);
+  font-size: 0.92rem;
+}
+
+/* ==========================================================================
+   GRILLA DE PRODUCTOS
+   ========================================================================== */
+.grid {
+  display: grid;
+  gap: clamp(14px, 2vw, 22px);
+  grid-template-columns: repeat(auto-fill, minmax(min(215px, 100%), 1fr));
+  padding-block: 18px clamp(50px, 8vw, 84px);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease-out), border-color var(--dur) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-out);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-card);
+}
+
+.card__media {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--media);
+  overflow: hidden;
+}
+.card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.card:hover .card__media img {
+  transform: scale(1.045);
+}
+
+.card__flags {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  z-index: 2;
+}
+.flag {
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  font-size: 0.68rem;
+  font-weight: 620;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(8px);
+}
+.flag--new {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+.flag--out {
+  background: var(--glass-solid);
+  color: var(--text-2);
+  border: 1px solid var(--line);
+}
+.flag--offer {
+  /* d43a15 da 4.76:1 contra blanco — medido, no a ojo: el texto de un
+     flag es chico (0.68rem) y no llega al umbral de "texto grande" que
+     permitiría un contraste más laxo. */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #d43a15;
+  color: #fff;
+}
+.flag--offer svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* Botón de agregar: aparece sobre la foto al pasar el cursor.
+   En táctil no hay hover, así que queda visible siempre (ver más abajo). */
+.card__add {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--glass-solid);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  opacity: 0;
+  translate: 0 6px;
+  transition: opacity var(--dur) var(--ease-out), translate var(--dur) var(--ease-out),
+    background var(--dur-fast) var(--ease-soft), scale var(--dur-fast) var(--ease-pop);
+}
+.card:hover .card__add,
+.card:focus-within .card__add {
+  opacity: 1;
+  translate: 0 0;
+}
+.card__add:hover {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+.card__add:active {
+  scale: 0.9;
+}
+.card__add svg {
+  width: 19px;
+  height: 19px;
+}
+.card__add[data-in-cart='true'] {
+  background: var(--gold);
+  color: var(--gold-ink);
+  opacity: 1;
+  translate: 0 0;
+}
+
+.card__body {
+  padding: var(--s-3) var(--s-3) var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  flex: 1;
+}
+.card__cat {
+  font-size: 0.75rem;
+  font-weight: 560;
+  letter-spacing: 0.01em;
+  color: var(--text-3);
+}
+.card__name {
+  font-size: 1rem;
+  font-weight: 560;
+  letter-spacing: -0.018em;
+  line-height: 1.34;
+  /* Dos líneas máximo: mantiene la grilla pareja */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Estado de stock: el punto verde hace el trabajo, el texto sólo acompaña.
+   Va arriba del precio para que el ojo lea "hay" antes que "cuánto". */
+.card__stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--s-1);
+  font-size: 0.82rem;
+  font-weight: 520;
+  color: var(--text-2);
+}
+.card__stock::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
+}
+.card--out .card__stock {
+  color: var(--text-3);
+}
+.card--out .card__stock::before {
+  background: var(--text-3);
+  box-shadow: none;
+}
+
+.card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: var(--s-3);
+}
+.card__price-old {
+  font-size: 0.86rem;
+  color: var(--text-3);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Precio en pastilla amarilla, como en el catálogo original: es el dato que
+   más se busca y el amarillo lo hace saltar sin necesidad de agrandarlo.
+   El texto va en el negro de la marca, que sobre el amarillo da 12:1. */
+.card__price {
+  align-self: flex-start;
+  margin-top: 0;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--dur-fast) var(--ease-soft);
+}
+.card:hover .card__price {
+  background: var(--gold-hi);
+}
+/* Sin stock el amarillo mentiría llamando la atención: pasa a apagado */
+.card--out .card__price {
+  background: var(--fill-hi);
+  color: var(--text-2);
+}
+.card--out .card__media img {
+  opacity: 0.42;
+  filter: grayscale(1);
+}
+
+/* Toda la tarjeta es clickeable, pero el link ocupa sólo el texto para no
+   tapar el botón de agregar. */
+.card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ---------- Esqueleto de carga ----------
+   Placeholders que salen server-renderizados: la grilla nunca arranca en
+   blanco, aunque el fetch de products.json tarde en volver. */
+.card--skel {
+  pointer-events: none;
+}
+.card--skel:hover {
+  transform: none;
+  box-shadow: none;
+}
+.card--skel .card__media {
+  background: var(--surface-hi);
+}
+.skel-line {
+  display: block;
+  height: 13px;
+  border-radius: 4px;
+  background: var(--surface-hi);
+}
+.skel-line + .skel-line {
+  margin-top: 8px;
+}
+.card--skel .card__media,
+.skel-line {
+  position: relative;
+  overflow: hidden;
+}
+.card--skel .card__media::after,
+.skel-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--fill-hi), transparent);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card--skel .card__media::after,
+  .skel-line::after {
+    animation: none;
+  }
+}
+
+/* Entrada escalonada, sólo en las primeras 8 tarjetas — la grilla se
+   reemplaza entera en cada letra que se escribe en el buscador, así que un
+   desfasaje largo o sobre las 125 tarjetas se sentiría como parpadeo, no
+   como algo premium. Corto y acotado. */
+.card:not(.card--skel) {
+  animation: card-in 0.32s var(--ease-out) backwards;
+}
+.card:not(.card--skel):nth-child(n + 9) {
+  animation-duration: 0.22s;
+  animation-delay: 0s !important;
+}
+.card:not(.card--skel):nth-child(2) { animation-delay: 0.03s; }
+.card:not(.card--skel):nth-child(3) { animation-delay: 0.06s; }
+.card:not(.card--skel):nth-child(4) { animation-delay: 0.09s; }
+.card:not(.card--skel):nth-child(5) { animation-delay: 0.12s; }
+.card:not(.card--skel):nth-child(6) { animation-delay: 0.15s; }
+.card:not(.card--skel):nth-child(7) { animation-delay: 0.18s; }
+.card:not(.card--skel):nth-child(8) { animation-delay: 0.21s; }
+@keyframes card-in {
+  from { opacity: 0; translate: 0 10px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:not(.card--skel) {
+    animation: none;
+  }
+}
+
+@media (hover: none) {
+  .card__add {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .card:hover {
+    transform: none;
+  }
+}
+
+.empty {
+  padding: clamp(50px, 10vw, 90px) var(--gutter);
+  text-align: center;
+}
+.empty h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+/* ==========================================================================
+   REVELADO AL HACER SCROLL
+   Se aplica sólo si JS marcó el documento; sin JS todo queda visible.
+   ========================================================================== */
+[data-reveal] {
+  opacity: 0;
+  translate: 0 14px;
+  transition: opacity 0.55s var(--ease-out), translate 0.55s var(--ease-out);
+}
+[data-reveal][data-shown='true'] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ==========================================================================
+   SECCIONES INFORMATIVAS
+   ========================================================================== */
+.section {
+  padding-block: clamp(44px, 7vw, 76px);
+  border-top: 1px solid var(--line);
+}
+.section__head {
+  margin-bottom: clamp(20px, 3vw, 30px);
+}
+.section__head p {
+  margin-top: 8px;
+  max-width: 52ch;
+}
+
+.info-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+.info-card {
+  padding: 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.info-card__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--gold-wash);
+  color: var(--gold-text);
+  margin-bottom: 12px;
+}
+.info-card__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.info-card h3 {
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 5px;
+}
+.info-card p {
+  font-size: 0.88rem;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+.hours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+.hours-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--line);
+}
+.hours-list div:last-child {
+  border-bottom: 0;
+}
+.hours-list span:first-child {
+  color: var(--text-2);
+}
+.hours-list span:last-child {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.footer {
+  border-top: 1px solid var(--line);
+  padding-block: clamp(36px, 6vw, 56px) clamp(80px, 10vw, 100px);
+  background: var(--surface);
+}
+.footer__grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+}
+.footer h4 {
+  font-size: 0.76rem;
+  font-weight: 620;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.footer li {
+  list-style: none;
+  margin-bottom: 7px;
+}
+.footer a,
+.footer p {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+.footer a:hover {
+  color: var(--text);
+}
+.footer__bottom {
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Se anulan traslados y escalas, no los cambios de opacidad.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  [data-reveal] {
+    opacity: 1;
+    translate: none;
+  }
+}

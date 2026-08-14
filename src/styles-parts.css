@@ -1,0 +1,562 @@
+/* ==========================================================================
+   Librería Arias — pedido por WhatsApp y página de producto
+   Continuación de styles.css (mismos tokens).
+   ========================================================================== */
+
+/* ==========================================================================
+   BOTÓN FLOTANTE DE PEDIDO
+   Reemplaza al FAB de WhatsApp suelto: ahora muestra cuántos productos
+   lleva el cliente y abre el panel de pedido.
+   ========================================================================== */
+.fab {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 50px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-weight: 640;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+  box-shadow: 0 10px 30px -6px rgba(246, 190, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform var(--dur) var(--ease-pop), opacity var(--dur) var(--ease-out),
+    background var(--dur-fast) var(--ease-soft);
+}
+.fab:hover {
+  background: var(--gold-hi);
+}
+.fab:active {
+  transform: scale(0.95);
+}
+.fab svg {
+  width: 20px;
+  height: 20px;
+}
+/* Oculto mientras el pedido esté vacío: no ocupa pantalla sin motivo */
+.fab[hidden] {
+  display: none;
+}
+.fab__count {
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--gold-ink);
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+/* Latido corto cada vez que se suma algo */
+.fab[data-bump='true'] {
+  animation: fab-bump 0.42s var(--ease-pop);
+}
+@keyframes fab-bump {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   PANEL DE PEDIDO
+   <dialog> nativo: trae foco atrapado, cierre con Esc y ::backdrop gratis.
+   ========================================================================== */
+/* Posición fija y anclada al viewport a propósito.
+   Un <dialog> abierto con showModal() vive en el "top layer" y ahí el
+   navegador lo posiciona respecto de la pantalla. Pero al cerrarlo sale
+   del top layer y, si dependiera de eso, durante los últimos frames de la
+   animación de salida se dibuja como `position:absolute` — o sea, al final
+   del documento, muy por debajo de la pantalla. Fijándolo nosotros, el
+   elemento está en el mismo lugar entre y fuera del top layer. */
+.sheet {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(430px, 100%);
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--surface);
+  color: var(--text);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+/* Un dialog cerrado no se muestra: sin esto el `display:flex` de arriba
+   ganaría sobre el display:none que trae el navegador. */
+.sheet:not([open]) {
+  display: none;
+}
+.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+/* Entrada/salida: el panel entra desde la derecha, el fondo hace fade.
+   [open] se aplica al abrir; data-closing lo maneja el JS al cerrar para
+   que la animación de salida llegue a verse antes del close(). */
+.sheet[open] {
+  animation: sheet-in var(--dur) var(--ease-out);
+}
+.sheet[open]::backdrop {
+  animation: fade-in var(--dur) var(--ease-soft);
+}
+.sheet[data-closing='true'] {
+  animation: sheet-out 0.2s var(--ease-soft) forwards;
+}
+.sheet[data-closing='true']::backdrop {
+  animation: fade-out 0.2s var(--ease-soft) forwards;
+}
+@keyframes sheet-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes sheet-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (max-width: 560px) {
+  /* En celular sube desde abajo, que es donde está el pulgar */
+  .sheet {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 88vh;
+    margin: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+  .sheet[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .sheet[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes sheet-down {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+}
+
+.sheet__head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.sheet__head h2 {
+  font-size: 1.08rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+.sheet__close {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.sheet__close:hover {
+  background: var(--fill-hi);
+  color: var(--text);
+}
+.sheet__close svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 18px;
+}
+
+.sheet__foot {
+  padding: 16px 18px max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.sheet__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.sheet__total strong {
+  font-size: 1.3rem;
+  font-weight: 680;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.sheet__note {
+  margin-top: 10px;
+  font-size: 0.76rem;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.45;
+}
+
+/* ---- Renglón de producto en el pedido ---- */
+.line {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  animation: line-in 0.3s var(--ease-out);
+}
+.line:last-child {
+  border-bottom: 0;
+}
+@keyframes line-in {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.line__img {
+  width: 58px;
+  height: 58px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--media);
+  object-fit: contain;
+}
+.line__info {
+  flex: 1;
+  min-width: 0;
+}
+.line__name {
+  font-size: 0.89rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line__price {
+  margin-top: 3px;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.line__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 7px;
+}
+.qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.qty button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.qty button:hover {
+  background: var(--fill-hi);
+  color: var(--text);
+}
+.qty svg {
+  width: 13px;
+  height: 13px;
+}
+.qty span {
+  min-width: 26px;
+  text-align: center;
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+.line__remove {
+  margin-left: auto;
+  padding: 5px 9px;
+  font-size: 0.78rem;
+  color: var(--text-3);
+  border-radius: var(--r-sm);
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+.line__remove:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.sheet__empty {
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--text-3);
+}
+.sheet__empty svg {
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 14px;
+  color: var(--text-3);
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   AVISO FLOTANTE (toast)
+   ========================================================================== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  translate: -50% 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 18px;
+  border-radius: var(--r-pill);
+  background: var(--surface-max);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-pop);
+  font-size: 0.87rem;
+  font-weight: 520;
+  letter-spacing: -0.01em;
+  pointer-events: none;
+  opacity: 0;
+  animation: toast 2.4s var(--ease-out) forwards;
+}
+.toast svg {
+  width: 17px;
+  height: 17px;
+  color: var(--gold-text);
+}
+@keyframes toast {
+  0% { opacity: 0; translate: -50% 12px; }
+  9%, 82% { opacity: 1; translate: -50% 0; }
+  100% { opacity: 0; translate: -50% 8px; }
+}
+
+/* ==========================================================================
+   PÁGINA DE PRODUCTO (landing)
+   ========================================================================== */
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-block: 20px 4px;
+  font-size: 0.82rem;
+  color: var(--text-3);
+  flex-wrap: wrap;
+}
+.crumbs a {
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+.crumbs a:hover {
+  color: var(--text);
+}
+.crumbs svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.5;
+}
+
+.product {
+  display: grid;
+  gap: clamp(24px, 4vw, 52px);
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: clamp(16px, 3vw, 28px) clamp(44px, 7vw, 72px);
+}
+@media (min-width: 860px) {
+  .product {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  /* La galería acompaña el scroll de la descripción */
+  .product__gallery {
+    position: sticky;
+    top: calc(var(--nav-h) + 20px);
+  }
+}
+
+.product__stage {
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--media);
+  aspect-ratio: 1;
+}
+.product__stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product__thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.product__thumbs::-webkit-scrollbar {
+  display: none;
+}
+.product__thumbs button {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--media);
+  border: 2px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+.product__thumbs button[aria-current='true'] {
+  border-color: var(--gold);
+}
+.product__thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product__badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.product__cat {
+  display: inline-block;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  background: var(--gold-wash);
+  border: 1px solid var(--gold-edge);
+  color: var(--gold-text);
+  font-size: 0.75rem;
+  font-weight: 580;
+}
+.product__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.product__price-old {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: var(--text-3);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+.product__price {
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+.product__offer-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: 550;
+  color: var(--gold-text);
+}
+.product__offer-note svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.product__stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  font-size: 0.87rem;
+  color: var(--text-2);
+}
+.product__stock::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgba(50, 215, 75, 0.16);
+}
+.product__stock[data-out='true']::before {
+  background: var(--text-3);
+  box-shadow: none;
+}
+.product__desc {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+.product__actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.product__actions .btn {
+  flex: 1 1 180px;
+}
+
+.related {
+  border-top: 1px solid var(--line);
+  padding-block: clamp(36px, 6vw, 60px);
+}
+.related h2 {
+  margin-bottom: 20px;
+}
+.related .grid {
+  padding-block: 0;
+}
+
+/* ==========================================================================
+   VIEW TRANSITIONS
+   Al ir de la grilla a la ficha, la foto se desplaza sola en los
+   navegadores que lo soportan. Donde no, la navegación es la de siempre.
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.28s;
+  }
+}

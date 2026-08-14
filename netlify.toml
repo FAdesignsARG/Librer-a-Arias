@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# El build (scripts/build.js) ya escribe dist/_redirects con el 404 real
+# para /p/lo-que-sea. Nada más que agregar acá.

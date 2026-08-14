@@ -1,0 +1,73 @@
+{
+  "storeName": "Librería Arias",
+  "tagline": "Librería · Bazar · Juguetería · Regalería · Electrónica · Tecnología",
+  "whatsapp": "5493804505150",
+  "phoneDisplay": "3804 505150",
+  "address": "Esquina España y Bulnes, La Rioja",
+  "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Libreria+Arias%2C+La+Rioja&query_place_id=ChIJYa8YyDLaJ5QRypXtUmCt3PA",
+  "social": {
+    "instagram": "https://www.instagram.com/libreriaarias?igsh=NXZrcXd5OHR3bjkz&utm_source=qr",
+    "facebook": "https://www.facebook.com/ariaslibreria/",
+    "tiktok": "https://www.tiktok.com/@libreriaarias",
+    "whatsappChannel": "https://whatsapp.com/channel/0029VbDBqiGLY6cxTVJTw01j",
+    "maps": "https://maps.app.goo.gl/GGndi3x2nVu6X5nZ8"
+  },
+  "categories": [
+    "Juguetería",
+    "Tecnología",
+    "Regalería",
+    "Electrónica",
+    "Bazar",
+    "Librería"
+  ],
+  "currency": "ARS",
+  "siteUrl": "https://libreriaarias.com.ar",
+  "hours": [
+    {
+      "days": [
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr"
+      ],
+      "opens": "09:00",
+      "closes": "13:00"
+    },
+    {
+      "days": [
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr"
+      ],
+      "opens": "18:00",
+      "closes": "21:00"
+    },
+    {
+      "days": [
+        "Sa"
+      ],
+      "opens": "09:30",
+      "closes": "13:30"
+    },
+    {
+      "days": [
+        "Sa"
+      ],
+      "opens": "18:30",
+      "closes": "21:30"
+    }
+  ],
+  "hoursDisplay": [
+    {
+      "label": "Lunes a Viernes",
+      "value": "09:00 a 13:00 · 18:00 a 21:00"
+    },
+    {
+      "label": "Sábados",
+      "value": "09:30 a 13:30 · 18:30 a 21:30"
+    }
+  ]
+}

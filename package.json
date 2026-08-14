@@ -1,0 +1,16 @@
+{
+  "name": "catalogo-libreria-arias",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "node scripts/extract.js",
+    "dev": "node --use-system-ca server.js",
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {
+    "firebase": "^12.17.1",
+    "firebase-admin": "^14.2.0",
+    "sharp": "^0.34.4"
+  }
+}

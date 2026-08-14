@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.tmp
+.DS_Store
+
+# Credenciales de Firebase: la clave de administrador nunca se sube.
+# El nombre lleva el hash del proyecto, así que se ignora por patrón.
+*firebase-adminsdk*.json
+serviceAccountKey.json

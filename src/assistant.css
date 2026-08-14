@@ -1,0 +1,429 @@
+/* ==========================================================================
+   Asistente — botón flotante y panel de chat
+   Convive con el botón del pedido: los dos se apilan abajo a la derecha.
+   ========================================================================== */
+
+.dock {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+/* El botón del pedido pasa a vivir dentro del dock */
+.dock .fab {
+  position: static;
+  right: auto;
+  bottom: auto;
+}
+
+.dock__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dockbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: 52px;
+  width: 52px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-pop);
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft),
+    width var(--dur) var(--ease-out);
+}
+.dockbtn:active {
+  transform: scale(0.93);
+}
+.dockbtn svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+/* WhatsApp en el amarillo de la marca, no en el verde de WhatsApp: el ícono
+   ya dice de qué se trata, y el color lo integra al resto de la app. */
+.dockbtn--wa {
+  background: var(--gold);
+  color: var(--gold-ink);
+  /* Glow sobre oscuro: dos halos amarillos, uno cerrado y otro abierto */
+  box-shadow: 0 0 0 1px rgba(254, 206, 1, 0.5), 0 4px 14px rgba(254, 206, 1, 0.45),
+    0 0 34px rgba(254, 206, 1, 0.3);
+}
+.dockbtn--wa:hover {
+  background: var(--gold-hi);
+  box-shadow: 0 0 0 1px rgba(254, 206, 1, 0.6), 0 6px 18px rgba(254, 206, 1, 0.55),
+    0 0 46px rgba(254, 206, 1, 0.42);
+}
+
+/* Sobre blanco un glow amarillo no se ve y el círculo se funde con el fondo.
+   Se cambia por un aro oscuro y una sombra neutra, que es lo que le da el
+   borde y el relieve que el glow aporta en oscuro. */
+:root[data-theme='light'] .dockbtn--wa {
+  /* El amarillo contra blanco da 1.45:1, o sea que el relleno solo no
+     alcanza para que se vea dónde termina el botón. El aro oscuro es el
+     que hace ese trabajo, así que va bien marcado (2px, no 1). */
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.32), 0 4px 14px rgba(0, 0, 0, 0.2),
+    0 10px 28px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme='light'] .dockbtn--wa:hover {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 0 6px 18px rgba(0, 0, 0, 0.26),
+    0 12px 32px rgba(0, 0, 0, 0.16);
+}
+/* En claro el pulso también tiene que ser oscuro: un halo amarillo sobre
+   blanco es invisible. */
+:root[data-theme='light'] .dockbtn--wa::after {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+/* Pulso suave que lo hace notar sin ser molesto */
+.dockbtn--wa::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid var(--gold);
+  animation: wa-pulse 2.6s var(--ease-out) infinite;
+  pointer-events: none;
+}
+.dockbtn--wa {
+  position: relative;
+}
+@keyframes wa-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  70%, 100% { transform: scale(1.45); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dockbtn--wa::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.dockbtn--ai {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  width: auto;
+  padding: 0 20px 0 16px;
+  font-weight: 580;
+  font-size: 0.93rem;
+  letter-spacing: -0.01em;
+}
+.dockbtn--ai:hover {
+  background: var(--surface-hi);
+}
+.dockbtn--ai svg {
+  color: var(--gold-text);
+}
+
+@media (max-width: 520px) {
+  /* En celular el texto se come la pantalla: queda sólo el ícono */
+  .dockbtn--ai span {
+    display: none;
+  }
+  .dockbtn--ai {
+    width: 52px;
+    padding: 0;
+  }
+}
+
+/* ==========================================================================
+   PANEL DE CHAT
+   ========================================================================== */
+/* Mismo criterio que .sheet: fijo al viewport para que al cerrarse no
+   caiga al final del documento en los últimos frames de la animación. */
+.chat {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(420px, 100%);
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+.chat:not([open]) {
+  display: none;
+}
+.chat::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+.chat[open] {
+  animation: sheet-in var(--dur) var(--ease-out);
+}
+.chat[data-closing='true'] {
+  animation: sheet-out 0.2s var(--ease-soft) forwards;
+}
+
+@media (max-width: 560px) {
+  .chat {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    margin: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+  .chat[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .chat[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+}
+
+.chat__head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.chat__head img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.chat__title {
+  margin-right: auto;
+  min-width: 0;
+}
+.chat__title h2 {
+  font-size: 1rem;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+.chat__title p {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.chat__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- Burbujas ---- */
+.msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 0.91rem;
+  line-height: 1.5;
+  animation: msg-in 0.3s var(--ease-out);
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.msg--bot {
+  align-self: flex-start;
+  background: var(--surface-hi);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 6px;
+}
+.msg--me {
+  align-self: flex-end;
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-bottom-right-radius: 6px;
+  font-weight: 500;
+}
+.msg--error {
+  align-self: stretch;
+  max-width: 100%;
+  background: rgba(255, 107, 107, 0.09);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+/* Puntitos mientras piensa */
+.typing {
+  align-self: flex-start;
+  display: flex;
+  gap: 4px;
+  padding: 14px;
+}
+.typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  animation: typing 1.1s ease-in-out infinite;
+}
+.typing i:nth-child(2) { animation-delay: 0.16s; }
+.typing i:nth-child(3) { animation-delay: 0.32s; }
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ---- Tarjetas de producto dentro del chat ---- */
+.picks {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-self: stretch;
+}
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-hi);
+  transition: border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+  animation: msg-in 0.34s var(--ease-out) backwards;
+}
+.pick:hover {
+  border-color: var(--gold-edge);
+  transform: translateX(2px);
+}
+.pick:nth-child(2) { animation-delay: 0.05s; }
+.pick:nth-child(3) { animation-delay: 0.1s; }
+.pick:nth-child(4) { animation-delay: 0.15s; }
+.pick img {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--media);
+  object-fit: contain;
+}
+.pick__info {
+  flex: 1;
+  min-width: 0;
+}
+.pick__name {
+  font-size: 0.87rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pick__meta {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.pick__meta b {
+  color: var(--text);
+  font-weight: 620;
+}
+.pick__go {
+  flex: none;
+  color: var(--text-3);
+}
+.pick__go svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ---- Sugerencias de arranque ---- */
+.seeds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.seed {
+  padding: 7px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-hi);
+  font-size: 0.82rem;
+  color: var(--text-2);
+  transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.seed:hover {
+  border-color: var(--gold-edge);
+  color: var(--text);
+}
+
+/* ---- Barra de escritura ---- */
+.chat__foot {
+  padding: 12px 18px max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+}
+.chat__form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.chat__form textarea {
+  flex: 1;
+  min-height: 42px;
+  max-height: 120px;
+  padding: 10px 14px;
+  border-radius: 21px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font-size: 0.92rem;
+  font-family: inherit;
+  line-height: 1.4;
+  resize: none;
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+.chat__form textarea:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+}
+.chat__send {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--gold-ink);
+  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+}
+.chat__send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.chat__send:not(:disabled):active {
+  transform: scale(0.92);
+}
+.chat__send svg {
+  width: 18px;
+  height: 18px;
+}
+.chat__note {
+  margin-top: 9px;
+  font-size: 0.72rem;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.4;
+}
