@@ -4,8 +4,12 @@
  * Sale una carpeta que se sube tal cual a cualquier hosting (Netlify,
  * Vercel, Hostinger, un VPS con nginx). No necesita Node en el servidor.
  *
- * El panel de administración NO se copia: vive sólo en la máquina local,
- * así que lo publicado no tiene forma de escribir nada.
+ * El panel de administración SÍ se publica (admin/index.html) — ya tiene
+ * login con Firebase Auth y las reglas de Firestore exigen sesión válida,
+ * así que exponer la pantalla de login no da acceso a nada por sí solo.
+ * Se deja fuera de sitemap.xml y con noindex/robots.txt para que no lo
+ * indexe un buscador, pero es alcanzable a propósito para poder cargar
+ * productos desde cualquier PC sin tener el server local corriendo.
  *
  *   npm run build
  */
@@ -100,6 +104,16 @@ const copies = [
   // esto las fotos de producto rompen en el sitio publicado (404 del import,
   // no se nota en local porque el dev server sirve /src/* directo del disco).
   ['src/cloudinary-config.js', 'src/cloudinary-config.js'],
+  // Panel de administración: admin.js habla directo con Firestore/Cloudinary
+  // desde el navegador, necesita firebase-client.js (que a su vez importa
+  // firebase-config.js) además de sus propios admin.js/admin.css.
+  ['src/firebase-client.js', 'src/firebase-client.js'],
+  ['src/firebase-config.js', 'src/firebase-config.js'],
+  ['src/admin/admin.js', 'src/admin/admin.js'],
+  ['src/admin/admin.css', 'src/admin/admin.css'],
+  // admin.html va a admin/index.html para que /admin resuelva como URL
+  // limpia, igual que /p/slug/ con las landings de producto.
+  ['src/admin/admin.html', 'admin/index.html'],
 ];
 
 for (const [from, to] of copies) {
