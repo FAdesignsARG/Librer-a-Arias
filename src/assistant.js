@@ -232,6 +232,23 @@ function openChat() {
 $('#askBtn')?.addEventListener('click', openChat);
 wireDialog(dlg, $('#chatClose'));
 
+/* ---- Barra promocional: rota mensajes cortos y abre el chat al tocarla.
+   Sin rotación si el usuario pidió menos movimiento — el mensaje que ya
+   está activo (el primero, server-rendered) queda fijo. ---- */
+const promobar = $('#promobar');
+promobar?.addEventListener('click', openChat);
+if (promobar && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const msgs = [...promobar.querySelectorAll('.promobar__msg')];
+  let mi = 0;
+  if (msgs.length > 1) {
+    setInterval(() => {
+      msgs[mi].dataset.active = 'false';
+      mi = (mi + 1) % msgs.length;
+      msgs[mi].dataset.active = 'true';
+    }, 4200);
+  }
+}
+
 /* El pop-up de bienvenida dispara esto al elegir una de las opciones
    rápidas: abre el chat y manda la consulta ya escrita. */
 document.addEventListener('arias:preguntar', (e) => {
