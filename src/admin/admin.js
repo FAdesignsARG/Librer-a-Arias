@@ -13,7 +13,8 @@
  */
 
 import { stems } from '../search-engine.js';
-import { offerActive, dateFmt } from '../templates.js';
+import { offerActive, dateFmt, cardHtml } from '../templates.js';
+import { closeDialog } from '../ui.js';
 import { cloudinaryUrl, cloudinaryConfig } from '../cloudinary-config.js';
 import {
   db,
@@ -59,6 +60,10 @@ let settings = {};
 let editing = null;
 /** Fotos del formulario abierto (public_ids de Cloudinary ya subidos). */
 let shots = [];
+/** createdAt real del producto en edición — para que la vista previa
+    muestre el badge "Nuevo" igual que lo vería un cliente, no como si
+    se acabara de crear ahora mismo. */
+let previewCreatedAt = null;
 /** Slugs marcados con el checkbox, para las acciones en lote. */
 const selected = new Set();
 
@@ -395,6 +400,7 @@ const fromLocalInput = (v) => (v ? new Date(v).toISOString() : null);
 function openEditor(p = null) {
   editing = p?.slug || null;
   shots = [...(p?.images || [])];
+  previewCreatedAt = p?.createdAt || null;
 
   $('#editorTitle').textContent = p ? 'Editar producto' : 'Nuevo producto';
   $('#fName').value = p?.name || '';
@@ -436,8 +442,8 @@ $('#fOfferPrice').addEventListener('input', (e) => {
 });
 
 $('#btnNew').addEventListener('click', () => openEditor());
-$('#btnCancel').addEventListener('click', () => editor.close());
-$('#editorClose').addEventListener('click', () => editor.close());
+$('#btnCancel').addEventListener('click', () => closeDialog(editor));
+$('#editorClose').addEventListener('click', () => closeDialog(editor));
 
 $('#fDesc').addEventListener('input', updateDescCount);
 function updateDescCount() {
@@ -505,7 +511,7 @@ form.addEventListener('submit', async (e) => {
       toast('Producto agregado', ico.check);
     }
     render();
-    editor.close();
+    closeDialog(editor);
   } catch (err) {
     toast(err.message);
   } finally {
@@ -539,7 +545,7 @@ $('#btnDelete').addEventListener('click', async () => {
     await deleteDoc(productRef(editing));
     products = products.filter((x) => x.slug !== editing);
     render();
-    editor.close();
+    closeDialog(editor);
     toast('Producto eliminado');
   } catch (err) {
     toast(err.message);
@@ -608,7 +614,48 @@ function renderShots() {
   // El botón de IA sólo tiene sentido si hay foto y hay clave configurada
   $('#aiFromPhoto').hidden = !aiOn || !shots.length;
   $('#aiPhotoNote').hidden = !aiOn || !shots.length;
+  updatePreview();
 }
+
+/**
+ * Espeja el formulario abierto como se vería la tarjeta real en el
+ * catálogo. Sólo se calcula el HTML si hay nombre y foto — antes de eso
+ * mostraría una imagen rota (Cloudinary con un id vacío), que confunde
+ * más de lo que ayuda.
+ */
+function updatePreview() {
+  const el = $('#editorPreviewCard');
+  if (!el) return; // no existe en mobile, ver admin.html/admin.css
+
+  const name = $('#fName').value.trim();
+  if (!name || !shots.length) {
+    el.innerHTML =
+      '<p class="editor__preview-empty">Cargá el nombre y al menos una foto para ver cómo queda.</p>';
+    return;
+  }
+
+  const draft = {
+    slug: editing || 'preview',
+    name,
+    category: $('#fCatSel').value || settings.categories[0],
+    price: Number($('#fPrice').value) || 0,
+    images: shots,
+    inStock: $('#fStock').checked,
+    featured: $('#fFeatured').checked,
+    offer:
+      $('#fOfferOn').checked && $('#fOfferUntil').value
+        ? {
+            price: Number($('#fOfferPrice').value) || 0,
+            until: fromLocalInput($('#fOfferUntil').value),
+            note: $('#fOfferNote').value.trim(),
+          }
+        : null,
+    createdAt: previewCreatedAt || new Date().toISOString(),
+  };
+  el.innerHTML = `<div class="editor__preview-card">${cardHtml(draft)}</div>`;
+}
+$('#form').addEventListener('input', updatePreview);
+$('#form').addEventListener('change', updatePreview);
 
 drop.addEventListener('click', () => fileInput.click());
 drop.addEventListener('keydown', (e) => {
@@ -920,8 +967,8 @@ $('#bulkRows').addEventListener('click', (e) => {
   renderBulk();
 });
 
-$('#bulkClose').addEventListener('click', () => bulkDlg.close());
-$('#bulkCancel').addEventListener('click', () => bulkDlg.close());
+$('#bulkClose').addEventListener('click', () => closeDialog(bulkDlg));
+$('#bulkCancel').addEventListener('click', () => closeDialog(bulkDlg));
 
 $('#bulkSave').addEventListener('click', async () => {
   const rows = bulkRows.filter((r) => r.name && (r.price || r.type === 'update'));
@@ -983,7 +1030,7 @@ $('#bulkSave').addEventListener('click', async () => {
 
     await batch.commit();
     render();
-    bulkDlg.close();
+    closeDialog(bulkDlg);
     const partes = [];
     if (newItems.length) partes.push(`${newItems.length} nuevo${newItems.length === 1 ? '' : 's'}`);
     if (updateItems.length) partes.push(`${updateItems.length} actualizado${updateItems.length === 1 ? '' : 's'}`);
@@ -1125,8 +1172,8 @@ $('#btnStockAI').addEventListener('click', () => {
   stockAIProposal = [];
   stockAIDlg.showModal();
 });
-$('#stockAIClose').addEventListener('click', () => stockAIDlg.close());
-$('#stockAICancel').addEventListener('click', () => stockAIDlg.close());
+$('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
+$('#stockAICancel').addEventListener('click', () => closeDialog(stockAIDlg));
 
 const CAMBIO_LABEL = {
   sin_stock: 'Pasa a SIN stock',
@@ -1219,7 +1266,7 @@ $('#stockAIApply').addEventListener('click', async () => {
     for (const { slug, patch } of applied) Object.assign(products.find((p) => p.slug === slug) || {}, patch);
 
     render();
-    stockAIDlg.close();
+    closeDialog(stockAIDlg);
     toast(`${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`, ico.check);
   } catch (err) {
     aiError(err);

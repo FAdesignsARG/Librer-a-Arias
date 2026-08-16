@@ -70,6 +70,24 @@
   display: grid;
   justify-items: center;
 }
+.splash__brand {
+  display: flex;
+  align-items: center;
+}
+/* En mobile no hay lugar (ni falta) para el nombre al lado del ícono —
+   sólo se suma en pantallas con aire de sobra. */
+.splash__word {
+  display: none;
+  height: 34px;
+  width: auto;
+  margin-left: 16px;
+  opacity: 0;
+}
+@media (min-width: 860px) {
+  .splash__word {
+    display: block;
+  }
+}
 
 /* ---- Coreografía ----
    0.00-0.52  el logo entra con overshoot
@@ -87,6 +105,16 @@
 }
 .splash[data-run='true'] .splash__panel--bottom {
   animation: curtain-down 0.62s var(--ease-out) 0.9s forwards;
+}
+@media (min-width: 860px) {
+  /* Entra apenas después del pop del logo, se va junto con él */
+  .splash[data-run='true'] .splash__word {
+    animation: word-in 0.46s var(--ease-out) 0.4s forwards, splash-out 0.34s var(--ease-soft) 0.86s forwards;
+  }
+}
+@keyframes word-in {
+  from { opacity: 0; translate: -10px 0; }
+  to { opacity: 1; translate: 0 0; }
 }
 
 @keyframes splash-pop {
@@ -125,8 +153,10 @@ html[data-splash='running'] body > *:not(.splash) {
   }
   .splash[data-run='true'] .splash__bar,
   .splash[data-run='true'] .splash__panel--top,
-  .splash[data-run='true'] .splash__panel--bottom {
+  .splash[data-run='true'] .splash__panel--bottom,
+  .splash[data-run='true'] .splash__word {
     animation: none;
+    opacity: 1;
   }
   html[data-splash='running'] body > *:not(.splash) {
     animation: none;

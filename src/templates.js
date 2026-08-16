@@ -84,8 +84,12 @@ const splashHtml = (s) => `<div class="splash" id="splash" aria-hidden="true">
   <div class="splash__panel splash__panel--top"></div>
   <div class="splash__panel splash__panel--bottom"></div>
   <div class="splash__stack">
-    <img class="splash__logo brand-dark" src="/assets/brand/mark-dark@256.webp" width="132" height="132" alt="">
-    <img class="splash__logo brand-light" src="/assets/brand/mark-light@256.webp" width="132" height="132" alt="">
+    <div class="splash__brand">
+      <img class="splash__logo brand-dark" src="/assets/brand/mark-dark@256.webp" width="132" height="132" alt="">
+      <img class="splash__logo brand-light" src="/assets/brand/mark-light@256.webp" width="132" height="132" alt="">
+      <img class="splash__word brand-dark" src="/assets/brand/wordmark-dark.webp" alt="${esc(s.storeName)}">
+      <img class="splash__word brand-light" src="/assets/brand/wordmark-light.webp" alt="${esc(s.storeName)}">
+    </div>
     <div class="splash__bar"></div>
   </div>
 </div>`;
@@ -496,6 +500,7 @@ export function renderHome({ products, settings: s }) {
         <input id="search" type="text" autocomplete="off" enterkeyhint="search"
                placeholder="Buscá por nombre, o probá &quot;regalo para nena&quot;"
                aria-label="Buscar productos">
+        <kbd class="search__kbd" aria-hidden="true">/</kbd>
         <button class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
       </div>
       <select class="sort" id="sort" aria-label="Ordenar">
@@ -504,6 +509,9 @@ export function renderHome({ products, settings: s }) {
         <option value="precio-desc">Mayor precio</option>
         <option value="nombre">Nombre A-Z</option>
       </select>
+      <button type="button" class="sortbtn" id="sortBtn" aria-haspopup="dialog" aria-label="Ordenar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0 3 3m-3-3-3 3"/></svg>
+      </button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filtrar por rubro">
       ${cats
@@ -515,6 +523,19 @@ export function renderHome({ products, settings: s }) {
     </div>
   </div>
 </div>
+
+<dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle">
+  <div class="sortsheet__head">
+    <h2 id="sortSheetTitle">Ordenar por</h2>
+    <button type="button" class="sheet__close" id="sortSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="sortsheet__body" id="sortSheetBody">
+    <button type="button" class="sortopt" data-sort="relevancia">Recomendados</button>
+    <button type="button" class="sortopt" data-sort="precio-asc">Menor precio</button>
+    <button type="button" class="sortopt" data-sort="precio-desc">Mayor precio</button>
+    <button type="button" class="sortopt" data-sort="nombre">Nombre A-Z</button>
+  </div>
+</dialog>
 
 <main class="shell">
   <p class="results-line" id="resultsLine"></p>

@@ -545,6 +545,32 @@
   display: none;
 }
 
+/* En mobile pasa a pantalla completa — es el formulario más largo de toda
+   la app (fotos, nombre, precio, rubro, descripción, keywords, switches,
+   oferta) y era el que quedaba más apretado en la pantalla más chica,
+   mientras que carrito/chat/notificaciones ya suben ocupando todo. */
+@media (max-width: 560px) {
+  .editor {
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .editor[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .editor[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+  .editor form {
+    max-height: 100%;
+  }
+}
+
 .editor form {
   display: flex;
   flex-direction: column;
@@ -565,6 +591,13 @@
   margin-right: auto;
 }
 
+.editor__layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .editor__body {
   flex: 1;
   overflow-y: auto;
@@ -572,6 +605,58 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* Vista previa del producto — sólo en pantallas anchas, donde sobra lugar
+   al lado del formulario. En mobile ni se genera (ver JS): cargar
+   productos ahí ya es apretado, mostrar una preview lo empeoraría. */
+.editor__preview {
+  display: none;
+}
+@media (min-width: 900px) {
+  .editor {
+    width: min(920px, calc(100% - 48px));
+  }
+  .editor__layout {
+    flex-direction: row;
+  }
+  .editor__body {
+    min-width: 0;
+  }
+  .editor__preview {
+    display: flex;
+    flex-direction: column;
+    width: 280px;
+    flex: none;
+    padding: 20px;
+    border-left: 1px solid var(--line);
+    background: var(--ink);
+    overflow-y: auto;
+  }
+}
+.editor__preview-label {
+  font-size: 0.72rem;
+  font-weight: 640;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.editor__preview-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--text-3);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
+}
+/* Tarjeta de sólo-mirar: nada de hover/click, es un espejo, no un control */
+.editor__preview-card {
+  pointer-events: none;
+}
+.editor__preview-card .card:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .editor__foot {

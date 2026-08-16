@@ -68,7 +68,7 @@
   backdrop-filter: blur(3px);
 }
 .notify[open] {
-  animation: sheet-in var(--dur) var(--ease-out);
+  animation: sheet-in var(--dur) var(--ease-pop);
 }
 .notify[data-closing='true'] {
   animation: sheet-out 0.2s var(--ease-soft) forwards;

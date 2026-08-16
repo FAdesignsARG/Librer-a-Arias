@@ -627,6 +627,33 @@ button {
   display: grid;
 }
 
+/* Pista del atajo de teclado — sólo tiene sentido con mouse+teclado, y
+   sólo cuando no hay nada escrito todavía (si no, tapa al botón de borrar). */
+.search__kbd {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  translate: 0 -50%;
+  display: none;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-hi);
+  color: var(--text-3);
+  font-size: 0.76rem;
+  font-family: inherit;
+  pointer-events: none;
+}
+@media (min-width: 720px) {
+  .search__kbd {
+    display: block;
+  }
+}
+.search input:focus ~ .search__kbd,
+.search[data-filled='true'] .search__kbd {
+  display: none;
+}
+
 .sort {
   height: var(--tap);
   padding: 0 34px 0 14px;
@@ -651,6 +678,102 @@ button {
   }
 }
 
+/* Reemplaza al <select> en mobile — un <select> nativo largo se corta feo
+   en pantallas chicas. El botón abre una hoja con las mismas opciones. */
+.sortbtn {
+  display: none;
+  flex: none;
+  width: 44px;
+  height: var(--tap);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+.sortbtn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.sortbtn:active {
+  transform: scale(0.94);
+}
+.sortbtn svg {
+  width: 19px;
+  height: 19px;
+}
+@media (max-width: 620px) {
+  .sortbtn {
+    display: flex;
+  }
+}
+
+.sortsheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0;
+  width: 100%;
+  max-height: 62vh;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface);
+  color: var(--text);
+}
+.sortsheet:not([open]) {
+  display: none;
+}
+.sortsheet::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+.sortsheet[open] {
+  animation: sheet-up var(--dur) var(--ease-out);
+}
+.sortsheet[data-closing='true'] {
+  animation: sheet-down 0.2s var(--ease-soft) forwards;
+}
+.sortsheet__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.sortsheet__head h2 {
+  font-size: 1.05rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+.sortsheet__body {
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+.sortopt {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border-radius: var(--r-md);
+  font-size: 0.96rem;
+  color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.sortopt:hover {
+  background: var(--fill);
+}
+.sortopt[aria-current='true'] {
+  color: var(--text);
+  font-weight: 620;
+  background: var(--gold-wash);
+}
+
 .chips {
   display: flex;
   gap: var(--s-2);
@@ -664,6 +787,17 @@ button {
 }
 .chips::-webkit-scrollbar {
   display: none;
+}
+/* Con mouse no hay gesto de "deslizar" — en pantallas anchas hay lugar de
+   sobra para que los rubros se acomoden en varias líneas en vez de
+   esconderse en un scroll horizontal sin barra visible. */
+@media (min-width: 720px) {
+  .chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
 }
 .chip {
   flex: none;

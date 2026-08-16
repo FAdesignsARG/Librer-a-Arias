@@ -134,6 +134,30 @@
   }
 }
 
+/* En monitores grandes, 52px queda perdido en la esquina — un poco más de
+   tamaño y de aire para que tenga presencia real, no que se sienta un
+   resto de la versión mobile. */
+@media (min-width: 1024px) {
+  .dock {
+    right: max(24px, env(safe-area-inset-right));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+  .dockbtn {
+    height: 56px;
+    width: 56px;
+  }
+  .dockbtn svg {
+    width: 25px;
+    height: 25px;
+  }
+  .dockbtn--ai {
+    width: auto;
+    padding: 0 22px 0 18px;
+    font-size: 0.96rem;
+  }
+}
+
 /* ==========================================================================
    PANEL DE CHAT
    ========================================================================== */
@@ -163,7 +187,7 @@
   backdrop-filter: blur(3px);
 }
 .chat[open] {
-  animation: sheet-in var(--dur) var(--ease-out);
+  animation: sheet-in var(--dur) var(--ease-pop);
 }
 .chat[data-closing='true'] {
   animation: sheet-out 0.2s var(--ease-soft) forwards;

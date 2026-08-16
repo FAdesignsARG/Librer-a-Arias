@@ -42,6 +42,13 @@
 .fab[hidden] {
   display: none;
 }
+@media (min-width: 1024px) {
+  .fab {
+    height: 56px;
+    padding: 0 22px;
+    font-size: 0.96rem;
+  }
+}
 .fab__count {
   min-width: 21px;
   height: 21px;
@@ -105,7 +112,7 @@
    [open] se aplica al abrir; data-closing lo maneja el JS al cerrar para
    que la animación de salida llegue a verse antes del close(). */
 .sheet[open] {
-  animation: sheet-in var(--dur) var(--ease-out);
+  animation: sheet-in var(--dur) var(--ease-pop);
 }
 .sheet[open]::backdrop {
   animation: fade-in var(--dur) var(--ease-soft);
@@ -116,13 +123,16 @@
 .sheet[data-closing='true']::backdrop {
   animation: fade-out 0.2s var(--ease-soft) forwards;
 }
+/* Desktop tiene su propio gesto — no es sólo mobile pero angosto. Al slide
+   se le suma un pop de escala + fundido, así entra con más presencia que
+   un panel plano, sin copiar el "sube desde abajo" que es lenguaje mobile. */
 @keyframes sheet-in {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from { transform: translateX(38px) scale(0.97); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
 }
 @keyframes sheet-out {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
+  from { transform: translateX(0) scale(1); opacity: 1; }
+  to { transform: translateX(38px) scale(0.97); opacity: 0; }
 }
 @keyframes fade-in {
   from { opacity: 0; }
@@ -131,6 +141,19 @@
 @keyframes fade-out {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* Globales a propósito (no anidadas en el media query): .sortsheet las usa
+   también, y sólo aparece entre 561-620px — un @keyframes definido DENTRO
+   de un @media sólo existe mientras esa condición matchea, así que anidarlas
+   en max-width:560px las hubiera dejado sin animación en ese rango. */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheet-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
 }
 
 @media (max-width: 560px) {
@@ -150,14 +173,6 @@
   }
   .sheet[data-closing='true'] {
     animation: sheet-down 0.2s var(--ease-soft) forwards;
-  }
-  @keyframes sheet-up {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-  @keyframes sheet-down {
-    from { transform: translateY(0); }
-    to { transform: translateY(100%); }
   }
 }
 
@@ -551,12 +566,42 @@
 
 /* ==========================================================================
    VIEW TRANSITIONS
-   Al ir de la grilla a la ficha, la foto se desplaza sola en los
-   navegadores que lo soportan. Donde no, la navegación es la de siempre.
+   Al ir de la grilla a la ficha (y viceversa), la página entra con un
+   fundido en vez de un salto seco. Esto SÓLO se ve en navegadores con
+   soporte de "cross-document view transitions" (Chrome/Edge, Safari
+   reciente) — hace falta declarar `@view-transition` en las dos páginas
+   para que el navegador la dispare solo; sin esta regla, el CSS de acá
+   abajo no hacía nada (quedaba sin efecto en ningún navegador, no sólo
+   en los que no lo soportan).
    ========================================================================== */
+@view-transition {
+  navigation: auto;
+}
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 0.28s;
+    animation-duration: 0.32s;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Reserva para Firefox y navegadores viejos, que no reconocen ninguna de
+   las reglas de arriba: un fundido simple armado a mano, para que la
+   navegación nunca sea un salto seco en NINGÚN navegador. Se detecta el
+   soporte por la propiedad `view-transition-name`, no por marca/versión. */
+@supports not (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    body {
+      animation: page-in 0.4s var(--ease-out) both;
+    }
+  }
+}
+@keyframes page-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

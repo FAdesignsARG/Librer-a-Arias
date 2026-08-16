@@ -5,7 +5,7 @@
  * bloque se activa sólo si encuentra los elementos que necesita.
  */
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
-import { wireDialog } from './ui.js';
+import { wireDialog, closeDialog } from './ui.js';
 // cardHtml es la MISMA función que arma las tarjetas en el servidor: antes
 // existían dos copias (una acá, otra en templates.js) que había que
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
@@ -429,6 +429,42 @@ chipsEl?.addEventListener('click', (e) => {
 });
 
 sortEl?.addEventListener('change', render);
+
+/* ---- Hoja de "Ordenar" para mobile (el <select> se esconde ahí) ----
+   #sortSheet sólo existe en la portada (no en la ficha de producto), por
+   eso todo acá abajo está encadenado con ?. — $$ no acepta root null. */
+const sortBtn = $('#sortBtn');
+const sortSheet = $('#sortSheet');
+const sortOpts = sortSheet ? $$('.sortopt', sortSheet) : [];
+
+function syncSortOpts() {
+  sortOpts.forEach((o) => o.setAttribute('aria-current', String(o.dataset.sort === sortEl.value)));
+}
+
+sortBtn?.addEventListener('click', () => {
+  syncSortOpts();
+  sortSheet.showModal();
+});
+wireDialog(sortSheet, $('#sortSheetClose'));
+
+sortSheet?.addEventListener('click', (e) => {
+  const btn = e.target.closest('.sortopt');
+  if (!btn) return;
+  sortEl.value = btn.dataset.sort;
+  render();
+  closeDialog(sortSheet);
+});
+
+/* ---- Atajo de teclado: "/" salta al buscador (sólo desktop tiene
+   sentido, pero no hace daño dejarlo activo en todos lados) ---- */
+addEventListener('keydown', (e) => {
+  if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const el = document.activeElement;
+  const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  if (typing || !searchEl) return;
+  e.preventDefault();
+  searchEl.focus();
+});
 
 /* ==========================================================================
    GALERÍA DE LA LANDING
