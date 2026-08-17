@@ -265,7 +265,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
       ${ico.bell}<span class="bellbtn__dot" id="bellDot" hidden></span>
     </button>
     ${themeButton}
-    <a class="btn btn--gold btn--sm" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">
+    <a class="btn btn--gold btn--sm nav__wa" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">
       ${ico.wa} Escribinos
     </a>
   </div>
@@ -289,7 +289,10 @@ const notifyPanel = () => `<dialog class="notify" id="notify" aria-labelledby="n
 const orderSheet = (s) => `
 <div class="dock">
   <button class="fab" id="fab" hidden aria-haspopup="dialog">
-    ${ico.bag}<span>Mi pedido</span><span class="fab__count" id="fabCount">0</span>
+    ${ico.bag}
+    <span class="fab__label">Mi pedido</span>
+    <span class="fab__total" id="fabTotal">$0</span>
+    <span class="fab__count" id="fabCount">0</span>
   </button>
   <div class="dock__row">
     <a class="dockbtn dockbtn--wa" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener"
@@ -725,6 +728,18 @@ export function renderProduct({ product: p, related, settings: s }) {
   </article>
 </div>
 
+<!-- En mobile duplica el CTA de arriba, fijo abajo: el precio y el botón
+     de agregar quedan siempre al alcance del pulgar sin importar cuánto
+     se scrolleó la descripción. Mismo data-add, participa del mismo
+     estado (ícono a check) que el resto de los botones de agregar. -->
+<div class="stickycta">
+  <div class="stickycta__price">
+    ${offerHasDiscount(p) ? `<span class="stickycta__old">${money(p.price)}</span>` : ''}
+    <strong>${money(offerHasDiscount(p) ? p.offer.price : p.price)}</strong>
+  </div>
+  <button class="btn btn--gold stickycta__add" data-add="${esc(p.slug)}">${ico.plus} Agregar</button>
+</div>
+
 ${
   related.length
     ? `<section class="related">
@@ -756,6 +771,7 @@ ${footer(s)}`;
     },
     body,
     settings: s,
+    bodyClass: 'page-product',
   });
 }
 

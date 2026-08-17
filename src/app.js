@@ -99,7 +99,10 @@ function renderStatusBadge() {
 
   el.hidden = false;
   el.dataset.open = String(status.open);
-  el.textContent = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+  // Corto siempre (entra bien en mobile) — el detalle completo va de
+  // tooltip, así no se pierde información, sólo se prioriza el espacio.
+  el.textContent = status.open ? 'Abierto' : 'Cerrado';
+  el.title = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
 }
 
 /* ==========================================================================
@@ -169,6 +172,7 @@ function setQty(slug, qty) {
 
 const fab = $('#fab');
 const fabCount = $('#fabCount');
+const fabTotal = $('#fabTotal');
 const sheet = $('#sheet');
 const sheetBody = $('#sheetBody');
 const sheetFoot = $('#sheetFoot');
@@ -186,6 +190,7 @@ function syncCartUI() {
   if (fab) {
     fab.hidden = n === 0;
     fabCount.textContent = String(n);
+    fabTotal.textContent = money(cartTotal());
   }
   // Marca los botones "+" de los productos que ya están en el pedido
   $$('[data-add]').forEach((btn) => {

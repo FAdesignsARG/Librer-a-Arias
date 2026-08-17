@@ -485,8 +485,8 @@
 }
 .pick__add {
   flex: none;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -501,7 +501,7 @@
   transform: scale(0.9);
 }
 .pick__add svg {
-  width: 15px;
+  width: 16px;
   height: 15px;
 }
 

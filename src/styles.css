@@ -344,19 +344,13 @@ button {
 .statusbadge[data-open='true'] {
   color: var(--text);
 }
+/* En mobile el texto ya es corto ("Abierto"/"Cerrado") — ahora que el
+   botón de WhatsApp de la nav se esconde ahí (el dock ya tiene el suyo),
+   sobra lugar para mostrarlo completo, sólo un poco más compacto. */
 @media (max-width: 560px) {
   .statusbadge {
-    font-size: 0;
-    padding: 0;
-    gap: 0;
-    width: 10px;
-    height: 14px;
-    border: 0;
-    background: none;
-  }
-  .statusbadge::before {
-    width: 8px;
-    height: 8px;
+    padding: 4px 9px 4px 8px;
+    font-size: 0.72rem;
   }
 }
 .nav__brand:hover {
@@ -382,6 +376,17 @@ button {
 
 @media (max-width: 720px) {
   .nav__links {
+    display: none;
+  }
+}
+/* El dock (abajo a la derecha) ya tiene un botón de WhatsApp siempre a
+   mano en mobile — repetirlo acá arriba es puro chrome de más. Se libera
+   ese lugar para que el badge de horario tenga espacio real. */
+@media (max-width: 560px) {
+  /* .btn{display:inline-flex} se define más abajo en este archivo con la
+     misma especificidad — .btn.nav__wa (dos clases) le gana siempre,
+     sin depender del orden en el que quedaron las reglas. */
+  .btn.nav__wa {
     display: none;
   }
 }
