@@ -2038,29 +2038,70 @@
   gap: 12px;
 }
 .adminfab {
-  width: 54px;
-  height: 54px;
   flex: none;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--gold);
-  color: var(--gold-ink);
-  box-shadow: 0 10px 30px -6px rgba(246, 190, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
-}
-.adminfab:hover {
-  background: var(--gold-hi);
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
 }
 .adminfab:active {
   transform: scale(0.92);
 }
-.adminfab svg {
-  width: 24px;
-  height: 24px;
-}
 .adminfab[hidden] {
   display: none;
+}
+
+/* Reportes: acceso secundario — discreto a propósito, para no competirle
+   protagonismo al asistente de IA (el que sí conviene que salte a la vista). */
+#btnReports {
+  width: 46px;
+  height: 46px;
+  background: var(--surface);
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+#btnReports svg {
+  width: 20px;
+  height: 20px;
+}
+@media (hover: hover) {
+  #btnReports:hover {
+    background: var(--surface-hi);
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+}
+
+/* Asistente de stock: la acción estrella de la barra — más grande, con un
+   resplandor propio que respira despacio para que el ojo caiga ahí primero. */
+#btnStockAI {
+  width: 60px;
+  height: 60px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  box-shadow: 0 12px 34px -6px rgba(246, 190, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.4);
+  animation: stockai-glow 2.6s var(--ease-soft) infinite;
+}
+#btnStockAI svg {
+  width: 27px;
+  height: 27px;
+}
+@media (hover: hover) {
+  #btnStockAI:hover {
+    background: var(--gold-hi);
+    box-shadow: 0 14px 40px -6px rgba(246, 190, 0, 0.7), 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+}
+@keyframes stockai-glow {
+  0%, 100% { box-shadow: 0 12px 34px -6px rgba(246, 190, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.4); }
+  50% { box-shadow: 0 12px 40px -4px rgba(246, 190, 0, 0.82), 0 2px 10px rgba(0, 0, 0, 0.4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #btnStockAI {
+    animation: none;
+  }
 }
 
 /* ==========================================================================
