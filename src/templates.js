@@ -221,6 +221,7 @@ ${navbar(s)}
 ${body}
 ${orderSheet(s)}
 ${notifyPanel()}
+${menuSheetHtml()}
 ${welcomeHtml(s)}
 <script type="module" src="/src/theme.js"></script>
 <script type="module" src="/src/app.js"></script>
@@ -268,8 +269,73 @@ const navbar = (s) => `<nav class="nav" id="nav">
     <a class="btn btn--gold btn--sm nav__wa" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">
       ${ico.wa} Escribinos
     </a>
+    <button type="button" class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-label="Menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
 </nav>`;
+
+/**
+ * Menú de mobile — el único lugar donde se puede llegar a Catálogo /
+ * Horarios / Visitanos ahí (nav__links vive oculto debajo de 720px). De
+ * paso, una guía de 4 pasos con un botón que HACE cada paso — nada de
+ * texto largo explicando cómo comprar, la idea es que alguien la vea una
+ * vez y quede resuelta con un toque, no que la lea entera.
+ */
+const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="menuSheetTitle">Menú</h2>
+    <button type="button" class="sheet__close" id="menuSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="menusheet__body">
+    <nav class="menusheet__links" id="menusheetLinks">
+      <a href="/#catalogo">Catálogo</a>
+      <a href="/#horarios">Horarios</a>
+      <a href="/#visitanos">Visitanos</a>
+    </nav>
+    <div class="menusheet__guide">
+      <p class="menusheet__guideTitle">Cómo comprar acá</p>
+      <div class="guidestep">
+        <span class="guidestep__n">1</span>
+        <span class="guidestep__ico">${ico.search}</span>
+        <span class="guidestep__info">
+          <strong>Buscá lo que necesitás</strong>
+          <span>O preguntale al asistente</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="search">Buscar</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">2</span>
+        <span class="guidestep__ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+        </span>
+        <span class="guidestep__info">
+          <strong>Elegí tus productos</strong>
+          <span>Tocá el + para sumarlos</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="catalog">Ver catálogo</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">3</span>
+        <span class="guidestep__ico">${ico.bag}</span>
+        <span class="guidestep__info">
+          <strong>Armá tu pedido</strong>
+          <span>Revisá cantidades y el total</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="cart">Ver pedido</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">4</span>
+        <span class="guidestep__ico">${ico.wa}</span>
+        <span class="guidestep__info">
+          <strong>Mandalo por WhatsApp</strong>
+          <span>Te confirmamos stock y pago</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="cart">Enviar</button>
+      </div>
+    </div>
+  </div>
+</dialog>`;
 
 /**
  * Panel de novedades: se abre desde la campanita. El contenido (qué

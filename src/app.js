@@ -630,6 +630,44 @@ priceSheet?.addEventListener('click', (e) => {
   closeDialog(priceSheet);
 });
 
+/* ---- Menú de mobile: links rápidos + guía de compra de 4 pasos ----
+   Cada botón de paso "hace" la acción en vez de sólo explicarla. Si el
+   elemento de esa acción no existe en esta página (por ejemplo "Buscar"
+   desde una ficha de producto, que no tiene buscador propio), cae a
+   navegar a la portada con el ancla correspondiente. ---- */
+const menuBtn = $('#menuBtn');
+const menuSheet = $('#menuSheet');
+
+menuBtn?.addEventListener('click', () => {
+  menuSheet.showModal();
+  menuSheet.focus(); // ver comentario en openSheet()
+});
+wireDialog(menuSheet, $('#menuSheetClose'));
+
+// Los links de Catálogo/Horarios/Visitanos navegan solos (son <a> con
+// href) — esto sólo cierra la hoja para que no quede abierta encima.
+$('#menusheetLinks')?.addEventListener('click', (e) => {
+  if (e.target.closest('a')) closeDialog(menuSheet);
+});
+
+menuSheet?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-guide]');
+  if (!btn) return;
+  const action = btn.dataset.guide;
+  closeDialog(menuSheet).then(() => {
+    if (action === 'search' && searchEl) {
+      searchEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      searchEl.focus();
+    } else if (action === 'catalog' && grid) {
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (action === 'cart') {
+      openSheet();
+    } else {
+      location.href = '/#catalogo';
+    }
+  });
+});
+
 /* ---- Atajo de teclado: "/" salta al buscador (sólo desktop tiene
    sentido, pero no hace daño dejarlo activo en todos lados) ---- */
 addEventListener('keydown', (e) => {
