@@ -1,6 +1,29 @@
 /** Utilidades de interfaz compartidas entre el catálogo y el panel. */
 
 /**
+ * Fondo oscuro manual, de respaldo del ::backdrop nativo del <dialog>.
+ * En un caso puntual reportado (un diálogo del panel admin) el ::backdrop
+ * no se pintaba y el diálogo quedaba mal posicionado en un navegador
+ * específico, sin poder reproducirlo ni identificar la causa exacta.
+ * Este scrim es un <div> de verdad, con su propio position:fixed — no
+ * depende de que el navegador soporte/pinte bien la pseudo-clase
+ * ::backdrop de <dialog>, así que funciona aunque eso falle.
+ */
+let scrimEl = null;
+function scrim() {
+  if (scrimEl) return scrimEl;
+  scrimEl = document.createElement('div');
+  scrimEl.className = 'modalscrim';
+  scrimEl.hidden = true;
+  scrimEl.addEventListener('click', () => {
+    const open = document.querySelector('dialog[open]');
+    if (open) closeDialog(open);
+  });
+  document.body.appendChild(scrimEl);
+  return scrimEl;
+}
+
+/**
  * Cierra un <dialog> dejando que se vea su animación de salida.
  *
  * El truco es marcar `data-closing` (que es lo que dispara la animación en
@@ -21,6 +44,9 @@ export function closeDialog(dlg, { timeout = 450 } = {}) {
   const finish = () => {
     delete dlg.dataset.closing;
     if (dlg.open) dlg.close();
+    // Sólo se apaga si no queda ningún otro <dialog> abierto — evita el
+    // parpadeo de un diálogo A abriendo a otro B con el scrim ya prendido.
+    if (scrimEl && !document.querySelector('dialog[open]')) scrimEl.hidden = true;
   };
 
   // Si ya había un cierre en curso (alguien clickeó dos veces, o se
@@ -54,6 +80,7 @@ export function closeDialog(dlg, { timeout = 450 } = {}) {
 export function openDialog(dlg) {
   if (!dlg) return;
   delete dlg.dataset.closing;
+  scrim().hidden = false;
   dlg.showModal();
   dlg.focus();
 }

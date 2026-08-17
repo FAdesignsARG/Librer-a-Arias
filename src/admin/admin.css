@@ -1961,15 +1961,81 @@
 
 /* ==========================================================================
    REPORTES DE ACTIVIDAD
-   Este diálogo no tiene <form> adentro (no hace falta, no envía nada), y
-   ".editor form" es lo que le da flex-column + footer pegado abajo a los
-   demás — sin envoltorio de form, ese selector nunca matchea y el footer
-   quedaba flotando a mitad de diálogo en vez de abajo del todo. Se repite
-   la misma regla acá, apuntada directo a ".editor.reports".
+   Diálogo independiente, con su propia clase (no ".editor") y su propio
+   centrado — top/left 50% + translate en vez de inset:0 + margin:auto,
+   la técnica de centrado más simple y menos propensa a interacciones raras
+   que hay. Además lleva un scrim propio en JS (ver ui.js openDialog/
+   closeDialog) como respaldo del ::backdrop nativo, por si el navegador
+   no lo pinta bien.
    ========================================================================== */
-.editor.reports {
+.reportsdlg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9600;
+  margin: 0;
+  width: min(560px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(88dvh, 640px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  color: var(--text);
+  overflow: hidden;
+  box-shadow: var(--shadow-pop);
   display: flex;
   flex-direction: column;
+}
+.reportsdlg::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+}
+.reportsdlg:not([open]) {
+  display: none;
+}
+/* Animación propia en vez de reusar "tutorial-in": esa anima el transform
+   a translateY+scale SIN el translate(-50%,-50%) del centrado — mientras
+   la animación corre (o si se queda pegada en el primer frame, que pasa
+   de verdad si la pestaña pierde foco/rendimiento a mitad de camino), el
+   transform de la animación REEMPLAZA por completo al del centrado en
+   vez de sumarse, y el diálogo aparece con la esquina superior izquierda
+   en el centro de la pantalla en lugar de centrado — clavado, no algo
+   que se corrija solo al terminar si nunca llega a terminar. Acá el
+   translate(-50%,-50%) va DENTRO de las dos puntas de la animación, así
+   nunca se pierde pase lo que pase con el timing. */
+.reportsdlg[open] {
+  animation: reportsdlg-in 0.3s var(--ease-out);
+}
+@keyframes reportsdlg-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@media (max-width: 560px) {
+  .reportsdlg {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .reportsdlg[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .reportsdlg[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+}
+.reportsdlg .editor__body {
+  padding-top: 16px;
 }
 .reportstabs {
   flex: none;
@@ -1996,10 +2062,6 @@
 .reportstab[aria-current='true'] {
   color: var(--gold);
   border-color: var(--gold);
-}
-
-.reports .editor__body {
-  padding-top: 16px;
 }
 
 .activitylist {

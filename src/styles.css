@@ -228,6 +228,21 @@ dialog:focus-visible {
   outline: none;
 }
 
+/* Fondo oscuro manual detrás de un <dialog> abierto con openDialog()
+   (ver ui.js) — respaldo del ::backdrop nativo, no reemplazo: cuesta
+   nada tenerlo aunque ::backdrop funcione bien, y salva el caso en que
+   no pinte en algún navegador puntual. */
+.modalscrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+}
+.modalscrim[hidden] {
+  display: none;
+}
+
 /* ---------- Tipografía ----------
    Dos reglas que sostienen todo:
    1. El tracking se cierra a medida que crece el tamaño. Es lo que hace
