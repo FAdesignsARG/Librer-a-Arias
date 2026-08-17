@@ -502,11 +502,15 @@
   place-items: center;
   border-radius: var(--r-sm);
   color: var(--text-3);
-  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .iconbtn:hover {
   background: var(--fill-hi);
   color: var(--text);
+}
+.iconbtn:active {
+  transform: scale(0.88);
 }
 .iconbtn svg {
   width: 16px;
@@ -1230,10 +1234,16 @@
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   background: var(--ink);
-  transition: border-color var(--dur-fast) var(--ease-soft);
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .money:hover {
+    border-color: var(--line-strong);
+  }
 }
 .money:focus-within {
   border-color: var(--gold-edge);
+  box-shadow: 0 0 0 4px var(--gold-wash);
 }
 .money span {
   padding-left: 13px;
@@ -1512,6 +1522,13 @@
   background: var(--media);
   border: 1px solid var(--line);
   cursor: grab;
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur) var(--ease-soft);
+}
+@media (hover: hover) {
+  .shot:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-card);
+  }
 }
 .shot[data-dragging='true'] {
   opacity: 0.4;
