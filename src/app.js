@@ -92,17 +92,28 @@ function computeOpenStatus(hours, now = new Date()) {
 }
 
 function renderStatusBadge() {
-  const el = $('#statusBadge');
-  if (!el) return;
   const status = computeOpenStatus(SETTINGS.hours);
   if (!status) return; // sin horarios cargados: no se muestra nada, no se inventa un estado
 
-  el.hidden = false;
-  el.dataset.open = String(status.open);
-  // Corto siempre (entra bien en mobile) — el detalle completo va de
-  // tooltip, así no se pierde información, sólo se prioriza el espacio.
-  el.textContent = status.open ? 'Abierto' : 'Cerrado';
-  el.title = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+  const el = $('#statusBadge');
+  if (el) {
+    el.hidden = false;
+    el.dataset.open = String(status.open);
+    // Corto siempre (entra bien en mobile) — el detalle completo va de
+    // tooltip, así no se pierde información, sólo se prioriza el espacio.
+    el.textContent = status.open ? 'Abierto' : 'Cerrado';
+    el.title = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+  }
+
+  // Mismo estado, repetido dentro de la tarjeta de horarios — a donde
+  // lleva la píldora de arriba, así lo que dice una cosa coincide con
+  // lo que confirma la otra apenas se llega.
+  const card = $('#hoursCardStatus');
+  if (card) {
+    card.hidden = false;
+    card.dataset.open = String(status.open);
+    card.textContent = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+  }
 }
 
 /* ==========================================================================

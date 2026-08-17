@@ -256,7 +256,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
       ${crane('nav__crane', 32)}
       <span>${esc(s.storeName)}</span>
     </a>
-    <span class="statusbadge" id="statusBadge" hidden></span>
+    <a class="statusbadge" id="statusBadge" href="/#horarios" hidden></a>
     <div class="nav__links">
       <a class="nav__link" href="/#catalogo">Catálogo</a>
       <a class="nav__link" href="/#visitanos">Visitanos</a>
@@ -612,10 +612,13 @@ export function renderHome({ products, settings: s }) {
         <div class="info-card__icon">${ico.pin}</div>
         <h3>Dirección</h3>
         <p>${esc(s.address)}</p>
-        <p style="margin-top:10px"><a class="btn btn--ghost btn--sm" href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">Ver en el mapa</a></p>
+        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">${ico.mapPin} Ver en el mapa</a></p>
       </div>
-      <div class="info-card" data-reveal>
-        <div class="info-card__icon">${ico.clock}</div>
+      <div class="info-card info-card--highlight" id="horarios" data-reveal>
+        <div class="info-card__top">
+          <div class="info-card__icon">${ico.clock}</div>
+          <span class="info-card__status" id="hoursCardStatus" hidden></span>
+        </div>
         <h3>Horarios</h3>
         <div class="hours-list">
           ${s.hoursDisplay
@@ -627,7 +630,7 @@ export function renderHome({ products, settings: s }) {
         <div class="info-card__icon">${ico.wa}</div>
         <h3>Consultas y pedidos</h3>
         <p>Armá tu pedido acá y te lo mandamos escrito por WhatsApp. Te confirmamos stock y forma de pago.</p>
-        <p style="margin-top:10px"><a class="btn btn--ghost btn--sm" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${esc(s.phoneDisplay)}</a></p>
+        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} ${esc(s.phoneDisplay)}</a></p>
       </div>
     </div>
   </div>

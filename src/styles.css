@@ -325,6 +325,16 @@ button {
   font-weight: 560;
   color: var(--text-2);
   white-space: nowrap;
+  transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+/* Ahora es un link a #horarios — se nota que se puede tocar */
+.statusbadge:hover {
+  border-color: var(--line-strong);
+  background: var(--fill-hi);
+}
+.statusbadge:active {
+  transform: scale(0.96);
 }
 .statusbadge[hidden] {
   display: none;
@@ -1250,14 +1260,17 @@ button {
   border: 1px solid var(--line);
   background: var(--surface);
 }
+/* Sólido, no la versión "wash" — el ícono pálido apenas se veía. El
+   mismo par gold/gold-ink que ya usa el precio de las tarjetas de
+   producto, contraste alto (12:1) en los dos temas. */
 .info-card__icon {
   width: 34px;
   height: 34px;
   display: grid;
   place-items: center;
   border-radius: var(--r-sm);
-  background: var(--gold-wash);
-  color: var(--gold-text);
+  background: var(--gold);
+  color: var(--gold-ink);
   margin-bottom: 12px;
 }
 .info-card__icon svg {
@@ -1274,6 +1287,66 @@ button {
   font-size: 0.88rem;
   color: var(--text-2);
   line-height: 1.55;
+}
+
+/* Tarjeta de horarios: la única con acento sólido de toda la sección —
+   es a donde lleva la píldora "Abierto"/"Cerrado" de la nav, así que
+   tiene que notarse apenas se llega. Usa los tokens fijos de marca
+   (gold/gold-ink), no los de superficie — mismo contraste alto (12:1)
+   en claro y en oscuro, porque el amarillo de la marca no cambia con
+   el tema. */
+.info-card--highlight {
+  background: var(--gold);
+  border-color: transparent;
+  box-shadow: var(--shadow-card);
+}
+.info-card--highlight h3,
+.info-card--highlight .hours-list span {
+  color: var(--gold-ink);
+}
+.info-card--highlight .hours-list span:first-child {
+  opacity: 0.72;
+}
+.info-card--highlight .hours-list div {
+  border-bottom-color: rgba(26, 18, 0, 0.14);
+}
+.info-card--highlight .info-card__icon {
+  background: var(--gold-ink);
+  color: var(--gold);
+}
+.info-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.info-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--gold-ink);
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 640;
+  white-space: nowrap;
+}
+.info-card__status[hidden] {
+  display: none;
+}
+.info-card__status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.6;
+}
+.info-card__status[data-open='true']::before {
+  background: var(--ok);
+  opacity: 1;
 }
 
 .hours-list {
