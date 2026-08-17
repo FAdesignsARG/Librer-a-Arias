@@ -277,7 +277,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
  * lo arma app.js a partir de products.json — no hay una colección aparte
  * de "notificaciones" para mantener sincronizada.
  */
-const notifyPanel = () => `<dialog class="notify" id="notify" aria-labelledby="notifyTitle">
+const notifyPanel = () => `<dialog class="notify" id="notify" aria-labelledby="notifyTitle" tabindex="-1">
   <div class="notify__head">
     <h2 id="notifyTitle">Novedades</h2>
     <button class="sheet__close" id="notifyClose" aria-label="Cerrar">${ico.x}</button>
@@ -313,7 +313,7 @@ const orderSheet = (s) => `
   </div>
 </div>
 
-<dialog class="chat" id="chat" aria-labelledby="chatTitle">
+<dialog class="chat" id="chat" aria-labelledby="chatTitle" tabindex="-1">
   <div class="chat__head">
     <img class="brand-dark" src="/assets/brand/mark-dark.webp" width="34" height="34" alt="">
     <img class="brand-light" src="/assets/brand/mark-light.webp" width="34" height="34" alt="">
@@ -335,7 +335,7 @@ const orderSheet = (s) => `
   </div>
 </dialog>
 
-<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle" tabindex="-1">
   <div class="sheet__head">
     <h2 id="sheetTitle">Mi pedido</h2>
     <button class="sheet__close" id="sheetClose" aria-label="Cerrar">${ico.x}</button>
@@ -561,7 +561,7 @@ export function renderHome({ products, settings: s }) {
   </div>
 </div>
 
-<dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle">
+<dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle" tabindex="-1">
   <div class="sortsheet__head">
     <h2 id="sortSheetTitle">Ordenar por</h2>
     <button type="button" class="sheet__close" id="sortSheetClose" aria-label="Cerrar">${ico.x}</button>
@@ -575,7 +575,7 @@ export function renderHome({ products, settings: s }) {
   </div>
 </dialog>
 
-<dialog class="sortsheet" id="priceSheet" aria-labelledby="priceSheetTitle">
+<dialog class="sortsheet" id="priceSheet" aria-labelledby="priceSheetTitle" tabindex="-1">
   <div class="sortsheet__head">
     <h2 id="priceSheetTitle">Filtrar por precio</h2>
     <button type="button" class="sheet__close" id="priceSheetClose" aria-label="Cerrar">${ico.x}</button>

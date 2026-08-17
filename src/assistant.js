@@ -236,8 +236,12 @@ function openChat() {
     addSeeds();
   }
   dlg.showModal();
-  // En escritorio conviene el foco puesto; en celular abriría el teclado solo
+  // En escritorio conviene el foco puesto; en celular abriría el teclado
+  // solo, así que se enfoca el dialog (tabindex="-1") en vez del input —
+  // si no, showModal() deja el foco en el botón de cerrar y en mobile
+  // Safari eso dispara el anillo de foco sobre un botón chico, roto.
   if (matchMedia('(min-width: 640px)').matches) input.focus();
+  else dlg.focus();
 }
 
 $('#askBtn')?.addEventListener('click', openChat);

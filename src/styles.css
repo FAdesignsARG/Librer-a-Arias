@@ -217,6 +217,13 @@ button {
   outline-offset: 3px;
   border-radius: 4px;
 }
+/* El tabindex="-1" en los <dialog> es un truco de foco (evita que
+   showModal() enfoque el botón de cerrar solo, que en mobile Safari
+   dispara el anillo de foco sobre un botón chico y se ve roto) — el
+   panel entero no necesita un anillo visible alrededor. */
+dialog:focus-visible {
+  outline: none;
+}
 :focus:not(:focus-visible) {
   outline: none;
 }
@@ -1300,12 +1307,23 @@ button {
   border-color: transparent;
   box-shadow: var(--shadow-card);
 }
-.info-card--highlight h3,
-.info-card--highlight .hours-list span {
+.info-card--highlight h3 {
   color: var(--gold-ink);
 }
+/* Selectores explícitos para :first-child/:last-child, no un `span`
+   genérico — la base (.hours-list span:first-child, más abajo en este
+   archivo) tiene la MISMA especificidad y quedaba ganando por orden,
+   dejando el label con el gris del tema (--text-2) sobre fondo dorado:
+   contraste pésimo en los dos temas. Nada de opacity para la jerarquía
+   acá — con un fondo tan saturado, atenuar el color es quedarse sin
+   contraste; el peso de fuente ya distingue label de valor. */
 .info-card--highlight .hours-list span:first-child {
-  opacity: 0.72;
+  color: var(--gold-ink);
+  font-weight: 500;
+}
+.info-card--highlight .hours-list span:last-child {
+  color: var(--gold-ink);
+  font-weight: 620;
 }
 .info-card--highlight .hours-list div {
   border-bottom-color: rgba(26, 18, 0, 0.14);

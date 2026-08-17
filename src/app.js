@@ -281,6 +281,10 @@ function openSheet() {
   showSheetCart();
   renderSheet();
   sheet.showModal();
+  // Sin esto, showModal() enfoca solo el botón de cerrar — en mobile
+  // Safari eso dispara el anillo de foco sobre un botón chico y se ve
+  // roto. El dialog tiene tabindex="-1" para poder recibir el foco así.
+  sheet.focus();
 }
 
 fab?.addEventListener('click', openSheet);
@@ -468,6 +472,7 @@ function syncBellDot() {
 bellBtn?.addEventListener('click', () => {
   renderFeed();
   notify.showModal();
+  notify.focus(); // ver comentario en openSheet()
   try {
     localStorage.setItem('arias.feed.visto', String(Date.now()));
   } catch {}
@@ -590,6 +595,7 @@ function syncSortOpts() {
 sortBtn?.addEventListener('click', () => {
   syncSortOpts();
   sortSheet.showModal();
+  sortSheet.focus(); // ver comentario en openSheet()
 });
 wireDialog(sortSheet, $('#sortSheetClose'));
 
@@ -612,6 +618,7 @@ function syncPriceOpts() {
 priceBtn?.addEventListener('click', () => {
   syncPriceOpts();
   priceSheet.showModal();
+  priceSheet.focus(); // ver comentario en openSheet()
 });
 wireDialog(priceSheet, $('#priceSheetClose'));
 

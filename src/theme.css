@@ -73,6 +73,11 @@
 .splash__brand {
   display: flex;
   align-items: center;
+  /* display:flex es block-level: sin esto ocupa todo el ancho de
+     .splash__stack y el logo queda pegado a la izquierda en vez de
+     centrado — se nota sobre todo en mobile, donde .splash__word está
+     oculto y el logo es el único hijo real. */
+  justify-content: center;
 }
 /* En mobile no hay lugar (ni falta) para el nombre al lado del ícono —
    sólo se suma en pantallas con aire de sobra. */
