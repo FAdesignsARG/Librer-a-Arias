@@ -686,8 +686,22 @@ const thumbs = $('#thumbs');
 thumbs?.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-src]');
   if (!btn) return;
-  $('#stage').src = btn.dataset.src;
+  const stage = $('#stage')?.closest('.product__stage');
+  const img = $('#stage');
+  const nextSrc = btn.dataset.src;
+  if (!img || img.src === nextSrc) return;
+
   $$('button', thumbs).forEach((b) => b.setAttribute('aria-current', String(b === btn)));
+
+  // Precarga antes de mostrar: sin esto el cambio de src es instantáneo y
+  // el fade-out no tiene nada que "cubrir" mientras la foto nueva llega.
+  stage?.classList.add('is-swapping');
+  const preload = new Image();
+  preload.onload = preload.onerror = () => {
+    img.src = nextSrc;
+    stage?.classList.remove('is-swapping');
+  };
+  preload.src = nextSrc;
 });
 
 /* "Preguntarle a la IA" de la ficha: reemplaza al viejo botón que abría
