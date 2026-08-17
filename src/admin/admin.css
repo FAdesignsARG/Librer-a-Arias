@@ -135,10 +135,9 @@
   font-weight: 600;
 }
 
-/* Borde dorado (no relleno, para no competir con "Nuevo producto") +
-   la palabra "Menú" al lado del ícono: todo lo que no es carga diaria de
-   productos vive ahí adentro, así que tiene que quedar claro que se
-   puede tocar. */
+/* Amarillo sólido a propósito — con borde nomás se perdía sobre fondo
+   blanco en tema claro. La palabra "Menú" al lado del ícono porque todo
+   lo que no es carga diaria de productos vive ahí adentro. */
 .adminmenubtn {
   display: flex;
   align-items: center;
@@ -146,18 +145,17 @@
   height: 34px;
   padding: 0 14px;
   border-radius: var(--r-pill);
-  border: 1.5px solid var(--gold-edge);
-  background: var(--gold-wash);
-  color: var(--gold);
+  border: 1.5px solid var(--gold);
+  background: var(--gold);
+  color: var(--gold-ink);
   font-size: 0.86rem;
   font-weight: 640;
   transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft),
     transform var(--dur-fast) var(--ease-pop);
 }
 .adminmenubtn:hover {
-  background: var(--gold);
-  color: var(--gold-ink);
-  border-color: var(--gold);
+  background: var(--gold-hi);
+  border-color: var(--gold-hi);
 }
 .adminmenubtn:active {
   transform: scale(0.96);
@@ -905,6 +903,102 @@
   }
 }
 
+/* ==========================================================================
+   CONFIGURACIÓN DE LA TIENDA
+   Cada grupo de campos es su propia tarjeta con ícono y descripción corta
+   — antes era una lista larga de .row2 uno atrás de otro sin ninguna
+   jerarquía visual, difícil de escanear rápido.
+   ========================================================================== */
+.settingsbody {
+  gap: 18px;
+  background: var(--ink);
+}
+.settingscard {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+.settingscard__head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.settingscard__ico {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--gold-wash);
+  color: var(--gold);
+}
+.settingscard__ico svg {
+  width: 19px;
+  height: 19px;
+}
+.settingscard__head h3 {
+  font-size: 0.94rem;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+}
+.settingscard__head p {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+.settingscard__body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.settingscard__body .row2:only-child {
+  gap: 14px;
+}
+
+/* ---------- Redes sociales: un ícono propio por campo en vez de que el
+   placeholder desaparezca apenas se empieza a escribir ---------- */
+.socialgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .socialgrid {
+    grid-template-columns: 1fr;
+  }
+}
+.socialfield {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+.socialfield:focus-within {
+  border-color: var(--gold-edge);
+}
+.socialfield__ico {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  color: var(--text-3);
+}
+.socialfield input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: none !important;
+  padding: 10px 0 !important;
+}
+
 /* ---------- Configuración de la tienda: rubros ---------- */
 .catchips {
   display: flex;
@@ -1023,6 +1117,13 @@
   padding-top: 6px;
   font-size: 0.82rem;
   color: var(--text-3);
+}
+/* Atenuado entero cuando no tiene turnos: de un vistazo se distinguen los
+   días abiertos de los cerrados sin tener que leer cada fila. */
+.hoursday--closed {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.62;
 }
 
 /* El símbolo $ fijo evita que se escriba dentro del número */
@@ -1815,4 +1916,45 @@
   .tpv__row--lift {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   BOTONES FLOTANTES
+   Mismo lugar que el FAB de "Mi pedido" del catálogo público (abajo a la
+   derecha), pero acá no hay carrito — son accesos redondos a herramientas
+   que se usan seguido y no ameritan estar siempre en la barra.
+   ========================================================================== */
+.adminfabs {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.adminfab {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--gold-ink);
+  box-shadow: 0 10px 30px -6px rgba(246, 190, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
+}
+.adminfab:hover {
+  background: var(--gold-hi);
+}
+.adminfab:active {
+  transform: scale(0.92);
+}
+.adminfab svg {
+  width: 24px;
+  height: 24px;
+}
+.adminfab[hidden] {
+  display: none;
 }

@@ -52,6 +52,16 @@ document.documentElement.dataset.theme=t;
       <span>Panel de catálogo</span>
     </a>
     <div class="abar__stats" id="stats"></div>
+    <a class="themebtn" href="/" target="_blank" rel="noopener" aria-label="Ver el catálogo" title="Ver el catálogo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+    </a>
+    <button class="themebtn" id="tutorialBtn" aria-haspopup="dialog" aria-label="Ver el tutorial del panel" title="Tutorial del panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2.1-2.9 2.4-2.9 4.3"/><line x1="12" y1="17.5" x2="12" y2="17.5"/></svg>
+    </button>
+    <button class="themebtn" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema">
+      <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+    </button>
     <button class="btn btn--gold btn--sm" id="btnNew">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       Nuevo producto
@@ -73,17 +83,9 @@ document.documentElement.dataset.theme=t;
   </div>
   <div class="adminmenu__body">
     <p class="adminmenu__label">Catálogo</p>
-    <a class="adminmenu__item" href="/" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
-      <span>Ver el catálogo</span>
-    </a>
     <button type="button" class="adminmenu__item" id="btnBulk">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       <span>Carga masiva</span>
-    </button>
-    <button type="button" class="adminmenu__item" id="btnStockAI" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
-      <span>Asistente de stock</span>
     </button>
     <div class="menu" id="menuExport">
       <button type="button" class="adminmenu__item" id="btnExport" aria-haspopup="true" aria-expanded="false">
@@ -108,17 +110,6 @@ document.documentElement.dataset.theme=t;
       <span>Configuración</span>
     </button>
 
-    <p class="adminmenu__label">Preferencias</p>
-    <button class="themebtn adminmenu__item" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro">
-      <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
-      <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
-      <span>Cambiar tema</span>
-    </button>
-    <button class="themebtn adminmenu__item" id="tutorialBtn" aria-haspopup="dialog">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2.1-2.9 2.4-2.9 4.3"/><line x1="12" y1="17.5" x2="12" y2="17.5"/></svg>
-      <span>Tutorial del panel</span>
-    </button>
-
     <p class="adminmenu__label">Cuenta</p>
     <p class="adminmenu__email" id="userEmail"></p>
     <button type="button" class="adminmenu__item adminmenu__item--danger" id="btnLogout">
@@ -138,68 +129,133 @@ document.documentElement.dataset.theme=t;
       </button>
     </div>
 
-    <div class="editor__body">
-      <div class="row2">
-        <div class="field">
-          <label for="sName">Nombre de la tienda</label>
-          <input id="sName" required maxlength="60">
+    <div class="editor__body settingsbody">
+      <section class="settingscard">
+        <header class="settingscard__head">
+          <span class="settingscard__ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9v10a1 1 0 0 0 1 1h4v-6h8v6h4a1 1 0 0 0 1-1V9"/><path d="M3 9h18"/></svg>
+          </span>
+          <div>
+            <h3>Datos generales</h3>
+            <p>Cómo se presenta la tienda</p>
+          </div>
+        </header>
+        <div class="settingscard__body">
+          <div class="row2">
+            <div class="field">
+              <label for="sName">Nombre de la tienda</label>
+              <input id="sName" required maxlength="60">
+            </div>
+            <div class="field">
+              <label for="sTagline">Tagline</label>
+              <input id="sTagline" maxlength="120" placeholder="Se muestra debajo del nombre">
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label for="sTagline">Tagline</label>
-          <input id="sTagline" maxlength="120" placeholder="Se muestra debajo del nombre">
-        </div>
-      </div>
+      </section>
 
-      <div class="row2">
-        <div class="field">
-          <label for="sWhatsapp">WhatsApp <span class="req">*</span></label>
-          <input id="sWhatsapp" required inputmode="numeric" placeholder="Ej: 5493804505150">
-          <p class="field__hint">Con código de país y de área, sin espacios ni signos.</p>
+      <section class="settingscard">
+        <header class="settingscard__head">
+          <span class="settingscard__ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.8 2.2z"/></svg>
+          </span>
+          <div>
+            <h3>Contacto</h3>
+            <p>WhatsApp, teléfono y dirección</p>
+          </div>
+        </header>
+        <div class="settingscard__body">
+          <div class="row2">
+            <div class="field">
+              <label for="sWhatsapp">WhatsApp <span class="req">*</span></label>
+              <input id="sWhatsapp" required inputmode="numeric" placeholder="Ej: 5493804505150">
+              <p class="field__hint">Con código de país y de área, sin espacios ni signos.</p>
+            </div>
+            <div class="field">
+              <label for="sPhoneDisplay">Teléfono para mostrar</label>
+              <input id="sPhoneDisplay" placeholder="Ej: 3804 505150">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="sAddress">Dirección</label>
+              <input id="sAddress" maxlength="120">
+            </div>
+            <div class="field">
+              <label for="sMapsUrl">Link de Google Maps</label>
+              <input id="sMapsUrl" type="url" placeholder="https://…">
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label for="sPhoneDisplay">Teléfono para mostrar</label>
-          <input id="sPhoneDisplay" placeholder="Ej: 3804 505150">
-        </div>
-      </div>
+      </section>
 
-      <div class="row2">
-        <div class="field">
-          <label for="sAddress">Dirección</label>
-          <input id="sAddress" maxlength="120">
+      <section class="settingscard">
+        <header class="settingscard__head">
+          <span class="settingscard__ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5 15.4 6.5M8.6 13.5l6.8 4"/></svg>
+          </span>
+          <div>
+            <h3>Redes sociales</h3>
+            <p>Los links que aparecen en el pie del catálogo</p>
+          </div>
+        </header>
+        <div class="settingscard__body">
+          <div class="socialgrid">
+            <label class="socialfield">
+              <span class="socialfield__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+              <input id="sInstagram" type="url" placeholder="Instagram">
+            </label>
+            <label class="socialfield">
+              <span class="socialfield__ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 8.5h2.6V5.1h-2.6c-2.6 0-4.6 2-4.6 4.6v1.8H7.6v3.4h2.3V21h3.4v-6.1h2.6l.5-3.4h-3.1V9.7c0-.7.5-1.2 1.2-1.2z"/></svg></span>
+              <input id="sFacebook" type="url" placeholder="Facebook">
+            </label>
+            <label class="socialfield">
+              <span class="socialfield__ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.1 1.9 3.7 4 4v3c-1.4 0-2.7-.4-3.9-1.1v6.1c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-3 1.3-3 3s1.4 3 3 3 3-1.3 3-3V3h2.9z"/></svg></span>
+              <input id="sTiktok" type="url" placeholder="TikTok">
+            </label>
+            <label class="socialfield">
+              <span class="socialfield__ico"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg></span>
+              <input id="sWaChannel" type="url" placeholder="Canal de WhatsApp">
+            </label>
+          </div>
         </div>
-        <div class="field">
-          <label for="sMapsUrl">Link de Google Maps</label>
-          <input id="sMapsUrl" type="url" placeholder="https://…">
-        </div>
-      </div>
+      </section>
 
-      <div class="field">
-        <label>Redes sociales</label>
-        <div class="row2">
-          <input id="sInstagram" type="url" placeholder="Instagram">
-          <input id="sFacebook" type="url" placeholder="Facebook">
+      <section class="settingscard">
+        <header class="settingscard__head">
+          <span class="settingscard__ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg>
+          </span>
+          <div>
+            <h3>Rubros del catálogo</h3>
+            <p>Las categorías que ve el cliente al filtrar</p>
+          </div>
+        </header>
+        <div class="settingscard__body">
+          <div class="catchips" id="catChips"></div>
+          <div class="catadd">
+            <input id="catNew" placeholder="Agregar un rubro nuevo…" maxlength="30">
+            <button type="button" class="btn btn--ghost btn--sm" id="catAddBtn">Agregar</button>
+          </div>
+          <p class="field__hint">Sacar un rubro de acá no toca los productos que ya lo tienen cargado.</p>
         </div>
-        <div class="row2" style="margin-top:10px">
-          <input id="sTiktok" type="url" placeholder="TikTok">
-          <input id="sWaChannel" type="url" placeholder="Canal de WhatsApp">
-        </div>
-      </div>
+      </section>
 
-      <div class="field">
-        <label>Rubros del catálogo</label>
-        <div class="catchips" id="catChips"></div>
-        <div class="catadd">
-          <input id="catNew" placeholder="Agregar un rubro nuevo…" maxlength="30">
-          <button type="button" class="btn btn--ghost btn--sm" id="catAddBtn">Agregar</button>
+      <section class="settingscard">
+        <header class="settingscard__head">
+          <span class="settingscard__ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          </span>
+          <div>
+            <h3>Horarios de atención</h3>
+            <p>Un día sin turnos queda cerrado</p>
+          </div>
+        </header>
+        <div class="settingscard__body">
+          <div class="hoursgrid" id="hoursGrid"></div>
+          <p class="field__hint">"+ turno" es para horario partido (mañana y tarde, por ejemplo).</p>
         </div>
-        <p class="field__hint">Sacar un rubro de acá no toca los productos que ya lo tienen cargado.</p>
-      </div>
-
-      <div class="field">
-        <label>Horarios de atención</label>
-        <div class="hoursgrid" id="hoursGrid"></div>
-        <p class="field__hint">Un día sin turnos queda cerrado ese día. "+ turno" es para horario partido.</p>
-      </div>
+      </section>
     </div>
 
     <div class="editor__foot">
@@ -444,7 +500,7 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 </dialog>
 
 <!-- ====================== ASISTENTE DE STOCK ====================== -->
-<dialog class="editor bulk" id="stockAI" aria-labelledby="stockAITitle">
+<dialog class="editor bulk" id="stockAI" aria-labelledby="stockAITitle" tabindex="-1">
   <div class="editor__head">
     <h2 id="stockAITitle">Asistente de stock</h2>
     <button type="button" class="sheet__close" id="stockAIClose" aria-label="Cerrar">
@@ -500,6 +556,13 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
     </div>
   </div>
 </dialog>
+
+<!-- ====================== BOTONES FLOTANTES ====================== -->
+<div class="adminfabs">
+  <button type="button" class="adminfab" id="btnStockAI" hidden aria-haspopup="dialog" aria-label="Asistente de stock" title="Asistente de stock">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
+  </button>
+</div>
 
 </div><!-- /#appScreen -->
 

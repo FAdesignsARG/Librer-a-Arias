@@ -1170,7 +1170,8 @@ $('#btnStockAI').addEventListener('click', () => {
   $('#stockAINote').hidden = true;
   $('#stockAIApply').disabled = true;
   stockAIProposal = [];
-  closeDialog(adminMenuDlg).then(() => stockAIDlg.showModal());
+  stockAIDlg.showModal();
+  stockAIDlg.focus();
 });
 $('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
 $('#stockAICancel').addEventListener('click', () => closeDialog(stockAIDlg));
@@ -1631,7 +1632,7 @@ function renderHoursGrid() {
           )
           .join('')
       : `<p class="hoursday__closed">Cerrado</p>`;
-    return `<div class="hoursday" data-day="${day}">
+    return `<div class="hoursday${ranges.length ? '' : ' hoursday--closed'}" data-day="${day}">
       <span class="hoursday__label">${DAY_LABEL[day]}</span>
       <div class="hoursday__main">
         ${rangesHtml}
