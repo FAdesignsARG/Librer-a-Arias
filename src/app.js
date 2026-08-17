@@ -47,6 +47,62 @@ async function loadData() {
 }
 
 /* ==========================================================================
+   "ABIERTO AHORA" / "CERRADO"
+   Se calcula en el navegador de quien mira la página — asume que está en
+   el mismo huso horario que el local (Argentina), que es lo esperable
+   para una tienda física local, no una tienda de alcance nacional.
+   ========================================================================== */
+const DAY_CODES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const DAY_NAMES = {
+  Su: 'domingo', Mo: 'lunes', Tu: 'martes', We: 'miércoles',
+  Th: 'jueves', Fr: 'viernes', Sa: 'sábado',
+};
+const minutesOf = (hhmm) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+/** {open:true, closesAt} o {open:false, next: "hoy a las 18:00"} */
+function computeOpenStatus(hours, now = new Date()) {
+  if (!hours?.length) return null;
+  const todayCode = DAY_CODES[now.getDay()];
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  const todaySlots = hours
+    .filter((h) => h.days.includes(todayCode))
+    .sort((a, b) => minutesOf(a.opens) - minutesOf(b.opens));
+
+  for (const slot of todaySlots) {
+    if (nowMin >= minutesOf(slot.opens) && nowMin < minutesOf(slot.closes)) {
+      return { open: true, closesAt: slot.closes };
+    }
+  }
+  for (const slot of todaySlots) {
+    if (nowMin < minutesOf(slot.opens)) return { open: false, next: `hoy a las ${slot.opens}` };
+  }
+  for (let add = 1; add <= 7; add++) {
+    const code = DAY_CODES[(now.getDay() + add) % 7];
+    const slots = hours.filter((h) => h.days.includes(code)).sort((a, b) => minutesOf(a.opens) - minutesOf(b.opens));
+    if (slots.length) {
+      const label = add === 1 ? 'mañana' : DAY_NAMES[code];
+      return { open: false, next: `${label} a las ${slots[0].opens}` };
+    }
+  }
+  return { open: false, next: null };
+}
+
+function renderStatusBadge() {
+  const el = $('#statusBadge');
+  if (!el) return;
+  const status = computeOpenStatus(SETTINGS.hours);
+  if (!status) return; // sin horarios cargados: no se muestra nada, no se inventa un estado
+
+  el.hidden = false;
+  el.dataset.open = String(status.open);
+  el.textContent = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+}
+
+/* ==========================================================================
    PEDIDO (carrito)
    Se guarda en localStorage para que sobreviva a la navegación entre la
    grilla y las landings, que son páginas separadas.
@@ -78,13 +134,27 @@ const cartCount = () => [...cart.values()].reduce((a, b) => a + b, 0);
 const cartTotal = () =>
   [...cart].reduce((sum, [slug, qty]) => sum + (bySlug.get(slug)?.price || 0) * qty, 0);
 
+/* La primera vez que alguien agrega algo (en cualquier visita, no sólo
+   esta sesión) el toast explica el mecanismo — que el pedido se manda
+   por WhatsApp — en vez del texto corto de siempre. Una sola vez: después
+   de esa, ya lo sabe. Nada de banner permanente ocupando pantalla. */
+const CART_HINT_KEY = 'arias.cartHintShown';
+
 function addToCart(slug, { silent = false } = {}) {
   const p = bySlug.get(slug);
   if (!p) return;
+  const firstEver = cart.size === 0 && !localStorage.getItem(CART_HINT_KEY);
   cart.set(slug, (cart.get(slug) || 0) + 1);
   saveCart();
   syncCartUI();
-  if (!silent) toast(`${p.name} agregado`, ico.check);
+  if (!silent) {
+    if (firstEver) {
+      toast('¡Va a tu pedido! Armalo y mandalo por WhatsApp cuando quieras', ico.check, 4200);
+      localStorage.setItem(CART_HINT_KEY, 'true');
+    } else {
+      toast(`${p.name} agregado`, ico.check);
+    }
+  }
   bumpFab();
 }
 
@@ -121,7 +191,7 @@ function syncCartUI() {
   $$('[data-add]').forEach((btn) => {
     const inCart = cart.has(btn.dataset.add);
     btn.dataset.inCart = String(inCart);
-    if (btn.classList.contains('card__add')) {
+    if (btn.classList.contains('card__add') || btn.classList.contains('pick__add')) {
       btn.innerHTML = inCart ? ico.check : ico.plus;
     }
   });
@@ -168,13 +238,15 @@ function renderSheet() {
   sheetSend.href = buildOrderLink();
 }
 
-/** Arma el mensaje de WhatsApp con todo el pedido en un solo texto. */
-function buildOrderLink() {
+/** Arma el mensaje del pedido en un solo texto — lo usan tanto el link
+    de WhatsApp como el botón de copiar (el plan B si WhatsApp Web no
+    está vinculado en la compu). */
+function buildOrderMessage() {
   const lines = [...cart].map(([slug, qty]) => {
     const p = bySlug.get(slug);
     return `• ${qty} x ${p.name} — ${money(p.price * qty)}`;
   });
-  const msg = [
+  return [
     '¡Hola! Quiero hacer este pedido:',
     '',
     ...lines,
@@ -183,17 +255,60 @@ function buildOrderLink() {
     '',
     '¿Me confirman stock y forma de pago?',
   ].join('\n');
-  return `https://wa.me/${SETTINGS.whatsapp}?text=${encodeURIComponent(msg)}`;
 }
+const buildOrderLink = () => `https://wa.me/${SETTINGS.whatsapp}?text=${encodeURIComponent(buildOrderMessage())}`;
 
 function openSheet() {
   if (!sheet) return;
+  // Por si quedó en el estado "pedido enviado" de una visita anterior
+  // al panel — siempre se abre mostrando el pedido, no la confirmación.
+  showSheetCart();
   renderSheet();
   sheet.showModal();
 }
 
 fab?.addEventListener('click', openSheet);
 wireDialog(sheet, $('#sheetClose'));
+
+/* ---- Confirmación tras enviar + plan B si WhatsApp no abrió ---- */
+const sheetSent = $('#sheetSent');
+
+function showSheetCart() {
+  if (!sheetSent) return;
+  sheetSent.hidden = true;
+  sheetBody.hidden = false;
+  sheetFoot.hidden = cart.size === 0;
+}
+function showSheetSent() {
+  if (!sheetSent) return;
+  sheetBody.hidden = true;
+  sheetFoot.hidden = true;
+  sheetSent.hidden = false;
+}
+
+sheetSend?.addEventListener('click', () => {
+  // No se cancela la navegación: el <a target="_blank"> abre WhatsApp
+  // igual. Esto sólo cambia lo que se ve DETRÁS, en la pestaña que queda.
+  showSheetSent();
+});
+
+$('#sheetSentContinue')?.addEventListener('click', showSheetCart);
+$('#sheetSentClear')?.addEventListener('click', () => {
+  cart.clear();
+  saveCart();
+  syncCartUI();
+  showSheetCart();
+  renderSheet();
+});
+
+$('#sheetCopy')?.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(buildOrderMessage());
+    toast('Pedido copiado', ico.check);
+  } catch {
+    toast('No se pudo copiar — probá seleccionar el texto a mano');
+  }
+});
 
 sheetBody?.addEventListener('click', (e) => {
   const line = e.target.closest('.line');
@@ -221,14 +336,15 @@ document.addEventListener('click', (e) => {
    AVISOS
    ========================================================================== */
 const toastHost = $('#toasts');
-function toast(text, icon = '') {
+function toast(text, icon = '', duration = 2500) {
   if (!toastHost) return;
   const el = document.createElement('div');
   el.className = 'toast';
   el.innerHTML = `${icon}<span></span>`;
   el.querySelector('span').textContent = text;
+  el.style.animationDuration = `${duration / 1000}s`;
   toastHost.append(el);
-  setTimeout(() => el.remove(), 2500);
+  setTimeout(() => el.remove(), duration);
 }
 
 /* ==========================================================================
@@ -375,6 +491,7 @@ const searchEl = $('#search');
 const searchWrap = $('#searchWrap');
 const chipsEl = $('#chips');
 const sortEl = $('#sort');
+const priceEl = $('#priceFilter');
 const emptyEl = $('#empty');
 const resultsLine = $('#resultsLine');
 
@@ -382,18 +499,29 @@ let activeCat = 'Todos';
 
 function sortList(list, mode) {
   const out = [...list];
-  if (mode === 'precio-asc') out.sort((a, b) => a.price - b.price);
+  if (mode === 'destacados') {
+    // Estable: entre dos destacados (o dos no-destacados) respeta el
+    // orden que ya traían — no hace falta un criterio secundario.
+    out.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  } else if (mode === 'precio-asc') out.sort((a, b) => a.price - b.price);
   else if (mode === 'precio-desc') out.sort((a, b) => b.price - a.price);
   else if (mode === 'nombre') out.sort((a, b) => a.name.localeCompare(b.name, 'es'));
   // "relevancia" respeta el orden que devolvió el buscador
   return out;
 }
 
+/** "10000-30000" -> [10000, 30000]; "60000-" -> [60000, Infinity]. */
+function filterByPrice(list, range) {
+  if (!range) return list;
+  const [min, max] = range.split('-').map((n) => (n ? Number(n) : null));
+  return list.filter((p) => p.price >= (min ?? 0) && p.price <= (max ?? Infinity));
+}
+
 function render() {
   if (!grid) return;
 
   const pool = activeCat === 'Todos' ? getIndex() : getIndex().filter((e) => e.p.category === activeCat);
-  const found = searchProducts(searchEl.value, pool);
+  const found = filterByPrice(searchProducts(searchEl.value, pool), priceEl?.value);
   const list = sortList(found, sortEl?.value || 'relevancia');
 
   grid.innerHTML = list.map(cardHtml).join('');
@@ -429,10 +557,12 @@ chipsEl?.addEventListener('click', (e) => {
 });
 
 sortEl?.addEventListener('change', render);
+priceEl?.addEventListener('change', render);
 
-/* ---- Hoja de "Ordenar" para mobile (el <select> se esconde ahí) ----
-   #sortSheet sólo existe en la portada (no en la ficha de producto), por
-   eso todo acá abajo está encadenado con ?. — $$ no acepta root null. */
+/* ---- Hojas de "Ordenar" y "Precio" para mobile (los <select> se
+   esconden ahí) ---- #sortSheet/#priceSheet sólo existen en la portada
+   (no en la ficha de producto), por eso todo acá abajo está encadenado
+   con ?. — $$ no acepta root null. */
 const sortBtn = $('#sortBtn');
 const sortSheet = $('#sortSheet');
 const sortOpts = sortSheet ? $$('.sortopt', sortSheet) : [];
@@ -453,6 +583,28 @@ sortSheet?.addEventListener('click', (e) => {
   sortEl.value = btn.dataset.sort;
   render();
   closeDialog(sortSheet);
+});
+
+const priceBtn = $('#priceBtn');
+const priceSheet = $('#priceSheet');
+const priceOpts = priceSheet ? $$('.sortopt', priceSheet) : [];
+
+function syncPriceOpts() {
+  priceOpts.forEach((o) => o.setAttribute('aria-current', String(o.dataset.price === priceEl.value)));
+}
+
+priceBtn?.addEventListener('click', () => {
+  syncPriceOpts();
+  priceSheet.showModal();
+});
+wireDialog(priceSheet, $('#priceSheetClose'));
+
+priceSheet?.addEventListener('click', (e) => {
+  const btn = e.target.closest('.sortopt');
+  if (!btn) return;
+  priceEl.value = btn.dataset.price;
+  render();
+  closeDialog(priceSheet);
 });
 
 /* ---- Atajo de teclado: "/" salta al buscador (sólo desktop tiene
@@ -478,6 +630,16 @@ thumbs?.addEventListener('click', (e) => {
   $$('button', thumbs).forEach((b) => b.setAttribute('aria-current', String(b === btn)));
 });
 
+/* "Preguntarle a la IA" de la ficha: reemplaza al viejo botón que abría
+   WhatsApp por separado — así una persona mirando varios productos
+   termina con un solo pedido consolidado, no 3 mensajes sueltos. */
+const askAboutBtn = $('#askAboutBtn');
+askAboutBtn?.addEventListener('click', () => {
+  document.dispatchEvent(
+    new CustomEvent('arias:preguntar', { detail: { pregunta: askAboutBtn.dataset.ask } })
+  );
+});
+
 /* ==========================================================================
    ARRANQUE
    ========================================================================== */
@@ -487,6 +649,7 @@ loadCart();
 syncCartUI();
 observeReveals();
 syncBellDot();
+renderStatusBadge();
 
 if (grid) {
   // Permite entrar directo a un rubro desde las migas de pan: /?cat=Bazar

@@ -19,6 +19,10 @@ const thumbOf = (id) => cloudinaryUrl(id, { width: 400 });
 
 const arrow =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+const plusIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+const checkIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 
 const SEEDS = [
   'Regalo para una nena de 6 años',
@@ -58,14 +62,21 @@ function addPicks(items) {
   wrap.className = 'picks';
   wrap.innerHTML = items
     .map(
-      (p) => `<a class="pick" href="/p/${p.slug}/">
-      ${p.image ? `<img src="${thumbOf(p.image)}" alt="" width="46" height="46" loading="lazy">` : ''}
-      <span class="pick__info">
-        <span class="pick__name"></span>
-        <span class="pick__meta"><b>${money(p.price)}</b> · ${p.inStock ? p.category : 'sin stock'}</span>
-      </span>
-      <span class="pick__go">${arrow}</span>
-    </a>`
+      (p) => `<div class="pick">
+      <a class="pick__link" href="/p/${p.slug}/">
+        ${p.image ? `<img src="${thumbOf(p.image)}" alt="" width="46" height="46" loading="lazy">` : ''}
+        <span class="pick__info">
+          <span class="pick__name"></span>
+          <span class="pick__meta"><b>${money(p.price)}</b> · ${p.inStock ? p.category : 'sin stock'}</span>
+        </span>
+        <span class="pick__go">${arrow}</span>
+      </a>
+      ${
+        p.inStock
+          ? `<button type="button" class="pick__add" data-add="${p.slug}" aria-label="Agregar ${p.name} al pedido">${plusIco}</button>`
+          : ''
+      }
+    </div>`
     )
     .join('');
   // El nombre por textContent: puede tener comillas o signos

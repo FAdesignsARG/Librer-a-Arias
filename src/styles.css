@@ -305,8 +305,59 @@ button {
   gap: 10px;
   font-weight: 620;
   letter-spacing: -0.015em;
-  margin-right: auto;
   transition: opacity var(--dur-fast) var(--ease-soft);
+}
+
+/* "Abierto ahora" / "Cerrado — abre a las X", calculado de los horarios
+   ya cargados. Empuja al resto de la nav hacia la derecha (hereda el
+   margin-right:auto que antes tenía .nav__brand), así queda agrupado
+   con el nombre de la marca en vez de perderse del otro lado. */
+.statusbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  padding: 5px 11px 5px 9px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-hi);
+  font-size: 0.78rem;
+  font-weight: 560;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.statusbadge[hidden] {
+  display: none;
+}
+.statusbadge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+.statusbadge[data-open='true']::before {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
+}
+.statusbadge[data-open='true'] {
+  color: var(--text);
+}
+@media (max-width: 560px) {
+  .statusbadge {
+    font-size: 0;
+    padding: 0;
+    gap: 0;
+    width: 10px;
+    height: 14px;
+    border: 0;
+    background: none;
+  }
+  .statusbadge::before {
+    width: 8px;
+    height: 8px;
+  }
 }
 .nav__brand:hover {
   opacity: 0.75;

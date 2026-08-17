@@ -414,21 +414,34 @@
 .pick {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 8px;
   padding: 8px;
   border-radius: var(--r-md);
   border: 1px solid var(--line);
   background: var(--surface-hi);
-  transition: border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+  transition: border-color var(--dur-fast) var(--ease-soft);
   animation: msg-in 0.34s var(--ease-out) backwards;
 }
 .pick:hover {
   border-color: var(--gold-edge);
-  transform: translateX(2px);
 }
 .pick:nth-child(2) { animation-delay: 0.05s; }
 .pick:nth-child(3) { animation-delay: 0.1s; }
 .pick:nth-child(4) { animation-delay: 0.15s; }
+/* Antes .pick ERA el link entero — ahora es sólo la parte clickeable
+   que va a la ficha, para poder sumar un botón de "+" al lado sin
+   anidar un <button> dentro de un <a>. */
+.pick__link {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  transition: transform var(--dur-fast) var(--ease-pop);
+}
+.pick:hover .pick__link {
+  transform: translateX(2px);
+}
 .pick img {
   width: 46px;
   height: 46px;
@@ -467,6 +480,27 @@
   color: var(--text-3);
 }
 .pick__go svg {
+  width: 15px;
+  height: 15px;
+}
+.pick__add {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--gold-ink);
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
+}
+.pick__add:hover {
+  background: var(--gold-hi);
+}
+.pick__add:active {
+  transform: scale(0.9);
+}
+.pick__add svg {
   width: 15px;
   height: 15px;
 }

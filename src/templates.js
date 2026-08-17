@@ -162,12 +162,6 @@ const welcomeHtml = (s) => `<dialog class="welcome" id="welcome" aria-labelledby
   </div>
 </dialog>`;
 
-/* ---------- WhatsApp ---------- */
-
-export const waProduct = (s, p) =>
-  `https://wa.me/${s.whatsapp}?text=` +
-  encodeURIComponent(`Hola! Quiero consultar por: ${p.name} (${money(p.price)})`);
-
 /* ==========================================================================
    LAYOUT
    ========================================================================== */
@@ -262,6 +256,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
       ${crane('nav__crane', 32)}
       <span>${esc(s.storeName)}</span>
     </a>
+    <span class="statusbadge" id="statusBadge" hidden></span>
     <div class="nav__links">
       <a class="nav__link" href="/#catalogo">Catálogo</a>
       <a class="nav__link" href="/#visitanos">Visitanos</a>
@@ -349,6 +344,23 @@ const orderSheet = (s) => `
       ${ico.wa} Enviar pedido por WhatsApp
     </a>
     <p class="sheet__note">Te abrimos WhatsApp con el pedido escrito. Confirmamos stock y forma de pago por ahí.</p>
+    <div class="sheet__fallback">
+      <span>¿No se abrió WhatsApp?</span>
+      <button type="button" class="sheet__copy" id="sheetCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        Copiar pedido
+      </button>
+      <a class="sheet__phone" href="tel:+${esc(s.whatsapp)}">o llamanos al ${esc(s.phoneDisplay)}</a>
+    </div>
+  </div>
+  <div class="sheet__sent" id="sheetSent" hidden>
+    ${ico.check}
+    <h3>¡Pedido enviado!</h3>
+    <p>En breve te responden por WhatsApp para confirmar stock y forma de pago.</p>
+    <div class="sheet__sent-actions">
+      <button type="button" class="btn btn--ghost" id="sheetSentClear">Vaciar pedido</button>
+      <button type="button" class="btn btn--gold" id="sheetSentContinue">Seguir comprando</button>
+    </div>
   </div>
 </dialog>
 
@@ -516,12 +528,23 @@ export function renderHome({ products, settings: s }) {
       </div>
       <select class="sort" id="sort" aria-label="Ordenar">
         <option value="relevancia">Recomendados</option>
+        <option value="destacados">Destacados primero</option>
         <option value="precio-asc">Menor precio</option>
         <option value="precio-desc">Mayor precio</option>
         <option value="nombre">Nombre A-Z</option>
       </select>
       <button type="button" class="sortbtn" id="sortBtn" aria-haspopup="dialog" aria-label="Ordenar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0 3 3m-3-3-3 3"/></svg>
+      </button>
+      <select class="sort" id="priceFilter" aria-label="Filtrar por precio">
+        <option value="">Cualquier precio</option>
+        <option value="0-10000">Hasta $10.000</option>
+        <option value="10000-30000">$10.000 a $30.000</option>
+        <option value="30000-60000">$30.000 a $60.000</option>
+        <option value="60000-">Más de $60.000</option>
+      </select>
+      <button type="button" class="sortbtn" id="priceBtn" aria-haspopup="dialog" aria-label="Filtrar por precio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
       </button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filtrar por rubro">
@@ -542,9 +565,24 @@ export function renderHome({ products, settings: s }) {
   </div>
   <div class="sortsheet__body" id="sortSheetBody">
     <button type="button" class="sortopt" data-sort="relevancia">Recomendados</button>
+    <button type="button" class="sortopt" data-sort="destacados">Destacados primero</button>
     <button type="button" class="sortopt" data-sort="precio-asc">Menor precio</button>
     <button type="button" class="sortopt" data-sort="precio-desc">Mayor precio</button>
     <button type="button" class="sortopt" data-sort="nombre">Nombre A-Z</button>
+  </div>
+</dialog>
+
+<dialog class="sortsheet" id="priceSheet" aria-labelledby="priceSheetTitle">
+  <div class="sortsheet__head">
+    <h2 id="priceSheetTitle">Filtrar por precio</h2>
+    <button type="button" class="sheet__close" id="priceSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="sortsheet__body" id="priceSheetBody">
+    <button type="button" class="sortopt" data-price="">Cualquier precio</button>
+    <button type="button" class="sortopt" data-price="0-10000">Hasta $10.000</button>
+    <button type="button" class="sortopt" data-price="10000-30000">$10.000 a $30.000</button>
+    <button type="button" class="sortopt" data-price="30000-60000">$30.000 a $60.000</button>
+    <button type="button" class="sortopt" data-price="60000-">Más de $60.000</button>
   </div>
 </dialog>
 
@@ -678,7 +716,10 @@ export function renderProduct({ product: p, related, settings: s }) {
       <p class="product__desc">${esc(p.description)}</p>
       <div class="product__actions">
         <button class="btn btn--gold" data-add="${esc(p.slug)}">${ico.plus} Agregar al pedido</button>
-        <a class="btn btn--ghost" href="${esc(waProduct(s, p))}" target="_blank" rel="noopener">${ico.wa} Consultar</a>
+        <button type="button" class="btn btn--ghost" id="askAboutBtn"
+                data-ask="${esc(`Quiero consultar por: ${p.name} (${money(p.price)})`)}">
+          ${askIco} Preguntarle a la IA
+        </button>
       </div>
     </div>
   </article>
