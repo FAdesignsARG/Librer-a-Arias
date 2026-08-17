@@ -278,12 +278,15 @@ const navbar = (s) => `<nav class="nav" id="nav">
   </div>
 </nav>`;
 
+const chatIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>';
+
 /**
  * Menú de mobile — el único lugar donde se puede llegar a Catálogo /
  * Horarios / Visitanos ahí (nav__links vive oculto debajo de 720px). De
- * paso, una guía de 4 pasos con un botón que HACE cada paso — nada de
- * texto largo explicando cómo comprar, la idea es que alguien la vea una
- * vez y quede resuelta con un toque, no que la lea entera.
+ * paso, una guía rápida de cómo moverse por el sitio — sutil, con un
+ * botón que HACE cada cosa en vez de explicarla, nada de plantearlo como
+ * un instructivo de compra.
  */
 const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
   <div class="sortsheet__head">
@@ -297,15 +300,15 @@ const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" 
       <a href="/#visitanos">Visitanos</a>
     </nav>
     <div class="menusheet__guide">
-      <p class="menusheet__guideTitle">Cómo comprar acá</p>
+      <p class="menusheet__guideTitle">Guía rápida</p>
       <div class="guidestep">
         <span class="guidestep__n">1</span>
-        <span class="guidestep__ico">${ico.search}</span>
+        <span class="guidestep__ico">${chatIco}</span>
         <span class="guidestep__info">
-          <strong>Buscá lo que necesitás</strong>
-          <span>O preguntale al asistente</span>
+          <strong>Preguntale al asistente</strong>
+          <span>Te ayuda a encontrar lo que buscás</span>
         </span>
-        <button type="button" class="guidestep__btn" data-guide="search">Buscar</button>
+        <button type="button" class="guidestep__btn" data-guide="chat">Preguntar</button>
       </div>
       <div class="guidestep">
         <span class="guidestep__n">2</span>
@@ -313,8 +316,8 @@ const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" 
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
         </span>
         <span class="guidestep__info">
-          <strong>Elegí tus productos</strong>
-          <span>Tocá el + para sumarlos</span>
+          <strong>Mirá el catálogo</strong>
+          <span>Filtrá por rubro, precio o stock</span>
         </span>
         <button type="button" class="guidestep__btn" data-guide="catalog">Ver catálogo</button>
       </div>
@@ -322,19 +325,19 @@ const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" 
         <span class="guidestep__n">3</span>
         <span class="guidestep__ico">${ico.bag}</span>
         <span class="guidestep__info">
-          <strong>Armá tu pedido</strong>
-          <span>Revisá cantidades y el total</span>
+          <strong>Revisá tu selección</strong>
+          <span>Cantidades y el total, siempre a mano</span>
         </span>
-        <button type="button" class="guidestep__btn" data-guide="cart">Ver pedido</button>
+        <button type="button" class="guidestep__btn" data-guide="cart">Ver selección</button>
       </div>
       <div class="guidestep">
         <span class="guidestep__n">4</span>
         <span class="guidestep__ico">${ico.wa}</span>
         <span class="guidestep__info">
-          <strong>Mandalo por WhatsApp</strong>
-          <span>Te confirmamos stock y pago</span>
+          <strong>Escribinos por WhatsApp</strong>
+          <span>Para lo que necesites</span>
         </span>
-        <button type="button" class="guidestep__btn" data-guide="cart">Enviar</button>
+        <button type="button" class="guidestep__btn" data-guide="cart">Escribir</button>
       </div>
     </div>
   </div>

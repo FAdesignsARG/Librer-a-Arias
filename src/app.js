@@ -655,9 +655,8 @@ menuSheet?.addEventListener('click', (e) => {
   if (!btn) return;
   const action = btn.dataset.guide;
   closeDialog(menuSheet).then(() => {
-    if (action === 'search' && searchEl) {
-      searchEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      searchEl.focus();
+    if (action === 'chat') {
+      $('#askBtn')?.click();
     } else if (action === 'catalog' && grid) {
       grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (action === 'cart') {

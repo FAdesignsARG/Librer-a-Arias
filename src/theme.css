@@ -9,12 +9,20 @@
    y en oscuro en negro, sin tocar nada.
    ========================================================================== */
 
+/* Centrado con la técnica más vieja y compatible que hay (absolute +
+   top/left 50% + translate), no con grid/place-items: en un momento este
+   usaba display:grid + place-items:center sobre inset:0, y en algunos
+   navegadores (WebKit/iOS observado en vivo) el logo terminaba pegado a
+   la izquierda en vez de centrado. top/right/bottom/left explícitos en
+   vez del shorthand inset por el mismo motivo — menos superficie para
+   que algo lo interprete distinto. */
 .splash {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 9999;
-  display: grid;
-  place-items: center;
   pointer-events: none;
 }
 /* Mientras corre, el fondo del documento ya es el del tema: si el usuario
@@ -91,10 +99,14 @@
 }
 
 .splash__stack {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .splash__brand {
   display: flex;
