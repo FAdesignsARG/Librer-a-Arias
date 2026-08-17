@@ -11,5 +11,36 @@
   # archivo puntual en vez de desactivar el scan entero.
   SECRETS_SCAN_OMIT_PATHS = "src/firebase-config.js"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# La IA (asistente de stock, carga con foto/texto, chat del catálogo) corre
+# acá como funciones — el sitio publicado es estático, no hay servidor
+# propio. Redirects en vez de que el frontend hable directo con
+# /.netlify/functions/*: así src/ai-api.js (local) y estas funciones
+# (Netlify) responden en las mismas URLs y ni admin.js ni assistant.js
+# necesitan saber cuál de las dos está atendiendo.
+[[redirects]]
+  from = "/api/ai/status"
+  to = "/.netlify/functions/ai-status"
+  status = 200
+[[redirects]]
+  from = "/api/ai/ask"
+  to = "/.netlify/functions/ai-ask"
+  status = 200
+[[redirects]]
+  from = "/api/ai/stock-actions"
+  to = "/.netlify/functions/ai-stock-actions"
+  status = 200
+[[redirects]]
+  from = "/api/ai/draft-text"
+  to = "/.netlify/functions/ai-draft-text"
+  status = 200
+[[redirects]]
+  from = "/api/ai/draft-image"
+  to = "/.netlify/functions/ai-draft-image"
+  status = 200
+
 # El build (scripts/build.js) ya escribe dist/_redirects con el 404 real
 # para /p/lo-que-sea. Nada más que agregar acá.
