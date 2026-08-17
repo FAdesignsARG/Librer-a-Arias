@@ -935,7 +935,7 @@ $('#btnBulk').addEventListener('click', () => {
   bulkRows = [];
   $('#bulkText').value = '';
   renderBulk();
-  bulkDlg.showModal();
+  closeDialog(adminMenuDlg).then(() => bulkDlg.showModal());
 });
 
 $('#bulkParse').addEventListener('click', () => {
@@ -1170,7 +1170,7 @@ $('#btnStockAI').addEventListener('click', () => {
   $('#stockAINote').hidden = true;
   $('#stockAIApply').disabled = true;
   stockAIProposal = [];
-  stockAIDlg.showModal();
+  closeDialog(adminMenuDlg).then(() => stockAIDlg.showModal());
 });
 $('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
 $('#stockAICancel').addEventListener('click', () => closeDialog(stockAIDlg));
@@ -1508,8 +1508,22 @@ function maybeAutoOpenTutorial() {
   setTimeout(openTutorial, 700);
 }
 
-$('#tutorialBtn').addEventListener('click', openTutorial);
+$('#tutorialBtn').addEventListener('click', () => {
+  closeDialog(adminMenuDlg).then(openTutorial);
+});
 wireDialog(tutorialDlg, $('#tutorialClose'));
+
+/* ==========================================================================
+   MENÚ DEL PANEL
+   Todo lo que no es cargar/editar productos hoy vive acá adentro — ver
+   admin.css para el porqué del diálogo compartido en vez de un dropdown.
+   ========================================================================== */
+const adminMenuDlg = $('#adminMenu');
+$('#adminMenuBtn').addEventListener('click', () => {
+  adminMenuDlg.showModal();
+  adminMenuDlg.focus();
+});
+wireDialog(adminMenuDlg, $('#adminMenuClose'));
 
 tutorialDots.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-i]');

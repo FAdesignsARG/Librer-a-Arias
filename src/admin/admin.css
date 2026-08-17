@@ -93,20 +93,6 @@
   display: none;
 }
 
-.abar__user {
-  font-size: 0.8rem;
-  color: var(--text-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 160px;
-}
-@media (max-width: 900px) {
-  .abar__user {
-    display: none;
-  }
-}
-
 /* ---------- Barra superior ---------- */
 .abar {
   position: sticky;
@@ -147,6 +133,188 @@
 .abar__stats b {
   color: var(--text-2);
   font-weight: 600;
+}
+
+/* Borde dorado (no relleno, para no competir con "Nuevo producto") +
+   la palabra "Menú" al lado del ícono: todo lo que no es carga diaria de
+   productos vive ahí adentro, así que tiene que quedar claro que se
+   puede tocar. */
+.adminmenubtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--gold);
+  font-size: 0.86rem;
+  font-weight: 640;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+.adminmenubtn:hover {
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-color: var(--gold);
+}
+.adminmenubtn:active {
+  transform: scale(0.96);
+}
+.adminmenubtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ==========================================================================
+   MENÚ DEL PANEL
+   Todo lo que no es "cargar/editar productos hoy" vive acá: exportar,
+   carga masiva, IA, tema, tutorial, cuenta. Mismo diálogo en mobile y
+   desktop — se centra en pantallas anchas y sube como hoja completa en
+   celular, igual que .tutorial (ver esa sección para el porqué de cada
+   propiedad: max-width explícito contra el default del user-agent para
+   <dialog>, y flex-column desde la regla base para que el footer nunca
+   quede fuera del alto visible).
+   ========================================================================== */
+.adminmenu {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(380px, calc(100% - 24px));
+  max-height: min(88dvh, 640px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  color: var(--text);
+  overflow: hidden;
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  flex-direction: column;
+}
+.adminmenu::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+}
+.adminmenu[open] {
+  animation: tutorial-in 0.3s var(--ease-out);
+}
+.adminmenu:not([open]) {
+  display: none;
+}
+@media (max-width: 560px) {
+  .adminmenu {
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .adminmenu[open] {
+    animation: sheet-up var(--dur) var(--ease-out);
+  }
+  .adminmenu[data-closing='true'] {
+    animation: sheet-down 0.2s var(--ease-soft) forwards;
+  }
+}
+
+.adminmenu__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.adminmenu__head h2 {
+  font-size: 1.06rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+
+.adminmenu__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.adminmenu__label {
+  margin: 14px 10px 4px;
+  font-size: 0.7rem;
+  font-weight: 640;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.adminmenu__label:first-child {
+  margin-top: 6px;
+}
+
+.adminmenu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 10px;
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 540;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-soft);
+}
+.adminmenu__item:hover {
+  background: var(--fill);
+}
+.adminmenu__item svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  color: var(--text-3);
+}
+.adminmenu__item[hidden] {
+  display: none;
+}
+.adminmenu__item--danger {
+  color: #ff6b6b;
+}
+.adminmenu__item--danger svg {
+  color: #ff6b6b;
+}
+
+/* #themeBtn y #tutorialBtn conservan la clase .themebtn (así el swap de
+   sol/luna y el giro al cambiar de tema, definidos ahí, siguen andando
+   igual que en el catálogo público) — acá se les pisa el tamaño circular
+   por el de una fila normal del menú. Selector combinado a propósito:
+   con la misma especificidad que .themebtn solo, gana por definirse acá
+   sin depender del orden en el archivo. */
+.themebtn.adminmenu__item {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-md);
+  border: 0;
+  justify-content: flex-start;
+}
+.themebtn.adminmenu__item svg {
+  width: 19px;
+  height: 19px;
+}
+
+.adminmenu__email {
+  margin: 2px 10px 8px;
+  font-size: 0.82rem;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ashell {

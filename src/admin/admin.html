@@ -52,21 +52,43 @@ document.documentElement.dataset.theme=t;
       <span>Panel de catálogo</span>
     </a>
     <div class="abar__stats" id="stats"></div>
-    <span class="abar__user" id="userEmail"></span>
-    <button class="btn btn--ghost btn--sm" id="btnLogout" title="Cerrar sesión">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    <button class="btn btn--gold btn--sm" id="btnNew">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Nuevo producto
     </button>
-    <button class="themebtn" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema">
-      <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
-      <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+    <button class="adminmenubtn" id="adminMenuBtn" aria-haspopup="dialog" aria-label="Abrir el menú del panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      Menú
     </button>
-    <button class="themebtn" id="tutorialBtn" aria-haspopup="dialog" aria-label="Ver el tutorial del panel" title="Tutorial del panel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2.1-2.9 2.4-2.9 4.3"/><line x1="12" y1="17.5" x2="12" y2="17.5"/></svg>
+  </div>
+</header>
+
+<!-- ====================== MENÚ DEL PANEL ====================== -->
+<dialog class="adminmenu" id="adminMenu" aria-labelledby="adminMenuTitle" tabindex="-1">
+  <div class="adminmenu__head">
+    <h2 id="adminMenuTitle">Menú</h2>
+    <button type="button" class="sheet__close" id="adminMenuClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="adminmenu__body">
+    <p class="adminmenu__label">Catálogo</p>
+    <a class="adminmenu__item" href="/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+      <span>Ver el catálogo</span>
+    </a>
+    <button type="button" class="adminmenu__item" id="btnBulk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>Carga masiva</span>
+    </button>
+    <button type="button" class="adminmenu__item" id="btnStockAI" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
+      <span>Asistente de stock</span>
     </button>
     <div class="menu" id="menuExport">
-      <button class="btn btn--ghost btn--sm" id="btnExport" aria-haspopup="true" aria-expanded="false">
+      <button type="button" class="adminmenu__item" id="btnExport" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>
-        Exportar
+        <span>Exportar</span>
       </button>
       <div class="menu__pop" hidden>
         <button type="button" id="exportCsv">
@@ -79,21 +101,26 @@ document.documentElement.dataset.theme=t;
         </button>
       </div>
     </div>
-    <button class="btn btn--ghost btn--sm" id="btnStockAI" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
-      Asistente de stock
+
+    <p class="adminmenu__label">Preferencias</p>
+    <button class="themebtn adminmenu__item" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro">
+      <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+      <span>Cambiar tema</span>
     </button>
-    <button class="btn btn--ghost btn--sm" id="btnBulk">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      Carga masiva
+    <button class="themebtn adminmenu__item" id="tutorialBtn" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2.1-2.9 2.4-2.9 4.3"/><line x1="12" y1="17.5" x2="12" y2="17.5"/></svg>
+      <span>Tutorial del panel</span>
     </button>
-    <a class="btn btn--ghost btn--sm" href="/" target="_blank" rel="noopener">Ver el catálogo</a>
-    <button class="btn btn--gold btn--sm" id="btnNew">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      Nuevo producto
+
+    <p class="adminmenu__label">Cuenta</p>
+    <p class="adminmenu__email" id="userEmail"></p>
+    <button type="button" class="adminmenu__item adminmenu__item--danger" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      <span>Cerrar sesión</span>
     </button>
   </div>
-</header>
+</dialog>
 
 <main class="ashell">
   <div class="atools">
