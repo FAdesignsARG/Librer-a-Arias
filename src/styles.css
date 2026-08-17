@@ -358,6 +358,10 @@ dialog:focus-visible {
   background: var(--ok);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
 }
+.statusbadge[data-open='false']::before {
+  background: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.22);
+}
 .statusbadge[data-open='true'] {
   color: var(--text);
 }
@@ -841,6 +845,9 @@ dialog:focus-visible {
    Único lugar donde llegar a Catálogo/Horarios/Visitanos en mobile (nav__links
    vive oculto ahí) + una guía de compra de 4 pasos, cada uno con su botón.
    ========================================================================== */
+/* Amarillo sólido a propósito — es el único botón nuevo en la nav y tiene
+   que notarse que se puede tocar, no mimetizarse con el resto de íconos
+   neutros de al lado. */
 .menubtn {
   width: 36px;
   height: 36px;
@@ -848,15 +855,15 @@ dialog:focus-visible {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: var(--text-2);
-  border: 1px solid var(--line);
-  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
-    border-color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+  color: var(--gold-ink);
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  transition: background var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop),
+    box-shadow var(--dur-fast) var(--ease-soft);
 }
 .menubtn:hover {
-  background: var(--fill);
-  color: var(--text);
-  border-color: var(--line-strong);
+  background: var(--gold-hi);
+  box-shadow: 0 0 0 4px var(--gold-wash);
 }
 .menubtn:active {
   transform: scale(0.92);
@@ -958,14 +965,17 @@ dialog:focus-visible {
   flex: none;
   padding: 7px 13px;
   border-radius: var(--r-pill);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: var(--gold-ink);
   font-size: 0.82rem;
   font-weight: 590;
   white-space: nowrap;
   transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
 }
 .guidestep__btn:hover {
-  background: var(--fill);
+  background: var(--gold-hi);
+  border-color: var(--gold-hi);
 }
 .guidestep__btn:active {
   transform: scale(0.95);
