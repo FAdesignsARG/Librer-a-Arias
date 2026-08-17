@@ -60,6 +60,9 @@ document.documentElement.dataset.theme=t;
       <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
       <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
     </button>
+    <button class="themebtn" id="tutorialBtn" aria-haspopup="dialog" aria-label="Ver el tutorial del panel" title="Tutorial del panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2.1-2.9 2.4-2.9 4.3"/><line x1="12" y1="17.5" x2="12" y2="17.5"/></svg>
+    </button>
     <div class="menu" id="menuExport">
       <button class="btn btn--ghost btn--sm" id="btnExport" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>
@@ -362,6 +365,24 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
     <span class="editor__spacer"></span>
     <button type="button" class="btn btn--ghost" id="stockAICancel">Cancelar</button>
     <button type="button" class="btn btn--gold" id="stockAIApply" disabled>Aplicar cambios</button>
+  </div>
+</dialog>
+
+<!-- ====================== TUTORIAL DEL PANEL ====================== -->
+<dialog class="tutorial" id="tutorial" aria-labelledby="tutorialTitle" tabindex="-1">
+  <div class="tutorial__head">
+    <span class="tutorial__eyebrow" id="tutorialStep"></span>
+    <button type="button" class="sheet__close" id="tutorialClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="tutorial__body" id="tutorialBody"></div>
+  <div class="tutorial__foot">
+    <div class="tutorial__dots" id="tutorialDots"></div>
+    <div class="tutorial__nav">
+      <button type="button" class="btn btn--ghost btn--sm" id="tutorialBack">Atrás</button>
+      <button type="button" class="btn btn--gold btn--sm" id="tutorialNext">Siguiente</button>
+    </div>
   </div>
 </dialog>
 

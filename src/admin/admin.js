@@ -14,7 +14,7 @@
 
 import { stems } from '../search-engine.js';
 import { offerActive, dateFmt, cardHtml } from '../templates.js';
-import { closeDialog } from '../ui.js';
+import { closeDialog, wireDialog } from '../ui.js';
 import { cloudinaryUrl, cloudinaryConfig } from '../cloudinary-config.js';
 import {
   db,
@@ -1346,4 +1346,189 @@ onAuthStateChanged(auth, async (user) => {
   } catch (err) {
     listEl.innerHTML = `<div class="aempty"><p>No se pudo cargar el catálogo.</p><p class="t-small">${err.message}</p></div>`;
   }
+
+  maybeAutoOpenTutorial();
+});
+
+/* ==========================================================================
+   TUTORIAL DEL PANEL
+   Pop-in la primera vez que alguien entra (una vez por navegador, se
+   recuerda en localStorage) y reabrible siempre desde el botón "?" de la
+   barra. Cada paso trae una maqueta hecha con divs — nada de capturas
+   reales, que se desactualizan solas apenas cambia el diseño.
+   ========================================================================== */
+const camIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="14" r="3.4"/></svg>';
+const searchIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const arrowIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+const TUTORIAL_STEPS = [
+  {
+    title: 'Buscá y filtrá al toque',
+    text: 'Escribí en el buscador de arriba o combinalo con los filtros de rubro y estado — sin stock, destacados, en oferta, sin foto — para encontrar cualquier producto en segundos.',
+    preview: `<div class="tpv tpv--search">
+      <div class="tpv__searchbar">${searchIco}<span class="tpv__bar" style="width:60%"></span></div>
+      <div class="tpv__chips">
+        <span class="tpv__chip">Rubro</span>
+        <span class="tpv__chip tpv__chip--active">Sin stock</span>
+        <span class="tpv__chip">Destacados</span>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Cargar un producto nuevo',
+    text: 'Tocá "Nuevo producto": subí las fotos (la primera es la que se ve en el catálogo), completá nombre y precio, y listo — el resto es opcional.',
+    preview: `<div class="tpv tpv--new">
+      <div class="tpv__thumb">${camIco}</div>
+      <div class="tpv__fields">
+        <span class="tpv__bar tpv__bar--lg" style="width:80%"></span>
+        <span class="tpv__bar" style="width:45%"></span>
+        <div class="tpv__switches"><i></i><i class="on"></i><i class="on"></i></div>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Que la IA complete la ficha',
+    text: 'Subí una foto y tocá "Completar ficha desde la foto": propone nombre, rubro y descripción — el precio siempre lo ponés vos. También funciona pegando texto desprolijo, como un mensaje de WhatsApp.',
+    preview: `<div class="tpv tpv--ai">
+      <div class="tpv__thumb">${camIco}</div>
+      <div class="tpv__sparkle">${ico.sparkle}</div>
+      <div class="tpv__fields">
+        <span class="tpv__bar" style="width:70%"></span>
+        <span class="tpv__bar" style="width:50%"></span>
+        <span class="tpv__bar" style="width:85%"></span>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Carga masiva de listas de proveedor',
+    text: 'Pegá la lista completa de un proveedor en "Carga masiva" — un producto por línea, tal cual la mandan — revisá la vista previa y guardá todo junto.',
+    preview: `<div class="tpv tpv--bulk">
+      <div class="tpv__paste">
+        <span class="tpv__line" style="width:92%"></span>
+        <span class="tpv__line" style="width:70%"></span>
+        <span class="tpv__line" style="width:84%"></span>
+      </div>
+      <div class="tpv__arrow">${arrowIco}</div>
+      <div class="tpv__table">
+        <div class="tpv__trow"></div>
+        <div class="tpv__trow"></div>
+        <div class="tpv__trow"></div>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Asistente de stock por texto',
+    text: 'Escribile en lenguaje natural qué cambió ("se agotó el dinosaurio, volvió la pizarra LCD") y te muestra los cambios antes de aplicarlos. Nunca actualiza nada sin que lo confirmes.',
+    preview: `<div class="tpv tpv--stock">
+      <div class="tpv__bubble">"Se agotó el dinosaurio"</div>
+      <div class="tpv__stockrow">
+        <span class="tpv__dot"></span>
+        <span class="tpv__bar" style="width:55%"></span>
+        <span class="tpv__pill">Sin stock</span>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Acciones en lote',
+    text: 'Seleccioná varios productos con los checkboxes y cambiá stock, visibilidad o destacado — o eliminalos — todos juntos desde la barra que aparece abajo.',
+    preview: `<div class="tpv tpv--sel">
+      <div class="tpv__rows">
+        <div class="tpv__row"><span class="tpv__check tpv__check--on"></span><span class="tpv__bar" style="width:60%"></span></div>
+        <div class="tpv__row"><span class="tpv__check tpv__check--on"></span><span class="tpv__bar" style="width:45%"></span></div>
+        <div class="tpv__row"><span class="tpv__check"></span><span class="tpv__bar" style="width:70%"></span></div>
+      </div>
+      <div class="tpv__toolbar">
+        <span class="tpv__tbtn">Con stock</span>
+        <span class="tpv__tbtn">Destacar</span>
+        <span class="tpv__tbtn tpv__tbtn--danger">Eliminar</span>
+      </div>
+    </div>`,
+  },
+  {
+    title: 'Orden del catálogo y exportar',
+    text: 'Arrastrá las filas por el ícono de la izquierda para definir en qué orden aparecen en el catálogo. Y con "Exportar" te llevás todo en CSV o JSON cuando lo necesites.',
+    preview: `<div class="tpv tpv--order">
+      <div class="tpv__rows">
+        <div class="tpv__row"><span class="tpv__grip">${ico.grip}</span><span class="tpv__bar" style="width:55%"></span></div>
+        <div class="tpv__row tpv__row--lift"><span class="tpv__grip">${ico.grip}</span><span class="tpv__bar" style="width:65%"></span></div>
+        <div class="tpv__row"><span class="tpv__grip">${ico.grip}</span><span class="tpv__bar" style="width:40%"></span></div>
+      </div>
+      <div class="tpv__badges"><span class="tpv__badge">CSV</span><span class="tpv__badge">JSON</span></div>
+    </div>`,
+  },
+];
+
+const TUTORIAL_KEY = 'arias.adminTutorialSeen';
+const tutorialDlg = $('#tutorial');
+const tutorialStepEl = $('#tutorialStep');
+const tutorialBody = $('#tutorialBody');
+const tutorialDots = $('#tutorialDots');
+const tutorialBack = $('#tutorialBack');
+const tutorialNext = $('#tutorialNext');
+let tutorialIdx = 0;
+
+// Los puntos se arman una sola vez; sólo cambia cuál queda "activo".
+tutorialDots.innerHTML = TUTORIAL_STEPS.map(
+  (_, i) => `<button type="button" data-i="${i}" aria-label="Ir al paso ${i + 1}"></button>`
+).join('');
+
+function renderTutorialStep() {
+  const step = TUTORIAL_STEPS[tutorialIdx];
+  const last = tutorialIdx === TUTORIAL_STEPS.length - 1;
+
+  tutorialStepEl.textContent = `Paso ${tutorialIdx + 1} de ${TUTORIAL_STEPS.length}`;
+  tutorialBody.innerHTML = `${step.preview}<h2 id="tutorialTitle">${step.title}</h2><p>${step.text}</p>`;
+  tutorialBody.scrollTop = 0;
+
+  $$('button', tutorialDots).forEach((b, i) => {
+    if (i === tutorialIdx) b.setAttribute('aria-current', 'true');
+    else b.removeAttribute('aria-current');
+  });
+
+  tutorialBack.disabled = tutorialIdx === 0;
+  tutorialNext.textContent = last ? 'Empezar a usar el panel' : 'Siguiente';
+}
+
+function openTutorial() {
+  tutorialIdx = 0;
+  renderTutorialStep();
+  tutorialDlg.showModal();
+  tutorialDlg.focus();
+}
+
+function maybeAutoOpenTutorial() {
+  if (localStorage.getItem(TUTORIAL_KEY)) return;
+  // Se marca como visto apenas se abre, no sólo al terminarlo — si alguien
+  // lo cierra a la mitad, no queremos que le vuelva a saltar solo la
+  // próxima vez que entre; para volver a verlo ya está el botón "?".
+  localStorage.setItem(TUTORIAL_KEY, 'true');
+  setTimeout(openTutorial, 700);
+}
+
+$('#tutorialBtn').addEventListener('click', openTutorial);
+wireDialog(tutorialDlg, $('#tutorialClose'));
+
+tutorialDots.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-i]');
+  if (!btn) return;
+  tutorialIdx = Number(btn.dataset.i);
+  renderTutorialStep();
+});
+
+tutorialBack.addEventListener('click', () => {
+  if (tutorialIdx === 0) return;
+  tutorialIdx -= 1;
+  renderTutorialStep();
+});
+
+tutorialNext.addEventListener('click', () => {
+  if (tutorialIdx === TUTORIAL_STEPS.length - 1) {
+    closeDialog(tutorialDlg);
+    return;
+  }
+  tutorialIdx += 1;
+  renderTutorialStep();
 });
