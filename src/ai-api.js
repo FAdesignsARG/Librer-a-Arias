@@ -55,7 +55,7 @@ async function ensureIndex(ROOT) {
 }
 
 export async function registerAiApi(req, res, { ROOT, pathname, ai }) {
-  const { aiEnabled, askCatalog, draftFromText, draftFromImages, proposeStockActions } = ai;
+  const { aiEnabled, askCatalog, draftFromText, draftFromImages, proposeStockActions, summarizeActivity } = ai;
   const settings = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'settings.json'), 'utf8'));
 
   if (pathname === '/api/ai/status') {
@@ -133,6 +133,13 @@ export async function registerAiApi(req, res, { ROOT, pathname, ai }) {
       const { images, hint } = JSON.parse(await readBody(req));
       if (!Array.isArray(images) || !images.length) return json(res, 400, { error: 'No llegó ninguna foto.' });
       return json(res, 200, { producto: await draftFromImages({ images, settings, hint }) });
+    }
+
+    /* ---------- resumen de actividad ---------- */
+    if (pathname === '/api/ai/summarize-activity' && req.method === 'POST') {
+      const { entries } = JSON.parse(await readBody(req, 128 * 1024));
+      if (!Array.isArray(entries) || !entries.length) return json(res, 400, { error: 'No hay actividad para resumir.' });
+      return json(res, 200, { resumen: await summarizeActivity({ entries }) });
     }
 
     return false;

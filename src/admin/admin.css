@@ -1958,3 +1958,186 @@
 .adminfab[hidden] {
   display: none;
 }
+
+/* ==========================================================================
+   REPORTES DE ACTIVIDAD
+   Este diálogo no tiene <form> adentro (no hace falta, no envía nada), y
+   ".editor form" es lo que le da flex-column + footer pegado abajo a los
+   demás — sin envoltorio de form, ese selector nunca matchea y el footer
+   quedaba flotando a mitad de diálogo en vez de abajo del todo. Se repite
+   la misma regla acá, apuntada directo a ".editor.reports".
+   ========================================================================== */
+.editor.reports {
+  display: flex;
+  flex-direction: column;
+}
+.reportstabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.reportstab {
+  padding: 9px 4px 11px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-size: 0.86rem;
+  font-weight: 580;
+  color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+}
+.reportstab + .reportstab {
+  margin-left: 14px;
+}
+.reportstab:hover {
+  color: var(--text-2);
+}
+.reportstab[aria-current='true'] {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.reports .editor__body {
+  padding-top: 16px;
+}
+
+.activitylist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.activityitem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.activityitem:last-child {
+  border-bottom: 0;
+}
+.activityitem__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.activityitem__body {
+  flex: 1;
+  min-width: 0;
+}
+.activityitem__summary {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.activityitem__meta {
+  margin-top: 3px;
+  font-size: 0.74rem;
+  color: var(--text-3);
+}
+.activityday {
+  margin: 14px 0 6px;
+  font-size: 0.72rem;
+  font-weight: 640;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.activityday:first-child {
+  margin-top: 0;
+}
+.activityempty {
+  padding: 32px 12px;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-3);
+}
+
+/* ---------- Historial: año → trimestre → mes ---------- */
+.reportnav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.reportnav__arrow {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  font-size: 1.1rem;
+  transition: background var(--dur-fast) var(--ease-soft);
+}
+.reportnav__arrow:hover {
+  background: var(--fill);
+}
+.reportnav__year {
+  font-size: 0.98rem;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+  text-align: center;
+}
+.quartergrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.quarterbtn {
+  padding: 12px 6px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 580;
+  text-align: center;
+  transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+.quarterbtn:hover {
+  border-color: var(--line-strong);
+}
+.quarterbtn[aria-current='true'] {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+  color: var(--gold);
+}
+.monthlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.monthbtn {
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  font-weight: 560;
+  color: var(--text-2);
+  transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.monthbtn:hover {
+  border-color: var(--line-strong);
+}
+.monthbtn[aria-current='true'] {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+#historySpinner {
+  margin: 24px auto;
+}
+
+.reports__foot {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}

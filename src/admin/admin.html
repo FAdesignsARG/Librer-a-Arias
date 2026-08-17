@@ -539,6 +539,56 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
   </div>
 </dialog>
 
+<!-- ====================== REPORTES DE ACTIVIDAD ====================== -->
+<dialog class="editor reports" id="reportsDlg" aria-labelledby="reportsTitle" tabindex="-1">
+  <div class="editor__head">
+    <h2 id="reportsTitle">Reportes</h2>
+    <button type="button" class="sheet__close" id="reportsClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="reportstabs">
+    <button type="button" class="reportstab" id="tabSession" aria-current="true">Esta sesión</button>
+    <button type="button" class="reportstab" id="tabHistory">Historial</button>
+  </div>
+
+  <div class="editor__body">
+    <div id="reportSession">
+      <p class="field__hint">Todo lo que cambiaste desde que entraste al panel, en vivo.</p>
+      <div class="activitylist" id="sessionList"></div>
+      <p class="activityempty" id="sessionEmpty" hidden>Todavía no hiciste ningún cambio esta sesión.</p>
+    </div>
+
+    <div id="reportHistory" hidden>
+      <div class="reportnav">
+        <button type="button" class="reportnav__arrow" id="yearPrev" aria-label="Año anterior">‹</button>
+        <span class="reportnav__year" id="yearLabel"></span>
+        <button type="button" class="reportnav__arrow" id="yearNext" aria-label="Año siguiente">›</button>
+      </div>
+      <div class="quartergrid" id="quarterGrid"></div>
+      <div class="monthlist" id="monthList" hidden></div>
+      <div class="activitylist" id="historyList"></div>
+      <p class="activityempty" id="historyEmpty" hidden>No hay actividad registrada ese mes.</p>
+      <div class="spinner" id="historySpinner" hidden></div>
+    </div>
+  </div>
+
+  <div class="editor__foot reports__foot">
+    <button type="button" class="btn btn--ghost btn--sm" id="reportAI">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
+      Resumen con IA
+    </button>
+    <span class="editor__spacer"></span>
+    <button type="button" class="btn btn--ghost btn--sm" id="reportCopy">Copiar</button>
+    <button type="button" class="btn btn--ghost btn--sm" id="reportExport">Exportar</button>
+    <button type="button" class="btn btn--gold btn--sm" id="reportShare">
+      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg>
+      WhatsApp
+    </button>
+  </div>
+</dialog>
+
 <!-- ====================== TUTORIAL DEL PANEL ====================== -->
 <dialog class="tutorial" id="tutorial" aria-labelledby="tutorialTitle" tabindex="-1">
   <div class="tutorial__head">
@@ -559,6 +609,9 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 
 <!-- ====================== BOTONES FLOTANTES ====================== -->
 <div class="adminfabs">
+  <button type="button" class="adminfab" id="btnReports" aria-haspopup="dialog" aria-label="Reportes de actividad" title="Reportes de actividad">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-3-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+  </button>
   <button type="button" class="adminfab" id="btnStockAI" hidden aria-haspopup="dialog" aria-label="Asistente de stock" title="Asistente de stock">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
   </button>

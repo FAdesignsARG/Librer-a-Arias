@@ -27,6 +27,9 @@ import {
   updateDoc,
   deleteDoc,
   writeBatch,
+  query,
+  where,
+  serverTimestamp,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
@@ -339,6 +342,15 @@ $('#selbar').addEventListener('click', async (e) => {
         if (p) p[field] = value;
       });
       toast(`${slugs.length} producto${slugs.length === 1 ? '' : 's'} actualizado${slugs.length === 1 ? '' : 's'}`, ico.check);
+      const n = slugs.length;
+      const BULK_LABELS = {
+        'inStock:true': `Marcó con stock ${n} producto${n === 1 ? '' : 's'}`,
+        'inStock:false': `Marcó sin stock ${n} producto${n === 1 ? '' : 's'}`,
+        'visible:true': `Mostró ${n} producto${n === 1 ? '' : 's'} en el catálogo`,
+        'visible:false': `Ocultó ${n} producto${n === 1 ? '' : 's'} del catálogo`,
+        'featured:true': `Destacó ${n} producto${n === 1 ? '' : 's'}`,
+      };
+      logActivity('bulk_field', BULK_LABELS[bulkBtn.dataset.bulk] || `Actualizó ${n} producto${n === 1 ? '' : 's'} en lote`);
       // Sin esto, la selección seguía marcada después de actuar sobre ella:
       // tocar otro botón de la barra volvía a aplicarse sobre los mismos
       // productos sin que la persona lo pidiera de nuevo.
@@ -365,6 +377,7 @@ $('#selbar').addEventListener('click', async (e) => {
       selected.clear();
       render();
       toast(`${slugs.length} producto${slugs.length === 1 ? '' : 's'} eliminado${slugs.length === 1 ? '' : 's'}`);
+      logActivity('products_deleted', `Eliminó ${slugs.length} producto${slugs.length === 1 ? '' : 's'} en lote`);
     } catch (err) {
       toast(err.message);
     }
@@ -494,6 +507,7 @@ form.addEventListener('submit', async (e) => {
       await updateDoc(productRef(editing), payload);
       Object.assign(products.find((p) => p.slug === editing), payload);
       toast('Cambios guardados', ico.check);
+      logActivity('product_updated', `Editó "${payload.name}"`, editing);
     } else {
       const slug = await uniqueSlug(name);
       const now = new Date().toISOString();
@@ -509,6 +523,7 @@ form.addEventListener('submit', async (e) => {
       await setDoc(productRef(slug), product);
       products.unshift(product);
       toast('Producto agregado', ico.check);
+      logActivity('product_created', `Agregó "${product.name}"`, slug);
     }
     render();
     closeDialog(editor);
@@ -547,6 +562,7 @@ $('#btnDelete').addEventListener('click', async () => {
     render();
     closeDialog(editor);
     toast('Producto eliminado');
+    logActivity('product_deleted', `Eliminó "${p.name}"`, editing);
   } catch (err) {
     toast(err.message);
   }
@@ -1035,6 +1051,7 @@ $('#bulkSave').addEventListener('click', async () => {
     if (newItems.length) partes.push(`${newItems.length} nuevo${newItems.length === 1 ? '' : 's'}`);
     if (updateItems.length) partes.push(`${updateItems.length} actualizado${updateItems.length === 1 ? '' : 's'}`);
     toast(partes.join(' · '), ico.check);
+    logActivity('bulk_loaded', `Carga masiva: ${partes.join(' · ')}`);
   } catch (err) {
     toast(err.message);
   } finally {
@@ -1060,6 +1077,7 @@ fetch('/api/ai/status')
     $('#bulkAI').hidden = !aiOn;
     $('#bulkAIHint').hidden = !aiOn;
     $('#btnStockAI').hidden = !aiOn;
+    $('#reportAI').hidden = !aiOn;
   })
   .catch(() => {});
 
@@ -1269,6 +1287,7 @@ $('#stockAIApply').addEventListener('click', async () => {
     render();
     closeDialog(stockAIDlg);
     toast(`${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`, ico.check);
+    logActivity('stock_ai_applied', `Asistente de stock: ${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`);
   } catch (err) {
     aiError(err);
   } finally {
@@ -1765,10 +1784,305 @@ $('#settingsForm').addEventListener('submit', async (e) => {
     fillCategorySelects();
     closeDialog(settingsDlg);
     toast('Configuración guardada.', ico.check);
+    logActivity('settings_updated', 'Actualizó la configuración de la tienda');
   } catch (err) {
     toast(err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Guardar';
+  }
+});
+
+/* ==========================================================================
+   REGISTRO DE ACTIVIDAD Y REPORTES
+   Cada escritura real (crear/editar/eliminar producto, stock, carga
+   masiva, configuración) queda anotada acá: quién, cuándo y desde dónde
+   —aproximado, por IP, sin pedirle permiso de ubicación al navegador—.
+   Sirve como un registro tipo "fin de jornada": qué se hizo, navegable
+   por la sesión actual o por mes/trimestre hacia atrás.
+   ========================================================================== */
+const sessionActivity = [];
+let cachedLocation;
+
+/** Se pide una sola vez por sesión y se reusa — no tiene sentido pegarle
+    a la API de geolocalización en cada cambio que se guarda. */
+async function getApproxLocation() {
+  if (cachedLocation !== undefined) return cachedLocation;
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    if (!res.ok) throw new Error('geo');
+    const d = await res.json();
+    cachedLocation = { city: d.city || null, region: d.region || null, country: d.country_name || null };
+  } catch {
+    cachedLocation = null;
+  }
+  return cachedLocation;
+}
+
+/** El guardado en Firestore va "al costado": la UI se actualiza al toque
+    con lo que ya se sabe en el navegador, y si el registro en la nube
+    falla (sin red, por ejemplo) no se corta el flujo principal — sólo se
+    pierde ESE renglón del historial, nunca el cambio real al producto. */
+function logActivity(action, summary, target = null) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const now = new Date();
+  sessionActivity.unshift({ action, summary, target, email: user.email, at: now });
+  renderSessionList();
+
+  getApproxLocation().then((location) => {
+    setDoc(doc(collection(db, 'activity')), {
+      uid: user.uid,
+      email: user.email,
+      action,
+      target,
+      summary,
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+      quarter: Math.floor(now.getMonth() / 3) + 1,
+      day: now.getDate(),
+      createdAt: serverTimestamp(),
+      clientTime: now.toISOString(),
+      location,
+    }).catch((err) => console.error('No se pudo registrar la actividad:', err));
+  });
+}
+
+/* ---------- Diálogo de reportes ---------- */
+const reportsDlg = $('#reportsDlg');
+const sessionListEl = $('#sessionList');
+const historyListEl = $('#historyList');
+
+const fmtTime = (d) => d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+const fmtDay = (d) => {
+  const s = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+function locationLabel(loc) {
+  if (!loc) return '';
+  return [loc.city, loc.region].filter(Boolean).join(', ') || loc.country || '';
+}
+
+function activityItemHtml(entry) {
+  const d = entry.at instanceof Date ? entry.at : null;
+  const time = d ? fmtTime(d) : '';
+  const meta = [time, entry.email, locationLabel(entry.location)].filter(Boolean).join(' · ');
+  return `<div class="activityitem">
+    <span class="activityitem__dot"></span>
+    <div class="activityitem__body">
+      <p class="activityitem__summary"></p>
+      <p class="activityitem__meta"></p>
+    </div>
+  </div>`.replace('<p class="activityitem__summary"></p>', `<p class="activityitem__summary">${esc(entry.summary)}</p>`)
+   .replace('<p class="activityitem__meta"></p>', `<p class="activityitem__meta">${esc(meta)}</p>`);
+}
+
+function renderSessionList() {
+  sessionListEl.innerHTML = sessionActivity.map(activityItemHtml).join('');
+  $('#sessionEmpty').hidden = sessionActivity.length > 0;
+}
+
+/* ---------- Historial: año → trimestre → mes ---------- */
+let historyYear = new Date().getFullYear();
+let historyQuarter = null;
+let historyMonth = null;
+const historyCache = new Map();
+
+const QUARTER_MONTHS = { 1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9], 4: [10, 11, 12] };
+const MONTH_LABEL = [
+  '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+function renderYearNav() {
+  $('#yearLabel').textContent = String(historyYear);
+}
+
+function renderQuarterGrid() {
+  $('#quarterGrid').innerHTML = [1, 2, 3, 4]
+    .map((q) => `<button type="button" class="quarterbtn" data-q="${q}" aria-current="${q === historyQuarter}">T${q}</button>`)
+    .join('');
+}
+
+function renderMonthList() {
+  const el = $('#monthList');
+  if (!historyQuarter) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
+  el.innerHTML = QUARTER_MONTHS[historyQuarter]
+    .map((m) => `<button type="button" class="monthbtn" data-m="${m}" aria-current="${m === historyMonth}">${MONTH_LABEL[m]}</button>`)
+    .join('');
+}
+
+function resetHistoryView() {
+  historyListEl.innerHTML = '';
+  $('#historyEmpty').hidden = true;
+}
+
+async function loadHistoryMonth(year, month) {
+  const key = `${year}-${month}`;
+  resetHistoryView();
+  $('#historySpinner').hidden = false;
+
+  let entries = historyCache.get(key);
+  if (!entries) {
+    try {
+      const snap = await getDocs(
+        query(collection(db, 'activity'), where('year', '==', year), where('month', '==', month))
+      );
+      entries = snap.docs.map((d) => d.data());
+      entries.sort((a, b) => (b.clientTime || '').localeCompare(a.clientTime || ''));
+      historyCache.set(key, entries);
+    } catch (err) {
+      $('#historySpinner').hidden = true;
+      toast(err.message);
+      return;
+    }
+  }
+
+  $('#historySpinner').hidden = true;
+  if (!entries.length) {
+    $('#historyEmpty').hidden = false;
+    return;
+  }
+
+  let lastDay = null;
+  const html = [];
+  for (const e of entries) {
+    const d = e.clientTime ? new Date(e.clientTime) : null;
+    const dayKey = d ? d.toDateString() : '';
+    if (dayKey !== lastDay) {
+      html.push(`<p class="activityday">${d ? fmtDay(d) : 'Sin fecha'}</p>`);
+      lastDay = dayKey;
+    }
+    html.push(activityItemHtml({ ...e, at: d }));
+  }
+  historyListEl.innerHTML = html.join('');
+}
+
+$('#quarterGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.quarterbtn');
+  if (!btn) return;
+  historyQuarter = Number(btn.dataset.q);
+  historyMonth = null;
+  renderQuarterGrid();
+  renderMonthList();
+  resetHistoryView();
+});
+
+$('#monthList').addEventListener('click', (e) => {
+  const btn = e.target.closest('.monthbtn');
+  if (!btn) return;
+  historyMonth = Number(btn.dataset.m);
+  renderMonthList();
+  loadHistoryMonth(historyYear, historyMonth);
+});
+
+$('#yearPrev').addEventListener('click', () => {
+  historyYear -= 1;
+  historyMonth = null;
+  renderYearNav();
+  renderMonthList();
+  resetHistoryView();
+});
+$('#yearNext').addEventListener('click', () => {
+  historyYear += 1;
+  historyMonth = null;
+  renderYearNav();
+  renderMonthList();
+  resetHistoryView();
+});
+
+/* ---------- Tabs ---------- */
+$('#tabSession').addEventListener('click', () => {
+  $('#tabSession').setAttribute('aria-current', 'true');
+  $('#tabHistory').setAttribute('aria-current', 'false');
+  $('#reportSession').hidden = false;
+  $('#reportHistory').hidden = true;
+});
+$('#tabHistory').addEventListener('click', () => {
+  $('#tabHistory').setAttribute('aria-current', 'true');
+  $('#tabSession').setAttribute('aria-current', 'false');
+  $('#reportSession').hidden = true;
+  $('#reportHistory').hidden = false;
+});
+
+/* ---------- Abrir / cerrar ---------- */
+$('#btnReports').addEventListener('click', () => {
+  $('#tabSession').click();
+  historyYear = new Date().getFullYear();
+  historyQuarter = null;
+  historyMonth = null;
+  renderYearNav();
+  renderQuarterGrid();
+  renderMonthList();
+  resetHistoryView();
+  renderSessionList();
+  reportsDlg.showModal();
+  reportsDlg.focus();
+});
+wireDialog(reportsDlg, $('#reportsClose'));
+
+/* ---------- Copiar / exportar / compartir / resumen con IA ---------- */
+function inSessionTab() {
+  return $('#reportSession').hidden === false;
+}
+function currentReportEntries() {
+  return inSessionTab() ? sessionActivity : historyCache.get(`${historyYear}-${historyMonth}`) || [];
+}
+function reportText() {
+  const entries = currentReportEntries();
+  if (!entries.length) return 'Sin actividad para mostrar.';
+  const title = inSessionTab() ? 'Actividad de esta sesión' : `Actividad de ${MONTH_LABEL[historyMonth]} ${historyYear}`;
+  const lines = entries.map((e) => {
+    const d = e.at instanceof Date ? e.at : e.clientTime ? new Date(e.clientTime) : null;
+    return `• ${d ? fmtTime(d) + ' — ' : ''}${e.summary}`;
+  });
+  return `${title}\n\n${lines.join('\n')}`;
+}
+
+$('#reportCopy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(reportText());
+    toast('Copiado', ico.check);
+  } catch {
+    toast('No se pudo copiar.');
+  }
+});
+
+$('#reportExport').addEventListener('click', () => {
+  const stamp = new Date().toISOString().slice(0, 10);
+  downloadBlob(reportText(), `reporte-arias-${stamp}.txt`, 'text/plain');
+});
+
+$('#reportShare').addEventListener('click', () => {
+  window.open(`https://wa.me/?text=${encodeURIComponent(reportText())}`, '_blank', 'noopener');
+});
+
+$('#reportAI').addEventListener('click', async () => {
+  const entries = currentReportEntries();
+  if (!entries.length) return toast('No hay actividad para resumir.');
+
+  const btn = $('#reportAI');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = 'Generando…';
+
+  try {
+    const { resumen } = await api('/api/ai/summarize-activity', {
+      method: 'POST',
+      body: JSON.stringify({ entries: entries.map((e) => e.summary) }),
+    });
+    await navigator.clipboard.writeText(resumen).catch(() => {});
+    toast('Resumen copiado al portapapeles', ico.check);
+  } catch (err) {
+    aiError(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
   }
 });

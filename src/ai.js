@@ -272,6 +272,39 @@ export async function draftFromImages({ images, settings, hint = '' }) {
 }
 
 /* ==========================================================================
+   4. RESUMEN DE ACTIVIDAD DEL PANEL
+   Convierte la lista cruda de cambios (una línea por acción, tal cual
+   quedaron registrados) en un resumen tipo "fin de jornada" para mandar
+   por WhatsApp al equipo — agrupa, no sólo reordena.
+   ========================================================================== */
+
+const SYSTEM_RESUMEN = () =>
+  `
+Redactás un resumen breve de la actividad de un panel de catálogo (librería/juguetería
+argentina) para mandar por WhatsApp al equipo. Te paso una lista de líneas, cada una un
+cambio que se hizo (agregar producto, editar, marcar sin stock, etc.).
+
+REGLAS:
+- Agrupá por tipo de cambio en vez de listar todo suelto (ej: "Se agregaron 3 productos:
+  X, Y, Z" en vez de tres líneas separadas).
+- Español rioplatense, tono directo y breve — es un mensaje de WhatsApp, no un informe.
+- No inventes nada que no esté en la lista. Si la lista es corta, el resumen también.
+- Máximo 6-8 líneas.
+
+Devolvé JSON: {"resumen":"el texto, con saltos de línea si hace falta"}
+`.trim();
+
+export async function summarizeActivity({ entries }) {
+  const lista = entries.map((e) => `- ${e}`).join('\n');
+  const messages = [
+    { role: 'system', content: SYSTEM_RESUMEN() },
+    { role: 'user', content: lista },
+  ];
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 600 }));
+  return String(out.resumen || '').trim();
+}
+
+/* ==========================================================================
    Normalización
    Todo lo que sale de la IA pasa por acá antes de llegar a la interfaz.
    ========================================================================== */

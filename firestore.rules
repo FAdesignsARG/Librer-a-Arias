@@ -23,5 +23,15 @@ service cloud.firestore {
     match /settings/{doc} {
       allow read, write: if request.auth != null;
     }
+    // Registro de actividad del panel: sólo lectura y alta, nunca editar
+    // ni borrar — es un log de auditoría, pierde sentido si se puede
+    // retocar. La condición del create exige que el uid del documento sea
+    // el mismo que el de la sesión, para que nadie pueda anotar un cambio
+    // a nombre de otra persona.
+    match /activity/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }
