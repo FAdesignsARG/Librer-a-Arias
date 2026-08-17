@@ -132,10 +132,22 @@ await write(
   `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${settings.siteUrl}/sitemap.xml\n`
 );
 
-// Netlify: sin esto, /p/algo-que-no-existe/ devuelve el index en vez de un 404
+// Netlify: sin esto, /p/algo-que-no-existe/ devuelve el index en vez de un 404.
+// Las reglas de /api/ai/* van PRIMERO: en este archivo gana la primera que
+// matchea, y netlify.toml solo (sin esto acá) no alcanzó — /api/ai/status
+// seguía cayendo en el catch-all de abajo en vez de llegar a la función.
 await write(
   '_redirects',
-  `# Cualquier ruta desconocida cae en la portada con código 404 real\n/*  /index.html  404\n`
+  `# IA: las mismas URLs de siempre (server.js en local, funciones acá)
+/api/ai/status         /.netlify/functions/ai-status         200
+/api/ai/ask            /.netlify/functions/ai-ask            200
+/api/ai/stock-actions  /.netlify/functions/ai-stock-actions  200
+/api/ai/draft-text     /.netlify/functions/ai-draft-text     200
+/api/ai/draft-image    /.netlify/functions/ai-draft-image    200
+
+# Cualquier otra ruta desconocida cae en la portada con código 404 real
+/*  /index.html  404
+`
 );
 
 console.log('sitemap.xml, robots.txt       ok');
