@@ -102,6 +102,12 @@ document.documentElement.dataset.theme=t;
       </div>
     </div>
 
+    <p class="adminmenu__label">Tienda</p>
+    <button type="button" class="adminmenu__item" id="btnSettings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2a1.9 1.9 0 0 1 3.4 0l.5 1a1.9 1.9 0 0 0 2 1l1.1-.2a1.9 1.9 0 0 1 2.1 2.6l-.5 1a1.9 1.9 0 0 0 0 2l.5 1a1.9 1.9 0 0 1-2.1 2.6l-1.1-.2a1.9 1.9 0 0 0-2 1l-.5 1a1.9 1.9 0 0 1-3.4 0l-.5-1a1.9 1.9 0 0 0-2-1l-1.1.2a1.9 1.9 0 0 1-2.1-2.6l.5-1a1.9 1.9 0 0 0 0-2l-.5-1a1.9 1.9 0 0 1 2.1-2.6l1.1.2a1.9 1.9 0 0 0 2-1l.5-1z"/><circle cx="12" cy="12" r="3.2"/></svg>
+      <span>Configuración</span>
+    </button>
+
     <p class="adminmenu__label">Preferencias</p>
     <button class="themebtn adminmenu__item" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro">
       <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
@@ -120,6 +126,88 @@ document.documentElement.dataset.theme=t;
       <span>Cerrar sesión</span>
     </button>
   </div>
+</dialog>
+
+<!-- ====================== CONFIGURACIÓN DE LA TIENDA ====================== -->
+<dialog class="editor" id="settingsDlg" aria-labelledby="settingsTitle" tabindex="-1">
+  <form id="settingsForm" method="dialog">
+    <div class="editor__head">
+      <h2 id="settingsTitle">Configuración de la tienda</h2>
+      <button type="button" class="sheet__close" id="settingsClose" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="editor__body">
+      <div class="row2">
+        <div class="field">
+          <label for="sName">Nombre de la tienda</label>
+          <input id="sName" required maxlength="60">
+        </div>
+        <div class="field">
+          <label for="sTagline">Tagline</label>
+          <input id="sTagline" maxlength="120" placeholder="Se muestra debajo del nombre">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="sWhatsapp">WhatsApp <span class="req">*</span></label>
+          <input id="sWhatsapp" required inputmode="numeric" placeholder="Ej: 5493804505150">
+          <p class="field__hint">Con código de país y de área, sin espacios ni signos.</p>
+        </div>
+        <div class="field">
+          <label for="sPhoneDisplay">Teléfono para mostrar</label>
+          <input id="sPhoneDisplay" placeholder="Ej: 3804 505150">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="sAddress">Dirección</label>
+          <input id="sAddress" maxlength="120">
+        </div>
+        <div class="field">
+          <label for="sMapsUrl">Link de Google Maps</label>
+          <input id="sMapsUrl" type="url" placeholder="https://…">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Redes sociales</label>
+        <div class="row2">
+          <input id="sInstagram" type="url" placeholder="Instagram">
+          <input id="sFacebook" type="url" placeholder="Facebook">
+        </div>
+        <div class="row2" style="margin-top:10px">
+          <input id="sTiktok" type="url" placeholder="TikTok">
+          <input id="sWaChannel" type="url" placeholder="Canal de WhatsApp">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Rubros del catálogo</label>
+        <div class="catchips" id="catChips"></div>
+        <div class="catadd">
+          <input id="catNew" placeholder="Agregar un rubro nuevo…" maxlength="30">
+          <button type="button" class="btn btn--ghost btn--sm" id="catAddBtn">Agregar</button>
+        </div>
+        <p class="field__hint">Sacar un rubro de acá no toca los productos que ya lo tienen cargado.</p>
+      </div>
+
+      <div class="field">
+        <label>Horarios de atención</label>
+        <div class="hoursgrid" id="hoursGrid"></div>
+        <p class="field__hint">Un día sin turnos queda cerrado ese día. "+ turno" es para horario partido.</p>
+      </div>
+    </div>
+
+    <div class="editor__foot">
+      <span class="editor__spacer"></span>
+      <button type="button" class="btn btn--ghost" id="settingsCancel">Cancelar</button>
+      <button type="submit" class="btn btn--gold" id="settingsSave">Guardar</button>
+    </div>
+  </form>
 </dialog>
 
 <main class="ashell">

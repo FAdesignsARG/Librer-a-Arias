@@ -13,7 +13,7 @@
  */
 
 import { stems } from '../search-engine.js';
-import { offerActive, dateFmt, cardHtml } from '../templates.js';
+import { offerActive, dateFmt, cardHtml, esc } from '../templates.js';
 import { closeDialog, wireDialog } from '../ui.js';
 import { cloudinaryUrl, cloudinaryConfig } from '../cloudinary-config.js';
 import {
@@ -1545,4 +1545,229 @@ tutorialNext.addEventListener('click', () => {
   }
   tutorialIdx += 1;
   renderTutorialStep();
+});
+
+/* ==========================================================================
+   CONFIGURACIÓN DE LA TIENDA
+   Nombre, contacto, redes, rubros y horarios — todo lo que antes sólo se
+   podía cambiar entrando a Firestore a mano. Se deja afuera a propósito
+   currency y siteUrl: tocarlos mal rompe el SEO/los links, y no son cosas
+   que cambien nunca en el uso normal del día a día.
+   ========================================================================== */
+const DAY_ORDER = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const DAY_LABEL = {
+  Mo: 'Lunes',
+  Tu: 'Martes',
+  We: 'Miércoles',
+  Th: 'Jueves',
+  Fr: 'Viernes',
+  Sa: 'Sábado',
+  Su: 'Domingo',
+};
+
+let hoursState = {};
+let categoriesState = [];
+
+const settingsDlg = $('#settingsDlg');
+const hoursGridEl = $('#hoursGrid');
+const catChipsEl = $('#catChips');
+
+/** El array plano de Firestore (varias entradas pueden compartir "days")
+    pasa a un objeto por día — más simple para editar de a uno. */
+function hoursStateFromArray(hours) {
+  const state = Object.fromEntries(DAY_ORDER.map((d) => [d, []]));
+  (hours || []).forEach((h) => {
+    (h.days || []).forEach((d) => {
+      if (state[d]) state[d].push({ opens: h.opens, closes: h.closes });
+    });
+  });
+  return state;
+}
+
+const sameRanges = (a, b) => a.length === b.length && a.every((r, i) => r.opens === b[i].opens && r.closes === b[i].closes);
+
+function dayGroupLabel(days) {
+  if (days.length === 1) return DAY_LABEL[days[0]];
+  if (days.length === 2) return `${DAY_LABEL[days[0]]} y ${DAY_LABEL[days[1]]}`;
+  return `${DAY_LABEL[days[0]]} a ${DAY_LABEL[days[days.length - 1]]}`;
+}
+
+/** Vuelve a agrupar días consecutivos con los mismos turnos — de lunes a
+    viernes con el mismo horario se guarda como una sola entrada, no cinco. */
+function deriveHours(state) {
+  const groups = [];
+  for (const day of DAY_ORDER) {
+    const ranges = state[day];
+    const last = groups[groups.length - 1];
+    if (last && sameRanges(last.ranges, ranges)) last.days.push(day);
+    else groups.push({ days: [day], ranges });
+  }
+
+  const hours = [];
+  const hoursDisplay = [];
+  for (const g of groups) {
+    if (!g.ranges.length) continue; // cerrado ese/esos día(s): no se guarda nada
+    g.ranges.forEach((r) => hours.push({ days: [...g.days], opens: r.opens, closes: r.closes }));
+    hoursDisplay.push({
+      label: dayGroupLabel(g.days),
+      value: g.ranges.map((r) => `${r.opens} a ${r.closes}`).join(' · '),
+    });
+  }
+  return { hours, hoursDisplay };
+}
+
+function renderHoursGrid() {
+  hoursGridEl.innerHTML = DAY_ORDER.map((day) => {
+    const ranges = hoursState[day];
+    const rangesHtml = ranges.length
+      ? ranges
+          .map(
+            (r, i) => `<div class="hoursrange" data-i="${i}">
+              <input type="time" data-field="opens" value="${r.opens}">
+              <span>a</span>
+              <input type="time" data-field="closes" value="${r.closes}">
+              <button type="button" class="hoursrange__del" data-i="${i}" aria-label="Sacar este turno">${ico.x}</button>
+            </div>`
+          )
+          .join('')
+      : `<p class="hoursday__closed">Cerrado</p>`;
+    return `<div class="hoursday" data-day="${day}">
+      <span class="hoursday__label">${DAY_LABEL[day]}</span>
+      <div class="hoursday__main">
+        ${rangesHtml}
+        <button type="button" class="hoursday__add" data-day="${day}">+ turno</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+hoursGridEl.addEventListener('click', (e) => {
+  const addBtn = e.target.closest('.hoursday__add');
+  if (addBtn) {
+    const day = addBtn.dataset.day;
+    const last = hoursState[day][hoursState[day].length - 1];
+    hoursState[day].push({ opens: last?.closes || '09:00', closes: '13:00' });
+    renderHoursGrid();
+    return;
+  }
+  const delBtn = e.target.closest('.hoursrange__del');
+  if (delBtn) {
+    const day = delBtn.closest('.hoursday').dataset.day;
+    hoursState[day].splice(Number(delBtn.dataset.i), 1);
+    renderHoursGrid();
+  }
+});
+
+hoursGridEl.addEventListener('change', (e) => {
+  const input = e.target.closest('input[type="time"]');
+  if (!input) return;
+  const day = input.closest('.hoursday').dataset.day;
+  const i = Number(input.closest('.hoursrange').dataset.i);
+  hoursState[day][i][input.dataset.field] = input.value;
+});
+
+function renderCatChips() {
+  catChipsEl.innerHTML = categoriesState
+    .map(
+      (c, i) =>
+        `<span class="catchip">${esc(c)}<button type="button" data-i="${i}" aria-label="Sacar ${esc(c)}">${ico.x}</button></span>`
+    )
+    .join('');
+}
+
+catChipsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-i]');
+  if (!btn) return;
+  categoriesState.splice(Number(btn.dataset.i), 1);
+  renderCatChips();
+});
+
+$('#catAddBtn').addEventListener('click', () => {
+  const input = $('#catNew');
+  const value = input.value.trim();
+  if (!value) return;
+  if (categoriesState.some((c) => c.toLowerCase() === value.toLowerCase())) {
+    toast('Ese rubro ya existe.');
+    return;
+  }
+  categoriesState.push(value);
+  input.value = '';
+  renderCatChips();
+});
+$('#catNew').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    $('#catAddBtn').click();
+  }
+});
+
+$('#btnSettings').addEventListener('click', () => {
+  $('#sName').value = settings.storeName || '';
+  $('#sTagline').value = settings.tagline || '';
+  $('#sWhatsapp').value = settings.whatsapp || '';
+  $('#sPhoneDisplay').value = settings.phoneDisplay || '';
+  $('#sAddress').value = settings.address || '';
+  $('#sMapsUrl').value = settings.mapsUrl || '';
+  $('#sInstagram').value = settings.social?.instagram || '';
+  $('#sFacebook').value = settings.social?.facebook || '';
+  $('#sTiktok').value = settings.social?.tiktok || '';
+  $('#sWaChannel').value = settings.social?.whatsappChannel || '';
+
+  categoriesState = [...(settings.categories || [])];
+  renderCatChips();
+
+  hoursState = hoursStateFromArray(settings.hours);
+  renderHoursGrid();
+
+  closeDialog(adminMenuDlg).then(() => {
+    settingsDlg.showModal();
+    settingsDlg.focus();
+  });
+});
+
+wireDialog(settingsDlg, $('#settingsClose'));
+$('#settingsCancel').addEventListener('click', () => closeDialog(settingsDlg));
+
+$('#settingsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('#settingsSave');
+  const whatsapp = $('#sWhatsapp').value.trim().replace(/\D/g, '');
+  if (!whatsapp) return toast('Falta el WhatsApp.');
+  if (!categoriesState.length) return toast('Tiene que quedar al menos un rubro.');
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  const { hours, hoursDisplay } = deriveHours(hoursState);
+  const updates = {
+    storeName: $('#sName').value.trim(),
+    tagline: $('#sTagline').value.trim(),
+    whatsapp,
+    phoneDisplay: $('#sPhoneDisplay').value.trim(),
+    address: $('#sAddress').value.trim(),
+    mapsUrl: $('#sMapsUrl').value.trim(),
+    social: {
+      ...settings.social,
+      instagram: $('#sInstagram').value.trim(),
+      facebook: $('#sFacebook').value.trim(),
+      tiktok: $('#sTiktok').value.trim(),
+      whatsappChannel: $('#sWaChannel').value.trim(),
+    },
+    categories: categoriesState,
+    hours,
+    hoursDisplay,
+  };
+
+  try {
+    await updateDoc(doc(db, 'settings', 'main'), updates);
+    settings = { ...settings, ...updates };
+    fillCategorySelects();
+    closeDialog(settingsDlg);
+    toast('Configuración guardada.', ico.check);
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  }
 });

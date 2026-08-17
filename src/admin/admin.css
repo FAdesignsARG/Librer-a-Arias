@@ -905,6 +905,126 @@
   }
 }
 
+/* ---------- Configuración de la tienda: rubros ---------- */
+.catchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.catchip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font-size: 0.85rem;
+}
+.catchip button {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.catchip button:hover {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+.catchip button svg {
+  width: 11px;
+  height: 11px;
+}
+.catadd {
+  display: flex;
+  gap: 8px;
+}
+.catadd input {
+  flex: 1;
+}
+
+/* ---------- Configuración de la tienda: horarios ---------- */
+.hoursgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hoursday {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--ink);
+}
+.hoursday__label {
+  flex: none;
+  width: 84px;
+  padding-top: 8px;
+  font-size: 0.86rem;
+  font-weight: 560;
+  color: var(--text-2);
+}
+.hoursday__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.hoursrange {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.hoursrange input[type='time'] {
+  width: 108px;
+  padding: 6px 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.hoursrange span {
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+.hoursrange__del {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.hoursrange__del:hover {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+.hoursrange__del svg {
+  width: 12px;
+  height: 12px;
+}
+.hoursday__add {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 580;
+  color: var(--gold);
+  padding: 3px 0;
+}
+.hoursday__closed {
+  padding-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+
 /* El símbolo $ fijo evita que se escriba dentro del número */
 .money {
   display: flex;
