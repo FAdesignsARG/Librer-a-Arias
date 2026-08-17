@@ -1366,8 +1366,8 @@ const arrowIco =
 
 const TUTORIAL_STEPS = [
   {
-    title: 'Buscá y filtrá al toque',
-    text: 'Escribí en el buscador de arriba o combinalo con los filtros de rubro y estado — sin stock, destacados, en oferta, sin foto — para encontrar cualquier producto en segundos.',
+    title: 'Buscar y filtrar',
+    text: 'Escribí en el buscador o usá los filtros de rubro y estado para encontrar un producto rápido.',
     preview: `<div class="tpv tpv--search">
       <div class="tpv__searchbar">${searchIco}<span class="tpv__bar" style="width:60%"></span></div>
       <div class="tpv__chips">
@@ -1379,7 +1379,7 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Cargar un producto nuevo',
-    text: 'Tocá "Nuevo producto": subí las fotos (la primera es la que se ve en el catálogo), completá nombre y precio, y listo — el resto es opcional.',
+    text: 'Tocá "Nuevo producto", subí las fotos, completá nombre y precio. El resto es opcional.',
     preview: `<div class="tpv tpv--new">
       <div class="tpv__thumb">${camIco}</div>
       <div class="tpv__fields">
@@ -1390,8 +1390,8 @@ const TUTORIAL_STEPS = [
     </div>`,
   },
   {
-    title: 'Que la IA complete la ficha',
-    text: 'Subí una foto y tocá "Completar ficha desde la foto": propone nombre, rubro y descripción — el precio siempre lo ponés vos. También funciona pegando texto desprolijo, como un mensaje de WhatsApp.',
+    title: 'Cargar con IA',
+    text: 'Subí una foto y tocá "Completar ficha desde la foto". La IA propone nombre, rubro y descripción. El precio siempre lo ponés vos.',
     preview: `<div class="tpv tpv--ai">
       <div class="tpv__thumb">${camIco}</div>
       <div class="tpv__sparkle">${ico.sparkle}</div>
@@ -1403,8 +1403,8 @@ const TUTORIAL_STEPS = [
     </div>`,
   },
   {
-    title: 'Carga masiva de listas de proveedor',
-    text: 'Pegá la lista completa de un proveedor en "Carga masiva" — un producto por línea, tal cual la mandan — revisá la vista previa y guardá todo junto.',
+    title: 'Carga masiva de proveedores',
+    text: 'Pegá la lista completa de un proveedor en "Carga masiva", revisá la vista previa y guardá todo junto.',
     preview: `<div class="tpv tpv--bulk">
       <div class="tpv__paste">
         <span class="tpv__line" style="width:92%"></span>
@@ -1420,8 +1420,8 @@ const TUTORIAL_STEPS = [
     </div>`,
   },
   {
-    title: 'Asistente de stock por texto',
-    text: 'Escribile en lenguaje natural qué cambió ("se agotó el dinosaurio, volvió la pizarra LCD") y te muestra los cambios antes de aplicarlos. Nunca actualiza nada sin que lo confirmes.',
+    title: 'Asistente de stock',
+    text: 'Escribile qué cambió, por ejemplo "se agotó el dinosaurio", y te muestra los cambios antes de aplicarlos.',
     preview: `<div class="tpv tpv--stock">
       <div class="tpv__bubble">"Se agotó el dinosaurio"</div>
       <div class="tpv__stockrow">
@@ -1433,7 +1433,7 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Acciones en lote',
-    text: 'Seleccioná varios productos con los checkboxes y cambiá stock, visibilidad o destacado — o eliminalos — todos juntos desde la barra que aparece abajo.',
+    text: 'Seleccioná varios productos y cambiá stock, visibilidad o destacado, o eliminalos, todos juntos.',
     preview: `<div class="tpv tpv--sel">
       <div class="tpv__rows">
         <div class="tpv__row"><span class="tpv__check tpv__check--on"></span><span class="tpv__bar" style="width:60%"></span></div>
@@ -1448,8 +1448,8 @@ const TUTORIAL_STEPS = [
     </div>`,
   },
   {
-    title: 'Orden del catálogo y exportar',
-    text: 'Arrastrá las filas por el ícono de la izquierda para definir en qué orden aparecen en el catálogo. Y con "Exportar" te llevás todo en CSV o JSON cuando lo necesites.',
+    title: 'Orden y exportar',
+    text: 'Arrastrá las filas para cambiar el orden del catálogo. Con "Exportar" te llevás todo en CSV o JSON.',
     preview: `<div class="tpv tpv--order">
       <div class="tpv__rows">
         <div class="tpv__row"><span class="tpv__grip">${ico.grip}</span><span class="tpv__bar" style="width:55%"></span></div>

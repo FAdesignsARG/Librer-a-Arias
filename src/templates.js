@@ -85,8 +85,11 @@ const splashHtml = (s) => `<div class="splash" id="splash" aria-hidden="true">
   <div class="splash__panel splash__panel--bottom"></div>
   <div class="splash__stack">
     <div class="splash__brand">
-      <img class="splash__logo brand-dark" src="/assets/brand/mark-dark@256.webp" width="132" height="132" alt="">
-      <img class="splash__logo brand-light" src="/assets/brand/mark-light@256.webp" width="132" height="132" alt="">
+      <div class="splash__mark">
+        <span class="splash__halo" aria-hidden="true"></span>
+        <img class="splash__logo brand-dark" src="/assets/brand/mark-dark@256.webp" width="132" height="132" alt="">
+        <img class="splash__logo brand-light" src="/assets/brand/mark-light@256.webp" width="132" height="132" alt="">
+      </div>
       <img class="splash__word brand-dark" src="/assets/brand/wordmark-dark.webp" alt="${esc(s.storeName)}">
       <img class="splash__word brand-light" src="/assets/brand/wordmark-light.webp" alt="${esc(s.storeName)}">
     </div>

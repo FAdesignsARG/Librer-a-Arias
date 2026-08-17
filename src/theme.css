@@ -40,6 +40,9 @@
   bottom: 0;
 }
 
+.splash__mark {
+  position: relative;
+}
 .splash__logo {
   position: relative;
   z-index: 1;
@@ -49,6 +52,29 @@
   object-fit: cover;
   opacity: 0;
   will-change: transform, opacity;
+}
+
+/* Anillo que se expande y se apaga apenas entra el logo — el "ping" de
+   confirmación que le da presencia de app nativa, no sólo un ícono
+   apareciendo. Sin gradientes: un borde sólido perdiendo opacidad. */
+.splash__halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: clamp(92px, 18vw, 132px);
+  height: clamp(92px, 18vw, 132px);
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.7);
+}
+.splash[data-run='true'] .splash__halo {
+  animation: splash-halo 0.85s var(--ease-out) 0.05s forwards;
+}
+@keyframes splash-halo {
+  0% { transform: translate(-50%, -50%) scale(0.72); opacity: 0.65; }
+  100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
 }
 
 /* Barra que se dibuja bajo el logo: es el "wipe" que marca el tiempo */
@@ -95,7 +121,7 @@
 }
 
 /* ---- Coreografía ----
-   0.00-0.52  el logo entra con overshoot
+   0.00-0.52  el logo entra con overshoot, el halo hace un ping alrededor
    0.34-0.78  la barra se dibuja de izquierda a derecha
    0.86-1.00  el logo se va y las cortinas se abren
 */
@@ -155,6 +181,10 @@ html[data-splash='running'] body > *:not(.splash) {
   .splash[data-run='true'] .splash__logo {
     animation: none;
     opacity: 1;
+  }
+  .splash[data-run='true'] .splash__halo {
+    animation: none;
+    opacity: 0;
   }
   .splash[data-run='true'] .splash__bar,
   .splash[data-run='true'] .splash__panel--top,
