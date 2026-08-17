@@ -16,14 +16,26 @@
  *    intento de abrir no se encuentra con un `data-closing` colgado.
  */
 export function closeDialog(dlg, { timeout = 450 } = {}) {
-  if (!dlg?.open || dlg.dataset.closing) return Promise.resolve();
-
-  dlg.dataset.closing = 'true';
+  if (!dlg?.open) return Promise.resolve();
 
   const finish = () => {
     delete dlg.dataset.closing;
     if (dlg.open) dlg.close();
   };
+
+  // Si ya había un cierre en curso (alguien clickeó dos veces, o se
+  // reabrió el diálogo a mitad de la animación de salida anterior sin
+  // limpiar el flag), NO se relanza la animación — pero tampoco se
+  // aborta el cierre en silencio como antes: eso dejaba el diálogo
+  // atascado para siempre, sin volver a responder a la X, al fondo ni a
+  // Esc, porque este mismo chequeo bloqueaba cualquier intento futuro.
+  // Ahora, ya haya animación nueva o no, SIEMPRE se garantiza terminar
+  // cerrando dentro del tope de tiempo.
+  if (dlg.dataset.closing) {
+    return new Promise((r) => setTimeout(r, timeout)).then(finish, finish);
+  }
+
+  dlg.dataset.closing = 'true';
 
   const anims = dlg.getAnimations?.({ subtree: true }) ?? [];
   const done = anims.length
@@ -31,6 +43,19 @@ export function closeDialog(dlg, { timeout = 450 } = {}) {
     : Promise.resolve();
 
   return Promise.race([done, new Promise((r) => setTimeout(r, timeout))]).then(finish, finish);
+}
+
+/**
+ * Abre un <dialog> como modal, con foco puesto en el diálogo mismo (no en
+ * el primer botón — en mobile Safari eso dispara el anillo de foco sobre
+ * un botón chico, se ve roto) y sin arrastrar un `data-closing` colgado
+ * de una animación de salida anterior que nunca llegó a limpiarse.
+ */
+export function openDialog(dlg) {
+  if (!dlg) return;
+  delete dlg.dataset.closing;
+  dlg.showModal();
+  dlg.focus();
 }
 
 /**

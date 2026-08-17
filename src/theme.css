@@ -130,6 +130,21 @@
   .splash__word {
     display: block;
   }
+  /* Bug real, visto en desktop modo oscuro: .brand-dark/.brand-light
+     (styles.css) deciden qué variante mostrar según el tema en todo el
+     sitio, pero acá arriba "display:block" tiene la MISMA especificidad
+     y como este archivo carga después, ganaba igual — mostraba las DOS
+     wordmarks (clara y oscura) superpuestas. Selectores combinados para
+     no depender del orden de los archivos. */
+  .splash__word.brand-light {
+    display: none;
+  }
+  :root[data-theme='light'] .splash__word.brand-dark {
+    display: none;
+  }
+  :root[data-theme='light'] .splash__word.brand-light {
+    display: block;
+  }
 }
 
 /* ---- Coreografía ----

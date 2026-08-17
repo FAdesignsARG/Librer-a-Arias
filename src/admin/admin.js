@@ -14,7 +14,7 @@
 
 import { stems } from '../search-engine.js';
 import { offerActive, dateFmt, cardHtml, esc } from '../templates.js';
-import { closeDialog, wireDialog } from '../ui.js';
+import { closeDialog, wireDialog, openDialog } from '../ui.js';
 import { cloudinaryUrl, cloudinaryConfig } from '../cloudinary-config.js';
 import {
   db,
@@ -436,6 +436,7 @@ function openEditor(p = null) {
   updateDescCount();
   renderShots();
 
+  delete editor.dataset.closing;
   editor.showModal();
   $('#fName').focus();
 }
@@ -951,7 +952,7 @@ $('#btnBulk').addEventListener('click', () => {
   bulkRows = [];
   $('#bulkText').value = '';
   renderBulk();
-  closeDialog(adminMenuDlg).then(() => bulkDlg.showModal());
+  closeDialog(adminMenuDlg).then(() => openDialog(bulkDlg));
 });
 
 $('#bulkParse').addEventListener('click', () => {
@@ -1188,8 +1189,7 @@ $('#btnStockAI').addEventListener('click', () => {
   $('#stockAINote').hidden = true;
   $('#stockAIApply').disabled = true;
   stockAIProposal = [];
-  stockAIDlg.showModal();
-  stockAIDlg.focus();
+  openDialog(stockAIDlg);
 });
 $('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
 $('#stockAICancel').addEventListener('click', () => closeDialog(stockAIDlg));
@@ -1515,8 +1515,7 @@ function renderTutorialStep() {
 function openTutorial() {
   tutorialIdx = 0;
   renderTutorialStep();
-  tutorialDlg.showModal();
-  tutorialDlg.focus();
+  openDialog(tutorialDlg);
 }
 
 function maybeAutoOpenTutorial() {
@@ -1540,8 +1539,7 @@ wireDialog(tutorialDlg, $('#tutorialClose'));
    ========================================================================== */
 const adminMenuDlg = $('#adminMenu');
 $('#adminMenuBtn').addEventListener('click', () => {
-  adminMenuDlg.showModal();
-  adminMenuDlg.focus();
+  openDialog(adminMenuDlg);
 });
 wireDialog(adminMenuDlg, $('#adminMenuClose'));
 
@@ -1739,10 +1737,7 @@ $('#btnSettings').addEventListener('click', () => {
   hoursState = hoursStateFromArray(settings.hours);
   renderHoursGrid();
 
-  closeDialog(adminMenuDlg).then(() => {
-    settingsDlg.showModal();
-    settingsDlg.focus();
-  });
+  closeDialog(adminMenuDlg).then(() => openDialog(settingsDlg));
 });
 
 wireDialog(settingsDlg, $('#settingsClose'));
@@ -2022,8 +2017,7 @@ $('#btnReports').addEventListener('click', () => {
   renderMonthList();
   resetHistoryView();
   renderSessionList();
-  reportsDlg.showModal();
-  reportsDlg.focus();
+  openDialog(reportsDlg);
 });
 wireDialog(reportsDlg, $('#reportsClose'));
 
