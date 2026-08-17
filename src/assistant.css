@@ -548,11 +548,17 @@
   font-family: inherit;
   line-height: 1.4;
   resize: none;
-  transition: border-color var(--dur-fast) var(--ease-soft);
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .chat__form textarea:hover {
+    border-color: var(--line-strong);
+  }
 }
 .chat__form textarea:focus {
   outline: none;
   border-color: var(--gold-edge);
+  box-shadow: 0 0 0 4px var(--gold-wash);
 }
 .chat__send {
   width: 42px;
@@ -563,11 +569,17 @@
   border-radius: 50%;
   background: var(--gold);
   color: var(--gold-ink);
-  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop),
+    background var(--dur-fast) var(--ease-soft);
 }
 .chat__send:disabled {
   opacity: 0.4;
   cursor: default;
+}
+@media (hover: hover) {
+  .chat__send:not(:disabled):hover {
+    background: var(--gold-hi);
+  }
 }
 .chat__send:not(:disabled):active {
   transform: scale(0.92);
