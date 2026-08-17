@@ -54,6 +54,18 @@ btn?.addEventListener('click', () => {
    tiene que repetirse, sería insoportable.
    ========================================================================== */
 
+/* Los navegadores internos de WhatsApp/Instagram/Facebook (WebViews que
+   abren un link tocado adentro de esas apps, no Safari real) tienen bugs
+   conocidos con position:fixed + animaciones — se probó a fondo esta
+   misma coreografía en Safari real y mide centrada exacta, pero un link
+   compartido por WhatsApp seguía mostrando el logo corrido. En vez de
+   perseguir un bug de un WebView de terceros que no se puede inspeccionar,
+   se salta la animación ahí directamente: mismo criterio que ya existe
+   para prefers-reduced-motion, sólo se ve el logo un instante. */
+function isInAppBrowser() {
+  return /\bFB_IAB\b|FBAN|FBAV|Instagram|\bLine\/|WhatsApp/i.test(navigator.userAgent || '');
+}
+
 function runSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return Promise.resolve();
@@ -65,9 +77,12 @@ function runSplash() {
     /* sin sessionStorage lo mostramos igual, no molesta */
   }
 
-  if (visto) {
+  if (visto || isInAppBrowser()) {
     splash.hidden = true;
     root.removeAttribute('data-splash');
+    try {
+      sessionStorage.setItem(KEY_SPLASH, '1');
+    } catch {}
     return Promise.resolve();
   }
 
