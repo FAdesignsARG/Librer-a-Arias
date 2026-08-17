@@ -864,10 +864,22 @@
   line-height: 1.45;
 }
 
+/* La lista de tipos es a propósito: sin ella, cualquier input con un
+   type="…" no contemplado (url, email, tel, number, date…) cae en el
+   estilo nativo del navegador — una caja blanca que rompe el tema oscuro.
+   Pasó de verdad con "Link de Google Maps" (type=url) y con .catNew (el
+   input de rubro nuevo, que ni siquiera vivía dentro de un .field). */
 .field input[type='text'],
+.field input[type='url'],
+.field input[type='email'],
+.field input[type='tel'],
+.field input[type='number'],
+.field input[type='date'],
+.field input[type='datetime-local'],
 .field input:not([type]),
 .field input[type='search'],
 .field textarea,
+.catadd input,
 .editor .sort {
   width: 100%;
   padding: 10px 13px;
@@ -875,18 +887,29 @@
   border: 1px solid var(--line);
   background: var(--ink);
   font-size: 0.93rem;
-  transition: border-color var(--dur-fast) var(--ease-soft);
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft),
+    background var(--dur-fast) var(--ease-soft);
 }
 .field textarea {
   resize: vertical;
   line-height: 1.55;
   font-family: inherit;
 }
+@media (hover: hover) {
+  .field input:hover,
+  .field textarea:hover,
+  .catadd input:hover,
+  .editor .sort:hover {
+    border-color: var(--line-strong);
+  }
+}
 .field input:focus,
 .field textarea:focus,
+.catadd input:focus,
 .editor .sort:focus {
   outline: none;
   border-color: var(--gold-edge);
+  box-shadow: 0 0 0 4px var(--gold-wash);
 }
 .field input:invalid:not(:placeholder-shown) {
   border-color: rgba(255, 107, 107, 0.5);
@@ -919,6 +942,29 @@
   border: 1px solid var(--line);
   background: var(--surface);
   overflow: hidden;
+  transition: border-color var(--dur) var(--ease-soft), box-shadow var(--dur) var(--ease-soft);
+  animation: settingscard-in 0.42s var(--ease-out) backwards;
+}
+/* Entran en cascada, no todas de golpe — cada tarjeta un poco después que
+   la anterior. Con más de 5 no haría falta seguir sumando reglas: a partir
+   de la 6ª se quedan sin delay propio y entran junto con la última. */
+.settingsbody .settingscard:nth-child(1) { animation-delay: 0.02s; }
+.settingsbody .settingscard:nth-child(2) { animation-delay: 0.07s; }
+.settingsbody .settingscard:nth-child(3) { animation-delay: 0.12s; }
+.settingsbody .settingscard:nth-child(4) { animation-delay: 0.17s; }
+.settingsbody .settingscard:nth-child(5) { animation-delay: 0.22s; }
+@keyframes settingscard-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+@media (hover: hover) {
+  .settingscard:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-card);
+  }
+  .settingscard:hover .settingscard__ico {
+    background: var(--gold-edge);
+    transform: scale(1.07);
+  }
 }
 .settingscard__head {
   display: flex;
@@ -936,6 +982,7 @@
   border-radius: var(--r-md);
   background: var(--gold-wash);
   color: var(--gold);
+  transition: background var(--dur) var(--ease-soft), transform var(--dur) var(--ease-pop);
 }
 .settingscard__ico svg {
   width: 19px;
@@ -981,16 +1028,26 @@
   border-radius: var(--r-md);
   border: 1px solid var(--line);
   background: var(--ink);
-  transition: border-color var(--dur-fast) var(--ease-soft);
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .socialfield:hover {
+    border-color: var(--line-strong);
+  }
+  .socialfield:hover .socialfield__ico {
+    color: var(--gold);
+  }
 }
 .socialfield:focus-within {
   border-color: var(--gold-edge);
+  box-shadow: 0 0 0 4px var(--gold-wash);
 }
 .socialfield__ico {
   flex: none;
   width: 17px;
   height: 17px;
   color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease-soft);
 }
 .socialfield input {
   flex: 1;
@@ -1016,6 +1073,17 @@
   border: 1px solid var(--line);
   background: var(--ink);
   font-size: 0.85rem;
+  transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  animation: catchip-in var(--dur) var(--ease-pop);
+}
+@keyframes catchip-in {
+  from { opacity: 0; transform: scale(0.85); }
+}
+@media (hover: hover) {
+  .catchip:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hi);
+  }
 }
 .catchip button {
   width: 18px;
@@ -1056,6 +1124,12 @@
   border-radius: var(--r-md);
   border: 1px solid var(--line);
   background: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .hoursday:hover {
+    border-color: var(--line-strong);
+  }
 }
 .hoursday__label {
   flex: none;
@@ -1085,6 +1159,28 @@
   background: var(--surface);
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .hoursrange input[type='time']:hover {
+    border-color: var(--line-strong);
+  }
+}
+.hoursrange input[type='time']:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+  box-shadow: 0 0 0 3px var(--gold-wash);
+}
+/* El ícono nativo del reloj (::-webkit-calendar-picker-indicator) es negro
+   fijo — sobre el fondo oscuro de --surface queda invisible. Sólo hay que
+   invertirlo en tema oscuro; en claro ya se ve bien tal cual. */
+:root[data-theme='dark'] .hoursrange input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+}
+:root[data-theme='dark'] .hoursrange input[type='time']:hover::-webkit-calendar-picker-indicator,
+:root[data-theme='dark'] .hoursrange input[type='time']:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
 }
 .hoursrange span {
   font-size: 0.8rem;
@@ -1915,6 +2011,13 @@
   .tpv__sparkle,
   .tpv__arrow,
   .tpv__row--lift {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settingscard,
+  .catchip {
     animation: none;
   }
 }
