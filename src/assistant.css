@@ -159,6 +159,104 @@
 }
 
 /* ==========================================================================
+   GLOBO DE INVITACIÓN
+   Aparece una sola vez por sesión, apuntando al botón "Preguntame" del
+   dock — la posición exacta (right/bottom) la calcula JS con
+   getBoundingClientRect() del dock, porque su altura cambia según si el
+   botón del pedido está visible o no.
+   ========================================================================== */
+.ainudge {
+  position: fixed;
+  z-index: 210;
+  width: min(280px, calc(100vw - 32px));
+  padding: 14px 32px 14px 14px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-pop);
+  animation: nudge-in 0.4s var(--ease-pop) both;
+}
+.ainudge[hidden] {
+  display: none;
+}
+.ainudge[data-closing='true'] {
+  animation: nudge-out 0.22s var(--ease-soft) forwards;
+}
+@keyframes nudge-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes nudge-out {
+  to { opacity: 0; transform: translateY(6px) scale(0.96); }
+}
+/* Colita apuntando hacia el botón del dock */
+.ainudge::after {
+  content: '';
+  position: absolute;
+  right: 22px;
+  bottom: -7px;
+  width: 14px;
+  height: 14px;
+  background: var(--surface);
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  transform: rotate(45deg);
+}
+.ainudge__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.ainudge__close:hover {
+  background: var(--fill-hi);
+  color: var(--text);
+}
+.ainudge__close svg {
+  width: 12px;
+  height: 12px;
+}
+.ainudge__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+}
+.ainudge__ico {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold-wash);
+  color: var(--gold-text);
+}
+.ainudge__ico svg {
+  width: 16px;
+  height: 16px;
+}
+.ainudge__txt {
+  font-size: 0.86rem;
+  font-weight: 540;
+  line-height: 1.4;
+  color: var(--text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ainudge,
+  .ainudge[data-closing='true'] {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
    PANEL DE CHAT
    ========================================================================== */
 /* Mismo criterio que .sheet: fijo al viewport para que al cerrarse no

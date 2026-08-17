@@ -223,7 +223,6 @@ ${themeBootScript}
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
 ${splashHtml(s)}
-${promobarHtml()}
 ${navbar(s)}
 ${body}
 ${orderSheet(s)}
@@ -252,27 +251,10 @@ const crane = (cls, size) => {
        width="${size}" height="${size}" alt="" loading="eager" decoding="async">`;
 };
 
-/* Reemplaza al tagline estático del hero: en vez de listar los rubros,
-   usa ese lugar para empujar el asistente IA — que la gente encuentre lo
-   que busca preguntando, en vez de tener que scrollear los 176 productos.
-   Mismo ícono que el botón "Preguntame" del dock, para que se lea como
-   la misma función en dos lugares distintos. */
+/* Mismo ícono que el botón "Preguntame" del dock — se reusa en el globo
+   de invitación (ver orderSheet) para que se lea como la misma función. */
 const askIco =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>';
-
-const PROMO_MSGS = [
-  '¿No encontrás algo? Preguntale a la IA',
-  'Contanos qué buscás y te ayudamos al toque',
-  '¿Buscás un regalo? Preguntale al asistente',
-];
-
-const promobarHtml = () => `<button type="button" class="promobar" id="promobar" aria-label="Preguntarle al asistente IA">
-  <div class="promobar__track">
-    ${PROMO_MSGS.map(
-      (m, i) => `<span class="promobar__msg" data-active="${i === 0}">${askIco}${esc(m)}</span>`
-    ).join('\n    ')}
-  </div>
-</button>`;
 
 const navbar = (s) => `<nav class="nav" id="nav">
   <div class="nav__inner">
@@ -322,6 +304,13 @@ const orderSheet = (s) => `
     <button class="dockbtn dockbtn--ai" id="askBtn" aria-haspopup="dialog" aria-label="Preguntarle al asistente">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>
       <span>Preguntame</span>
+    </button>
+  </div>
+  <div class="ainudge" id="aiNudge" hidden>
+    <button type="button" class="ainudge__close" id="aiNudgeClose" aria-label="Cerrar aviso">${ico.x}</button>
+    <button type="button" class="ainudge__body" id="aiNudgeBody">
+      <span class="ainudge__ico">${askIco}</span>
+      <span class="ainudge__txt">¿Buscás algo puntual? Preguntame, te ayudo a encontrarlo</span>
     </button>
   </div>
 </div>

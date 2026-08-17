@@ -232,22 +232,44 @@ function openChat() {
 $('#askBtn')?.addEventListener('click', openChat);
 wireDialog(dlg, $('#chatClose'));
 
-/* ---- Barra promocional: rota mensajes cortos y abre el chat al tocarla.
-   Sin rotación si el usuario pidió menos movimiento — el mensaje que ya
-   está activo (el primero, server-rendered) queda fijo. ---- */
-const promobar = $('#promobar');
-promobar?.addEventListener('click', openChat);
-if (promobar && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const msgs = [...promobar.querySelectorAll('.promobar__msg')];
-  let mi = 0;
-  if (msgs.length > 1) {
-    setInterval(() => {
-      msgs[mi].dataset.active = 'false';
-      mi = (mi + 1) % msgs.length;
-      msgs[mi].dataset.active = 'true';
-    }, 4200);
-  }
+/* ---- Globo de invitación al asistente ----
+   Aparece una vez por sesión (no en cada página que se visita), apuntando
+   al botón del dock. La posición se calcula en el momento de mostrarlo
+   con getBoundingClientRect() porque la altura del dock varía según si
+   el botón del pedido está visible (con el carrito vacío no está). */
+const nudge = $('#aiNudge');
+const NUDGE_KEY = 'arias.nudgeShown';
+
+function hideNudge() {
+  if (!nudge || nudge.hidden || nudge.dataset.closing) return;
+  nudge.dataset.closing = 'true';
+  setTimeout(() => {
+    nudge.hidden = true;
+    delete nudge.dataset.closing;
+  }, 240);
 }
+
+if (nudge && !sessionStorage.getItem(NUDGE_KEY)) {
+  setTimeout(() => {
+    // El chat pudo haberse abierto solo (o el usuario ya se fue de la
+    // página) en el rato que pasó — no tiene sentido mostrarlo entonces.
+    if (dlg.open) return;
+    const dock = document.querySelector('.dock');
+    if (!dock) return;
+    const r = dock.getBoundingClientRect();
+    nudge.style.right = `${window.innerWidth - r.right}px`;
+    nudge.style.bottom = `${window.innerHeight - r.top + 14}px`;
+    nudge.hidden = false;
+    sessionStorage.setItem(NUDGE_KEY, 'true');
+    setTimeout(hideNudge, 7000);
+  }, 3500);
+}
+
+$('#aiNudgeClose')?.addEventListener('click', hideNudge);
+$('#aiNudgeBody')?.addEventListener('click', () => {
+  hideNudge();
+  openChat();
+});
 
 /* El pop-up de bienvenida dispara esto al elegir una de las opciones
    rápidas: abre el chat y manda la consulta ya escrita. */
