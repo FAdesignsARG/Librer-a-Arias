@@ -914,6 +914,7 @@
   background: var(--ink);
 }
 .settingscard {
+  flex: none;
   border-radius: var(--r-lg);
   border: 1px solid var(--line);
   background: var(--surface);
