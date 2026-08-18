@@ -229,6 +229,7 @@ ${welcomeHtml(s)}
 <script type="module" src="/src/theme.js"></script>
 <script type="module" src="/src/app.js"></script>
 <script type="module" src="/src/assistant.js"></script>
+<script type="module" src="/src/analytics.js"></script>
 </body>
 </html>`;
 }

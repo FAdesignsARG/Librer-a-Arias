@@ -97,6 +97,7 @@ const copies = [
   // El asistente se publica: sin servidor detrás cae solo al buscador local.
   ['src/assistant.js', 'src/assistant.js'],
   ['src/search-engine.js', 'src/search-engine.js'],
+  ['src/analytics.js', 'src/analytics.js'],
   // app.js importa cardHtml/money/offerActive de acá — sin esto la portada
   // publicada quedaría con un import roto en el navegador.
   ['src/templates.js', 'src/templates.js'],
