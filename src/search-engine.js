@@ -6,6 +6,15 @@
  * "menos de 10 mil") y tolera errores de tipeo.
  *
  * Generado por scripts/_port-search.js — se puede editar a mano desde acá.
+ *
+ * SYNONYMS y TAXONOMY actualizados el 18/8/2026 fusionando con una
+ * versión más nueva del generador original (13 sinónimos y 7 subcategorías
+ * nuevas: kpop, manicura, pista, aire libre, robot, afeitar, rastreador,
+ * impresora, animales adicionales, camaras, bebés, etc.) — unión con lo
+ * que ya había acá, sin perder nada (ver "capibara"/"capybara" en animal,
+ * que sólo estaban de este lado). canonicalFuzzy() (tolerancia a errores
+ * de tipeo al mapear sinónimos) es propio de este archivo, no del HTML
+ * original — se mantiene.
  */
 
 /* ---------- 1. Normalización ---------- */
@@ -33,50 +42,63 @@ const STOPWORDS = new Set(['para','de','del','el','la','los','las','un','una','u
    Se usa tanto para expandir la consulta como para no tener que
    repetir sinónimos producto por producto.                        */
 const SYNONYMS = {
-  juguete:      ['juguete','juguetes','juguetito','jugueteria','jugar','juego','juegos','juguetes infantiles'],
-  infantil:     ['infantil','chico','chicos','chicas','nene','nena','nenes','nenas','nino','ninos','nina','ninas','pequeno','peque','criatura','kids','hijo','hija'],
-  nena:         ['nena','nenas','nina','ninas','chica','chicas','hija','femenino','princesa'],
-  nene:         ['nene','nenes','nino','ninos','varon','varones','masculino'],
-  muneca:       ['muneca','munecas','munequita','bebote','bebota','doll','barbie','bebe','bebes'],
-  peluche:      ['peluche','peluches','felpa','suave','abrazable','abrazar','mimoso'],
-  auto:         ['auto','autos','autito','autitos','coche','carro','camion','camiones','camioneta','vehiculo','rodado'],
+  juguete:        ['juguete','juguetes','juguetito','jugueteria','jugar','juego','juegos','juguetes infantiles'],
+  infantil:       ['infantil','chico','chicos','chicas','nene','nena','nenes','nenas','nino','ninos','nina','ninas','pequeno','peque','criatura','kids','hijo','hija'],
+  nena:           ['nena','nenas','nina','ninas','chica','chicas','hija','femenino','princesa'],
+  nene:           ['nene','nenes','nino','ninos','varon','varones','masculino'],
+  muneca:         ['muneca','munecas','munequita','bebote','bebota','doll','barbie','bebe','bebes'],
+  peluche:        ['peluche','peluches','felpa','suave','abrazable','abrazar','mimoso'],
+  auto:           ['auto','autos','autito','autitos','coche','carro','camion','camiones','camioneta','vehiculo','rodado'],
   'control remoto': ['control remoto','radiocontrol','teledirigido','rc','a control'],
-  volador:      ['avion','aviones','avioncito','volar','vuela','volador','voladora','helicoptero','planeador','drone','dron','ovni','ufo'],
-  acuatico:     ['barco','barcos','lancha','lanchita','bote','velero','nautico','pileta','pileton','banera','agua'],
+  volador:        ['avion','aviones','avioncito','volar','vuela','volador','voladora','helicoptero','planeador','drone','dron','ovni','ufo'],
+  acuatico:       ['barco','barcos','lancha','lanchita','bote','velero','nautico','pileta','pileton','banera','agua'],
   'juego de mesa': ['juego de mesa','mesa','carta','cartas','naipe','naipes','mazo','poker','truco','dado','dados'],
-  didactico:    ['didactico','educativo','aprender','logica','ingenio','armar','construccion','rompecabeza','rompecabezas','puzzle','encastre','stem'],
-  tecnologia:   ['tecnologia','tecnologico','tecnologicos','electronica','electronico','gadget','gadgets','dispositivo','aparato','electro'],
-  celular:      ['celular','celu','telefono','movil','smartphone','cel','compu','computadora','notebook','pc','laptop'],
-  cargador:     ['cargador','cargadores','cargar','cable','cables','adaptador','fuente'],
-  auriculares:  ['auricular','auriculares','auris','audifono','audifonos','casco','cascos','parlantes','bafle'],
-  audio:        ['audio','sonido','musica','musical','escuchar musica','escuchar','microfono','micro','karaoke','parlante'],
-  grabar:       ['grabar','grabacion','filmar','camara','video','videos','registrar'],
+  didactico:      ['didactico','educativo','aprender','logica','ingenio','armar','construccion','rompecabeza','rompecabezas','puzzle','encastre','stem','bloque','bloques','ladrillo','ladrillos','encastrable','encastrables','didacticos'],
+  tecnologia:     ['tecnologia','tecnologico','tecnologicos','electronica','electronico','gadget','gadgets','dispositivo','aparato','electro'],
+  celular:        ['celular','celu','telefono','movil','smartphone','cel','compu','computadora','notebook','pc','laptop','tablet','tableta','soporte para telefono','holder','portatil'],
+  cargador:       ['cargador','cargadores','cargar','cable','cables','adaptador','fuente','usb','usb c','tipo c','carga rapida','pd','enchufe'],
+  auriculares:    ['auricular','auriculares','auris','audifono','audifonos','casco','cascos','parlantes','bafle'],
+  audio:          ['audio','sonido','musica','musical','escuchar musica','escuchar','microfono','micro','karaoke','parlante'],
+  grabar:         ['grabar','grabacion','filmar','camara','video','videos','registrar','filmadora','action cam','camara deportiva','sumergible','casco'],
   'crear contenido': ['crear contenido','contenido','reels','reel','tiktok','youtube','streaming','creador'],
-  luz:          ['luz','luces','linterna','lampara','velador','iluminacion','iluminar','led','proyector','luminoso','luminosa'],
-  decoracion:   ['decoracion','decorar','decorativo','ambiente','deco','adorno'],
-  masaje:       ['masaje','masajes','masajeador','relax','relajar','bienestar','muscular','contractura','spa','descontracturar'],
-  belleza:      ['belleza','cuidado personal','piel','cutis','estetica'],
-  pelo:         ['pelo','cabello','peinado','peinar','planchita','plancha','alisador','rizado','ondas','peluqueria','secador'],
-  salud:        ['salud','medico','respiratorio','embarazo','embarazada','latido','maternidad'],
-  hogar:        ['hogar','casa','domestico','living','depto','departamento','del hogar'],
-  habitacion:   ['habitacion','pieza','cuarto','dormitorio','pieza de los chicos'],
-  cocina:       ['cocina','cocinar','cafe','cafetera','mate','desayuno','comida','receta','recetas','reposteria','hornear','pesar'],
-  limpieza:     ['limpieza','limpiar','basura','residuo','residuos','higiene','pelusa'],
-  organizar:    ['organizar','organizacion','organizador','orden','ordenar','guardar','almacenamiento','almacenar'],
-  escuela:      ['escuela','colegio','cole','escolar','util','utiles','estudio','estudiar','clase','clases','tarea','universidad','facultad','libreria','papeleria','vuelta al cole'],
-  escritura:    ['escribir','escritura','anotar','lapiz','lapices','lapicera','birome','marcador','marcadores','fibra','fibras','goma','borrar'],
-  dibujo:       ['dibujar','dibujo','pintar','pintura','arte','artistico','manualidad','manualidades','creatividad','crear'],
-  oficina:      ['oficina','trabajo','escritorio','home office'],
-  regalo:       ['regalo','regalos','regalar','obsequio','sorpresa','detalle','souvenir'],
-  cumpleanos:   ['cumpleanos','cumple','aniversario'],
-  navidad:      ['navidad','reyes','fin de ano','papa noel'],
+  luz:            ['luz','luces','linterna','lampara','velador','iluminacion','iluminar','led','proyector','luminoso','luminosa'],
+  decoracion:     ['decoracion','decorar','decorativo','ambiente','deco','adorno'],
+  masaje:         ['masaje','masajes','masajeador','relax','relajar','bienestar','muscular','contractura','spa','descontracturar'],
+  belleza:        ['belleza','cuidado personal','piel','cutis','estetica','maquillaje','maquillar','maquillarse','tocador'],
+  pelo:           ['pelo','cabello','peinado','peinar','planchita','plancha','alisador','rizado','ondas','peluqueria','secador'],
+  salud:          ['salud','medico','respiratorio','embarazo','embarazada','latido','maternidad','apnea','bruxismo','descanso'],
+  hogar:          ['hogar','casa','domestico','living','depto','departamento','del hogar'],
+  habitacion:     ['habitacion','pieza','cuarto','dormitorio','pieza de los chicos'],
+  cocina:         ['cocina','cocinar','cafe','cafetera','mate','desayuno','comida','receta','recetas','reposteria','hornear','pesar','utensilio','utensilios','al vapor'],
+  limpieza:       ['limpieza','limpiar','basura','residuo','residuos','higiene','pelusa'],
+  organizar:      ['organizar','organizacion','organizador','orden','ordenar','guardar','almacenamiento','almacenar'],
+  escuela:        ['escuela','colegio','cole','escolar','util','utiles','estudio','estudiar','clase','clases','tarea','universidad','facultad','libreria','papeleria','vuelta al cole'],
+  escritura:      ['escribir','escritura','anotar','lapiz','lapices','lapicera','birome','marcador','marcadores','fibra','fibras','goma','borrar'],
+  dibujo:         ['dibujar','dibujo','pintar','pintura','arte','artistico','manualidad','manualidades','creatividad','crear'],
+  oficina:        ['oficina','trabajo','escritorio','home office'],
+  regalo:         ['regalo','regalos','regalar','obsequio','sorpresa','detalle','souvenir'],
+  cumpleanos:     ['cumpleanos','cumple','aniversario'],
+  navidad:        ['navidad','reyes','fin de ano','papa noel'],
   'dia del nino': ['dia del nino','dia del ninos'],
-  gaming:       ['gaming','gamer','consola','videojuego','videojuegos','retro','joystick','tv','televisor','smart tv','pantalla'],
+  gaming:         ['gaming','gamer','consola','videojuego','videojuegos','retro','joystick','tv','televisor','smart tv','pantalla'],
   'accesorio auto': ['accesorio auto','automovil','ruta','viaje','taller','bici','bicicleta','moto','neumatico','rueda'],
-  animal:       ['animal','animales','perro','perrito','gato','dinosaurio','dino','bicho','mascota','capibara','capybara'],
-  coleccion:    ['coleccion','coleccionable','figura','funko','coleccionar'],
-  ropa:         ['ropa','gorra','gorras','vestir','accesorio personal','moda'],
-  entretener:   ['entretener','divertir','diversion','pasar el rato','aburrido','aburrimiento']
+  animal:         ['animal','animales','perro','perrito','gato','dinosaurio','dinosaurios','dino','dinos','bicho','bichos','mascota','mascotas','animalito','animalitos','capibara','capybara'],
+  coleccion:      ['coleccion','coleccionable','figura','funko','coleccionar'],
+  ropa:           ['ropa','gorra','gorras','vestir','accesorio personal','moda'],
+  entretener:     ['entretener','divertir','diversion','pasar el rato','aburrido','aburrimiento'],
+  modelar:        ['modelar','masa','masas','masilla','masilina','plastilina','moldear','arcilla','amasar','sello','sellos'],
+  antiestres:     ['antiestres','pop it','popit','fidget','sensorial','apretar','burbuja','burbujas','reflejos','destreza','concentrarse'],
+  ingles:         ['ingles','english','idioma','bilingue','vocabulario','flash card','flash cards','tarjetas parlantes','primeras palabras'],
+  cuna:           ['cuna','cunita','recien nacido','baby shower','maternidad','sonajero','movil de cuna','primeros meses'],
+  dormir:         ['dormir','sueno','descansar','siesta','noche','nocturna','nocturno','calmar','luz de noche','acostarse'],
+  kpop:           ['kpop','k pop','idol','escenario','musica coreana'],
+  manicura:       ['manicura','unas','nail art','esmalte','unia','unias'],
+  pista:          ['pista','pistas','circuito','looping','rampa','autopista de juguete'],
+  aire_libre:     ['aire libre','patio','jardin','vereda','plaza','camping','verano','vacaciones','playa'],
+  robot:          ['robot','robots','robotica','transformable','transformer','mecha','armable'],
+  afeitar:        ['afeitadora','afeitar','afeitado','maquina de afeitar','rasuradora','recortadora','trimmer','barba','bigote','patillas'],
+  rastreador:     ['rastreador','localizador','smart tag','airtag','gps','encontrar','perdido','llaves','find my'],
+  impresora:      ['impresora','imprimir','impresion','termica','sticker','stickers','etiqueta','etiquetas','apuntes']
 };
 
 // Índice invertido: variante (clave canónica) -> término canónico
@@ -134,186 +156,43 @@ const CATEGORY_BASE = {
    El PRIMER tema que matchea define la subcategoría; todos los que
    matchean aportan sus facetas.                                     */
 const TAXONOMY = [
-  { sub:'Muñecas y bebotes', when:['muneca','barbie','bebe','baby','bomboncito','llorona','gordito','carinito','maymay','hada','dressy','vogue girl','doll'],
-    tags:['muneca','infantil'], aliases:['munequita','bebote','bebe de juguete'],
-    audience:['nena','ninas','infantil'], ages:['3-5','6-8'],
-    useCases:['jugar','cuidar','juego simbolico','regalar'], environments:['habitacion'],
-    intents:['regalo para nena','juguete para nena','muneca para nena','regalo para nina'] },
-
-  { sub:'Peluches', when:['peluche','osito','perrito','conejito','pollito','squeeze','peludo','felpa','estrella repetidora'],
-    tags:['peluche','infantil'], aliases:['muneco de peluche'],
-    audience:['infantil','ninos'], ages:['bebe','3-5','6-8'],
-    useCases:['abrazar','jugar','regalar'], environments:['habitacion'],
-    intents:['peluche para regalar','algo suave para chicos'] },
-
-  { sub:'Autos y vehículos de juguete', when:['autit','auto 360','camion','camionet','volcador','todoterreno','variant car','stunt rotation','tanque'],
-    tags:['auto','juguete'], aliases:['autito de juguete','camioncito'],
-    audience:['nene','ninos','infantil'], ages:['3-5','6-8'],
-    useCases:['jugar','coleccionar'], environments:['aire libre'],
-    intents:['auto de juguete','autito para nene','camion de juguete'] },
-
-  { sub:'Vehículos a control remoto', when:['control remoto','r c','lizard','gesture','radiocontrol'],
-    tags:['control remoto','auto','tecnologia'], aliases:['rc','teledirigido'],
-    audience:['ninos','adolescentes','nene'], ages:['6-8','9-12','adolescentes'],
-    useCases:['jugar'], environments:['aire libre'],
-    intents:['juguete a control remoto','auto a control remoto'] },
-
-  { sub:'Juguetes voladores', when:['avion','avioncito','helicoptero','drone','planeador','spinner','aerobat','voladora','speed plane'],
-    tags:['volador','juguete'], aliases:['avioncito','dron'],
-    audience:['ninos','adolescentes','nene'], ages:['6-8','9-12','adolescentes'],
-    useCases:['jugar','volar','filmar'], environments:['aire libre'],
-    intents:['juguete que vuela','drone para regalar'] },
-
-  { sub:'Juguetes acuáticos', when:['race boat','velero','sailboat','dinghy','rubber dinghy'],
-    tags:['acuatico','juguete'], aliases:['lanchita','barquito'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['jugar'], environments:['pileta','banera','aire libre'],
-    intents:['juguete para la pileta','juguete para el agua','juguete para verano'] },
-
-  { sub:'Juegos de mesa y cartas', when:['naipe','poker','uno','carta','dado','dados','basta','sushi do','chips','tic tac toe'],
-    tags:['juego de mesa','entretener'], aliases:['mazo','juego de cartas'],
-    audience:['familia','adolescentes','adultos','ninos'], ages:['6-8','9-12','adolescentes','adultos'],
-    useCases:['jugar en familia','entretener'], environments:['mesa','viaje'],
-    intents:['juego para toda la familia','juego de mesa','juego para reuniones'] },
-
-  { sub:'Juguetes didácticos', when:['puzzle','rompecabeza','magnetico','tetris','construccion','castle','encastre'],
-    tags:['didactico','infantil'], aliases:['bloques','armado'],
-    audience:['infantil','ninos','estudiantes'], ages:['3-5','6-8','9-12'],
-    useCases:['aprender','armar','desarrollar la logica','regalar'], environments:['escuela'],
-    intents:['juguete didactico','juguete educativo','para aprender jugando'] },
-
-  { sub:'Juguetes electrónicos', when:['games console','ball grabber','registradora','dancing','bailarin','cactus','luces y sonido'],
-    tags:['juguete','tecnologia'], aliases:['juguete con luces'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['jugar','entretener'], environments:['habitacion'],
-    intents:['juguete con luces y sonido','juguete electronico'] },
-
-  { sub:'Juegos creativos', when:['slime','masa','kapibala','plastilina'],
-    tags:['dibujo','infantil'], aliases:['masa moldeable'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['crear','entretener'], environments:['habitacion'],
-    intents:['slime','algo para entretener a los chicos'] },
-
-  { sub:'Juegos de rol', when:['registradora','space station','caja registradora','cocinita'],
-    tags:['didactico','infantil'], aliases:['juego de imitacion'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['jugar','aprender'], environments:['habitacion'],
-    intents:['juego de imitacion','juguete para jugar a la tienda'] },
-
-  { sub:'Alcancías', when:['alcancia','mini bank'],
-    tags:['organizar','infantil'], aliases:['alcancia'],
-    audience:['infantil','ninos'], ages:['6-8','9-12'],
-    useCases:['guardar','ahorrar','regalar'], environments:['habitacion'],
-    intents:['alcancia para chicos','para que ahorren'] },
-
-  { sub:'Coleccionables', when:['funko','coleccion','figura de vinil'],
-    tags:['coleccion','regalo'], aliases:['figura','muneco de coleccion'],
-    audience:['adolescentes','adultos'], ages:['adolescentes','adultos'],
-    useCases:['coleccionar','regalar','decorar'], environments:['habitacion','escritorio'],
-    intents:['regalo para fanaticos','figura de coleccion'] },
-
-  { sub:'Gorras y accesorios', when:['gorra','vincha','mochila'],
-    tags:['ropa','regalo'], aliases:['gorrita'],
-    audience:['ninos','adolescentes'], ages:['6-8','9-12','adolescentes'],
-    useCases:['usar','regalar'], environments:['aire libre','escuela','viaje'],
-    intents:['gorra','accesorio para regalar'] },
-
-  { sub:'Iluminación y decoración', when:['lampara','linterna','star master','tablero de mensaje','proyect','luminosa','led'],
-    tags:['luz','decoracion'], aliases:['velador','luz led'],
-    audience:['adolescentes','adultos','ninos'], ages:['adolescentes','adultos'],
-    useCases:['iluminar','decorar','regalar'], environments:['habitacion','hogar','escritorio'],
-    intents:['luz para la habitacion','algo para decorar','luz led'] },
-
-  { sub:'Cuidado del cabello', when:['alisador','rizado','cepillo alisador','barrillete'],
-    tags:['pelo','belleza'], aliases:['planchita','buclera'],
-    audience:['adolescentes','adultos','mujeres'], ages:['adolescentes','adultos'],
-    useCases:['peinar','alisar','regalar'], environments:['bano','hogar'],
-    intents:['plancha para el pelo','algo para el cabello','regalo para mujer'] },
-
-  { sub:'Masajeadores y bienestar', when:['masaje','massage','masajeador','fascia','scalp','cervical','muscular','9 bolas'],
-    tags:['masaje','bienestar'], aliases:['masajeador'],
-    audience:['adultos','deportistas'], ages:['adultos'],
-    useCases:['relajar','descontracturar','regalar'], environments:['hogar','oficina'],
-    intents:['algo para el dolor de espalda','masajeador','regalo para adultos'] },
-
-  { sub:'Cuidado personal y salud', when:['nebulizador','doppler','fetal','belleza para cuello','ems'],
-    tags:['salud','belleza'], aliases:['cuidado personal'],
-    audience:['adultos'], ages:['adultos'],
-    useCases:['cuidar la salud'], environments:['hogar'],
-    intents:['cuidado personal','salud en casa'] },
-
-  { sub:'Electrodomésticos de cocina', when:['cafetera','moka','pava','molinillo','balanza','dispenser de agua'],
-    tags:['cocina','hogar'], aliases:['electrodomestico'],
-    audience:['adultos','familia'], ages:['adultos'],
-    useCases:['cocinar','preparar cafe','pesar','regalar'], environments:['cocina','hogar'],
-    intents:['algo para la cocina','cosas para cocina','regalo util para la casa'] },
-
-  { sub:'Limpieza y orden', when:['cesto','basura','quitapelusa','pelusa'],
-    tags:['limpieza','organizar','hogar'], aliases:['tacho','cesto'],
-    audience:['adultos','familia'], ages:['adultos'],
-    useCases:['limpiar','organizar','guardar'], environments:['cocina','bano','oficina','hogar'],
-    intents:['algo para organizar','para la limpieza','tacho de basura'] },
-
-  { sub:'Climatización', when:['heater','calefactor','estufa'],
-    tags:['hogar'], aliases:['calefactor'],
-    audience:['adultos','familia'], ages:['adultos'],
-    useCases:['calefaccionar'], environments:['hogar','oficina','bano'],
-    intents:['algo para el frio','calefactor'] },
-
-  { sub:'Accesorios para computadora y celular', when:['cargador','notebook','usb c','adaptador'],
-    tags:['celular','cargador','tecnologia'], aliases:['cargador','cable'],
-    audience:['estudiantes','adultos','adolescentes'], ages:['adolescentes','adultos'],
-    useCases:['cargar','trabajar','estudiar'], environments:['oficina','escritorio','viaje'],
-    intents:['algo para el celular','accesorios para celu','para cargar el celular','cargador'] },
-
-  { sub:'TV, streaming y gaming', when:['tv box','game stick','joystick','control inalambrico','smart tv','1000 juego'],
-    tags:['gaming','tecnologia'], aliases:['consola','convertidor smart tv'],
-    audience:['adolescentes','adultos','familia'], ages:['9-12','adolescentes','adultos'],
-    useCases:['jugar','ver peliculas','entretener'], environments:['hogar','living'],
-    intents:['consola de juegos','convertir la tv en smart','regalo tecnologico'] },
-
-  { sub:'Accesorios para el auto', when:['compresor','blackbox','dvr','vehicle','g sensor'],
-    tags:['accesorio auto','tecnologia'], aliases:['accesorio para el auto'],
-    audience:['adultos'], ages:['adultos'],
-    useCases:['inflar','grabar','viajar'], environments:['auto','bici','ruta','viaje'],
-    intents:['cosas para el auto','accesorio para el auto','camara para el auto','para la bici',
-             'para el auto','cosas para mi auto','algo para el auto'] },
-
-  { sub:'Pizarras y escritura', when:['pizarra','writing tablet','tablero de mensaje','lcd writing'],
-    tags:['escritura','dibujo','escuela'], aliases:['tableta de escritura','pizarra magica'],
-    audience:['estudiantes','ninos','adultos'], ages:['3-5','6-8','9-12'],
-    useCases:['escribir','dibujar','estudiar','anotar'], environments:['escuela','escritorio','oficina'],
-    intents:['para el colegio','algo para dibujar','para estudiar','pizarra para chicos'] },
-
-  { sub:'Útiles escolares', when:['goma de borrar','marcador','lapiz','cuaderno','carpeta','cartuchera'],
-    tags:['escuela','escritura'], aliases:['utiles escolares'],
-    audience:['estudiantes','ninos'], ages:['6-8','9-12','adolescentes'],
-    useCases:['estudiar','escribir'], environments:['escuela','escritorio'],
-    intents:['utiles para la escuela','cosas para el colegio','vuelta al cole'] },
-
-  { sub:'Iluminación de escritorio', when:['lampara led multifuncion','portalapices','escritorio'],
-    tags:['luz','oficina','escuela'], aliases:['velador de escritorio'],
-    audience:['estudiantes','adultos'], ages:['adolescentes','adultos'],
-    useCases:['estudiar','iluminar','trabajar'], environments:['escritorio','oficina','escuela'],
-    intents:['lampara para estudiar','luz para el escritorio'] },
-
-  { sub:'Animales y personajes', when:['dinosaur','dino','lizard','capybara','kapibala','perrito','osito','conejito','pollito','cactus'],
-    tags:['animal','infantil'], aliases:['animalito'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['jugar','regalar'], environments:['habitacion'],
-    intents:['juguete de animales','dinosaurio de juguete'] },
-
-  { sub:'Juguetes de acción', when:['shooting','lanzador','bolita de gel','dardo','blaster','pistola'],
-    tags:['juguete'], aliases:['lanzador'],
-    audience:['ninos','adolescentes','nene'], ages:['9-12','adolescentes'],
-    useCases:['jugar','entretener'], environments:['aire libre','habitacion'],
-    intents:['juguete para nene','juguete de accion'] },
-
-  { sub:'Juguetes con sonido', when:['musica','canta','repite','ruge','baila','melodia'],
-    tags:['audio','juguete'], aliases:['juguete musical'],
-    audience:['infantil','ninos'], ages:['3-5','6-8'],
-    useCases:['jugar','entretener'], environments:['habitacion'],
-    intents:['juguete musical','juguete que habla'] }
+  { sub:'Muñecas y bebotes', when:['muneca','barbie','bebe','baby','bomboncito','llorona','gordito','carinito','maymay','hada','dressy','vogue girl','doll'], tags:['muneca','infantil'], aliases:['munequita','bebote','bebe de juguete'], audience:['nena','ninas','infantil'], ages:['3-5','6-8'], useCases:['jugar','cuidar','juego simbolico','regalar'], environments:['habitacion'], intents:['regalo para nena','juguete para nena','muneca para nena','regalo para nina'] },
+  { sub:'Peluches', when:['peluche','osito','perrito','conejito','pollito','squeeze','peludo','felpa','estrella repetidora'], tags:['peluche','infantil'], aliases:['muneco de peluche'], audience:['infantil','ninos'], ages:['bebe','3-5','6-8'], useCases:['abrazar','jugar','regalar'], environments:['habitacion'], intents:['peluche para regalar','algo suave para chicos'] },
+  { sub:'Autos y vehículos de juguete', when:['autit','auto 360','camion','camionet','volcador','todoterreno','variant car','stunt rotation','tanque'], tags:['auto','juguete'], aliases:['autito de juguete','camioncito'], audience:['nene','ninos','infantil'], ages:['3-5','6-8'], useCases:['jugar','coleccionar'], environments:['aire libre'], intents:['auto de juguete','autito para nene','camion de juguete'] },
+  { sub:'Vehículos a control remoto', when:['control remoto','r c','lizard','gesture','radiocontrol','stunt car','rc ev'], tags:['control remoto','auto','tecnologia'], aliases:['rc','teledirigido'], audience:['ninos','adolescentes','nene'], ages:['6-8','9-12','adolescentes'], useCases:['jugar'], environments:['aire libre'], intents:['juguete a control remoto','auto a control remoto'] },
+  { sub:'Juguetes voladores', when:['avion','avioncito','helicoptero','drone','planeador','spinner','aerobat','voladora','speed plane'], tags:['volador','juguete'], aliases:['avioncito','dron'], audience:['ninos','adolescentes','nene'], ages:['6-8','9-12','adolescentes'], useCases:['jugar','volar','filmar'], environments:['aire libre'], intents:['juguete que vuela','drone para regalar'] },
+  { sub:'Juguetes acuáticos', when:['race boat','velero','sailboat','dinghy','rubber dinghy'], tags:['acuatico','juguete'], aliases:['lanchita','barquito'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['jugar'], environments:['pileta','banera','aire libre'], intents:['juguete para la pileta','juguete para el agua','juguete para verano'] },
+  { sub:'Juegos de mesa y cartas', when:['naipe','poker','uno','carta','dado','dados','basta','sushi do','chips','tic tac toe','tateti','hungry frogs'], tags:['juego de mesa','entretener'], aliases:['mazo','juego de cartas'], audience:['familia','adolescentes','adultos','ninos'], ages:['6-8','9-12','adolescentes','adultos'], useCases:['jugar en familia','entretener'], environments:['mesa','viaje'], intents:['juego para toda la familia','juego de mesa','juego para reuniones'] },
+  { sub:'Juguetes didácticos', when:['puzzle','rompecabeza','magnetico','tetris','construccion','castle','encastre','builder','blocks','bloque','ladrillo','brick','diamond face','module world','deformecha','tablero de conteo','conteo','tangram','pixel'], tags:['didactico','infantil'], aliases:['bloques','armado'], audience:['infantil','ninos','estudiantes'], ages:['3-5','6-8','9-12'], useCases:['aprender','armar','desarrollar la logica','regalar'], environments:['escuela'], intents:['juguete didactico','juguete educativo','para aprender jugando'] },
+  { sub:'Juguetes electrónicos', when:['games console','ball grabber','registradora','dancing','bailarin','cactus','luces y sonido','game machine','speed push','talking'], tags:['juguete','tecnologia'], aliases:['juguete con luces'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['jugar','entretener'], environments:['habitacion'], intents:['juguete con luces y sonido','juguete electronico'] },
+  { sub:'Juegos creativos', when:['slime','masa','kapibala','plastilina','masilina','masilla','modelar','sello'], tags:['dibujo','infantil'], aliases:['masa moldeable'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['crear','entretener'], environments:['habitacion'], intents:['slime','algo para entretener a los chicos'] },
+  { sub:'Juegos de rol', when:['registradora','space station','caja registradora','cocinita'], tags:['didactico','infantil'], aliases:['juego de imitacion'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['jugar','aprender'], environments:['habitacion'], intents:['juego de imitacion','juguete para jugar a la tienda'] },
+  { sub:'Alcancías', when:['alcancia','mini bank'], tags:['organizar','infantil'], aliases:['alcancia'], audience:['infantil','ninos'], ages:['6-8','9-12'], useCases:['guardar','ahorrar','regalar'], environments:['habitacion'], intents:['alcancia para chicos','para que ahorren'] },
+  { sub:'Coleccionables', when:['funko','coleccion','figura de vinil'], tags:['coleccion','regalo'], aliases:['figura','muneco de coleccion'], audience:['adolescentes','adultos'], ages:['adolescentes','adultos'], useCases:['coleccionar','regalar','decorar'], environments:['habitacion','escritorio'], intents:['regalo para fanaticos','figura de coleccion'] },
+  { sub:'Gorras y accesorios', when:['gorra','vincha','mochila'], tags:['ropa','regalo'], aliases:['gorrita'], audience:['ninos','adolescentes'], ages:['6-8','9-12','adolescentes'], useCases:['usar','regalar'], environments:['aire libre','escuela','viaje'], intents:['gorra','accesorio para regalar'] },
+  { sub:'Iluminación y decoración', when:['lampara','linterna','star master','tablero de mensaje','proyect','luminosa','luminoso','led','velador','luz nocturna','neon'], tags:['luz','decoracion'], aliases:['velador','luz led'], audience:['adolescentes','adultos','ninos'], ages:['adolescentes','adultos'], useCases:['iluminar','decorar','regalar'], environments:['habitacion','hogar','escritorio'], intents:['luz para la habitacion','algo para decorar','luz led'] },
+  { sub:'Cuidado del cabello', when:['alisador','rizado','cepillo alisador','barrillete'], tags:['pelo','belleza'], aliases:['planchita','buclera'], audience:['adolescentes','adultos','mujeres'], ages:['adolescentes','adultos'], useCases:['peinar','alisar','regalar'], environments:['bano','hogar'], intents:['plancha para el pelo','algo para el cabello','regalo para mujer'] },
+  { sub:'Masajeadores y bienestar', when:['masaje','massage','masajeador','fascia','scalp','cervical','muscular','9 bolas'], tags:['masaje','bienestar'], aliases:['masajeador'], audience:['adultos','deportistas'], ages:['adultos'], useCases:['relajar','descontracturar','regalar'], environments:['hogar','oficina'], intents:['algo para el dolor de espalda','masajeador','regalo para adultos'] },
+  { sub:'Cuidado personal y salud', when:['nebulizador','doppler','fetal','belleza para cuello','ems','afeitadora','barba','ronquido','anti snore','bucal'], tags:['salud','belleza'], aliases:['cuidado personal'], audience:['adultos'], ages:['adultos'], useCases:['cuidar la salud'], environments:['hogar'], intents:['cuidado personal','salud en casa'] },
+  { sub:'Electrodomésticos de cocina', when:['cafetera','moka','pava','molinillo','balanza','dispenser de agua','espumador','batidor','hervidora'], tags:['cocina','hogar'], aliases:['electrodomestico'], audience:['adultos','familia'], ages:['adultos'], useCases:['cocinar','preparar cafe','pesar','regalar'], environments:['cocina','hogar'], intents:['algo para la cocina','cosas para cocina','regalo util para la casa'] },
+  { sub:'Limpieza y orden', when:['cesto','basura','quitapelusa','pelusa'], tags:['limpieza','organizar','hogar'], aliases:['tacho','cesto'], audience:['adultos','familia'], ages:['adultos'], useCases:['limpiar','organizar','guardar'], environments:['cocina','bano','oficina','hogar'], intents:['algo para organizar','para la limpieza','tacho de basura'] },
+  { sub:'Climatización', when:['heater','calefactor','estufa'], tags:['hogar'], aliases:['calefactor'], audience:['adultos','familia'], ages:['adultos'], useCases:['calefaccionar'], environments:['hogar','oficina','bano'], intents:['algo para el frio','calefactor'] },
+  { sub:'Accesorios para computadora y celular', when:['cargador','notebook','usb c','adaptador','cable de carga','carga rapida','teclado','mouse','presentador','smartwatch','impresora','smart tag','localizador'], tags:['celular','cargador','tecnologia'], aliases:['cargador','cable'], audience:['estudiantes','adultos','adolescentes'], ages:['adolescentes','adultos'], useCases:['cargar','trabajar','estudiar'], environments:['oficina','escritorio','viaje'], intents:['algo para el celular','accesorios para celu','para cargar el celular','cargador'] },
+  { sub:'TV, streaming y gaming', when:['tv box','game stick','joystick','control inalambrico','smart tv','1000 juego'], tags:['gaming','tecnologia'], aliases:['consola','convertidor smart tv'], audience:['adolescentes','adultos','familia'], ages:['9-12','adolescentes','adultos'], useCases:['jugar','ver peliculas','entretener'], environments:['hogar','living'], intents:['consola de juegos','convertir la tv en smart','regalo tecnologico'] },
+  { sub:'Accesorios para el auto', when:['compresor','blackbox','dvr','vehicle','g sensor'], tags:['accesorio auto','tecnologia'], aliases:['accesorio para el auto'], audience:['adultos'], ages:['adultos'], useCases:['inflar','grabar','viajar'], environments:['auto','bici','ruta','viaje'], intents:['cosas para el auto','accesorio para el auto','camara para el auto','para la bici','para el auto','cosas para mi auto','algo para el auto'] },
+  { sub:'Pizarras y escritura', when:['pizarra','writing tablet','tablero de mensaje','lcd writing'], tags:['escritura','dibujo','escuela'], aliases:['tableta de escritura','pizarra magica'], audience:['estudiantes','ninos','adultos'], ages:['3-5','6-8','9-12'], useCases:['escribir','dibujar','estudiar','anotar'], environments:['escuela','escritorio','oficina'], intents:['para el colegio','algo para dibujar','para estudiar','pizarra para chicos'] },
+  { sub:'Útiles escolares', when:['goma de borrar','marcador','lapiz','cuaderno','carpeta','cartuchera'], tags:['escuela','escritura'], aliases:['utiles escolares'], audience:['estudiantes','ninos'], ages:['6-8','9-12','adolescentes'], useCases:['estudiar','escribir'], environments:['escuela','escritorio'], intents:['utiles para la escuela','cosas para el colegio','vuelta al cole'] },
+  { sub:'Iluminación de escritorio', when:['lampara led multifuncion','portalapices','escritorio'], tags:['luz','oficina','escuela'], aliases:['velador de escritorio'], audience:['estudiantes','adultos'], ages:['adolescentes','adultos'], useCases:['estudiar','iluminar','trabajar'], environments:['escritorio','oficina','escuela'], intents:['lampara para estudiar','luz para el escritorio'] },
+  { sub:'Animales y personajes', when:['dinosaur','dino','lizard','capybara','capibara','kapibala','perrito','osito','conejito','pollito','cactus','crocodile','cocodrilo','caiman','rana','frogs','koala','jirafa','elefantito','t rex'], tags:['animal','infantil'], aliases:['animalito'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['jugar','regalar'], environments:['habitacion'], intents:['juguete de animales','dinosaurio de juguete'] },
+  { sub:'Juguetes de acción', when:['shooting','lanzador','bolita de gel','dardo','blaster','pistola','attack','catapult','catapulta','dispara'], tags:['juguete'], aliases:['lanzador'], audience:['ninos','adolescentes','nene'], ages:['9-12','adolescentes'], useCases:['jugar','entretener'], environments:['aire libre','habitacion'], intents:['juguete para nene','juguete de accion'] },
+  { sub:'Juguetes con sonido', when:['musica','canta','repite','ruge','baila','melodia'], tags:['audio','juguete'], aliases:['juguete musical'], audience:['infantil','ninos'], ages:['3-5','6-8'], useCases:['jugar','entretener'], environments:['habitacion'], intents:['juguete musical','juguete que habla'] },
+  { sub:'Pistas y circuitos', when:['pista','track','looping','circuito','autopista','lavadero','car wash','rampa'], tags:['auto','juguete'], aliases:['pista de autos','circuito de autos'], audience:['infantil','ninos','nene'], ages:['3-5','6-8','9-12'], useCases:['jugar','coleccionar','entretener'], environments:['habitacion','mesa'], intents:['pista de autos','pista para autitos','juguete de autos'] },
+  { sub:'Aprender inglés y primeras palabras', when:['flash card','talking','ingles','vocabulario','primeras palabras'], tags:['didactico','ingles','escuela'], aliases:['tarjetas parlantes','flash cards'], audience:['infantil','ninos','estudiantes'], ages:['3-5','6-8'], useCases:['aprender','estudiar','regalar'], environments:['habitacion','escuela'], intents:['para aprender ingles','juguete para aprender','primeras palabras'] },
+  { sub:'Juguetes antiestrés', when:['pop it','popit','antiestres','speed push','fidget'], tags:['antiestres','juguete','entretener'], aliases:['pop it','juguete antiestres'], audience:['infantil','ninos','adolescentes'], ages:['6-8','9-12','adolescentes'], useCases:['jugar','entretener','concentrarse'], environments:['habitacion','viaje'], intents:['juguete antiestres','pop it','algo para los nervios'] },
+  { sub:'Bebés y primera infancia', when:['cuna','sonajero','movil musical','recien nacido','abejita'], tags:['cuna','infantil','regalo'], aliases:['cosas para bebe'], audience:['infantil','familia'], ages:['bebe'], useCases:['dormir','estimular','regalar'], environments:['habitacion','cuna'], intents:['regalo para bebe','cosas para bebe','baby shower'] },
+  { sub:'Utensilios de cocina', when:['vaporera','escurridor','colador','vajilla','olla','al vapor','escurreplatos'], tags:['cocina','hogar','organizar'], aliases:['utensilios de cocina'], audience:['adultos','familia'], ages:['adultos'], useCases:['cocinar','organizar','regalar'], environments:['cocina','hogar'], intents:['cosas para cocina','utensilios de cocina','algo para la cocina'] },
+  { sub:'Cámaras y filmación', when:['camara deportiva','action cam','sumergible','filmar','1080p'], tags:['grabar','tecnologia','crear contenido'], aliases:['camara de accion','filmadora'], audience:['adolescentes','adultos'], ages:['adolescentes','adultos'], useCases:['grabar','filmar','viajar','regalar'], environments:['aire libre','viaje','bici'], intents:['camara para grabar','camara deportiva','algo para filmar'] },
+  { sub:'Rastreadores y localizadores', when:['smart tag','localizador','rastreador','find my','anti acoso'], tags:['rastreador','tecnologia','celular'], aliases:['localizador bluetooth','smart tag'], audience:['adultos','adolescentes','estudiantes'], ages:['adolescentes','adultos'], useCases:['encontrar','viajar','regalar'], environments:['viaje','mochila','auto'], intents:['para no perder las llaves','localizador','rastreador bluetooth'] }
 ];
 
 // Pre-normalización de la taxonomía
@@ -352,8 +231,9 @@ function enrichProduct(p) {
     (t.intents || []).forEach(i => f.intents.push(key(i)));
   });
 
-  // 4c. términos propios del producto (nombre) como tags
+  // 4c. términos propios del producto (nombre y tags) como tags
   stems(p.name).forEach(w => { if (w.length > 3) f.tags.add(w); });
+  if (p.tags) stems(p.tags).forEach(w => { if (w.length > 3) f.tags.add(w); });
 
   // 4d. Map término canónico -> peso (el más alto gana)
   const terms = new Map();
