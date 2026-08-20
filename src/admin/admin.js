@@ -789,6 +789,25 @@ document.addEventListener('keydown', (e) => {
 });
 menuPop.addEventListener('click', (e) => e.stopPropagation());
 
+$('#btnRebuild').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  if (btn.disabled) return;
+  clearTimeout(rebuildTimer); // el click manual reemplaza cualquier build ya programado
+  btn.disabled = true;
+  const label = $('span', btn);
+  const original = label.textContent;
+  label.textContent = 'Actualizando…';
+  const ok = await triggerRebuild();
+  label.textContent = original;
+  toast(
+    ok ? 'Sitio actualizándose — se ve reflejado en uno o dos minutos' : 'No se pudo actualizar, probá de nuevo',
+    ok ? ico.check : ''
+  );
+  setTimeout(() => {
+    btn.disabled = false;
+  }, 15000);
+});
+
 function downloadBlob(content, filename, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const a = document.createElement('a');
@@ -1818,9 +1837,31 @@ async function getApproxLocation() {
     con lo que ya se sabe en el navegador, y si el registro en la nube
     falla (sin red, por ejemplo) no se corta el flujo principal — sólo se
     pierde ESE renglón del historial, nunca el cambio real al producto. */
+/* ---------- Reconstrucción del sitio publicado ----------
+   El catálogo público es estático (ver netlify/functions/rebuild.js para
+   el porqué): sin esto, un producto cargado acá queda invisible en la
+   página hasta que algo más dispare un build. Cada escritura programa uno
+   con demora — así una carga masiva de 50 productos termina en un solo
+   build, no en 50. */
+let rebuildTimer = null;
+async function triggerRebuild() {
+  try {
+    const res = await fetch('/api/rebuild', { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+function scheduleRebuild() {
+  clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(triggerRebuild, 20000);
+}
+
 function logActivity(action, summary, target = null) {
   const user = auth.currentUser;
   if (!user) return;
+
+  scheduleRebuild();
 
   const now = new Date();
   sessionActivity.unshift({ action, summary, target, email: user.email, at: now });

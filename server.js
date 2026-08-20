@@ -143,6 +143,26 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 404, { error: 'Endpoint de IA desconocido' });
     }
 
+    // Mismo endpoint que /.netlify/functions/rebuild.js en producción —
+    // ver ese archivo para el porqué (el sitio es estático, admin.js le
+    // avisa a Netlify que reconstruya después de escribir en Firestore).
+    if (pathname === '/api/rebuild' && req.method === 'POST') {
+      const hookUrl = process.env.BUILD_HOOK_URL;
+      if (!hookUrl) {
+        return sendJson(res, 503, {
+          error: 'SIN_HOOK',
+          mensaje: 'Falta BUILD_HOOK_URL en .env (no hace falta para desarrollar local).',
+        });
+      }
+      try {
+        const r = await fetch(hookUrl, { method: 'POST' });
+        if (!r.ok) return sendJson(res, 502, { error: 'FALLO', mensaje: `Netlify respondió ${r.status}` });
+        return sendJson(res, 200, { ok: true });
+      } catch (err) {
+        return sendJson(res, 502, { error: 'FALLO', mensaje: err?.message || 'No se pudo contactar a Netlify' });
+      }
+    }
+
     if (pathname.startsWith('/api/')) {
       return sendJson(res, 404, { error: 'Endpoint desconocido' });
     }
