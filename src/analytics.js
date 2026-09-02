@@ -5,33 +5,62 @@
  * ubicación precisa. Los errores se silencian para que el catálogo y
  * WhatsApp nunca dejen de funcionar.
  *
- * v27 (18/8/2026): parche de Rodri sobre la versión anterior — agrega el
- * embudo de pedidos (Agregado a pedido / Inicio de pedido / Pedido
- * enviado) con un código LA-AAAAMMDD-XXXXX que se suma al texto del
- * mensaje de WhatsApp, para poder cruzar en su panel una sesión anónima
- * del catálogo con el pedido real que llega por WhatsApp. Sigue sin
- * mandar nombre/teléfono/email — el cruce lo hace Rodri del lado de
- * WhatsApp Business, no este script.
+ * v28 (20/8/2026): instrucciones de Rodri — reemplaza la escritura directa
+ * a "entidades" de Base44 (client.entities.EventoCatalogo/PedidoCatalogo,
+ * como venía desde la v27) por una función propia de su lado
+ * (catalogo-metricas) que valida y guarda los eventos. Cambios de fondo:
+ *
+ * - La sesión ahora es persistente en localStorage (antes sessionStorage):
+ *   el mismo ID de visitante sobrevive entre visitas, no sólo dentro de
+ *   una pestaña — a propósito, para poder ver visitantes que vuelven.
+ * - Cada evento lleva una clave_evento (UUID) nueva para que el backend
+ *   pueda deduplicar de verdad, no como antes que dependía de que el
+ *   cliente nunca repitiera el envío.
+ * - El código de pedido cambia de formato: LAWEB-XXXXXXXX (antes
+ *   LA-AAAAMMDD-XXXXX) — es el que se copia a mano en "Código del pedido
+ *   web" del Punto de Venta, tiene que ser exactamente ese patrón.
+ * - La lista de eventos a mandar es ahora la que dio Rodri tal cual — se
+ *   sacó "Click en WhatsApp" (evento genérico que no está en su lista;
+ *   el funnel de pedido ya cubre el click real que le importa) y
+ *   "Pedido Iniciado" pasó a significar "se armó el primer carrito"
+ *   (primer producto agregado desde 0), no "se abrió el carrito".
+ *
+ * `npm install @base44/sdk` no aplica tal cual: este proyecto no tiene
+ * bundler, sirve los .js como módulos ES directo, sin build de por medio.
+ * Se mantiene el mismo import dinámico desde CDN que ya usaba este
+ * archivo — misma librería, forma de cargarla adaptada al proyecto.
  */
 
 const ARIAS_APP_ID = '6a7e432be6e59ad993e40158';
 const MAX_EVENTS_PER_SESSION = 120;
 const CART_KEY = 'arias.pedido.v1';
+const SESSION_KEY = 'arias_catalog_session_v1';
 const ORDER_KEY = 'arias.catalog.order.v1';
+const CART_STARTED_KEY = 'arias.catalog.cart_started.v1';
 
 let eventCount = 0;
-let analyticsEntity = null;
-let orderEntity = null;
+let base44 = null;
 let productsBySlug = new Map();
 
+/** UUID con fallback para navegadores/contextos sin crypto.randomUUID. */
+function uuid() {
+  return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
+
+/** Visitante anónimo persistente — sobrevive entre visitas, a propósito. */
 function sessionId() {
-  const key = 'arias_catalog_session_v1';
-  let value = sessionStorage.getItem(key);
-  if (!value) {
-    value = crypto.randomUUID?.() || `arias-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    sessionStorage.setItem(key, value);
+  try {
+    let value = localStorage.getItem(SESSION_KEY);
+    if (!value) {
+      value = uuid();
+      localStorage.setItem(SESSION_KEY, value);
+    }
+    return value;
+  } catch {
+    // Modo privado / cuota llena: se genera uno nuevo por carga de
+    // página en vez de romper el resto de la analítica.
+    return uuid();
   }
-  return value;
 }
 
 /** Elimina emails y teléfonos antes de enviar texto libre. */
@@ -53,18 +82,10 @@ function deviceType() {
 
 function campaignData() {
   const params = new URLSearchParams(location.search);
-  let referrer = '';
-  try {
-    referrer = document.referrer ? new URL(document.referrer).hostname : '';
-  } catch {
-    /* Se ignoran referencias con formato inválido. */
-  }
   return {
-    referrer: safeText(referrer, 100),
     utm_source: safeText(params.get('utm_source'), 80),
     utm_medium: safeText(params.get('utm_medium'), 80),
     utm_campaign: safeText(params.get('utm_campaign'), 100),
-    language: safeText(navigator.language, 20),
   };
 }
 
@@ -78,37 +99,48 @@ function campaignOrigin() {
   return 'Catálogo web';
 }
 
+/** Undefined en vez de valores vacíos: menos ruido en el payload. */
+const clean = (obj) => {
+  const out = {};
+  for (const k in obj) if (obj[k] !== undefined && obj[k] !== '' && obj[k] !== 0) out[k] = obj[k];
+  return out;
+};
+
 function trackCatalogEvent(tipo, details = {}) {
-  if (!analyticsEntity || eventCount >= MAX_EVENTS_PER_SESSION) return;
+  if (!base44 || eventCount >= MAX_EVENTS_PER_SESSION) return;
   eventCount += 1;
 
-  const row = {
-    fecha: new Date().toISOString(),
-    tipo,
-    sesion: sessionId(),
-    product_name: safeText(details.product_name, 160) || undefined,
-    consulta: safeText(details.consulta, 120) || undefined,
-    categoria: safeText(details.categoria, 80) || undefined,
-    origen: campaignOrigin(),
-    pagina: safeText(location.pathname || '/', 120),
-    dispositivo: deviceType(),
-    valor_conversion: Number(details.total || 0),
-    datos: JSON.stringify({
-      resultados: Number(details.resultados || 0),
-      precio: safeText(details.precio, 40),
-      cantidad: Number(details.cantidad || 0),
-      total: Number(details.total || 0),
-      codigo_pedido: details.codigo_pedido || '',
-      ...campaignData(),
-    }).slice(0, 1000),
-    procesado: false,
-  };
-
-  analyticsEntity.create(row).catch(() => {});
+  const campaign = campaignData();
+  base44.functions
+    .invoke('catalogo-metricas', {
+      action: 'evento',
+      tipo,
+      sesion: sessionId(),
+      clave_evento: uuid(),
+      pagina: safeText(location.pathname || '/', 120),
+      product_id: details.product_id || undefined,
+      product_name: safeText(details.product_name, 160) || undefined,
+      categoria: safeText(details.categoria, 80) || undefined,
+      dispositivo: deviceType(),
+      origen: campaignOrigin(),
+      datos: clean({
+        consulta: safeText(details.consulta, 120),
+        resultados: Number(details.resultados || 0),
+        precio: safeText(details.precio, 40),
+        cantidad: Number(details.cantidad || 0),
+        total: Number(details.total || 0),
+        ...campaign,
+        tracking_version: '1',
+      }),
+    })
+    .catch(() => {
+      /* La medición nunca debe interrumpir la navegación del catálogo. */
+    });
 }
 
 function cardInfo(card) {
   return {
+    product_id: card?.querySelector('[data-add]')?.dataset.add,
     product_name: card?.querySelector('.card__name')?.textContent,
     categoria: card?.querySelector('.card__cat')?.textContent,
     precio: card?.querySelector('.card__price')?.textContent,
@@ -120,6 +152,7 @@ function productInfoForButton(button) {
   const product = productsBySlug.get(slug);
   if (product) {
     return {
+      product_id: slug,
       product_name: product.name,
       categoria: product.category,
       precio: product.price,
@@ -128,6 +161,7 @@ function productInfoForButton(button) {
   const card = button?.closest('.card');
   if (card) return cardInfo(card);
   return {
+    product_id: slug,
     product_name: document.querySelector('.product__info h1')?.textContent,
     categoria: document.querySelector('.product__cat')?.textContent,
     precio: document.querySelector('.product__price')?.textContent,
@@ -172,11 +206,11 @@ function cartSignature(snapshot) {
     .join('|');
 }
 
+/** LAWEB-XXXXXXXX: se copia a mano en "Código del pedido web" del Punto
+    de Venta — el formato tiene que ser exactamente este. */
 function createOrderCode() {
-  const now = new Date();
-  const date = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-  const random = Math.random().toString(36).slice(2, 7).toUpperCase();
-  return `LA-${date}-${random}`;
+  const hex = uuid().replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+  return `LAWEB-${hex.slice(0, 8).padEnd(8, '0')}`;
 }
 
 function orderCodeFor(snapshot) {
@@ -209,31 +243,25 @@ function addCodeToWhatsAppLink(link, code) {
   }
 }
 
-function saveCatalogOrder(code, snapshot) {
-  if (!orderEntity || !snapshot.items.length) return;
+function sendOrder(code, snapshot) {
+  if (!base44 || !snapshot.items.length) return;
   const sentKey = `arias.catalog.order.sent.${code}`;
   if (sessionStorage.getItem(sentKey)) return;
   sessionStorage.setItem(sentKey, '1');
 
   const campaign = campaignData();
-  const now = new Date().toISOString();
-  orderEntity
-    .create({
+  base44.functions
+    .invoke('catalogo-metricas', {
+      action: 'pedido',
       codigo: code,
-      fecha: now,
-      sesion: sessionId(),
       estado: 'Enviado a WhatsApp',
-      items_json: JSON.stringify(snapshot.items).slice(0, 5000),
-      cantidad_productos: snapshot.quantity,
-      total_estimado: snapshot.total,
-      origen: campaignOrigin(),
-      utm_source: campaign.utm_source || undefined,
-      utm_medium: campaign.utm_medium || undefined,
-      utm_campaign: campaign.utm_campaign || undefined,
+      sesion: sessionId(),
       pagina: safeText(location.pathname || '/', 120),
       dispositivo: deviceType(),
-      fecha_click_whatsapp: now,
-      procesado_metricas: false,
+      origen: campaignOrigin(),
+      items: snapshot.items,
+      total_estimado: snapshot.total,
+      datos: clean(campaign),
     })
     .catch(() => {
       sessionStorage.removeItem(sentKey);
@@ -275,6 +303,11 @@ function wireHomeEvents() {
 
 function wireCartEvents() {
   document.addEventListener('click', (event) => {
+    // Sincroniza "carrito iniciado" con el estado real en cualquier
+    // click — así se limpia solo cuando el pedido se vacía, sin tener
+    // que engancharse a cada botón de quitar/vaciar por separado.
+    if (readCart().length === 0) sessionStorage.removeItem(CART_STARTED_KEY);
+
     const addButton = event.target.closest('[data-add]');
     if (addButton) {
       setTimeout(() => {
@@ -284,16 +317,15 @@ function wireCartEvents() {
           cantidad: snapshot.quantity,
           total: snapshot.total,
         });
-      }, 0);
-      return;
-    }
 
-    if (event.target.closest('#fab')) {
-      const snapshot = cartSnapshot();
-      trackCatalogEvent('Inicio de pedido', {
-        cantidad: snapshot.quantity,
-        total: snapshot.total,
-      });
+        // "Pedido Iniciado" = se armó el primer carrito (0 -> 1 producto),
+        // no "se abrió el carrito" — una sola vez por cada vez que
+        // arranca un pedido nuevo.
+        if (!sessionStorage.getItem(CART_STARTED_KEY)) {
+          sessionStorage.setItem(CART_STARTED_KEY, '1');
+          trackCatalogEvent('Pedido Iniciado', { cantidad: snapshot.quantity, total: snapshot.total });
+        }
+      }, 0);
       return;
     }
 
@@ -303,31 +335,12 @@ function wireCartEvents() {
     if (!snapshot.items.length) return;
     const code = orderCodeFor(snapshot);
     addCodeToWhatsAppLink(send, code);
-    saveCatalogOrder(code, snapshot);
+    sendOrder(code, snapshot);
     const eventKey = `arias.catalog.order.event.${code}`;
     if (!sessionStorage.getItem(eventKey)) {
       sessionStorage.setItem(eventKey, '1');
-      trackCatalogEvent('Pedido enviado', {
-        codigo_pedido: code,
-        cantidad: snapshot.quantity,
-        total: snapshot.total,
-      });
+      trackCatalogEvent('Pedido Enviado a WhatsApp', { cantidad: snapshot.quantity, total: snapshot.total });
     }
-  });
-}
-
-function wireWhatsAppClicks() {
-  document.addEventListener('click', (event) => {
-    const link = event.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"]');
-    if (!link) return;
-    const card = link.closest('.card');
-    const snapshot = link.id === 'sheetSend' ? cartSnapshot() : null;
-    trackCatalogEvent('Click en WhatsApp', {
-      ...(card ? cardInfo(card) : {}),
-      cantidad: snapshot?.quantity || 0,
-      total: snapshot?.total || 0,
-      codigo_pedido: snapshot?.items.length ? orderCodeFor(snapshot) : '',
-    });
   });
 }
 
@@ -363,11 +376,14 @@ function wireCardViews() {
     });
 }
 
+/** La ficha de producto (/p/slug/) no es una .card de grilla — se registra
+    aparte, una vez confirmado que el HTML ya tiene los datos del producto. */
 function trackProductPageView() {
   if (!document.body.classList.contains('page-product')) return;
   const name = document.querySelector('.product__info h1')?.textContent;
   if (!name) return;
   trackCatalogEvent('Vista de producto', {
+    product_id: document.querySelector('.product__info [data-add]')?.dataset.add,
     product_name: name,
     categoria: document.querySelector('.product__cat')?.textContent,
     precio: document.querySelector('.product__price')?.textContent,
@@ -389,18 +405,15 @@ async function init() {
       import('https://esm.sh/@base44/sdk@0.8.41?bundle'),
       loadProducts(),
     ]);
-    const client = createClient({ appId: ARIAS_APP_ID });
-    analyticsEntity = client.entities.EventoCatalogo;
-    orderEntity = client.entities.PedidoCatalogo;
+    base44 = createClient({ appId: ARIAS_APP_ID });
   } catch {
-    return;
+    return; // sin SDK no se manda nada — nunca rompe la navegación del catálogo
   }
 
   trackCatalogEvent('Visita');
   trackProductPageView();
   wireHomeEvents();
   wireCartEvents();
-  wireWhatsAppClicks();
   wireCardViews();
 }
 
