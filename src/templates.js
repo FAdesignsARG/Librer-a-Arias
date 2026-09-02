@@ -4,6 +4,7 @@
  * se ve en local es exactamente lo que se publica.
  */
 import { cloudinaryUrl } from './cloudinary-config.js';
+import { dailyPicks } from './recommend.js';
 
 /* ---------- helpers ---------- */
 
@@ -536,7 +537,8 @@ const productLd = (s, p) => ({
    ========================================================================== */
 
 export function renderHome({ products, settings: s }) {
-  const cats = ['Todos', ...s.categories];
+  const cats = ['Todos', 'Ofertas', ...s.categories];
+  const picks = dailyPicks(products, { count: 5 });
 
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
@@ -584,6 +586,32 @@ export function renderHome({ products, settings: s }) {
   </div>
 </header>
 
+<div class="promobannerwrap" data-reveal>
+  <a class="promobanner" id="promoBanner" href="?cat=Ofertas#catalogo">
+    <img class="promobanner__mascot" src="/assets/promos/adolfito-cupon-descuento.webp"
+         width="500" height="625" loading="lazy" alt="">
+    <span class="promobanner__text">
+      <strong>Promos activas</strong>
+      <span>Mirá cuánto ahorrás</span>
+    </span>
+  </a>
+</div>
+
+${
+  picks.length
+    ? `<section class="picks" data-reveal>
+  <div class="shell">
+    <h2 class="picks__title">Elegidos para vos hoy</h2>
+  </div>
+  <div class="picks__row">
+    ${picks
+      .map((p, i) => `<div class="picks__item" data-reveal style="transition-delay:${i * 70}ms">${cardHtml(p)}</div>`)
+      .join('\n    ')}
+  </div>
+</section>`
+    : ''
+}
+
 <div class="banner" data-reveal>
   <a href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
     <img src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
@@ -627,9 +655,30 @@ export function renderHome({ products, settings: s }) {
       ${cats
         .map(
           (c, i) =>
-            `<button class="chip" data-cat="${esc(c)}" aria-pressed="${i === 0}">${esc(c)}</button>`
+            `<button class="chip${c === 'Ofertas' ? ' chip--ofertas' : ''}" data-cat="${esc(c)}" aria-pressed="${i === 0}">${c === 'Ofertas' ? ico.tag : ''}${esc(c)}</button>`
         )
         .join('\n      ')}
+    </div>
+  </div>
+</div>
+
+<div class="promoinfo" id="promoInfo" hidden>
+  <div class="shell">
+    <div class="promoinfo__card">
+      <img class="promoinfo__img" src="/assets/promos/promo-llevamas-pagamenos.webp"
+           width="1122" height="1402" loading="lazy"
+           alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
+      <div class="promoinfo__body">
+        <h3>Llevá más, pagá menos</h3>
+        <ul class="promoinfo__tiers">
+          ${s.promos.tiers
+            .map((t) => `<li><strong>${t.percent}% OFF</strong><span>desde ${money(t.minAmount)}</span></li>`)
+            .join('\n          ')}
+        </ul>
+        <p class="promoinfo__note">${esc(s.promos.paymentNote)}</p>
+        <p class="promoinfo__chachos">${ico.tag}Pagando con CHACHOS: <strong>${s.promos.chachosPercent}% adicional</strong></p>
+        <p class="promoinfo__disclaimer">${esc(s.promos.disclaimer)}</p>
+      </div>
     </div>
   </div>
 </div>

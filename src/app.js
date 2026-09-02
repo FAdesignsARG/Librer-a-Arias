@@ -515,6 +515,7 @@ const sortEl = $('#sort');
 const priceEl = $('#priceFilter');
 const emptyEl = $('#empty');
 const resultsLine = $('#resultsLine');
+const promoInfo = $('#promoInfo');
 
 let activeCat = 'Todos';
 
@@ -541,13 +542,32 @@ function filterByPrice(list, range) {
 function render() {
   if (!grid) return;
 
-  const pool = activeCat === 'Todos' ? getIndex() : getIndex().filter((e) => e.p.category === activeCat);
+  const pool =
+    activeCat === 'Todos'
+      ? getIndex()
+      : activeCat === 'Ofertas'
+        ? getIndex().filter((e) => offerActive(e.p))
+        : getIndex().filter((e) => e.p.category === activeCat);
   const found = filterByPrice(searchProducts(searchEl.value, pool), priceEl?.value);
   const list = sortList(found, sortEl?.value || 'relevancia');
 
   grid.innerHTML = list.map(cardHtml).join('');
 
+  if (promoInfo) promoInfo.hidden = activeCat !== 'Ofertas';
   emptyEl.hidden = list.length > 0;
+  // "No encontramos nada con esa búsqueda" no aplica si el vacío es
+  // porque hoy no hay ninguna oferta activa (no hubo ninguna búsqueda).
+  if (!list.length) {
+    const title = emptyEl.querySelector('h3');
+    const body = emptyEl.querySelector('.t-body');
+    if (activeCat === 'Ofertas' && !searchEl.value) {
+      title.textContent = 'Por ahora no hay ofertas activas';
+      body.textContent = 'Mirá los tramos de descuento de arriba, o escribinos y te contamos qué hay.';
+    } else {
+      title.textContent = 'No encontramos nada con esa búsqueda';
+      body.textContent = 'Probá con otras palabras, o escribinos y lo buscamos por vos.';
+    }
+  }
   resultsLine.textContent = list.length
     ? `${list.length} ${list.length === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}`
     : '';
@@ -569,12 +589,30 @@ $('#searchClear')?.addEventListener('click', () => {
   render();
 });
 
+/** Activa un rubro (o "Ofertas") por su data-cat, si existe un chip para
+    eso. La usan el click en un chip, el ?cat= de la URL y el banner de
+    promos — una sola vez, no tres copias de la misma lógica. */
+function selectCategory(cat) {
+  const chip = $$('.chip', chipsEl).find((c) => c.dataset.cat === cat);
+  if (!chip) return false;
+  activeCat = cat;
+  $$('.chip', chipsEl).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+  render();
+  return true;
+}
+
 chipsEl?.addEventListener('click', (e) => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
-  activeCat = btn.dataset.cat;
-  $$('.chip', chipsEl).forEach((c) => c.setAttribute('aria-pressed', String(c === btn)));
-  render();
+  selectCategory(btn.dataset.cat);
+});
+
+/* Banner "Promos activas" del home: si ya estamos en la portada, filtra
+   in-place con la misma función que el chip en vez de recargar la página. */
+$('#promoBanner')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  selectCategory('Ofertas');
+  $('#catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 sortEl?.addEventListener('change', render);
@@ -726,12 +764,9 @@ syncBellDot();
 renderStatusBadge();
 
 if (grid) {
-  // Permite entrar directo a un rubro desde las migas de pan: /?cat=Bazar
+  // Permite entrar directo a un rubro (o a Ofertas) desde afuera:
+  // /?cat=Bazar, /?cat=Ofertas. selectCategory ya llama a render() si
+  // encuentra el chip — si no, hace falta el render manual de siempre.
   const wanted = new URLSearchParams(location.search).get('cat');
-  const chip = wanted && $$('.chip', chipsEl).find((c) => c.dataset.cat === wanted);
-  if (chip) {
-    activeCat = wanted;
-    $$('.chip', chipsEl).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-  }
-  render();
+  if (!wanted || !selectCategory(wanted)) render();
 }

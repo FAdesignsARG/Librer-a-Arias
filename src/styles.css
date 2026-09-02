@@ -624,6 +624,112 @@ dialog:focus-visible {
 }
 
 /* ==========================================================================
+   BANNER "PROMOS ACTIVAS"
+   ========================================================================== */
+.promobannerwrap {
+  padding: 0 var(--gutter);
+}
+.promobanner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 760px;
+  margin-inline: auto;
+  padding: 10px 20px 10px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--text);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease-out);
+}
+.promobanner:hover {
+  transform: translateY(-2px);
+}
+/* Shimmer sutil en loop: una franja de brillo que cruza el banner cada
+   3s. Gradient animado, GPU-friendly (sólo background-position), sin
+   parpadeo ni movimiento de layout. */
+.promobanner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+  background-size: 200% 100%;
+  background-position: 150% 0;
+  animation: promobanner-shimmer 3s var(--ease-soft) infinite;
+  pointer-events: none;
+}
+@keyframes promobanner-shimmer {
+  to {
+    background-position: -50% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .promobanner::before {
+    animation: none;
+  }
+}
+.promobanner__mascot {
+  width: 52px;
+  height: auto;
+  flex: none;
+}
+.promobanner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.promobanner__text strong {
+  font-size: 1rem;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+}
+.promobanner__text span {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+/* ==========================================================================
+   "ELEGIDOS PARA VOS HOY" — carrusel diario
+   ========================================================================== */
+.picks {
+  padding-block: clamp(20px, 3.5vw, 32px) 0;
+}
+.picks__title {
+  font-size: 1.1rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.picks__row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-inline: var(--gutter);
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+.picks__row::-webkit-scrollbar {
+  display: none;
+}
+.picks__item {
+  flex: 0 0 min(200px, 74vw);
+  scroll-snap-align: start;
+}
+@media (min-width: 860px) {
+  .picks__row {
+    max-width: var(--page);
+    margin-inline: auto;
+  }
+  .picks__item {
+    flex: 0 0 calc((100% - 4 * 14px) / 5);
+  }
+}
+
+/* ==========================================================================
    BARRA DE CONTROLES (búsqueda + rubros + orden)
    ========================================================================== */
 .controls {
@@ -1065,6 +1171,12 @@ dialog:focus-visible {
   color: var(--ink);
   font-weight: 600;
 }
+.chip--ofertas svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  flex: none;
+}
 
 .results-line {
   padding-top: var(--s-4);
@@ -1073,6 +1185,100 @@ dialog:focus-visible {
   gap: 8px;
   color: var(--text-3);
   font-size: 0.92rem;
+}
+
+/* ==========================================================================
+   BLOQUE DE PROMOS POR MEDIO DE PAGO (chip "Ofertas")
+   Mobile-first: la imagen arriba, los tramos abajo. Desktop, lado a lado.
+   ========================================================================== */
+.promoinfo {
+  padding-block: var(--s-4) 0;
+}
+.promoinfo[hidden] {
+  display: none;
+}
+.promoinfo__card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+.promoinfo__img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.promoinfo__body {
+  padding: 20px;
+}
+.promoinfo__body h3 {
+  font-size: 1.05rem;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+  margin-bottom: 12px;
+}
+.promoinfo__tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.promoinfo__tiers li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--fill);
+  font-variant-numeric: tabular-nums;
+}
+.promoinfo__tiers strong {
+  color: var(--gold-text);
+  font-weight: 700;
+}
+.promoinfo__tiers span {
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+.promoinfo__note {
+  font-size: 0.88rem;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+.promoinfo__chachos {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+.promoinfo__chachos svg {
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  color: var(--gold-text);
+  flex: none;
+}
+.promoinfo__disclaimer {
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+@media (min-width: 720px) {
+  .promoinfo__card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .promoinfo__img {
+    width: 260px;
+    height: auto;
+    object-fit: cover;
+    flex: none;
+  }
+  .promoinfo__body {
+    flex: 1;
+    padding: 24px 28px;
+  }
 }
 
 /* ==========================================================================
