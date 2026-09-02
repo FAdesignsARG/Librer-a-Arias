@@ -539,6 +539,9 @@ const productLd = (s, p) => ({
 export function renderHome({ products, settings: s }) {
   const cats = ['Todos', 'Ofertas', ...s.categories];
   const picks = dailyPicks(products, { count: 5 });
+  // Ronda 1.1: badge de urgencia con el tramo más alto real — si cambia en
+  // Firestore, el número del carrusel cambia solo, nunca queda hardcodeado.
+  const maxPromoPercent = Math.max(...s.promos.tiers.map((t) => t.percent));
 
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
@@ -586,16 +589,31 @@ export function renderHome({ products, settings: s }) {
   </div>
 </header>
 
-<div class="promobannerwrap" data-reveal>
-  <a class="promobanner" id="promoBanner" href="?cat=Ofertas#catalogo">
-    <img class="promobanner__mascot" src="/assets/promos/adolfito-cupon-descuento.webp"
-         width="500" height="625" loading="lazy" alt="">
-    <span class="promobanner__text">
-      <strong>Promos activas</strong>
-      <span>Mirá cuánto ahorrás</span>
-    </span>
-  </a>
-</div>
+<section class="attention-carousel" id="attentionCarousel" data-reveal>
+  <div class="attention-carousel__track">
+    <a class="attn__slide attn__slide--promos" id="promoBanner" href="?cat=Ofertas#catalogo">
+      <div class="attn__media" style="background-image:url('/assets/promos/adolfito-cupon-descuento.webp')"></div>
+      <div class="attn__content">
+        <span class="attn__badge">${ico.tag}Hasta ${maxPromoPercent}% OFF</span>
+        <h2 class="attn__title">Promos activas</h2>
+        <p class="attn__desc">Mirá cuánto ahorrás pagando en efectivo o transferencia</p>
+        <span class="attn__cta">Ver promociones</span>
+      </div>
+    </a>
+    <a class="attn__slide attn__slide--whatsapp" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
+      <div class="attn__media" style="background-image:url('/assets/brand/banner-canal.webp')"></div>
+      <div class="attn__content">
+        <h2 class="attn__title">Sumate a nuestro canal</h2>
+        <p class="attn__desc">Enterate primero de las novedades por WhatsApp</p>
+        <span class="attn__cta">${ico.wa} Sumarme al canal</span>
+      </div>
+    </a>
+  </div>
+  <div class="attention-carousel__dots" role="tablist" aria-label="Elegir promoción">
+    <button type="button" class="attention-carousel__dot" aria-label="Ver promociones activas" aria-current="true" data-index="0"></button>
+    <button type="button" class="attention-carousel__dot" aria-label="Ver canal de WhatsApp" aria-current="false" data-index="1"></button>
+  </div>
+</section>
 
 ${
   picks.length
@@ -611,13 +629,6 @@ ${
 </section>`
     : ''
 }
-
-<div class="banner" data-reveal>
-  <a href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
-    <img src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
-         alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
-  </a>
-</div>
 
 <div class="controls" id="catalogo">
   <div class="shell">

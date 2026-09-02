@@ -607,13 +607,86 @@ chipsEl?.addEventListener('click', (e) => {
   selectCategory(btn.dataset.cat);
 });
 
-/* Banner "Promos activas" del home: si ya estamos en la portada, filtra
-   in-place con la misma función que el chip en vez de recargar la página. */
+/* Slide de promos del carrusel de atención: si ya estamos en la portada,
+   filtra in-place con la misma función que el chip en vez de recargar
+   la página (el slide de WhatsApp navega normal, no necesita esto). */
 $('#promoBanner')?.addEventListener('click', (e) => {
   e.preventDefault();
   selectCategory('Ofertas');
   $('#catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
+
+/* ==========================================================================
+   CARRUSEL DE ATENCIÓN (Ronda 1.1) — promos + canal de WhatsApp
+   Avanza solo cada 5s, se pausa con cualquier interacción y retoma un
+   rato después de soltar. Con prefers-reduced-motion el autoplay ni
+   arranca — el carrusel queda 100% a control manual (swipe o puntitos),
+   nunca se pierde funcionalidad, sólo el movimiento automático.
+   ========================================================================== */
+function wireAttentionCarousel() {
+  const el = $('#attentionCarousel');
+  const track = $('.attention-carousel__track', el || document);
+  if (!el || !track) return;
+  const slides = $$('.attn__slide', track);
+  const dots = $$('.attention-carousel__dot', el);
+  if (slides.length < 2) return;
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let index = 0;
+  let timer = null;
+  let resumeTimer = null;
+
+  function syncDots() {
+    dots.forEach((d, i) => d.setAttribute('aria-current', String(i === index)));
+  }
+
+  function goTo(i) {
+    index = (i + slides.length) % slides.length;
+    track.scrollTo({ left: slides[index].offsetLeft, behavior: 'smooth' });
+    syncDots();
+  }
+
+  function stop() {
+    clearInterval(timer);
+    timer = null;
+  }
+  function start() {
+    if (reduceMotion) return;
+    stop();
+    timer = setInterval(() => goTo(index + 1), 5000);
+  }
+
+  function pauseThenResume() {
+    stop();
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(start, 4000);
+  }
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      goTo(i);
+      pauseThenResume();
+    });
+  });
+
+  track.addEventListener('pointerdown', pauseThenResume);
+  track.addEventListener('mouseenter', stop);
+  track.addEventListener('mouseleave', start);
+  // Sincroniza los puntitos si la persona scrollea a mano (swipe).
+  track.addEventListener(
+    'scroll',
+    () => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      if (i !== index && i >= 0 && i < slides.length) {
+        index = i;
+        syncDots();
+      }
+    },
+    { passive: true }
+  );
+
+  start();
+}
 
 sortEl?.addEventListener('change', render);
 priceEl?.addEventListener('change', render);
@@ -760,6 +833,7 @@ await loadData();
 loadCart();
 syncCartUI();
 observeReveals();
+wireAttentionCarousel();
 syncBellDot();
 renderStatusBadge();
 

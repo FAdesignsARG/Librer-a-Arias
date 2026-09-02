@@ -624,71 +624,173 @@ dialog:focus-visible {
 }
 
 /* ==========================================================================
-   BANNER "PROMOS ACTIVAS"
+   CARRUSEL DE ATENCIÓN — Ronda 1.1
+   Reemplaza los dos banners chicos (promos + canal de WhatsApp) por un
+   único carrusel de 2 slides grande, con jerarquía real: es lo primero
+   que se ve después del hero y tiene que sentirse igual de premium que
+   el resto de la marca. Fondo de cada slide con color FIJO de marca
+   (no --ink/--surface, que cambian con el tema) a propósito — mismo
+   criterio que .dockbtn--wa y .info-card--highlight: el amarillo/negro
+   de la marca no cambia según el tema del sitio.
    ========================================================================== */
-.promobannerwrap {
-  padding: 0 var(--gutter);
+.attention-carousel {
+  padding-inline: var(--gutter);
 }
-.promobanner {
+.attention-carousel__track {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  max-width: 760px;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  max-width: var(--page);
   margin-inline: auto;
-  padding: 10px 20px 10px 10px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--gold-edge);
-  background: var(--gold-wash);
-  color: var(--text);
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  transition: transform var(--dur) var(--ease-out);
 }
-.promobanner:hover {
-  transform: translateY(-2px);
+.attention-carousel__track::-webkit-scrollbar {
+  display: none;
 }
-/* Shimmer sutil en loop: una franja de brillo que cruza el banner cada
-   3s. Gradient animado, GPU-friendly (sólo background-position), sin
-   parpadeo ni movimiento de layout. */
-.promobanner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
-  background-size: 200% 100%;
-  background-position: 150% 0;
-  animation: promobanner-shimmer 3s var(--ease-soft) infinite;
-  pointer-events: none;
-}
-@keyframes promobanner-shimmer {
-  to {
-    background-position: -50% 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .promobanner::before {
-    animation: none;
-  }
-}
-.promobanner__mascot {
-  width: 52px;
-  height: auto;
-  flex: none;
-}
-.promobanner__text {
+.attn__slide {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  /* flex-basis:100% a propósito, no min-width — min-width es sólo un
+     piso: si el contenido (texto sin wrap forzado) pide más ancho, lo
+     estira igual. Con flex-basis fijo el slide mide exactamente el
+     ancho del track y el texto envuelve adentro, no al revés. */
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  text-decoration: none;
+  min-width: 0;
 }
-.promobanner__text strong {
-  font-size: 1rem;
+.attn__media {
+  height: 200px;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex: none;
+}
+.attn__content {
+  padding: 22px 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.attn__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.attn__badge svg {
+  width: 13px;
+  height: 13px;
+}
+.attn__title {
+  font-size: clamp(1.25rem, 4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.attn__desc {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-width: 42ch;
+}
+.attn__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 10px 20px;
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
   font-weight: 640;
-  letter-spacing: -0.015em;
+  /* El <a> del slide ya maneja el click — esto es sólo el CTA visual. */
+  pointer-events: none;
 }
-.promobanner__text span {
-  font-size: 0.85rem;
-  color: var(--text-2);
+.attn__cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.attn__slide--promos {
+  background: #151515;
+  color: #f5f5f7;
+}
+.attn__slide--promos .attn__media {
+  background-color: #151515;
+  background-size: contain;
+}
+.attn__slide--promos .attn__desc {
+  color: rgba(245, 245, 247, 0.72);
+}
+.attn__slide--promos .attn__cta {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+
+.attn__slide--whatsapp {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+.attn__slide--whatsapp .attn__media {
+  background-size: cover;
+}
+.attn__slide--whatsapp .attn__desc {
+  color: rgba(26, 18, 0, 0.72);
+}
+.attn__slide--whatsapp .attn__cta {
+  background: rgba(26, 18, 0, 0.9);
+  color: var(--gold);
+}
+
+.attention-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.attention-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-strong);
+  transition: background var(--dur-fast) var(--ease-soft), width var(--dur-fast) var(--ease-soft);
+}
+.attention-carousel__dot[aria-current='true'] {
+  width: 22px;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+}
+
+@media (min-width: 720px) {
+  .attn__slide {
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 300px;
+  }
+  .attn__media {
+    height: auto;
+    flex: 0 0 44%;
+  }
+  .attn__content {
+    flex: 1;
+    justify-content: center;
+    padding: 40px 46px;
+  }
+  .attn__title {
+    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  }
+  .attn__desc {
+    font-size: 0.98rem;
+  }
 }
 
 /* ==========================================================================
