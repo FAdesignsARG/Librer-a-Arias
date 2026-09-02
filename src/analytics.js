@@ -5,30 +5,38 @@
  * ubicación precisa. Los errores se silencian para que el catálogo y
  * WhatsApp nunca dejen de funcionar.
  *
- * v28 (20/8/2026): instrucciones de Rodri — reemplaza la escritura directa
- * a "entidades" de Base44 (client.entities.EventoCatalogo/PedidoCatalogo,
- * como venía desde la v27) por una función propia de su lado
- * (catalogo-metricas) que valida y guarda los eventos. Cambios de fondo:
+ * v29 (2/9/2026): correcciones que pidió Rodri sobre la v28 ya publicada:
+ * - `consulta` va como campo de primer nivel del evento (antes vivía sólo
+ *   adentro de `datos` y les llegaba vacío porque leían el nivel de arriba).
+ * - La cantidad de resultados de una búsqueda es `datos.results_count`
+ *   (antes `datos.resultados`).
+ * - "Impresión de tarjeta" (una tarjeta que aparece en pantalla, en la
+ *   grilla o en "relacionados") queda separada de "Vista de producto"
+ *   (abrir la ficha del producto en sí) — antes ambas mandaban el mismo
+ *   tipo y se mezclaban impresiones con vistas reales.
+ * - Al agregar un producto, `datos.cart_count`/`datos.cart_total` (antes
+ *   `cantidad`/`total`).
+ * - "Pedido Iniciado" y "Pedido Enviado a WhatsApp" dejan de ser eventos
+ *   sueltos (`action:'evento'`) y pasan a ser el MISMO registro de pedido
+ *   (`action:'pedido'`) con `estado` que cambia de 'Iniciado' a 'Enviado a
+ *   WhatsApp' — mismo código en los dos, para que se pueda copiar tal
+ *   cual a Sale.codigo_catalogo y cruzar la conversión real. El código
+ *   ahora vive mientras dura el pedido (no por combinación exacta de
+ *   productos/cantidades como antes) — así agregar un segundo producto
+ *   después de "Iniciado" no genera un código distinto al de "Enviado".
+ * - Se vuelve a registrar el click en el botón general "Consultar por
+ *   WhatsApp" (sin carrito de por medio) — la v28 lo había sacado por
+ *   completo; ahora se registra todo `wa.me` que NO sea el de enviar el
+ *   pedido armado (ese ya se cuenta aparte, como pedido).
+ * - `datos.es_prueba` marca tráfico que no es del dominio real de
+ *   producción (deploys de preview, localhost) o que llega con `?test=1`
+ *   — para que Rodri pueda filtrarlo en vez de mezclarlo con ventas
+ *   reales. Filtro básico anti-bot: si `navigator.webdriver` está
+ *   prendido o el user-agent es de un crawler conocido, no se manda nada.
  *
- * - La sesión ahora es persistente en localStorage (antes sessionStorage):
- *   el mismo ID de visitante sobrevive entre visitas, no sólo dentro de
- *   una pestaña — a propósito, para poder ver visitantes que vuelven.
- * - Cada evento lleva una clave_evento (UUID) nueva para que el backend
- *   pueda deduplicar de verdad, no como antes que dependía de que el
- *   cliente nunca repitiera el envío.
- * - El código de pedido cambia de formato: LAWEB-XXXXXXXX (antes
- *   LA-AAAAMMDD-XXXXX) — es el que se copia a mano en "Código del pedido
- *   web" del Punto de Venta, tiene que ser exactamente ese patrón.
- * - La lista de eventos a mandar es ahora la que dio Rodri tal cual — se
- *   sacó "Click en WhatsApp" (evento genérico que no está en su lista;
- *   el funnel de pedido ya cubre el click real que le importa) y
- *   "Pedido Iniciado" pasó a significar "se armó el primer carrito"
- *   (primer producto agregado desde 0), no "se abrió el carrito".
- *
- * `npm install @base44/sdk` no aplica tal cual: este proyecto no tiene
- * bundler, sirve los .js como módulos ES directo, sin build de por medio.
- * Se mantiene el mismo import dinámico desde CDN que ya usaba este
- * archivo — misma librería, forma de cargarla adaptada al proyecto.
+ * Lo de CampanaMarketing (campos de UTM acumulados por campaña) es un
+ * cambio de esquema del lado de Base44 — no se toca desde acá, ya se le
+ * mandan los utm_source/utm_medium/utm_campaign en cada evento y pedido.
  */
 
 const ARIAS_APP_ID = '6a7e432be6e59ad993e40158';
@@ -99,6 +107,27 @@ function campaignOrigin() {
   return 'Catálogo web';
 }
 
+/** Dominio real de producción: cualquier otro host (deploy de preview,
+    localhost) o `?test=1` explícito se marca como tráfico de prueba, para
+    que se pueda filtrar en vez de mezclarlo con datos reales. */
+function isTestTraffic() {
+  try {
+    if (new URLSearchParams(location.search).get('test') === '1') return true;
+  } catch {
+    /* se ignora, sigue con el chequeo de dominio */
+  }
+  const host = location.hostname || '';
+  return !(host === 'libreria-arias.netlify.app' || /(^|\.)libreriaarias\.com\.ar$/i.test(host));
+}
+
+/** Filtro básico: navegadores automatizados (Selenium/Puppeteer/Playwright
+    prenden navigator.webdriver) y crawlers conocidos no generan tráfico
+    real — no vale la pena ni cargar el SDK para ellos. */
+function looksLikeBot() {
+  if (navigator.webdriver) return true;
+  return /bot|crawl|spider|slurp|headless|phantom|selenium|puppeteer|playwright/i.test(navigator.userAgent || '');
+}
+
 /** Undefined en vez de valores vacíos: menos ruido en el payload. */
 const clean = (obj) => {
   const out = {};
@@ -118,20 +147,23 @@ function trackCatalogEvent(tipo, details = {}) {
       sesion: sessionId(),
       clave_evento: uuid(),
       pagina: safeText(location.pathname || '/', 120),
+      consulta: safeText(details.consulta, 120) || undefined,
       product_id: details.product_id || undefined,
       product_name: safeText(details.product_name, 160) || undefined,
       categoria: safeText(details.categoria, 80) || undefined,
       dispositivo: deviceType(),
       origen: campaignOrigin(),
-      datos: clean({
-        consulta: safeText(details.consulta, 120),
-        resultados: Number(details.resultados || 0),
-        precio: safeText(details.precio, 40),
-        cantidad: Number(details.cantidad || 0),
-        total: Number(details.total || 0),
-        ...campaign,
-        tracking_version: '1',
-      }),
+      datos: {
+        ...clean({
+          results_count: Number(details.resultados || 0),
+          precio: safeText(details.precio, 40),
+          cart_count: Number(details.cantidad || 0),
+          cart_total: Number(details.total || 0),
+          ...campaign,
+        }),
+        tracking_version: '2',
+        es_prueba: isTestTraffic(),
+      },
     })
     .catch(() => {
       /* La medición nunca debe interrumpir la navegación del catálogo. */
@@ -199,13 +231,6 @@ function cartSnapshot() {
   };
 }
 
-function cartSignature(snapshot) {
-  return snapshot.items
-    .map((item) => `${item.slug}:${item.quantity}`)
-    .sort()
-    .join('|');
-}
-
 /** LAWEB-XXXXXXXX: se copia a mano en "Código del pedido web" del Punto
     de Venta — el formato tiene que ser exactamente este. */
 function createOrderCode() {
@@ -213,19 +238,29 @@ function createOrderCode() {
   return `LAWEB-${hex.slice(0, 8).padEnd(8, '0')}`;
 }
 
-function orderCodeFor(snapshot) {
-  const signature = cartSignature(snapshot);
+/** El código vive mientras dura EL PEDIDO (desde "Iniciado" hasta que se
+    vacía o se envía), no atado a qué productos/cantidades tiene en un
+    momento dado — así agregar un segundo producto después de arrancar
+    el pedido no genera un código distinto al que ya se mandó como
+    "Iniciado". Se limpia junto con CART_STARTED_KEY cuando el carrito
+    queda vacío (ver wireCartEvents). */
+function currentOrderCode() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(ORDER_KEY) || '{}');
-    if (saved.signature === signature && saved.code) return saved.code;
+    if (saved.code) return saved.code;
   } catch {
-    /* Se genera uno nuevo. */
+    /* se genera uno nuevo */
   }
+  return null;
+}
+function ensureOrderCode() {
+  const existing = currentOrderCode();
+  if (existing) return existing;
   const code = createOrderCode();
   try {
-    sessionStorage.setItem(ORDER_KEY, JSON.stringify({ signature, code }));
+    sessionStorage.setItem(ORDER_KEY, JSON.stringify({ code }));
   } catch {
-    /* El código sigue funcionando sin storage. */
+    /* el código sigue funcionando sin storage */
   }
   return code;
 }
@@ -243,28 +278,27 @@ function addCodeToWhatsAppLink(link, code) {
   }
 }
 
-function sendOrder(code, snapshot) {
-  if (!base44 || !snapshot.items.length) return;
-  const sentKey = `arias.catalog.order.sent.${code}`;
-  if (sessionStorage.getItem(sentKey)) return;
-  sessionStorage.setItem(sentKey, '1');
-
+/** Registro del pedido en sí — un solo tipo de llamada, action:'pedido',
+    que se repite con distinto `estado` a medida que el pedido avanza
+    (Iniciado -> Enviado a WhatsApp), siempre con el mismo código. */
+function sendPedidoState(estado, code, snapshot) {
+  if (!base44) return;
   const campaign = campaignData();
   base44.functions
     .invoke('catalogo-metricas', {
       action: 'pedido',
       codigo: code,
-      estado: 'Enviado a WhatsApp',
+      estado,
       sesion: sessionId(),
       pagina: safeText(location.pathname || '/', 120),
       dispositivo: deviceType(),
       origen: campaignOrigin(),
       items: snapshot.items,
       total_estimado: snapshot.total,
-      datos: clean(campaign),
+      datos: { ...clean(campaign), tracking_version: '2', es_prueba: isTestTraffic() },
     })
     .catch(() => {
-      sessionStorage.removeItem(sentKey);
+      /* La medición nunca debe interrumpir la navegación del catálogo. */
     });
 }
 
@@ -274,6 +308,7 @@ function wireHomeEvents() {
   const gridEl = document.getElementById('grid');
   let searchTimer = null;
 
+  // 1.2s de espera desde la última tecla — mide la búsqueda, no cada letra.
   searchEl?.addEventListener('input', () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
@@ -303,10 +338,13 @@ function wireHomeEvents() {
 
 function wireCartEvents() {
   document.addEventListener('click', (event) => {
-    // Sincroniza "carrito iniciado" con el estado real en cualquier
-    // click — así se limpia solo cuando el pedido se vacía, sin tener
-    // que engancharse a cada botón de quitar/vaciar por separado.
-    if (readCart().length === 0) sessionStorage.removeItem(CART_STARTED_KEY);
+    // Sincroniza "carrito iniciado"/código de pedido con el estado real
+    // en cualquier click — así se limpian solos cuando el pedido se
+    // vacía, sin tener que engancharse a cada botón de quitar/vaciar.
+    if (readCart().length === 0) {
+      sessionStorage.removeItem(CART_STARTED_KEY);
+      sessionStorage.removeItem(ORDER_KEY);
+    }
 
     const addButton = event.target.closest('[data-add]');
     if (addButton) {
@@ -318,32 +356,42 @@ function wireCartEvents() {
           total: snapshot.total,
         });
 
-        // "Pedido Iniciado" = se armó el primer carrito (0 -> 1 producto),
-        // no "se abrió el carrito" — una sola vez por cada vez que
-        // arranca un pedido nuevo.
+        // Primer producto desde carrito vacío: arranca el pedido.
         if (!sessionStorage.getItem(CART_STARTED_KEY)) {
           sessionStorage.setItem(CART_STARTED_KEY, '1');
-          trackCatalogEvent('Pedido Iniciado', { cantidad: snapshot.quantity, total: snapshot.total });
+          sendPedidoState('Iniciado', ensureOrderCode(), snapshot);
         }
       }, 0);
       return;
     }
 
     const send = event.target.closest('#sheetSend');
-    if (!send) return;
-    const snapshot = cartSnapshot();
-    if (!snapshot.items.length) return;
-    const code = orderCodeFor(snapshot);
-    addCodeToWhatsAppLink(send, code);
-    sendOrder(code, snapshot);
-    const eventKey = `arias.catalog.order.event.${code}`;
-    if (!sessionStorage.getItem(eventKey)) {
-      sessionStorage.setItem(eventKey, '1');
-      trackCatalogEvent('Pedido Enviado a WhatsApp', { cantidad: snapshot.quantity, total: snapshot.total });
+    if (send) {
+      const snapshot = cartSnapshot();
+      if (!snapshot.items.length) return;
+      const code = ensureOrderCode();
+      addCodeToWhatsAppLink(send, code);
+      const sentKey = `arias.catalog.order.sent.${code}`;
+      if (!sessionStorage.getItem(sentKey)) {
+        sessionStorage.setItem(sentKey, '1');
+        sendPedidoState('Enviado a WhatsApp', code, snapshot);
+      }
+      return;
     }
+
+    // Cualquier otro link a WhatsApp (el botón general "Consultar por
+    // WhatsApp", el dock flotante, etc.) — no depende de tener carrito.
+    const link = event.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"]');
+    if (!link) return;
+    const card = link.closest('.card');
+    trackCatalogEvent('Consulta por WhatsApp', card ? cardInfo(card) : {});
   });
 }
 
+/** Tarjetas que quedan ≥70% visibles en pantalla — grilla de la portada y
+    la de "también te puede interesar" en la ficha de producto. Esto es
+    una IMPRESIÓN (la tarjeta apareció), no una vista real del producto
+    — ver trackProductPageView() para lo segundo. */
 function wireCardViews() {
   const seen = new Set();
   const observer = new IntersectionObserver(
@@ -355,7 +403,7 @@ function wireCardViews() {
         if (!info.product_name || seen.has(info.product_name)) return;
         seen.add(info.product_name);
         observer.unobserve(card);
-        trackCatalogEvent('Vista de producto', info);
+        trackCatalogEvent('Impresión de tarjeta', info);
       });
     },
     { threshold: [0.7] }
@@ -377,7 +425,8 @@ function wireCardViews() {
 }
 
 /** La ficha de producto (/p/slug/) no es una .card de grilla — se registra
-    aparte, una vez confirmado que el HTML ya tiene los datos del producto. */
+    aparte, una sola vez al abrir la página (no por reaparecer en
+    pantalla), una vez confirmado que el HTML ya tiene los datos. */
 function trackProductPageView() {
   if (!document.body.classList.contains('page-product')) return;
   const name = document.querySelector('.product__info h1')?.textContent;
@@ -400,6 +449,8 @@ async function loadProducts() {
 }
 
 async function init() {
+  if (looksLikeBot()) return;
+
   try {
     const [{ createClient }] = await Promise.all([
       import('https://esm.sh/@base44/sdk@0.8.41?bundle'),
