@@ -25,19 +25,37 @@
 .loginscreen[hidden] {
   display: none;
 }
+/* Mismo criterio premium que ya usa la tarjeta de "Promos activas" del
+   catálogo y el diálogo del asistente de stock: borde dorado fino en vez
+   del gris neutro de cualquier tarjeta genérica, y una elevación que
+   cambia de naturaleza según el tema activo (glow ambiente en oscuro,
+   sombra suave estilo Apple en claro) en vez de una sola sombra fija que
+   en oscuro no se nota — así la tarjeta "cambia de color" con el tono
+   que está activo, no queda igual en los dos. */
 .logincard {
-  width: min(380px, 100%);
+  width: min(400px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 4px;
-  padding: clamp(28px, 5vw, 40px) clamp(24px, 5vw, 32px) clamp(30px, 5vw, 36px);
+  padding: clamp(32px, 6vw, 44px) clamp(26px, 5vw, 36px) clamp(32px, 5vw, 38px);
   border-radius: var(--r-xl);
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold-edge);
   background: var(--surface);
-  box-shadow: var(--shadow-pop);
   animation: login-in 0.5s var(--ease-out) both;
+}
+:root:not([data-theme='light']) .logincard {
+  box-shadow:
+    0 0 0 1px rgba(254, 206, 1, 0.05),
+    0 0 42px -10px rgba(254, 206, 1, 0.24),
+    var(--shadow-pop);
+}
+:root[data-theme='light'] .logincard {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 14px 32px -10px rgba(0, 0, 0, 0.1),
+    0 36px 72px -20px rgba(0, 0, 0, 0.14);
 }
 @keyframes login-in {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
@@ -48,34 +66,88 @@
     animation: none;
   }
 }
-.logincard img {
-  width: 52px;
-  height: 52px;
+
+/* El isotipo con un anillo fino alrededor — mismo lenguaje que el "ping"
+   del splash de entrada del catálogo (theme.css), acá quieto: es la
+   marca de la tienda haciendo de ícono de app, no un logo de formulario
+   genérico. */
+.logincard__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+}
+.logincard__mark::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
   border-radius: 50%;
-  margin-bottom: 18px;
+  border: 1px solid var(--gold-edge);
+}
+:root:not([data-theme='light']) .logincard__mark::before {
+  box-shadow: 0 0 26px -4px rgba(254, 206, 1, 0.4);
+}
+:root[data-theme='light'] .logincard__mark::before {
+  box-shadow: 0 0 20px -6px rgba(203, 156, 0, 0.28);
+}
+.logincard__mark img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
 }
-:root[data-theme='light'] .logincard img {
+:root[data-theme='light'] .logincard__mark img {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
 }
 .logincard h1 {
-  font-size: 1.35rem;
+  font-size: 1.38rem;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
 .logincard > p {
   margin-top: 6px;
-  margin-bottom: 26px;
-  font-size: 0.88rem;
+  margin-bottom: 28px;
+  font-size: 0.9rem;
   color: var(--text-2);
 }
 .logincard .field {
   width: 100%;
   text-align: left;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
+.logincard .field label {
+  font-size: 0.8rem;
+  margin-bottom: 7px;
+}
+
+/* Campo con ícono integrado — envuelve label+input así el ícono se puede
+   centrar contra la ALTURA REAL del input nomás (no la del .field
+   entero, que también incluye el label arriba), sin math de porcentajes
+   frágil. */
+.logininput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.logininput svg {
+  position: absolute;
+  left: 15px;
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.logincard .field .logininput input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: var(--r-lg);
+  font-size: 1rem;
+}
+
 .logincard .btn {
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-block: 14px;
+  font-size: 0.98rem;
   width: 100%;
 }
 .loginerror {
@@ -872,10 +944,15 @@
    type="…" no contemplado (url, email, tel, number, date…) cae en el
    estilo nativo del navegador — una caja blanca que rompe el tema oscuro.
    Pasó de verdad con "Link de Google Maps" (type=url) y con .catNew (el
-   input de rubro nuevo, que ni siquiera vivía dentro de un .field). */
+   input de rubro nuevo, que ni siquiera vivía dentro de un .field).
+   type="password" faltaba en esta lista desde siempre — el campo de
+   contraseña del login quedaba con el estilo nativo del navegador (una
+   caja blanca) adentro de una tarjeta oscura, la causa real de que el
+   formulario de login se sintiera "no integrado". */
 .field input[type='text'],
 .field input[type='url'],
 .field input[type='email'],
+.field input[type='password'],
 .field input[type='tel'],
 .field input[type='number'],
 .field input[type='date'],
