@@ -1750,6 +1750,18 @@
   font-size: 0.93rem;
   line-height: 1.4;
   transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+  /* overflow-y:auto es el default de un <textarea> — con scrollbars
+     clásicas de Windows (no las "overlay" finitas de Mac/Chrome en otros
+     sistemas) eso dibuja una barra CON sus botones de flecha arriba/abajo
+     incluso con una sola línea de alto, que en un campo así de bajo se ve
+     como un ícono suelto pegado al borde — mismo criterio que ya usa
+     .attention-carousel__track para su scroll horizontal: sigue
+     scrolleando cuando el texto pasa las 120px de max-height, sólo se
+     esconde el cromado nativo. */
+  scrollbar-width: none;
+}
+.stockchat__composer textarea::-webkit-scrollbar {
+  display: none;
 }
 .stockchat__composer textarea:focus {
   outline: none;
