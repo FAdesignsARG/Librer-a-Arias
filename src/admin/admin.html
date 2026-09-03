@@ -504,7 +504,7 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 </dialog>
 
 <!-- ====================== ASISTENTE DE STOCK ====================== -->
-<dialog class="editor bulk" id="stockAI" aria-labelledby="stockAITitle" tabindex="-1">
+<dialog class="editor bulk stockai" id="stockAI" aria-labelledby="stockAITitle" tabindex="-1">
   <div class="editor__head">
     <h2 id="stockAITitle">Asistente de stock</h2>
     <button type="button" class="sheet__close" id="stockAIClose" aria-label="Cerrar">
@@ -512,34 +512,17 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
     </button>
   </div>
 
-  <div class="editor__body">
-    <div class="field">
-      <label for="stockAIText">Decile qué cambió</label>
-      <textarea id="stockAIText" rows="3" placeholder="Ej: Se agotaron el dinosaurio y la mochila escolar. Volvió a haber stock de las pizarras LCD."></textarea>
-      <p class="field__hint">
-        También podés preguntar cosas como <em>"¿hay algún producto sin stock hace rato?"</em> o pegar la
-        respuesta de un proveedor. Nunca cambia nada solo: te muestra lo que va a hacer y vos confirmás.
-      </p>
-    </div>
-    <div class="bulk__actions">
-      <button type="button" class="btn btn--gold btn--sm" id="stockAIAsk">Preguntar</button>
-      <span class="bulk__count" id="stockAICount"></span>
-    </div>
+  <p class="stockchat__notice">Nunca cambia nada solo: te muestra lo que va a hacer y vos confirmás.</p>
 
-    <p class="field__hint" id="stockAINote" hidden></p>
+  <div class="stockchat" id="stockAIChat" aria-live="polite"></div>
 
-    <div class="bulk__preview" id="stockAIPreview" hidden>
-      <table class="btable">
-        <thead><tr><th></th><th>Producto</th><th>Cambio</th><th></th></tr></thead>
-        <tbody id="stockAIRows"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="editor__foot">
-    <span class="editor__spacer"></span>
-    <button type="button" class="btn btn--ghost" id="stockAICancel">Cancelar</button>
-    <button type="button" class="btn btn--gold" id="stockAIApply" disabled>Aplicar cambios</button>
+  <div class="stockchat__composer">
+    <textarea id="stockAIText" rows="1"
+              placeholder="Escribí qué cambió o preguntá algo del stock…"
+              aria-label="Mensaje para el asistente de stock"></textarea>
+    <button type="button" class="stockchat__send" id="stockAIAsk" aria-label="Enviar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
   </div>
 </dialog>
 

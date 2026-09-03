@@ -118,6 +118,7 @@ export async function registerAiApi(req, res, { ROOT, pathname, ai }) {
         acciones: out.acciones.map((a) => ({ ...a, name: bySlug.get(a.slug)?.name })),
         no_encontrados: out.no_encontrados,
         aclaracion: out.aclaracion,
+        respuesta: out.respuesta,
       });
     }
 

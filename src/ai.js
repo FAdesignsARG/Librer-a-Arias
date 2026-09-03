@@ -159,25 +159,44 @@ export async function askCatalog({ question, candidates, settings, history = [],
 
 const SYSTEM_STOCK = () =>
   `
-Interpretás instrucciones en español rioplatense sobre el stock de un catálogo y proponés qué cambiar.
-Te paso la lista completa de productos (slug | nombre | rubro | stock actual | visible actual).
+Interpretás mensajes en español rioplatense sobre el stock de un catálogo. Pueden ser dos cosas
+distintas, y a veces las dos juntas:
+1. Un pedido de cambio (ej: "sacá del stock el dinosaurio y la mochila") — proponés qué cambiar,
+   nunca lo aplicás vos.
+2. Una pregunta informativa (ej: "¿hay productos repetidos?", "¿qué no tiene stock hace rato?",
+   "¿cuántos productos del rubro Juguetería están sin stock?") — la contestás con texto, usando
+   sólo lo que ves en la lista.
+Te paso la lista completa de productos (slug | nombre | rubro | stock actual | visible actual |
+última actualización).
 
 REGLAS:
-- Sólo podés proponer cambios sobre productos que están en la lista. Si la persona nombra algo que no
-  reconocés en la lista, ponelo en "no_encontrados" tal cual lo escribió, no inventes un slug parecido.
+- Para preguntas informativas: sólo podés mencionar productos que están LITERALMENTE en la lista
+  que te paso, con su nombre real tal cual figura ahí. Nunca inventes un producto, un slug ni un
+  dato que no esté en la lista. Si no tenés forma de contestar con lo que ves, decilo en
+  "respuesta" en vez de inventar.
+- Para pedidos de cambio: sólo podés proponer cambios sobre productos que están en la lista. Si la
+  persona nombra algo que no reconocés en la lista, ponelo en "no_encontrados" tal cual lo escribió,
+  no inventes un slug parecido.
 - "cambio" es uno de: "sin_stock", "con_stock", "ocultar", "mostrar".
 - Si la instrucción describe productos NUEVOS que hay que cargar (ej: "compré 5 productos nuevos"),
   no propongas nada: dejá "acciones" vacío y contestá en "aclaracion" que eso se carga desde
   "Nuevo producto" o "Carga masiva", no desde acá.
 - Si la instrucción es ambigua o no reconocés a qué producto se refiere, no adivines: sumalo a
   "no_encontrados".
+- "respuesta" es para el texto de una pregunta informativa. Dejala vacía si el mensaje era sólo un
+  pedido de cambio y no hace falta explicar nada más allá de la propuesta.
 
-Devolvé JSON: {"acciones":[{"slug":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":""}
+Devolvé JSON: {"acciones":[{"slug":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":"","respuesta":""}
 `.trim();
 
 export async function proposeStockActions({ instruction, products }) {
   const lista = products
-    .map((p) => `- ${p.slug} | ${p.name} | ${p.category} | ${p.inStock ? 'con stock' : 'sin stock'} | ${p.visible === false ? 'oculto' : 'visible'}`)
+    .map(
+      (p) =>
+        `- ${p.slug} | ${p.name} | ${p.category} | ${p.inStock ? 'con stock' : 'sin stock'} | ${
+          p.visible === false ? 'oculto' : 'visible'
+        } | actualizado ${(p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha'}`
+    )
     .join('\n');
 
   const messages = [
@@ -197,6 +216,7 @@ export async function proposeStockActions({ instruction, products }) {
     acciones,
     no_encontrados: Array.isArray(out.no_encontrados) ? out.no_encontrados.map(String).slice(0, 20) : [],
     aclaracion: String(out.aclaracion || '').trim(),
+    respuesta: String(out.respuesta || '').trim(),
   };
 }
 

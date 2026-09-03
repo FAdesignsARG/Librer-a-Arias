@@ -485,6 +485,20 @@
   100% { opacity: 0; translate: -50% 8px; }
 }
 
+/* Un toast disparado con un <dialog> abierto (panel admin) se cuelga como
+   hijo de ESE diálogo en vez de #toasts (ver toast() en admin.js): con el
+   ::backdrop nativo el diálogo pasa al "top layer" del navegador, por
+   encima de cualquier position:fixed que quede afuera de él, así que
+   #toasts —que vive afuera de todos los <dialog>— quedaba tapado y el
+   aviso invisible. Todo <dialog> es position:fixed por estilo nativo del
+   navegador, así que alcanza con position:absolute acá: usa el diálogo
+   como su propio contenedor en vez del viewport entero, sin el bottom:84px
+   pensado para despejar una barra inferior que un modal no tiene. */
+.toast.toast--indialog {
+  position: absolute;
+  bottom: 20px;
+}
+
 /* ==========================================================================
    PÁGINA DE PRODUCTO (landing)
    ========================================================================== */
