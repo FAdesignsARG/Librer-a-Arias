@@ -244,6 +244,22 @@ function askTheme() {
     closeDialog(dlg);
   });
 
+  // Si la persona ya está escribiendo en un campo —el caso real: arranca
+  // a tipear en el buscador justo cuando termina el splash, en una
+  // primera visita— no le robamos el foco de golpe. showModal() lo haría
+  // igual: el navegador enfoca el primer elemento enfocable del diálogo
+  // apenas se abre, y lo que siga tipeando ya no llega al campo (se
+  // reportó como "el buscador pierde el foco y se vacía"). Se espera a
+  // que termine (blur) antes de mostrar el pop-up.
+  const activeEl = document.activeElement;
+  const isTyping =
+    activeEl && activeEl !== document.body &&
+    (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  if (isTyping) {
+    activeEl.addEventListener('blur', () => dlg.showModal(), { once: true });
+    return;
+  }
+
   dlg.showModal();
 }
 

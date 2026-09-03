@@ -57,7 +57,12 @@ const SYNONYMS = {
   tecnologia:     ['tecnologia','tecnologico','tecnologicos','electronica','electronico','gadget','gadgets','dispositivo','aparato','electro'],
   celular:        ['celular','celu','telefono','movil','smartphone','cel','compu','computadora','notebook','pc','laptop','tablet','tableta','soporte para telefono','holder','portatil'],
   cargador:       ['cargador','cargadores','cargar','cable','cables','adaptador','fuente','usb','usb c','tipo c','carga rapida','pd','enchufe'],
-  auriculares:    ['auricular','auriculares','auris','audifono','audifonos','casco','cascos','parlantes','bafle'],
+  // "casco"/"cascos" sale de acá: en criollo casi siempre es casco de
+  // moto/bici, no auricular — dejarlo como sinónimo de auriculares es
+  // exactamente el tipo de relación amplia que cruza cosas que no
+  // deberían tocarse (hoy no hay ningún casco de moto cargado, pero el
+  // día que se cargue uno, con esto ya no se confunde con auriculares).
+  auriculares:    ['auricular','auriculares','auris','audifono','audifonos','parlantes','bafle'],
   audio:          ['audio','sonido','musica','musical','escuchar musica','escuchar','microfono','micro','karaoke','parlante'],
   grabar:         ['grabar','grabacion','filmar','camara','video','videos','registrar','filmadora','action cam','camara deportiva','sumergible','casco'],
   'crear contenido': ['crear contenido','contenido','reels','reel','tiktok','youtube','streaming','creador'],
@@ -69,7 +74,12 @@ const SYNONYMS = {
   salud:          ['salud','medico','respiratorio','embarazo','embarazada','latido','maternidad','apnea','bruxismo','descanso'],
   hogar:          ['hogar','casa','domestico','living','depto','departamento','del hogar'],
   habitacion:     ['habitacion','pieza','cuarto','dormitorio','pieza de los chicos'],
-  cocina:         ['cocina','cocinar','cafe','cafetera','mate','desayuno','comida','receta','recetas','reposteria','hornear','pesar','utensilio','utensilios','al vapor'],
+  // "cafe" y "cafetera" NO van acá — antes compartían este mismo canónico
+  // con "mate"/"desayuno"/"receta"/"hornear"/"pesar"/etc., así que buscar
+  // "café" traía toda la cocina (balanzas, utensilios, recetario) en vez
+  // de sólo cafeteras. Tienen su propio grupo (ver "cafe" más abajo).
+  cocina:         ['cocina','cocinar','mate','desayuno','comida','receta','recetas','reposteria','hornear','pesar','utensilio','utensilios','al vapor'],
+  cafe:           ['cafe','cafes','cafetera','cafeteras','coffee','coffee maker','moka','espresso','capuchino','cappuccino','barista'],
   limpieza:       ['limpieza','limpiar','basura','residuo','residuos','higiene','pelusa'],
   organizar:      ['organizar','organizacion','organizador','orden','ordenar','guardar','almacenamiento','almacenar'],
   escuela:        ['escuela','colegio','cole','escolar','util','utiles','estudio','estudiar','clase','clases','tarea','universidad','facultad','libreria','papeleria','vuelta al cole'],
@@ -81,7 +91,14 @@ const SYNONYMS = {
   navidad:        ['navidad','reyes','fin de ano','papa noel'],
   'dia del nino': ['dia del nino','dia del ninos'],
   gaming:         ['gaming','gamer','consola','videojuego','videojuegos','retro','joystick','tv','televisor','smart tv','pantalla'],
-  'accesorio auto': ['accesorio auto','automovil','ruta','viaje','taller','bici','bicicleta','moto','neumatico','rueda'],
+  // "moto" NO va acá: compartía canónico con "bici"/"viaje"/"ruta", así
+  // que traía luces de bicicleta, cámaras deportivas e infladores sólo
+  // por asociación amplia — sin ningún producto para moto de verdad en
+  // el catálogo, esa asociación no suma, sólo mete ruido. Si el nombre
+  // de un producto dice literalmente "moto" (ej. un juguete), lo
+  // encuentra igual por coincidencia directa de nombre, sin necesitar
+  // estar acá.
+  'accesorio auto': ['accesorio auto','automovil','ruta','viaje','taller','bici','bicicleta','neumatico','rueda'],
   animal:         ['animal','animales','perro','perrito','gato','dinosaurio','dinosaurios','dino','dinos','bicho','bichos','mascota','mascotas','animalito','animalitos','capibara','capybara'],
   coleccion:      ['coleccion','coleccionable','figura','funko','coleccionar'],
   ropa:           ['ropa','gorra','gorras','vestir','accesorio personal','moda'],
@@ -174,7 +191,16 @@ const TAXONOMY = [
   { sub:'Cuidado del cabello', when:['alisador','rizado','cepillo alisador','barrillete'], tags:['pelo','belleza'], aliases:['planchita','buclera'], audience:['adolescentes','adultos','mujeres'], ages:['adolescentes','adultos'], useCases:['peinar','alisar','regalar'], environments:['bano','hogar'], intents:['plancha para el pelo','algo para el cabello','regalo para mujer'] },
   { sub:'Masajeadores y bienestar', when:['masaje','massage','masajeador','fascia','scalp','cervical','muscular','9 bolas'], tags:['masaje','bienestar'], aliases:['masajeador'], audience:['adultos','deportistas'], ages:['adultos'], useCases:['relajar','descontracturar','regalar'], environments:['hogar','oficina'], intents:['algo para el dolor de espalda','masajeador','regalo para adultos'] },
   { sub:'Cuidado personal y salud', when:['nebulizador','doppler','fetal','belleza para cuello','ems','afeitadora','barba','ronquido','anti snore','bucal'], tags:['salud','belleza'], aliases:['cuidado personal'], audience:['adultos'], ages:['adultos'], useCases:['cuidar la salud'], environments:['hogar'], intents:['cuidado personal','salud en casa'] },
-  { sub:'Electrodomésticos de cocina', when:['cafetera','moka','pava','molinillo','balanza','dispenser de agua','espumador','batidor','hervidora'], tags:['cocina','hogar'], aliases:['electrodomestico'], audience:['adultos','familia'], ages:['adultos'], useCases:['cocinar','preparar cafe','pesar','regalar'], environments:['cocina','hogar'], intents:['algo para la cocina','cosas para cocina','regalo util para la casa'] },
+  // Va ANTES que "Electrodomésticos de cocina": mismo criterio de "el
+  // primer tema que matchea define la subcategoría" — así una cafetera
+  // se etiqueta como "Cafeteras y accesorios de café" (más preciso) en
+  // vez de caer en el genérico "Electrodomésticos de cocina". El tag
+  // "cafe" (nuevo, separado de "cocina") es lo que hace que buscar
+  // "café"/"cafetera" encuentre SÓLO esto — no balanzas, pavas para
+  // huevo ni utensilios — y que buscar "cocina" los siga encontrando
+  // igual, porque también llevan el tag "cocina" de siempre.
+  { sub:'Cafeteras y accesorios de café', when:['cafe','cafes','cafetera','cafeteras','moka','espresso','capuchino','cappuccino','barista','coffee','espumador'], tags:['cafe','cocina','hogar'], aliases:['maquina de cafe','coffee maker'], audience:['adultos','familia'], ages:['adultos'], useCases:['preparar cafe','cocinar','regalar'], environments:['cocina','hogar'], intents:['algo para el cafe','maquina de cafe','cafetera para el desayuno','accesorios de cafe'] },
+  { sub:'Electrodomésticos de cocina', when:['pava','molinillo','balanza','dispenser de agua','batidor','hervidora'], tags:['cocina','hogar'], aliases:['electrodomestico'], audience:['adultos','familia'], ages:['adultos'], useCases:['cocinar','preparar cafe','pesar','regalar'], environments:['cocina','hogar'], intents:['algo para la cocina','cosas para cocina','regalo util para la casa'] },
   { sub:'Limpieza y orden', when:['cesto','basura','quitapelusa','pelusa'], tags:['limpieza','organizar','hogar'], aliases:['tacho','cesto'], audience:['adultos','familia'], ages:['adultos'], useCases:['limpiar','organizar','guardar'], environments:['cocina','bano','oficina','hogar'], intents:['algo para organizar','para la limpieza','tacho de basura'] },
   { sub:'Climatización', when:['heater','calefactor','estufa'], tags:['hogar'], aliases:['calefactor'], audience:['adultos','familia'], ages:['adultos'], useCases:['calefaccionar'], environments:['hogar','oficina','bano'], intents:['algo para el frio','calefactor'] },
   { sub:'Accesorios para computadora y celular', when:['cargador','notebook','usb c','adaptador','cable de carga','carga rapida','teclado','mouse','presentador','smartwatch','impresora','smart tag','localizador'], tags:['celular','cargador','tecnologia'], aliases:['cargador','cable'], audience:['estudiantes','adultos','adolescentes'], ages:['adolescentes','adultos'], useCases:['cargar','trabajar','estudiar'], environments:['oficina','escritorio','viaje'], intents:['algo para el celular','accesorios para celu','para cargar el celular','cargador'] },
