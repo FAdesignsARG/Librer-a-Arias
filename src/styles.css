@@ -726,13 +726,9 @@ dialog:focus-visible {
 }
 .attn__slide--promos .attn__media {
   background-color: #151515;
-  /* cover, no contain: con "contain" la mascota quedaba chica y flotando
-     en el medio de mucho espacio vacío a los costados (su imagen es
-     angosta y alta, la caja es ancha y baja) — daba la sensación de dos
-     bloques sueltos en vez de una sola composición. Con "cover" llena
-     el recuadro entero, aunque recorte un poco los bordes. */
-  background-size: cover;
-  background-position: center 15%;
+  /* Vuelto a "contain" a pedido — "cover" recortaba demasiado la mascota.
+     Queda pendiente encontrar un término medio (revisar en otra ronda). */
+  background-size: contain;
 }
 .attn__slide--promos .attn__desc {
   color: rgba(245, 245, 247, 0.72);

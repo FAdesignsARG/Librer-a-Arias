@@ -98,6 +98,14 @@ const copies = [
   ['src/assistant.js', 'src/assistant.js'],
   ['src/search-engine.js', 'src/search-engine.js'],
   ['src/analytics.js', 'src/analytics.js'],
+  // templates.js importa dailyPicks de acá (Ronda 1) — mismo problema que ya
+  // pasó antes con cloudinary-config.js: sin esto, templates.js falla al
+  // resolver su propio import en el navegador (404) y como app.js importa
+  // de templates.js, TODO app.js queda sin cargar — nada de JS corre en el
+  // sitio publicado (grilla trabada en skeleton, animaciones sin disparar,
+  // botones sin wiring) aunque en local nunca se note, porque server.js
+  // sirve /src/* directo del disco.
+  ['src/recommend.js', 'src/recommend.js'],
   // app.js importa cardHtml/money/offerActive de acá — sin esto la portada
   // publicada quedaría con un import roto en el navegador.
   ['src/templates.js', 'src/templates.js'],
