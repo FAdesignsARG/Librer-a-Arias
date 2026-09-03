@@ -149,9 +149,10 @@ html[data-theme-anim] .info-card,
 html[data-theme-anim] .footer,
 html[data-theme-anim] .sheet,
 html[data-theme-anim] .chip,
-html[data-theme-anim] .search input {
+html[data-theme-anim] .search input,
+html[data-theme-anim] .attn__slide--promos {
   transition: background-color 0.35s var(--ease-soft), color 0.35s var(--ease-soft),
-    border-color 0.35s var(--ease-soft);
+    border-color 0.35s var(--ease-soft), box-shadow 0.35s var(--ease-soft);
 }
 
 /* ---------- Reset ---------- */
@@ -644,6 +645,11 @@ dialog:focus-visible {
   scrollbar-width: none;
   max-width: var(--page);
   margin-inline: auto;
+  /* Aire propio, no sólo el --gutter de la sección: overflow-x:auto acá
+     recorta cualquier box-shadow que se pase de este contenedor, así
+     que el glow/sombra de la tarjeta necesita este margen para no
+     quedar cortado en los bordes al hacer scroll. */
+  padding: 22px 8px;
 }
 .attention-carousel__track::-webkit-scrollbar {
   display: none;
@@ -657,33 +663,40 @@ dialog:focus-visible {
      ancho del track y el texto envuelve adentro, no al revés. */
   flex: 0 0 100%;
   scroll-snap-align: start;
-  border-radius: var(--r-xl);
-  overflow: hidden;
-  text-decoration: none;
   min-width: 0;
+  text-decoration: none;
+  border-radius: var(--r-xl);
+  /* Todo el contenido —imagen incluida— va con aire adentro, nada
+     sangra hasta el borde. Sin overflow:hidden en la tarjeta: así el
+     glow/sombra de abajo no queda recortado por su propia caja. */
+  padding: 26px 24px 30px;
+  gap: 22px;
 }
 .attn__media {
-  height: 240px;
+  width: 100%;
+  max-width: 200px;
+  height: 170px;
+  margin-inline: auto;
   flex: none;
-  overflow: hidden;
 }
 /* width/height:100% + object-fit, no max-width/auto + filter:drop-shadow
    — esa combinación es sospechosa de causar la superposición reportada
    en el WebView de WhatsApp Business (no reproducible en este entorno,
    así que se prioriza la técnica más simple y ya probada: es
    literalmente la misma que .attn__full-img, que sí quedó bien en la
-   imagen del canal de WhatsApp). Menos superficie para que un motor de
-   renderizado puntual la interprete distinto. */
+   imagen del canal de WhatsApp). El tamaño real lo decide .attn__media,
+   no el <img>. */
 .attn__mascot {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 .attn__content {
-  padding: 16px 24px 26px;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
 }
 .attn__badge {
   display: inline-flex;
@@ -703,25 +716,29 @@ dialog:focus-visible {
   height: 14px;
 }
 .attn__title {
-  font-size: clamp(1.35rem, 4.2vw, 1.7rem);
+  font-size: clamp(1.5rem, 4.6vw, 1.85rem);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.12;
+  color: var(--text);
 }
 .attn__desc {
-  font-size: 0.92rem;
-  line-height: 1.45;
-  max-width: 42ch;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  max-width: 46ch;
+  color: var(--text-2);
 }
 .attn__cta {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   align-self: flex-start;
-  margin-top: 8px;
-  padding: 10px 20px;
+  margin-top: 6px;
+  padding: 11px 22px;
   border-radius: var(--r-pill);
-  font-size: 0.9rem;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 0.92rem;
   font-weight: 640;
   /* El <a> del slide ya maneja el click — esto es sólo el CTA visual. */
   pointer-events: none;
@@ -731,25 +748,32 @@ dialog:focus-visible {
   height: 16px;
 }
 
-/* Tarjeta oscura descartada: en tema oscuro coincidía con el fondo de
-   la página (no se distinguía como tarjeta) y en tema claro quedaba un
-   rectángulo negro discordante en medio de una página blanca. Dorado
-   sólido en su lugar — mismo criterio de marca fija que ya usa
-   .dockbtn--wa, y hace juego con el slide de WhatsApp de al lado. */
+/* Tarjeta al color exacto del fondo de la página (no un negro/dorado
+   fijo que compita con el tema) — la separación de la página la da un
+   borde dorado fino más una elevación que cambia de naturaleza según
+   el tema, no el relleno. Igual criterio que un panel de vidrio Apple:
+   la superficie casi no se nota, el borde y la luz sí. */
 .attn__slide--promos {
-  background: var(--gold);
-  color: var(--gold-ink);
+  background: var(--ink);
+  border: 1px solid var(--gold-edge);
 }
-.attn__slide--promos .attn__desc {
-  color: rgba(26, 18, 0, 0.72);
+/* Oscuro: sombra negra no se ve sobre un fondo ya oscuro — en su lugar,
+   un glow dorado ambiente hace de elevación. Tres capas: filo ajustado,
+   halo medio, halo largo y muy tenue — así se lee como luz suave, no
+   como un aro parejo alrededor de la tarjeta. */
+:root:not([data-theme='light']) .attn__slide--promos {
+  box-shadow:
+    0 0 0 1px rgba(254, 206, 1, 0.05),
+    0 0 30px -6px rgba(254, 206, 1, 0.3),
+    0 0 70px -14px rgba(254, 206, 1, 0.18);
 }
-.attn__slide--promos .attn__badge {
-  background: rgba(26, 18, 0, 0.9);
-  color: var(--gold);
-}
-.attn__slide--promos .attn__cta {
-  background: rgba(26, 18, 0, 0.9);
-  color: var(--gold);
+/* Claro: sombra premium estilo Apple — capas de negro muy tenues, sin
+   ninguna sólida, que dan profundidad sin pesar sobre la página blanca. */
+:root[data-theme='light'] .attn__slide--promos {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 20px -6px rgba(0, 0, 0, 0.07),
+    0 28px 56px -16px rgba(0, 0, 0, 0.11);
 }
 
 .attention-carousel__dots {
@@ -774,23 +798,26 @@ dialog:focus-visible {
 @media (min-width: 720px) {
   .attn__slide {
     flex-direction: row;
-    align-items: stretch;
-    min-height: 300px;
+    align-items: center;
+    gap: 44px;
+    padding: 40px 48px;
   }
   .attn__media {
-    height: auto;
-    flex: 0 0 44%;
+    width: 260px;
+    height: 260px;
+    max-width: 260px;
+    margin-inline: 0;
+    flex: none;
   }
   .attn__content {
     flex: 1;
     justify-content: center;
-    padding: 40px 46px;
   }
   .attn__title {
-    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+    font-size: clamp(1.7rem, 2.8vw, 2.1rem);
   }
   .attn__desc {
-    font-size: 0.98rem;
+    font-size: 1.02rem;
   }
 }
 
