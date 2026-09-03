@@ -601,12 +601,8 @@ export function renderHome({ products, settings: s }) {
       </div>
     </a>
     <a class="attn__slide attn__slide--whatsapp" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
-      <div class="attn__media" style="background-image:url('/assets/brand/banner-canal.webp')"></div>
-      <div class="attn__content">
-        <h2 class="attn__title">Sumate a nuestro canal</h2>
-        <p class="attn__desc">Enterate primero de las novedades por WhatsApp</p>
-        <span class="attn__cta">${ico.wa} Sumarme al canal</span>
-      </div>
+      <img class="attn__full-img" src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
+           alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
     </a>
   </div>
   <div class="attention-carousel__dots" role="tablist" aria-label="Elegir promoción">
