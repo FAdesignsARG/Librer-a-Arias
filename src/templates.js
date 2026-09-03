@@ -600,14 +600,6 @@ export function renderHome({ products, settings: s }) {
         <span class="attn__cta">Ver promociones</span>
       </div>
     </a>
-    <a class="attn__slide attn__slide--whatsapp" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
-      <img class="attn__full-img" src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
-           alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
-    </a>
-  </div>
-  <div class="attention-carousel__dots" role="tablist" aria-label="Elegir promoción">
-    <button type="button" class="attention-carousel__dot" aria-label="Ver promociones activas" aria-current="true" data-index="0"></button>
-    <button type="button" class="attention-carousel__dot" aria-label="Ver canal de WhatsApp" aria-current="false" data-index="1"></button>
   </div>
 </section>
 
@@ -625,6 +617,15 @@ ${
 </section>`
     : ''
 }
+
+<!-- Banner del canal de WhatsApp: intacto, tal cual está en main. No forma
+     parte del carrusel de atención — eso fue un error, se sacó a pedido. -->
+<div class="banner" data-reveal>
+  <a href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
+    <img src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
+         alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
+  </a>
+</div>
 
 <div class="controls" id="catalogo">
   <div class="shell">

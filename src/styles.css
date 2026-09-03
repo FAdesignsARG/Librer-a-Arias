@@ -738,24 +738,6 @@ dialog:focus-visible {
   color: var(--gold-ink);
 }
 
-/* El slide de WhatsApp es sólo la imagen del banner (ya trae su propio
-   título/CTA dibujados adentro) — a diferencia del de promos, acá poner
-   un panel de texto al lado hubiera sido repetir el mismo mensaje dos
-   veces. Mismo criterio que ya tenía el banner original en main. */
-.attn__slide--whatsapp {
-  background: var(--gold);
-}
-.attn__full-img {
-  width: 100%;
-  height: 100%;
-  /* contain, no cover: el slide se estira para igualar la altura del de
-     promos (mucho más alto que el aspecto natural de este banner), y con
-     "cover" eso recortaba buena parte del texto que trae la imagen. El
-     fondo de la imagen ya es amarillo igual que el del slide, así que el
-     margen que deja "contain" no se nota como letterbox. */
-  object-fit: contain;
-}
-
 .attention-carousel__dots {
   display: flex;
   justify-content: center;
