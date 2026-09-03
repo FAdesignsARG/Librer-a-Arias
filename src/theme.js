@@ -62,13 +62,34 @@ btn?.addEventListener('click', () => {
    perseguir un bug de un WebView de terceros que no se puede inspeccionar,
    se salta la animación ahí directamente: mismo criterio que ya existe
    para prefers-reduced-motion, sólo se ve el logo un instante. */
+// Android: estos WebViews sí suelen anunciarse en el user agent. No cubre
+// el caso de WhatsApp en iOS (ver comentario de más abajo, en runSplash) —
+// para eso está la verificación en tiempo real, no una lista de nombres.
 function isInAppBrowser() {
-  return /\bFB_IAB\b|FBAN|FBAV|Instagram|\bLine\/|WhatsApp/i.test(navigator.userAgent || '');
+  return /\bFB_IAB\b|FBAN|FBAV|Instagram|\bLine\/|WhatsApp|Twitter|TikTok|Snapchat|Pinterest|MicroMessenger/i.test(
+    navigator.userAgent || ''
+  );
+}
+
+/** El <img> del logo que está realmente visible (hay dos, uno por tema,
+    el otro con display:none). */
+function visibleLogo(splash) {
+  return [...splash.querySelectorAll('.splash__logo')].find(
+    (img) => getComputedStyle(img).display !== 'none'
+  );
 }
 
 function runSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return Promise.resolve();
+
+  // Salida limpia compartida: se llega acá tanto si ya se vio el splash o
+  // el user agent lo detecta de entrada, como si la verificación de
+  // centrado en tiempo real (más abajo) encuentra el logo corrido.
+  const bail = () => {
+    splash.hidden = true;
+    root.removeAttribute('data-splash');
+  };
 
   let visto = false;
   try {
@@ -78,8 +99,7 @@ function runSplash() {
   }
 
   if (visto || isInAppBrowser()) {
-    splash.hidden = true;
-    root.removeAttribute('data-splash');
+    bail();
     try {
       sessionStorage.setItem(KEY_SPLASH, '1');
     } catch {}
@@ -93,14 +113,48 @@ function runSplash() {
   splash.dataset.run = 'true';
 
   return new Promise((resolve) => {
+    let bailed = false;
+
     // Se resuelve cuando termina la última animación (la de las cortinas).
     // El timer de respaldo cubre el caso de la pestaña en segundo plano,
     // donde el navegador frena las animaciones y el evento nunca llega.
     const done = () => {
-      splash.hidden = true;
-      root.removeAttribute('data-splash');
+      if (bailed) return; // ya se resolvió por el chequeo de centrado
+      bail();
       resolve();
     };
+
+    // Red de seguridad para WebViews que isInAppBrowser() no puede
+    // detectar: WhatsApp en iOS (WhatsApp Business incluido) no agrega
+    // ningún dato distintivo al user agent ahí — no es que falte sumar
+    // una palabra a la regex, la información directamente no está
+    // disponible. El centrado de .splash__stack es estático desde el
+    // primer frame (position:absolute + transform:translate(-50%,-50%);
+    // la animación propia del logo sólo mueve escala/vertical, nunca
+    // horizontal — ver splash-pop en theme.css), así que un frame
+    // después de arrancar ya se puede medir con confianza si terminó
+    // centrado de verdad. Si no, se corta a la misma salida limpia que
+    // ya usa isInAppBrowser(), en vez de mostrar el logo corrido.
+    requestAnimationFrame(() => {
+      // Con la pestaña en segundo plano (document.hidden) el navegador
+      // frena/posterga los frames y la medición puede salir cualquier
+      // cosa (geometría sin asentar, todo en 0) sin que haya ningún bug
+      // real de centrado — se salta el chequeo, no tiene sentido confiar
+      // en una medición tomada así. El timer de respaldo de más abajo
+      // sigue cubriendo este caso igual.
+      if (document.hidden) return;
+      const logo = visibleLogo(splash);
+      if (!logo) return;
+      const rect = logo.getBoundingClientRect();
+      const logoCenter = rect.left + rect.width / 2;
+      const realCenter = window.innerWidth / 2;
+      if (Math.abs(logoCenter - realCenter) > 24) {
+        bailed = true;
+        bail();
+        resolve();
+      }
+    });
+
     const panel = splash.querySelector('.splash__panel--bottom');
     panel?.addEventListener('animationend', done, { once: true });
     setTimeout(done, 2200);
