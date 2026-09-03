@@ -592,7 +592,10 @@ export function renderHome({ products, settings: s }) {
 <section class="attention-carousel" id="attentionCarousel" data-reveal>
   <div class="attention-carousel__track">
     <a class="attn__slide attn__slide--promos" id="promoBanner" href="?cat=Ofertas#catalogo">
-      <div class="attn__media" style="background-image:url('/assets/promos/adolfito-cupon-descuento.webp')"></div>
+      <div class="attn__media">
+        <img class="attn__mascot" src="/assets/promos/adolfito-cupon-descuento.webp" width="500" height="625"
+             loading="lazy" alt="">
+      </div>
       <div class="attn__content">
         <span class="attn__badge">${ico.tag}Hasta ${maxPromoPercent}% OFF</span>
         <h2 class="attn__title">Promos activas</h2>

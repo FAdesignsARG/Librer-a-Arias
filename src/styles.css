@@ -663,39 +663,52 @@ dialog:focus-visible {
   min-width: 0;
 }
 .attn__media {
-  height: 215px;
-  background-position: center;
-  background-repeat: no-repeat;
+  height: 220px;
   flex: none;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+/* <img> real (antes background-image) para poder darle su propia sombra
+   de elevación — mismo recurso que ya usa .hero__crane, no algo nuevo
+   inventado para acá. Sin esto el personaje quedaba "pegado" al fondo
+   plano en vez de sentirse un objeto con volumen flotando adelante. */
+.attn__mascot {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.55));
 }
 .attn__content {
-  padding: 14px 22px 24px;
+  padding: 16px 24px 26px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 .attn__badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: var(--r-pill);
   background: var(--gold);
   color: var(--gold-ink);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   font-weight: 700;
   margin-bottom: 2px;
 }
 .attn__badge svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
 }
 .attn__title {
-  font-size: clamp(1.25rem, 4vw, 1.6rem);
+  font-size: clamp(1.35rem, 4.2vw, 1.7rem);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
 }
 .attn__desc {
   font-size: 0.92rem;
@@ -720,15 +733,16 @@ dialog:focus-visible {
   height: 16px;
 }
 
+/* #242424, no #151515: ese era literalmente el mismo valor de --ink en
+   tema oscuro (el fondo de TODA la página) — la tarjeta no se distinguía
+   del fondo, quedaba flotando sin borde ni superficie propia. Con un tono
+   más claro (y un borde sutil) se lee como una tarjeta real, elevada.
+   Sigue siendo un color FIJO (no --surface, que cambia con el tema) por
+   la misma razón que .dockbtn--wa: la marca no cambia de tema. */
 .attn__slide--promos {
-  background: #151515;
+  background: #242424;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f5f5f7;
-}
-.attn__slide--promos .attn__media {
-  background-color: #151515;
-  /* Vuelto a "contain" a pedido — "cover" recortaba demasiado la mascota.
-     Queda pendiente encontrar un término medio (revisar en otra ronda). */
-  background-size: contain;
 }
 .attn__slide--promos .attn__desc {
   color: rgba(245, 245, 247, 0.72);
