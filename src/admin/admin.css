@@ -1466,25 +1466,61 @@
    fuerza a columna así el historial (.stockchat) puede quedar flex:1 con
    scroll propio y el compositor fijo abajo, sin que el diálogo entero
    crezca sin límite con cada mensaje nuevo.
+
+   Marco premium: mismo criterio que la tarjeta de "Promos activas" del
+   catálogo público — el borde pasa a un filo dorado fino en vez del gris
+   neutro de cualquier otro .editor, y la elevación cambia de naturaleza
+   según el tema (glow dorado ambiente en oscuro, sombra suave estilo
+   Apple en claro) en vez de una sola sombra fija que en oscuro no se nota.
    ========================================================================== */
 .stockai {
   display: flex;
   flex-direction: column;
+  border-color: var(--gold-edge);
 }
 .stockai .editor__head {
   flex: none;
 }
-
-.stockchat__notice {
-  flex: none;
-  padding: 10px 20px;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--text-3);
-  background: var(--ink);
-  border-bottom: 1px solid var(--line);
+:root:not([data-theme='light']) .stockai {
+  box-shadow:
+    0 0 0 1px rgba(254, 206, 1, 0.05),
+    0 0 36px -10px rgba(254, 206, 1, 0.24),
+    var(--shadow-card);
+}
+:root[data-theme='light'] .stockai {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 28px -8px rgba(0, 0, 0, 0.1),
+    0 32px 64px -20px rgba(0, 0, 0, 0.14);
 }
 
+/* Aviso permanente: una nota suave con ícono, no una franja de alerta.
+   Vive flotando entre el header y el chat, no pegada a ningún borde. */
+.stockchat__notice {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 14px 20px 0;
+  padding: 9px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.stockchat__notice svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  color: var(--gold-text);
+}
+
+/* Historial: panel apenas más hundido que el resto del diálogo —igual
+   criterio que separa una sidebar de su contenido en una app nativa,
+   sin recurrir a otro borde más. */
 .stockchat {
   flex: 1;
   min-height: 220px;
@@ -1493,6 +1529,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  background: var(--ink);
 }
 /* Estado vacío: nada de JS para esto, un solo mensaje centrado con el chat
    recién abierto y sin historial todavía. */
@@ -1508,7 +1545,7 @@
 
 .stockchat__msg {
   max-width: 88%;
-  padding: 11px 14px;
+  padding: 12px 15px;
   border-radius: var(--r-lg);
   font-size: 0.9rem;
   line-height: 1.5;
@@ -1522,11 +1559,19 @@
   color: var(--gold-ink);
   border-bottom-right-radius: var(--r-sm);
 }
+/* Sin borde: una burbuja de chat se separa del fondo por relleno + sombra
+   propia, no por un contorno duro — mismo criterio que la tarjeta de
+   promos, adaptado a algo mucho más chico. */
 .stockchat__msg--bot {
   align-self: flex-start;
   background: var(--surface-hi);
-  border: 1px solid var(--line);
   border-bottom-left-radius: var(--r-sm);
+}
+:root:not([data-theme='light']) .stockchat__msg--bot {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='light'] .stockchat__msg--bot {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
 }
 .stockchat__msg--bot .stockchat__meta {
   margin-top: 8px;
@@ -1543,7 +1588,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 14px 16px;
+  padding: 15px 17px;
 }
 .stockchat__typing span {
   width: 6px;
@@ -1563,11 +1608,14 @@
   30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* Propuesta de cambios dentro de un mensaje del asistente. La burbuja ya
-   achica el ancho disponible (max-width:88%) — overflow-x:auto de
-   respaldo por si un nombre largo no entra en mobile; overflow-y:hidden
-   explícito al lado (no "overflow:hidden" solo) para no dejar que ese eje
-   caiga en "visible" por el efecto secundario de fijar sólo el otro. */
+/* Propuesta de cambios dentro de un mensaje del asistente: un panel
+   hundido dentro de la burbuja (mismo --ink que el fondo del historial),
+   así se lee como "datos", distinto del texto conversacional de arriba.
+   La burbuja ya achica el ancho disponible (max-width:88%) —
+   overflow-x:auto de respaldo por si un nombre largo no entra en mobile;
+   overflow-y:hidden explícito al lado (no "overflow:hidden" solo) para no
+   dejar que ese eje caiga en "visible" por el efecto secundario de fijar
+   sólo el otro. */
 .stockchat__table {
   border: 1px solid var(--line);
   border-radius: var(--r-md);
@@ -1605,16 +1653,20 @@
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-top: 1px solid var(--line);
   background: var(--surface);
 }
 .stockchat__composer textarea {
   flex: 1;
   resize: none;
+  appearance: none;
   max-height: 120px;
-  padding: 10px 13px;
-  border-radius: var(--r-md);
+  padding: 11px 16px;
+  /* Radio grande pero no píldora completa: una píldora se ve rara apenas
+     el campo crece a 2-3 líneas. Este valor se mantiene proporcionado
+     tanto en una línea como estirado. */
+  border-radius: var(--r-lg);
   border: 1px solid var(--line);
   background: var(--ink);
   font: inherit;
@@ -1625,7 +1677,7 @@
 .stockchat__composer textarea:focus {
   outline: none;
   border-color: var(--gold-edge);
-  box-shadow: 0 0 0 4px var(--gold-wash);
+  box-shadow: 0 0 0 3px var(--gold-wash);
 }
 .stockchat__send {
   flex: none;
@@ -1636,7 +1688,9 @@
   border-radius: 50%;
   background: var(--gold);
   color: var(--gold-ink);
-  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
+  box-shadow: 0 2px 10px -2px rgba(254, 206, 1, 0.5);
+  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop),
+    box-shadow var(--dur-fast) var(--ease-soft);
 }
 .stockchat__send svg {
   width: 19px;
@@ -1645,10 +1699,12 @@
 @media (hover: hover) {
   .stockchat__send:hover {
     transform: scale(1.06);
+    box-shadow: 0 4px 14px -2px rgba(254, 206, 1, 0.6);
   }
 }
 .stockchat__send:disabled {
   opacity: 0.4;
+  box-shadow: none;
   pointer-events: none;
 }
 
