@@ -675,24 +675,45 @@ ${
 
 <div class="promoinfo" id="promoInfo" hidden>
   <div class="shell">
-    <div class="promoinfo__card">
-      <img class="promoinfo__img" src="/assets/promos/promo-llevamas-pagamenos.webp"
-           width="1122" height="1402" loading="lazy"
-           alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
-      <div class="promoinfo__body">
-        <h3>Llevá más, pagá menos</h3>
-        <ul class="promoinfo__tiers">
-          ${s.promos.tiers
-            .map((t) => `<li><strong>${t.percent}% OFF</strong><span>desde ${money(t.minAmount)}</span></li>`)
-            .join('\n          ')}
-        </ul>
-        <p class="promoinfo__note">${esc(s.promos.paymentNote)}</p>
-        <p class="promoinfo__chachos">${ico.tag}Pagando con CHACHOS: <strong>${s.promos.chachosPercent}% adicional</strong></p>
-        <p class="promoinfo__disclaimer">${esc(s.promos.disclaimer)}</p>
-      </div>
-    </div>
+    <button type="button" class="promoinfo__trigger" id="promoInfoOpen">
+      <span class="promoinfo__trigger-ico">${ico.tag}</span>
+      <span class="promoinfo__trigger-text">
+        <strong>Llevá más, pagá menos</strong>
+        <span>Hasta ${maxPromoPercent}% OFF pagando en efectivo o transferencia</span>
+      </span>
+      <span class="promoinfo__trigger-arrow">${ico.chevron}</span>
+    </button>
   </div>
 </div>
+
+<dialog class="promodlg" id="promoInfoDlg" aria-labelledby="promoInfoTitle" tabindex="-1">
+  <div class="promodlg__head">
+    <h2 id="promoInfoTitle">Llevá más, pagá menos</h2>
+    <button type="button" class="sheet__close" id="promoInfoClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="promodlg__body">
+    <button type="button" class="promodlg__imgbtn" id="promoImageOpen" aria-label="Ver la imagen completa">
+      <img class="promodlg__img" src="/assets/promos/promo-llevamas-pagamenos.webp"
+           width="1122" height="1402" loading="lazy"
+           alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
+      <span class="promodlg__zoom">${ico.search} Ver completa</span>
+    </button>
+    <ul class="promodlg__tiers">
+      ${s.promos.tiers
+        .map((t) => `<li><strong>${t.percent}% OFF</strong><span>desde ${money(t.minAmount)}</span></li>`)
+        .join('\n      ')}
+    </ul>
+    <p class="promodlg__note">${esc(s.promos.paymentNote)}</p>
+    <p class="promodlg__chachos">${ico.tag}Pagando con CHACHOS: <strong>${s.promos.chachosPercent}% adicional</strong></p>
+    <p class="promodlg__disclaimer">${esc(s.promos.disclaimer)}</p>
+  </div>
+</dialog>
+
+<dialog class="promoimg" id="promoImageDlg" aria-label="Imagen ampliada de la promoción" tabindex="-1">
+  <button type="button" class="promoimg__close" id="promoImageClose" aria-label="Cerrar">${ico.x}</button>
+  <img class="promoimg__pic" src="/assets/promos/promo-llevamas-pagamenos.webp"
+       width="1122" height="1402" alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
+</dialog>
 
 <dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle" tabindex="-1">
   <div class="sortsheet__head">

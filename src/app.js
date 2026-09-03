@@ -617,6 +617,26 @@ $('#promoBanner')?.addEventListener('click', (e) => {
 });
 
 /* ==========================================================================
+   DETALLE DE "LLEVÁ MÁS, PAGÁ MENOS" — diálogo + lightbox de la imagen
+   El bloque que antes era una tarjeta siempre expandida en la sección
+   Ofertas ahora es un trigger chico que abre esto como pop-up. La imagen,
+   adentro del pop-up, abre a su vez en un lightbox propio.
+   ========================================================================== */
+const promoInfoDlg = $('#promoInfoDlg');
+$('#promoInfoOpen')?.addEventListener('click', () => {
+  promoInfoDlg.showModal();
+  promoInfoDlg.focus();
+});
+wireDialog(promoInfoDlg, $('#promoInfoClose'));
+
+const promoImageDlg = $('#promoImageDlg');
+$('#promoImageOpen')?.addEventListener('click', () => {
+  promoImageDlg.showModal();
+  promoImageDlg.focus();
+});
+wireDialog(promoImageDlg, $('#promoImageClose'));
+
+/* ==========================================================================
    CARRUSEL DE ATENCIÓN (Ronda 1.1) — promos + canal de WhatsApp
    Avanza solo cada 5s, se pausa con cualquier interacción y retoma un
    rato después de soltar. Con prefers-reduced-motion el autoplay ni
