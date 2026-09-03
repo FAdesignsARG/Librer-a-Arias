@@ -527,6 +527,13 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 
   <div class="stockchat" id="stockAIChat" aria-live="polite"></div>
 
+  <div class="stockchat__quick" id="stockAIQuick">
+    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no tienen stock?">¿Qué no tiene stock?</button>
+    <button type="button" class="stockchat__chip" data-quick="¿Hay productos repetidos o duplicados en el catálogo?">Productos duplicados</button>
+    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no se actualizan hace más tiempo?">Sin actualizar hace rato</button>
+    <button type="button" class="stockchat__chip" data-quick="Dame un resumen rápido del estado del catálogo">Resumen del catálogo</button>
+  </div>
+
   <div class="stockchat__composer">
     <textarea id="stockAIText" rows="1"
               placeholder="Escribí qué cambió o preguntá algo del stock…"

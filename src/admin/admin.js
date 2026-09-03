@@ -1353,6 +1353,16 @@ stockAIText.addEventListener('keydown', (e) => {
   sendStockAI();
 });
 
+// Acciones rápidas: un click completa Y manda la pregunta, no hace falta
+// escribir nada — sirven de "primer paso" para quien no sabe qué
+// preguntarle todavía.
+$('#stockAIQuick').addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-quick]');
+  if (!chip) return;
+  stockAIText.value = chip.dataset.quick;
+  sendStockAI();
+});
+
 // Tildar/destildar una fila no borra la propuesta, sólo la deja afuera del "Aplicar" de SU mensaje
 stockAIChat.addEventListener('change', (e) => {
   if (!e.target.matches('[data-check]')) return;

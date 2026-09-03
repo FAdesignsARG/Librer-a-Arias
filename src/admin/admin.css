@@ -1572,26 +1572,30 @@
 }
 
 /* Aviso permanente: una nota suave con ícono, no una franja de alerta.
-   Vive flotando entre el header y el chat, no pegada a ningún borde. */
+   Vive flotando entre el header y el chat, no pegada a ningún borde.
+   align-items:center (no flex-start): con el texto en una sola línea la
+   mayoría de las veces, centrado contra el ícono se ve más prolijo que
+   alineado arriba — que sólo tenía sentido pensando en 2+ líneas. */
 .stockchat__notice {
   flex: none;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 14px 20px 0;
-  padding: 9px 13px;
-  border-radius: var(--r-md);
+  align-items: center;
+  gap: 10px;
+  margin: 16px 20px 0;
+  padding: 13px 16px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--gold-edge);
   background: var(--gold-wash);
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--text-2);
+  font-size: 0.88rem;
+  font-weight: 520;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: var(--text);
 }
 .stockchat__notice svg {
   flex: none;
-  width: 15px;
-  height: 15px;
-  margin-top: 1px;
+  width: 19px;
+  height: 19px;
   color: var(--gold-text);
 }
 
@@ -1729,8 +1733,8 @@
   flex: none;
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 16px 20px;
   border-top: 1px solid var(--line);
   background: var(--surface);
 }
@@ -1738,8 +1742,9 @@
   flex: 1;
   resize: none;
   appearance: none;
-  max-height: 120px;
-  padding: 11px 16px;
+  min-height: 50px;
+  max-height: 130px;
+  padding: 14px 18px;
   /* Radio grande pero no píldora completa: una píldora se ve rara apenas
      el campo crece a 2-3 líneas. Este valor se mantiene proporcionado
      tanto en una línea como estirado. */
@@ -1747,8 +1752,8 @@
   border: 1px solid var(--line);
   background: var(--ink);
   font: inherit;
-  font-size: 0.93rem;
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.45;
   transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
   /* overflow-y:auto es el default de un <textarea> — con scrollbars
      clásicas de Windows (no las "overlay" finitas de Mac/Chrome en otros
@@ -1768,10 +1773,53 @@
   border-color: var(--gold-edge);
   box-shadow: 0 0 0 3px var(--gold-wash);
 }
+
+/* Acciones rápidas: fila de sugerencias fijas arriba del compositor —
+   quien no sabe qué preguntarle todavía tiene por dónde arrancar con un
+   solo click, en vez de mirar un campo vacío. Scroll horizontal propio
+   (mismo criterio que .chips del catálogo público) en vez de envolver:
+   una fila prolija siempre, sin empujar el resto del diálogo hacia
+   abajo si hay muchas. */
+.stockchat__quick {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.stockchat__quick::-webkit-scrollbar {
+  display: none;
+}
+.stockchat__chip {
+  flex: none;
+  padding: 9px 15px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--gold-text);
+  font-size: 0.84rem;
+  font-weight: 560;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+@media (hover: hover) {
+  .stockchat__chip:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--gold-ink);
+  }
+}
+.stockchat__chip:active {
+  transform: scale(0.96);
+}
+
 .stockchat__send {
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -1782,8 +1830,8 @@
     box-shadow var(--dur-fast) var(--ease-soft);
 }
 .stockchat__send svg {
-  width: 19px;
-  height: 19px;
+  width: 22px;
+  height: 22px;
 }
 @media (hover: hover) {
   .stockchat__send:hover {
