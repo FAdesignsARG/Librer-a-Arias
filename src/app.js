@@ -653,7 +653,7 @@ function wireAttentionCarousel() {
   function start() {
     if (reduceMotion) return;
     stop();
-    timer = setInterval(() => goTo(index + 1), 5000);
+    timer = setInterval(() => goTo(index + 1), 10000);
   }
 
   function pauseThenResume() {

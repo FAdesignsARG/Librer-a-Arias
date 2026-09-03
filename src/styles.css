@@ -663,13 +663,13 @@ dialog:focus-visible {
   min-width: 0;
 }
 .attn__media {
-  height: 200px;
+  height: 170px;
   background-position: center;
   background-repeat: no-repeat;
   flex: none;
 }
 .attn__content {
-  padding: 22px 22px 26px;
+  padding: 14px 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -726,7 +726,13 @@ dialog:focus-visible {
 }
 .attn__slide--promos .attn__media {
   background-color: #151515;
-  background-size: contain;
+  /* cover, no contain: con "contain" la mascota quedaba chica y flotando
+     en el medio de mucho espacio vacío a los costados (su imagen es
+     angosta y alta, la caja es ancha y baja) — daba la sensación de dos
+     bloques sueltos en vez de una sola composición. Con "cover" llena
+     el recuadro entero, aunque recorte un poco los bordes. */
+  background-size: cover;
+  background-position: center 15%;
 }
 .attn__slide--promos .attn__desc {
   color: rgba(245, 245, 247, 0.72);
