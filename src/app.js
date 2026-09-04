@@ -190,6 +190,62 @@ const sheetFoot = $('#sheetFoot');
 const sheetTotal = $('#sheetTotal');
 const sheetSend = $('#sheetSend');
 
+/* ---- Descuento por medio de pago (Ronda 3) ----
+   Puramente informativo: nunca se resta de cartTotal(), que sigue siendo
+   el número definitivo — el medio de pago recién se confirma por
+   WhatsApp, no acá. Sólo se agrega UNA línea aparte cuando corresponde. */
+
+/** El tramo más alto de SETTINGS.promos.tiers cuyo minAmount es <= total,
+    o null si el total no alcanza ninguno (incluye total === 0). */
+function applicablePromo(total) {
+  const tiers = SETTINGS.promos?.tiers;
+  if (!Array.isArray(tiers) || !tiers.length) return null;
+  let best = null;
+  for (const t of tiers) {
+    if (total >= t.minAmount && (!best || t.minAmount > best.minAmount)) best = t;
+  }
+  return best;
+}
+
+/** Las líneas de texto del descuento aplicable — mismo cálculo para el
+    panel del pedido (HTML) y el mensaje de WhatsApp (texto plano), así
+    no hay dos lugares que puedan quedar diciendo cosas distintas.
+    Vacío si no hay tramo aplicable para ese total. */
+function promoLines(total) {
+  const tier = applicablePromo(total);
+  if (!tier) return [];
+  const ahorro = Math.round((total * tier.percent) / 100);
+  const lines = [`Pagando en efectivo o transferencia: -${tier.percent}% · ahorrás ${money(ahorro)}`];
+  if (SETTINGS.promos?.chachosPercent) {
+    lines.push(`Pagando con CHACHOS: ${SETTINGS.promos.chachosPercent}% adicional`);
+  }
+  return lines;
+}
+
+// Se crea una sola vez, apenas se conoce dónde va (junto a .sheet__total)
+// — renderSheet() sólo actualiza su contenido y visibilidad en cada
+// llamada, no la reconstruye. No se tocó templates.js: este es el único
+// elemento nuevo que pide la Ronda 3, así que nace acá mismo.
+const sheetPromoLine = document.createElement('div');
+sheetPromoLine.id = 'sheetPromo';
+sheetPromoLine.hidden = true;
+sheetPromoLine.style.cssText = 'margin: -4px 0 12px; line-height: 1.5;';
+$('.sheet__total')?.after(sheetPromoLine);
+
+function renderPromoLine(total) {
+  if (!sheetPromoLine) return;
+  const lines = promoLines(total);
+  if (!lines.length) {
+    sheetPromoLine.hidden = true;
+    return;
+  }
+  sheetPromoLine.innerHTML = [
+    `<p style="color:var(--gold-text); font-weight:600; font-size:0.88rem;">${lines[0]}</p>`,
+    ...lines.slice(1).map((l) => `<p style="margin-top:2px; color:var(--text-3); font-size:0.78rem;">${l}</p>`),
+  ].join('');
+  sheetPromoLine.hidden = false;
+}
+
 function bumpFab() {
   if (!fab) return;
   fab.dataset.bump = 'true';
@@ -250,7 +306,9 @@ function renderSheet() {
     .join('');
 
   sheetFoot.hidden = false;
-  sheetTotal.textContent = money(cartTotal());
+  const total = cartTotal();
+  sheetTotal.textContent = money(total);
+  renderPromoLine(total);
   sheetSend.href = buildOrderLink();
 }
 
@@ -262,12 +320,21 @@ function buildOrderMessage() {
     const p = bySlug.get(slug);
     return `• ${qty} x ${p.name} — ${money(p.price * qty)}`;
   });
+  const total = cartTotal();
+  // Mismas líneas que ve el panel del pedido, más el disclaimer de "no
+  // acumulable" — acá sí, porque quien recibe el pedido por WhatsApp no
+  // vio el panel y necesita esa aclaración para confirmarlo bien.
+  const promo = promoLines(total);
+  const promoBlock = promo.length
+    ? ['', ...promo, ...(SETTINGS.promos?.disclaimer ? [SETTINGS.promos.disclaimer] : [])]
+    : [];
   return [
     '¡Hola! Quiero hacer este pedido:',
     '',
     ...lines,
     '',
-    `Total estimado: ${money(cartTotal())}`,
+    `Total estimado: ${money(total)}`,
+    ...promoBlock,
     '',
     '¿Me confirman stock y forma de pago?',
   ].join('\n');
