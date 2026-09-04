@@ -228,10 +228,13 @@ function promoLines(total) {
 // elemento nuevo que pide la Ronda 3, así que nace acá mismo.
 const sheetPromoLine = document.createElement('div');
 sheetPromoLine.id = 'sheetPromo';
+sheetPromoLine.className = 'sheet__promo';
 sheetPromoLine.hidden = true;
-sheetPromoLine.style.cssText = 'margin: -4px 0 12px; line-height: 1.5;';
 $('.sheet__total')?.after(sheetPromoLine);
 
+// Ronda 1.2: los estilos del chip viven en styles-parts.css
+// (.sheet__promo-chip) con los tokens de marca — acá sólo se decide el
+// texto y cuál línea es la principal vs. la secundaria (CHACHOS).
 function renderPromoLine(total) {
   if (!sheetPromoLine) return;
   const lines = promoLines(total);
@@ -240,8 +243,8 @@ function renderPromoLine(total) {
     return;
   }
   sheetPromoLine.innerHTML = [
-    `<p style="color:var(--gold-text); font-weight:600; font-size:0.88rem;">${lines[0]}</p>`,
-    ...lines.slice(1).map((l) => `<p style="margin-top:2px; color:var(--text-3); font-size:0.78rem;">${l}</p>`),
+    `<span class="sheet__promo-chip">${lines[0]}</span>`,
+    ...lines.slice(1).map((l) => `<span class="sheet__promo-chip sheet__promo-chip--sub">${l}</span>`),
   ].join('');
   sheetPromoLine.hidden = false;
 }
@@ -766,13 +769,41 @@ chipsEl?.addEventListener('click', (e) => {
   selectCategory(btn.dataset.cat);
 });
 
-/* Slide de promos del carrusel de atención: si ya estamos en la portada,
-   filtra in-place con la misma función que el chip en vez de recargar
-   la página (el slide de WhatsApp navega normal, no necesita esto). */
-$('#promoBanner')?.addEventListener('click', (e) => {
-  e.preventDefault();
+/* Slide de promos del carrusel de atención (Ronda 1.2): el slide entero
+   es tocable y abre el detalle de promos (#promoInfoDlg, más abajo) —
+   salvo el botón "Ver promociones", que sigue yendo directo a la
+   sección Ofertas sin abrir el pop-up (stopPropagation). El slide de
+   WhatsApp es un <a> normal, navega solo, no participa de nada de esto. */
+const promoBannerEl = $('#promoBanner');
+
+$('#promoBannerCta')?.addEventListener('click', (e) => {
+  e.stopPropagation();
   selectCategory('Ofertas');
   $('#catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// Distingue un tap real de un swipe/arrastre horizontal para cambiar de
+// slide: si el puntero se movió más que unos px entre bajar y soltar, no
+// se abre el pop-up (mismo criterio que el resto del sitio: un gesto de
+// scroll no debe disparar una acción de click).
+let promoBannerDownX = null;
+promoBannerEl?.addEventListener('pointerdown', (e) => {
+  promoBannerDownX = e.clientX;
+});
+promoBannerEl?.addEventListener('click', (e) => {
+  if (e.target.closest('#promoBannerCta, .attention-carousel__dot')) return;
+  const moved = promoBannerDownX != null && Math.abs(e.clientX - promoBannerDownX) > 10;
+  promoBannerDownX = null;
+  if (moved) return;
+  promoInfoDlg.showModal();
+  promoInfoDlg.focus();
+});
+promoBannerEl?.addEventListener('keydown', (e) => {
+  if (e.target.closest('#promoBannerCta')) return;
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  e.preventDefault();
+  promoInfoDlg.showModal();
+  promoInfoDlg.focus();
 });
 
 /* ==========================================================================

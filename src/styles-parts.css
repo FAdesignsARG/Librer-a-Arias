@@ -275,6 +275,43 @@
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
+
+/* Descuento por tramo de pago (Ronda 3), aspecto de chip real (Ronda 1.2):
+   antes eran <p> con estilos inline puestos desde JS — ahora app.js sólo
+   pone el texto, el look vive acá con los mismos tokens dorados que ya
+   usa el badge de descuento del carrusel de atención. */
+.sheet__promo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+.sheet__promo-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 13px;
+  border-radius: var(--r-pill);
+  background: var(--gold-wash);
+  border: 1px solid var(--gold-edge);
+  color: var(--gold-text);
+  font-size: 0.82rem;
+  font-weight: 620;
+  line-height: 1.35;
+  /* Envuelve en vez de forzar una sola línea — a 375px el texto del
+     tramo más alto no entra ancho, y es preferible que la píldora crezca
+     a dos líneas antes que recortar el texto o achicar la letra. */
+  white-space: normal;
+}
+.sheet__promo-chip--sub {
+  background: transparent;
+  border-color: transparent;
+  padding: 0 13px;
+  color: var(--text-3);
+  font-weight: 500;
+  font-size: 0.76rem;
+}
 .sheet__note {
   margin-top: 10px;
   font-size: 0.76rem;

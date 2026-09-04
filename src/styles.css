@@ -629,25 +629,6 @@ dialog:focus-visible {
 }
 
 /* ==========================================================================
-   BANNER DEL CANAL
-   ========================================================================== */
-.banner {
-  padding: 0 var(--gutter);
-  text-align: center;
-}
-.banner a {
-  display: inline-block;
-  max-width: 760px;
-  width: 100%;
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  transition: transform var(--dur) var(--ease-out);
-}
-.banner a:hover {
-  transform: translateY(-3px);
-}
-
-/* ==========================================================================
    CARRUSEL DE ATENCIÓN — Ronda 1.1
    Reemplaza los dos banners chicos (promos + canal de WhatsApp) por un
    único carrusel de 2 slides grande, con jerarquía real: es lo primero
@@ -758,13 +739,19 @@ dialog:focus-visible {
   align-self: flex-start;
   margin-top: 6px;
   padding: 11px 22px;
+  border: none;
   border-radius: var(--r-pill);
   background: var(--gold);
   color: var(--gold-ink);
   font-size: 0.92rem;
   font-weight: 640;
-  /* El <a> del slide ya maneja el click — esto es sólo el CTA visual. */
-  pointer-events: none;
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
+}
+.attn__cta:hover {
+  background: var(--gold-hi);
+}
+.attn__cta:active {
+  transform: scale(0.96);
 }
 .attn__cta svg {
   width: 16px;
@@ -779,6 +766,46 @@ dialog:focus-visible {
 .attn__slide--promos {
   background: var(--ink);
   border: 1px solid var(--gold-edge);
+  cursor: pointer;
+}
+.attn__slide--promos:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Slide del canal de WhatsApp: la imagen (banner-canal.webp) ya trae su
+   propio texto/diseño armado — a diferencia del slide de promos, acá no
+   hay contenido HTML encima, el slide es la foto entera de borde a
+   borde. Mismo radio/elevación que el resto del carrusel para que se
+   sientan la misma familia de piezas. */
+.attn__slide--wa {
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+  /* La imagen es un banner panorámico (1400x534) muy distinto en forma
+     al slide de promos (una tarjeta alta con mascota+texto). Si se
+     estirara (align-items:stretch, heredado del track) a la misma
+     altura que el otro slide, object-fit:cover la recortaría casi por
+     completo dejando sólo una tira vertical del centro. En cambio, se
+     desacopla del stretch y se deja con su propia proporción real —
+     el carrusel queda con dos slides de altura distinta, cada uno
+     mostrando su contenido completo sin recortes. */
+  align-self: center;
+  aspect-ratio: 1400 / 534;
+  height: auto;
+}
+.attn__slide--wa:hover,
+.attn__slide--wa:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+.attn__full-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 /* Oscuro: sombra negra no se ve sobre un fondo ya oscuro — en su lugar,
    un glow dorado ambiente hace de elevación. Tres capas: filo ajustado,
@@ -808,9 +835,16 @@ dialog:focus-visible {
 .attention-carousel__dot {
   width: 8px;
   height: 8px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
   background: var(--line-strong);
+  cursor: pointer;
   transition: background var(--dur-fast) var(--ease-soft), width var(--dur-fast) var(--ease-soft);
+}
+.attention-carousel__dot:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
 }
 .attention-carousel__dot[aria-current='true'] {
   width: 22px;
@@ -848,13 +882,13 @@ dialog:focus-visible {
    "ELEGIDOS PARA VOS HOY" — carrusel diario
    ========================================================================== */
 .picks {
-  padding-block: clamp(20px, 3.5vw, 32px) 0;
+  padding-block: clamp(28px, 4.5vw, 40px) 0;
+}
+.picks__eyebrow {
+  margin-bottom: 6px;
 }
 .picks__title {
-  font-size: 1.1rem;
-  font-weight: 640;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .picks__row {
   display: flex;
@@ -864,6 +898,10 @@ dialog:focus-visible {
   padding-inline: var(--gutter);
   padding-bottom: 6px;
   scrollbar-width: none;
+  /* Mismo criterio que .chips: difumina el corte lateral del scroll en
+     vez de tajarlo en seco, para insinuar que hay más al costado. */
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
 }
 .picks__row::-webkit-scrollbar {
   display: none;
@@ -872,10 +910,23 @@ dialog:focus-visible {
   flex: 0 0 min(200px, 74vw);
   scroll-snap-align: start;
 }
+/* Feedback táctil al tocar una tarjeta — mismo criterio que .btn/.chip
+   (scale sutil al :active). No se toca .card en general (eso es de
+   cardHtml, fuera de scope acá), sólo se suma un estado extra scopeado
+   a este carrusel puntual. */
+.picks__item .card:active {
+  transform: scale(0.97);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-card);
+}
 @media (min-width: 860px) {
   .picks__row {
     max-width: var(--page);
     margin-inline: auto;
+    /* A este ancho entran las 5 tarjetas sin recortarse: no hace falta
+       insinuar más contenido al costado. */
+    mask-image: none;
+    -webkit-mask-image: none;
   }
   .picks__item {
     flex: 0 0 calc((100% - 4 * 14px) / 5);

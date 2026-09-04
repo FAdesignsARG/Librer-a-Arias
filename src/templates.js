@@ -609,7 +609,8 @@ export function renderHome({ products, settings: s }) {
 
 <section class="attention-carousel" id="attentionCarousel" data-reveal>
   <div class="attention-carousel__track">
-    <a class="attn__slide attn__slide--promos" id="promoBanner" href="?cat=Ofertas#catalogo">
+    <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
+         aria-label="Ver el detalle de las promociones vigentes">
       <div class="attn__media">
         <img class="attn__mascot" src="/assets/promos/adolfito-cupon-descuento.webp" width="500" height="625"
              loading="lazy" alt="">
@@ -618,9 +619,17 @@ export function renderHome({ products, settings: s }) {
         <span class="attn__badge">${ico.tag}Hasta ${maxPromoPercent}% OFF</span>
         <h2 class="attn__title">Promos activas</h2>
         <p class="attn__desc">Mirá cuánto ahorrás pagando en efectivo o transferencia</p>
-        <span class="attn__cta">Ver promociones</span>
+        <button type="button" class="attn__cta" id="promoBannerCta">Ver promociones</button>
       </div>
+    </div>
+    <a class="attn__slide attn__slide--wa" id="waBanner" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
+      <img class="attn__full-img" src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
+           alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
     </a>
+  </div>
+  <div class="attention-carousel__dots">
+    <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ir a promociones"></button>
+    <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ir al canal de WhatsApp"></button>
   </div>
 </section>
 
@@ -628,7 +637,8 @@ ${
   picks.length
     ? `<section class="picks" data-reveal>
   <div class="shell">
-    <h2 class="picks__title">Elegidos para vos hoy</h2>
+    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
+    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
   </div>
   <div class="picks__row">
     ${picks
@@ -638,15 +648,6 @@ ${
 </section>`
     : ''
 }
-
-<!-- Banner del canal de WhatsApp: intacto, tal cual está en main. No forma
-     parte del carrusel de atención — eso fue un error, se sacó a pedido. -->
-<div class="banner" data-reveal>
-  <a href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
-    <img src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
-         alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
-  </a>
-</div>
 
 <div class="controls" id="catalogo">
   <div class="shell">
