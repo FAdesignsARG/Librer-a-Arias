@@ -47,7 +47,7 @@ export const aiEnabled = () => Boolean(process.env.GROQ_API_KEY);
    Llamada base
    ========================================================================== */
 
-async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperature = 0.3, json = false }) {
+async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperature = 0.3, json = false, reasoningEffort }) {
   if (!aiEnabled()) throw new Error('SIN_CLAVE');
 
   const res = await fetch(GROQ_URL, {
@@ -62,6 +62,14 @@ async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperatur
       max_tokens: maxTokens,
       temperature,
       ...(json ? { response_format: { type: 'json_object' } } : {}),
+      // openai/gpt-oss-* "piensa" antes de contestar, y esos tokens de
+      // razonamiento salen del mismo max_tokens que el JSON final — sin
+      // acotarlo (reportado en el foro de Groq y reproducido acá: "Groq
+      // 400: Failed to validate JSON") puede comerse todo el presupuesto
+      // y devolver un JSON cortado a la mitad. 'low' alcanza de sobra
+      // para esto (interpretar una instrucción corta, no resolver un
+      // problema difícil) y deja el presupuesto para la respuesta.
+      ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
     }),
   });
 
@@ -143,7 +151,7 @@ export async function askCatalog({ question, candidates, settings, history = [],
     },
   ];
 
-  const raw = await groq({ messages, json: true, maxTokens: 600 });
+  const raw = await groq({ messages, json: true, maxTokens: 600, reasoningEffort: 'low' });
   const out = parseJson(raw);
 
   // Nos quedamos sólo con slugs que existen de verdad: si el modelo se
@@ -231,7 +239,7 @@ export async function proposeStockActions({ instruction, products }) {
     { role: 'user', content: `Catálogo:\n${lista}\n\nInstrucción: ${instruction}` },
   ];
 
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 900 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 900, reasoningEffort: 'low' }));
 
   // El modelo identifica por nombre, no por slug (ver comentario arriba) —
   // acá se resuelve contra el catálogo real. Hay un único par de nombres
@@ -289,7 +297,7 @@ export async function draftFromText({ text, settings }) {
     { role: 'system', content: SYSTEM_FICHAS(settings.categories) },
     { role: 'user', content: text.slice(0, 6000) },
   ];
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 2500 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 2500, reasoningEffort: 'low' }));
   return normalizeDrafts(out.productos, settings);
 }
 
@@ -363,7 +371,7 @@ export async function summarizeActivity({ entries }) {
     { role: 'system', content: SYSTEM_RESUMEN() },
     { role: 'user', content: lista },
   ];
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 600 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 600, reasoningEffort: 'low' }));
   return String(out.resumen || '').trim();
 }
 
