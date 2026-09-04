@@ -15,6 +15,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
+import { offerActive, offerHasDiscount } from './templates.js';
 
 const json = (res, status, obj) => {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
@@ -98,6 +99,10 @@ export async function registerAiApi(req, res, { ROOT, pathname, ai }) {
             category: p.category,
             inStock: p.inStock,
             image: p.images?.[0] || null,
+            // Mismo criterio que cardHtml (templates.js): precio tachado +
+            // precio con descuento cuando hay oferta activa con número propio.
+            offerActive: offerActive(p),
+            offerPrice: offerHasDiscount(p) ? p.offer.price : null,
           };
         }),
       });

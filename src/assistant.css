@@ -475,6 +475,12 @@
   color: var(--text);
   font-weight: 620;
 }
+/* Mismo criterio que .card__price-old de la grilla (styles.css): precio
+   tachado y apagado al lado del precio con descuento. */
+.pick__price-old {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
 .pick__go {
   flex: none;
   color: var(--text-3);

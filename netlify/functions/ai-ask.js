@@ -1,5 +1,6 @@
 import { aiEnabled, askCatalog } from '../../src/ai.js';
 import { buildIndex, getIndex, searchProducts } from '../../src/search-engine.js';
+import { offerActive, offerHasDiscount } from '../../src/templates.js';
 import { json, loadCatalog, aiErrorResponse, noKeyResponse } from './_helpers.js';
 
 export const handler = async (event) => {
@@ -33,6 +34,10 @@ export const handler = async (event) => {
           category: p.category,
           inStock: p.inStock,
           image: p.images?.[0] || null,
+          // Mismo criterio que cardHtml (templates.js): precio tachado +
+          // precio con descuento cuando hay oferta activa con número propio.
+          offerActive: offerActive(p),
+          offerPrice: offerHasDiscount(p) ? p.offer.price : null,
         };
       }),
     });

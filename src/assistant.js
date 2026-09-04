@@ -12,6 +12,7 @@
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
 import { wireDialog } from './ui.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
+import { offerActive, offerHasDiscount } from './templates.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
@@ -61,13 +62,20 @@ function addPicks(items) {
   const wrap = document.createElement('div');
   wrap.className = 'picks';
   wrap.innerHTML = items
-    .map(
-      (p) => `<div class="pick">
+    .map((p) => {
+      // Mismo criterio visual que cardHtml (templates.js): precio tachado
+      // + precio con descuento cuando hay oferta con número propio — acá
+      // sólo con offerPrice, no offerActive solo (una oferta puede ser un
+      // mensaje sin cambiar el número, ver offerHasDiscount).
+      const price = p.offerPrice
+        ? `<span class="pick__price-old">${money(p.price)}</span> <b>${money(p.offerPrice)}</b>`
+        : `<b>${money(p.price)}</b>`;
+      return `<div class="pick">
       <a class="pick__link" href="/p/${p.slug}/">
         ${p.image ? `<img src="${thumbOf(p.image)}" alt="" width="46" height="46" loading="lazy">` : ''}
         <span class="pick__info">
           <span class="pick__name"></span>
-          <span class="pick__meta"><b>${money(p.price)}</b> · ${p.inStock ? p.category : 'sin stock'}</span>
+          <span class="pick__meta">${price} · ${p.inStock ? p.category : 'sin stock'}</span>
         </span>
         <span class="pick__go">${arrow}</span>
       </a>
@@ -76,8 +84,8 @@ function addPicks(items) {
           ? `<button type="button" class="pick__add" data-add="${p.slug}" aria-label="Agregar ${p.name} al pedido">${plusIco}</button>`
           : ''
       }
-    </div>`
-    )
+    </div>`;
+    })
     .join('');
   // El nombre por textContent: puede tener comillas o signos
   [...wrap.querySelectorAll('.pick__name')].forEach((el, i) => (el.textContent = items[i].name));
@@ -138,24 +146,41 @@ function destacados(n = 4) {
 
 const esConsultaDeDestacados = (q) =>
   /viral|vendido|buscado|popular|tendencia|moda|recomenda/i.test(q);
+const esConsultaDePromos = (q) => /promo|oferta|descuento|rebaja/i.test(q);
+
+/** Shape que espera addPicks — mismo criterio de precio que cardHtml
+    (templates.js): tachado + con descuento sólo si la oferta tiene un
+    número propio (offerHasDiscount), no sólo un mensaje sin cambiar precio. */
+const pickFields = (p) => ({
+  slug: p.slug,
+  name: p.name,
+  price: p.price,
+  category: p.category,
+  inStock: p.inStock,
+  image: p.images?.[0],
+  offerActive: offerActive(p),
+  offerPrice: offerHasDiscount(p) ? p.offer.price : null,
+});
 
 /** Sin IA: buscador semántico local. */
 async function answerLocally(question) {
   await ensureIndex();
 
+  if (esConsultaDePromos(question)) {
+    const picks = getIndex().map((e) => e.p).filter(offerActive).slice(0, 4);
+    if (!picks.length) {
+      addMsg('En este momento no tenemos ofertas activas, pero avisanos por WhatsApp y te contamos apenas haya.');
+      return;
+    }
+    addMsg('Estas son las promos activas ahora mismo:');
+    addPicks(picks.map(pickFields));
+    return;
+  }
+
   if (esConsultaDeDestacados(question)) {
     const picks = destacados();
     addMsg('Esto es lo que más se está buscando:');
-    addPicks(
-      picks.map((p) => ({
-        slug: p.slug,
-        name: p.name,
-        price: p.price,
-        category: p.category,
-        inStock: p.inStock,
-        image: p.images?.[0],
-      }))
-    );
+    addPicks(picks.map(pickFields));
     return;
   }
 
@@ -170,16 +195,7 @@ async function answerLocally(question) {
       ? 'Encontré esto:'
       : `Encontré ${found.length} cosas que te pueden servir:`
   );
-  addPicks(
-    found.map((p) => ({
-      slug: p.slug,
-      name: p.name,
-      price: p.price,
-      category: p.category,
-      inStock: p.inStock,
-      image: p.images?.[0],
-    }))
-  );
+  addPicks(found.map(pickFields));
 }
 
 async function ask(question) {

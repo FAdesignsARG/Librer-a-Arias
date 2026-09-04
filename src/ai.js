@@ -108,6 +108,19 @@ function parseJson(text) {
    datos que ve el cliente salen después de products.json, no del texto.
    ========================================================================== */
 
+/** "Promos vigentes: 5% off desde $50.000, ... ; 10% adicional con CHACHOS."
+    Mismos datos reales que ya arma el pop-up "Llevá más, pagá menos"
+    (templates.js) — nada nuevo, sólo puesto en una línea para el prompt.
+    Devuelve '' si el catálogo no tiene promos configuradas (defensivo:
+    settings.promos podría faltar en algún deploy viejo). */
+function promosLine(s) {
+  const tiers = s?.promos?.tiers;
+  if (!Array.isArray(tiers) || !tiers.length) return '';
+  const rango = tiers.map((t) => `${t.percent}% off desde $${Number(t.minAmount).toLocaleString('es-AR')}`).join(', ');
+  const chachos = s.promos.chachosPercent ? ` ${s.promos.chachosPercent}% adicional pagando con CHACHOS.` : '';
+  return `Promos vigentes: ${rango} (${s.promos.paymentNote || 'efectivo/transferencia'}).${chachos}`;
+}
+
 const SYSTEM_TIENDA = (s, modo) =>
   `
 Sos el asistente de ${s.storeName}, una librería, juguetería y bazar en La Rioja, Argentina.
@@ -117,13 +130,17 @@ REGLAS QUE NO PODÉS ROMPER:
 - Sólo podés hablar de los productos de la lista que te paso. No inventes productos, precios ni características.
 - Si algo no está en la lista, decí que no lo tenés en el catálogo y ofrecé consultarlo por WhatsApp.
 - Nunca inventes un precio. Si no figura, no lo menciones.
-- No prometas plazos de entrega, envíos ni descuentos: eso lo confirma el local.
-- No repitas los precios en tu texto, se muestran solos en las tarjetas.
+- No prometas plazos de entrega, envíos ni descuentos que no estén en "Promos vigentes" más abajo: eso lo confirma
+  el local. Los tramos de "Promos vigentes" sí son reales y los podés repetir tal cual cuando pregunten por descuentos,
+  promociones o formas de pago — no es un precio de producto, es la política general de la tienda.
+- No repitas los precios de PRODUCTOS en tu texto, se muestran solos en las tarjetas. Las promos por monto de compra
+  sí las podés mencionar en texto.
 ${
   modo === 'interno'
     ? '- Hablás con el equipo del local, podés ser más directo y técnico.'
     : '- Hablás con un cliente. Si duda entre opciones, ayudalo a elegir según para quién es y cuánto quiere gastar.'
 }
+${promosLine(s) ? `\n${promosLine(s)}` : ''}
 
 Respondé SIEMPRE en JSON con esta forma exacta:
 {"respuesta": "tu texto", "productos": ["slug-1", "slug-2"]}

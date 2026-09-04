@@ -11,7 +11,7 @@ import { wireDialog, closeDialog } from './ui.js';
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
 // aplicado en una sola. templates.js no toca nada de Node, así que se
 // puede importar tal cual también en el navegador.
-import { cardHtml, money, offerActive, isNew, dateFmt, ico as tIco } from './templates.js';
+import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -306,9 +306,99 @@ function showSheetSent() {
   sheetSent.hidden = false;
 }
 
-sheetSend?.addEventListener('click', () => {
-  // No se cancela la navegación: el <a target="_blank"> abre WhatsApp
-  // igual. Esto sólo cambia lo que se ve DETRÁS, en la pestaña que queda.
+/* ---- Pop-up de "sumá algo en oferta" antes de mandar el pedido ----
+   Una sola vez por sesión, y sólo si de verdad hay algo que ofrecer: una
+   oferta activa que la persona todavía no agregó. Ronda 3 (total del
+   pedido) no se toca acá — esto sólo decide si se agrega algo antes de
+   navegar, el cálculo del total sigue igual que siempre. */
+const PROMO_POPUP_KEY = 'arias.promoPopupShown';
+const promoNudgeDlg = $('#promoNudge');
+const promoNudgePicksEl = $('#promoNudgePicks');
+
+const eligiblePromoPicks = (n = 3) => PRODUCTS.filter((p) => offerActive(p) && !cart.has(p.slug)).slice(0, n);
+
+function openPromoNudge(picks) {
+  promoNudgePicksEl.innerHTML = picks
+    .map(
+      (p) => `<label class="promonudge__pick">
+      <input type="checkbox" checked value="${p.slug}">
+      <img src="${thumbOf(p.images[0])}" alt="" width="46" height="46" loading="lazy">
+      <span class="promonudge__pick-info">
+        <span class="promonudge__pick-name"></span>
+        <span class="promonudge__pick-price">
+          ${
+            offerHasDiscount(p)
+              ? `<span class="pick__price-old">${money(p.price)}</span> <b>${money(p.offer.price)}</b>`
+              : `<b>${money(p.price)}</b>`
+          }
+        </span>
+      </span>
+    </label>`
+    )
+    .join('');
+  // El nombre por textContent: puede tener comillas o signos
+  [...promoNudgePicksEl.querySelectorAll('.promonudge__pick-name')].forEach((el, i) => (el.textContent = picks[i].name));
+  promoNudgeDlg.showModal();
+  // Mismo motivo que el resto de los <dialog> del sitio: showModal() por
+  // sí solo enfocaría el primer checkbox, y en mobile Safari eso dispara
+  // el anillo de foco sobre un control chico — se ve roto.
+  promoNudgeDlg.focus();
+}
+
+function markPromoShown() {
+  try {
+    sessionStorage.setItem(PROMO_POPUP_KEY, 'true');
+  } catch {}
+}
+// Se marca "ya se mostró" al cerrarse SEA COMO SEA (botón, X, Esc, click
+// afuera) — así no vuelve a interrumpir en la misma sesión ni aunque la
+// persona lo haya cerrado sin elegir ninguna de las dos acciones. El
+// evento 'close' cubre X/Esc/backdrop; finishPromoNudge (abajo) además lo
+// marca directo por las suyas, sin depender sólo del evento.
+promoNudgeDlg?.addEventListener('close', markPromoShown);
+wireDialog(promoNudgeDlg, $('#promoNudgeClose'));
+
+function finishPromoNudge(addChecked) {
+  markPromoShown();
+  if (addChecked) {
+    const checked = $$('input[type="checkbox"]:checked', promoNudgePicksEl).map((el) => el.value);
+    checked.forEach((slug) => addToCart(slug, { silent: true }));
+    if (checked.length) {
+      toast(`${checked.length} producto${checked.length === 1 ? '' : 's'} agregado${checked.length === 1 ? '' : 's'}`, ico.check);
+    }
+  }
+  closeDialog(promoNudgeDlg).then(() => {
+    // El <a> original nunca navegó (se le hizo preventDefault más abajo):
+    // se abre la misma URL a mano, con el pedido ya actualizado si se
+    // agregó algo (buildOrderLink() lee el carrito en el momento).
+    window.open(buildOrderLink(), '_blank', 'noopener');
+    showSheetSent();
+  });
+}
+$('#promoNudgeSkip')?.addEventListener('click', () => finishPromoNudge(false));
+$('#promoNudgeAdd')?.addEventListener('click', () => finishPromoNudge(true));
+
+sheetSend?.addEventListener('click', (e) => {
+  let yaMostrado = true;
+  try {
+    yaMostrado = !!sessionStorage.getItem(PROMO_POPUP_KEY);
+  } catch {
+    /* sin sessionStorage no hay forma de recordar que ya se mostró: se
+       omite el pop-up en vez de arriesgarse a mostrarlo en cada pedido */
+  }
+
+  if (!yaMostrado) {
+    const picks = eligiblePromoPicks();
+    if (picks.length) {
+      e.preventDefault();
+      openPromoNudge(picks);
+      return;
+    }
+  }
+
+  // Sin ofertas elegibles, o ya mostrado esta sesión: el click funciona
+  // exactamente como antes de esta ronda — no se cancela la navegación,
+  // el <a target="_blank"> abre WhatsApp igual.
   showSheetSent();
 });
 

@@ -441,6 +441,24 @@ const orderSheet = (s) => `
   </div>
 </dialog>
 
+<!-- Antes de mandar el pedido, si queda algo en oferta afuera del carrito
+     se ofrece sumarlo — una sola vez por sesión (app.js). Las filas de
+     .promonudge__picks se arman en JS, acá sólo va el marco. -->
+<dialog class="promonudge" id="promoNudge" aria-labelledby="promoNudgeTitle" tabindex="-1">
+  <div class="promonudge__head">
+    <h2 id="promoNudgeTitle">¿Sumamos algo en oferta?</h2>
+    <button type="button" class="sheet__close" id="promoNudgeClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="promonudge__body">
+    <p class="promonudge__sub">Todavía no está en tu pedido — antes de mandarlo, mirá si te sirve:</p>
+    <div class="promonudge__picks" id="promoNudgePicks"></div>
+  </div>
+  <div class="promonudge__foot">
+    <button type="button" class="btn btn--ghost" id="promoNudgeSkip">No gracias, continuar</button>
+    <button type="button" class="btn btn--gold" id="promoNudgeAdd">Agregar y continuar</button>
+  </div>
+</dialog>
+
 <div id="toasts" aria-live="polite"></div>`;
 
 const footer = (s) => `<footer class="footer">
