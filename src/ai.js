@@ -15,8 +15,15 @@ import path from 'node:path';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'llama-3.3-70b-versatile';
-// Multimodal: hasta 5 imágenes por pedido, 20 MB en total
+// Groq dio de baja llama-3.3-70b-versatile el 16/8/2026 (retiro anunciado,
+// no un corte de golpe) — cualquier pedido de texto (asistente de stock,
+// fichas de producto, resumen de actividad) devolvía "Groq 404: The model
+// `llama-3.3-70b-versatile` does not exist" desde esa fecha, mostrado en el
+// panel como el código pelado "FALLO" en vez de explicar qué pasaba (ver
+// también el fix de api()/aiErrorText() en admin.js, mismo hallazgo).
+// openai/gpt-oss-120b es el reemplazo que recomienda Groq mismo para esto.
+const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'openai/gpt-oss-120b';
+// Multimodal: hasta 5 imágenes por pedido, 20 MB en total. No deprecado.
 const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'qwen/qwen3.6-27b';
 
 /** Lee .env sin dependencias. Se llama una vez al arrancar el servidor. */

@@ -1104,7 +1104,18 @@ fetch('/api/ai/status')
 const api = async (url, opts = {}) => {
   const res = await fetch(url, { ...opts, headers: { 'content-type': 'application/json' } });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  if (!res.ok) {
+    // .message queda con el CÓDIGO ("LIMITE"/"CLAVE_INVALIDA"/"SIN_CLAVE"/
+    // "FALLO") — aiErrorText() lo matchea contra eso. El texto real y
+    // legible que arma el servidor (aiErrorResponse en _helpers.js) va en
+    // .mensaje aparte: antes se perdía acá mismo (new Error(data.error)
+    // tiraba sólo el código), así que cualquier error sin código conocido
+    // ("FALLO", el catch-all) se mostraba literal como la palabra "FALLO"
+    // en vez de explicar qué pasó de verdad.
+    const err = new Error(data.error || `Error ${res.status}`);
+    err.mensaje = data.mensaje || '';
+    throw err;
+  }
   return data;
 };
 
@@ -1116,7 +1127,10 @@ function aiErrorText(err) {
   if (m.includes('LIMITE')) return 'Groq está limitando las consultas. Esperá un minuto y probá de nuevo.';
   if (m.includes('CLAVE_INVALIDA')) return 'La clave de Groq no es válida. Revisá el archivo .env.';
   if (m.includes('SIN_CLAVE')) return 'Falta poner GROQ_API_KEY en el archivo .env.';
-  return m || 'La IA no pudo responder.';
+  // Cualquier otro código (ej. "FALLO", el catch-all del servidor) no
+  // tiene un texto canned acá — se muestra el .mensaje real que armó
+  // aiErrorResponse en vez del código pelado.
+  return err.mensaje || m || 'La IA no pudo responder.';
 }
 /** Mismo texto, como toast — lo que usaban todos los llamadores hasta ahora. */
 function aiError(err) {
