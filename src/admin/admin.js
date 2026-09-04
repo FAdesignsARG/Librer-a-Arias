@@ -1104,17 +1104,37 @@ fetch('/api/ai/status')
 const api = async (url, opts = {}) => {
   const res = await fetch(url, { ...opts, headers: { 'content-type': 'application/json' } });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  if (!res.ok) {
+    // .message queda con el CÓDIGO ("LIMITE"/"CLAVE_INVALIDA"/"SIN_CLAVE"/
+    // "FALLO") — aiErrorText() lo matchea contra eso. El texto real y
+    // legible que arma el servidor (aiErrorResponse en _helpers.js) va en
+    // .mensaje aparte: antes se perdía acá mismo (new Error(data.error)
+    // tiraba sólo el código), así que cualquier error sin código conocido
+    // ("FALLO", el catch-all) se mostraba literal como la palabra "FALLO"
+    // en vez de explicar qué pasó de verdad.
+    const err = new Error(data.error || `Error ${res.status}`);
+    err.mensaje = data.mensaje || '';
+    throw err;
+  }
   return data;
 };
 
-/** Muestra el error de la IA en criollo, sin tecnicismos. */
-function aiError(err) {
+/** Arma el texto del error de la IA en criollo, sin tecnicismos — sin
+    mostrarlo. Lo separamos de aiError() para que el asistente de stock
+    pueda meter este mismo texto en un mensaje del chat en vez de un toast. */
+function aiErrorText(err) {
   const m = String(err.message || '');
-  if (m.includes('LIMITE')) return toast('Groq está limitando las consultas. Esperá un minuto y probá de nuevo.');
-  if (m.includes('CLAVE_INVALIDA')) return toast('La clave de Groq no es válida. Revisá el archivo .env.');
-  if (m.includes('SIN_CLAVE')) return toast('Falta poner GROQ_API_KEY en el archivo .env.');
-  toast(m || 'La IA no pudo responder.');
+  if (m.includes('LIMITE')) return 'Groq está limitando las consultas. Esperá un minuto y probá de nuevo.';
+  if (m.includes('CLAVE_INVALIDA')) return 'La clave de Groq no es válida. Revisá el archivo .env.';
+  if (m.includes('SIN_CLAVE')) return 'Falta poner GROQ_API_KEY en el archivo .env.';
+  // Cualquier otro código (ej. "FALLO", el catch-all del servidor) no
+  // tiene un texto canned acá — se muestra el .mensaje real que armó
+  // aiErrorResponse en vez del código pelado.
+  return err.mensaje || m || 'La IA no pudo responder.';
+}
+/** Mismo texto, como toast — lo que usaban todos los llamadores hasta ahora. */
+function aiError(err) {
+  toast(aiErrorText(err));
 }
 
 /* ---------- IA en la carga masiva ---------- */
@@ -1195,23 +1215,37 @@ $('#aiFromPhoto').addEventListener('click', async () => {
 });
 
 /* ---------- IA: asistente de stock ----------
-   Instrucción libre → propuesta de cambios → confirmación manual antes de
-   tocar nada. La confirmación es obligatoria: el endpoint sólo PROPONE. */
+   Chat: cada instrucción/pregunta del hilo queda como mensaje propio, y la
+   respuesta —texto, propuesta de cambios, o las dos cosas— como mensaje del
+   asistente debajo, sin pisar mensajes anteriores. La confirmación de un
+   cambio sigue siendo obligatoria y por mensaje: el endpoint sólo PROPONE,
+   aplicar uno no afecta propuestas de mensajes anteriores del mismo hilo. */
 
 const stockAIDlg = $('#stockAI');
-/** Última propuesta, para poder aplicar sólo lo que quedó tildado. */
-let stockAIProposal = [];
+const stockAIChat = $('#stockAIChat');
+const stockAIText = $('#stockAIText');
+
+/** Propuestas del hilo actual, una entrada por mensaje del asistente que
+    trajo acciones — indexadas por el data-msg del bubble, así el botón
+    "Aplicar" de cada mensaje sólo puede tocar SU propia propuesta. Se
+    reinicia cada vez que se abre el diálogo: no hace falta persistir el
+    historial entre aperturas. */
+let stockAIThread = [];
+
+function autoGrowStockAI() {
+  stockAIText.style.height = 'auto';
+  stockAIText.style.height = `${Math.min(stockAIText.scrollHeight, 120)}px`;
+}
 
 $('#btnStockAI').addEventListener('click', () => {
-  $('#stockAIText').value = '';
-  $('#stockAIPreview').hidden = true;
-  $('#stockAINote').hidden = true;
-  $('#stockAIApply').disabled = true;
-  stockAIProposal = [];
+  stockAIChat.innerHTML = '';
+  stockAIText.value = '';
+  autoGrowStockAI();
+  stockAIThread = [];
   openDialog(stockAIDlg);
+  requestAnimationFrame(() => stockAIText.focus());
 });
 $('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
-$('#stockAICancel').addEventListener('click', () => closeDialog(stockAIDlg));
 
 const CAMBIO_LABEL = {
   sin_stock: 'Pasa a SIN stock',
@@ -1226,67 +1260,143 @@ const CAMBIO_PATCH = {
   mostrar: { visible: true },
 };
 
-function renderStockAI() {
-  const tbody = $('#stockAIRows');
-  tbody.innerHTML = stockAIProposal
-    .map(
-      (a, i) => `<tr data-i="${i}">
-      <td><input type="checkbox" data-check checked></td>
-      <td>${(a.name || a.slug).replace(/</g, '&lt;')}</td>
-      <td>${CAMBIO_LABEL[a.cambio] || a.cambio}</td>
-      <td></td>
-    </tr>`
-    )
-    .join('');
-  $('#stockAIPreview').hidden = stockAIProposal.length === 0;
-  $('#stockAIApply').disabled = stockAIProposal.length === 0;
-  $('#stockAIApply').textContent = stockAIProposal.length ? `Aplicar ${stockAIProposal.length}` : 'Aplicar cambios';
+function scrollStockAIToBottom() {
+  stockAIChat.scrollTop = stockAIChat.scrollHeight;
 }
 
-$('#stockAIAsk').addEventListener('click', async () => {
-  const instruction = $('#stockAIText').value.trim();
-  if (!instruction) return toast('Contame qué cambió.');
+function addStockAIUserMsg(text) {
+  const el = document.createElement('div');
+  el.className = 'stockchat__msg stockchat__msg--user';
+  el.innerHTML = `<p>${esc(text)}</p>`;
+  stockAIChat.append(el);
+  scrollStockAIToBottom();
+}
 
-  const btn = $('#stockAIAsk');
-  btn.disabled = true;
-  btn.textContent = 'Pensando…';
+function showStockAITyping() {
+  const el = document.createElement('div');
+  el.className = 'stockchat__msg stockchat__msg--bot stockchat__typing';
+  el.id = 'stockAITyping';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  stockAIChat.append(el);
+  scrollStockAIToBottom();
+}
+function hideStockAITyping() {
+  $('#stockAITyping')?.remove();
+}
+
+/** Arma el mensaje del asistente: texto libre, propuesta de cambios con
+    checkboxes + botón propio, y/o notas (aclaración / no reconocidos).
+    Si no hay nada de nada, cae en el aviso genérico — nunca queda en
+    silencio ni depende de un toast que un modal puede tapar. */
+function addStockAIBotMsg({ respuesta = '', acciones = [], notas = [] } = {}) {
+  const el = document.createElement('div');
+  el.className = 'stockchat__msg stockchat__msg--bot';
+
+  const parts = [];
+  if (respuesta) parts.push(`<p>${esc(respuesta)}</p>`);
+
+  if (acciones.length) {
+    const idx = stockAIThread.push({ acciones }) - 1;
+    el.dataset.msg = String(idx);
+    parts.push(`
+      <div class="stockchat__table">
+        <table class="btable">
+          <thead><tr><th></th><th>Producto</th><th>Cambio</th></tr></thead>
+          <tbody>
+            ${acciones
+              .map(
+                (a, i) => `<tr data-i="${i}">
+                <td><input type="checkbox" data-check checked></td>
+                <td>${esc(a.name || a.slug)}</td>
+                <td>${esc(CAMBIO_LABEL[a.cambio] || a.cambio)}</td>
+              </tr>`
+              )
+              .join('')}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="btn btn--gold btn--sm stockchat__apply" data-apply>Aplicar ${acciones.length}</button>
+    `);
+  }
+
+  if (notas.length) parts.push(`<p class="stockchat__meta">${esc(notas.join(' '))}</p>`);
+  if (!parts.length) parts.push('<p>No encontré nada para proponer con eso.</p>');
+
+  el.innerHTML = parts.join('');
+  stockAIChat.append(el);
+  scrollStockAIToBottom();
+}
+
+async function sendStockAI() {
+  const instruction = stockAIText.value.trim();
+  if (!instruction) return;
+
+  addStockAIUserMsg(instruction);
+  stockAIText.value = '';
+  autoGrowStockAI();
+
+  const sendBtn = $('#stockAIAsk');
+  sendBtn.disabled = true;
+  showStockAITyping();
 
   try {
-    const { acciones, no_encontrados, aclaracion } = await api('/api/ai/stock-actions', {
+    const { acciones, no_encontrados, aclaracion, respuesta } = await api('/api/ai/stock-actions', {
       method: 'POST',
       body: JSON.stringify({ instruction }),
     });
-    stockAIProposal = acciones;
-    renderStockAI();
+    hideStockAITyping();
 
     const notas = [];
     if (aclaracion) notas.push(aclaracion);
     if (no_encontrados?.length) notas.push(`No reconocí: ${no_encontrados.join(', ')}.`);
-    $('#stockAINote').hidden = !notas.length;
-    $('#stockAINote').textContent = notas.join(' ');
-
-    if (!acciones.length && !notas.length) toast('No encontré cambios para proponer con eso.');
+    addStockAIBotMsg({ respuesta, acciones, notas });
   } catch (err) {
-    aiError(err);
+    hideStockAITyping();
+    addStockAIBotMsg({ respuesta: aiErrorText(err) });
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Preguntar';
+    sendBtn.disabled = false;
+    stockAIText.focus();
   }
+}
+
+$('#stockAIAsk').addEventListener('click', sendStockAI);
+stockAIText.addEventListener('input', autoGrowStockAI);
+stockAIText.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.shiftKey) return;
+  e.preventDefault();
+  sendStockAI();
 });
 
-// Tildar/destildar una fila no borra la propuesta, sólo la deja afuera del "Aplicar"
-$('#stockAIRows').addEventListener('change', (e) => {
+// Acciones rápidas: un click completa Y manda la pregunta, no hace falta
+// escribir nada — sirven de "primer paso" para quien no sabe qué
+// preguntarle todavía.
+$('#stockAIQuick').addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-quick]');
+  if (!chip) return;
+  stockAIText.value = chip.dataset.quick;
+  sendStockAI();
+});
+
+// Tildar/destildar una fila no borra la propuesta, sólo la deja afuera del "Aplicar" de SU mensaje
+stockAIChat.addEventListener('change', (e) => {
   if (!e.target.matches('[data-check]')) return;
-  const n = $$('#stockAIRows [data-check]:checked').length;
-  $('#stockAIApply').textContent = n ? `Aplicar ${n}` : 'Aplicar cambios';
-  $('#stockAIApply').disabled = n === 0;
+  const msgEl = e.target.closest('.stockchat__msg');
+  const applyBtn = $('[data-apply]', msgEl);
+  if (!applyBtn) return;
+  const n = $$('[data-check]:checked', msgEl).length;
+  applyBtn.textContent = n ? `Aplicar ${n}` : 'Aplicar';
+  applyBtn.disabled = n === 0;
 });
 
-$('#stockAIApply').addEventListener('click', async () => {
-  const checked = $$('#stockAIRows tr').filter((tr) => $('[data-check]', tr).checked);
-  if (!checked.length) return;
+stockAIChat.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-apply]');
+  if (!btn) return;
 
-  const btn = $('#stockAIApply');
+  const msgEl = btn.closest('.stockchat__msg');
+  const thread = stockAIThread[Number(msgEl.dataset.msg)];
+  const checked = $$('tr', msgEl).filter((tr) => $('[data-check]', tr)?.checked);
+  if (!thread || !checked.length) return;
+
   btn.disabled = true;
   btn.textContent = 'Aplicando…';
 
@@ -1295,7 +1405,7 @@ $('#stockAIApply').addEventListener('click', async () => {
     const now = new Date().toISOString();
     const applied = [];
     for (const tr of checked) {
-      const a = stockAIProposal[Number(tr.dataset.i)];
+      const a = thread.acciones[Number(tr.dataset.i)];
       const patch = { ...CAMBIO_PATCH[a.cambio], updatedAt: now };
       batch.update(productRef(a.slug), patch);
       applied.push({ slug: a.slug, patch });
@@ -1304,13 +1414,19 @@ $('#stockAIApply').addEventListener('click', async () => {
     for (const { slug, patch } of applied) Object.assign(products.find((p) => p.slug === slug) || {}, patch);
 
     render();
-    closeDialog(stockAIDlg);
-    toast(`${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`, ico.check);
-    logActivity('stock_ai_applied', `Asistente de stock: ${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`);
+    logActivity(
+      'stock_ai_applied',
+      `Asistente de stock: ${applied.length} producto${applied.length === 1 ? '' : 's'} actualizado${applied.length === 1 ? '' : 's'}`
+    );
+
+    // Se reemplazan tabla + botón por una marca simple: no se puede aplicar
+    // dos veces y el hilo queda prolijo.
+    $('.stockchat__table', msgEl)?.remove();
+    btn.outerHTML = `<p class="stockchat__applied">${ico.check}Aplicado</p>`;
   } catch (err) {
-    aiError(err);
-  } finally {
     btn.disabled = false;
+    btn.textContent = `Aplicar ${checked.length}`;
+    addStockAIBotMsg({ respuesta: aiErrorText(err) });
   }
 });
 
@@ -1324,7 +1440,22 @@ function toast(text, icon = '') {
   el.className = 'toast';
   el.innerHTML = `${icon}<span></span>`;
   el.querySelector('span').textContent = text;
-  toastHost.append(el);
+
+  // Un <dialog> abierto con showModal() se promueve al "top layer" del
+  // navegador, por encima de CUALQUIER position:fixed que quede afuera de
+  // él — #toasts vive fuera de todos los <dialog>, así que un toast
+  // disparado con un modal abierto (carga masiva, editor de producto,
+  // etc.) quedaba invisible: no roto, tapado. Colgándolo del propio
+  // diálogo abierto en vez de #toasts, se pinta arriba de todo igual: todo
+  // <dialog> es position:fixed por estilo nativo, así que sirve de
+  // contenedor propio para el aviso.
+  const openDlg = document.querySelector('dialog[open]');
+  if (openDlg) {
+    el.classList.add('toast--indialog');
+    openDlg.append(el);
+  } else {
+    toastHost.append(el);
+  }
   setTimeout(() => el.remove(), 2500);
 }
 

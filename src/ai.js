@@ -15,8 +15,15 @@ import path from 'node:path';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'llama-3.3-70b-versatile';
-// Multimodal: hasta 5 imágenes por pedido, 20 MB en total
+// Groq dio de baja llama-3.3-70b-versatile el 16/8/2026 (retiro anunciado,
+// no un corte de golpe) — cualquier pedido de texto (asistente de stock,
+// fichas de producto, resumen de actividad) devolvía "Groq 404: The model
+// `llama-3.3-70b-versatile` does not exist" desde esa fecha, mostrado en el
+// panel como el código pelado "FALLO" en vez de explicar qué pasaba (ver
+// también el fix de api()/aiErrorText() en admin.js, mismo hallazgo).
+// openai/gpt-oss-120b es el reemplazo que recomienda Groq mismo para esto.
+const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'openai/gpt-oss-120b';
+// Multimodal: hasta 5 imágenes por pedido, 20 MB en total. No deprecado.
 const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'qwen/qwen3.6-27b';
 
 /** Lee .env sin dependencias. Se llama una vez al arrancar el servidor. */
@@ -40,7 +47,7 @@ export const aiEnabled = () => Boolean(process.env.GROQ_API_KEY);
    Llamada base
    ========================================================================== */
 
-async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperature = 0.3, json = false }) {
+async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperature = 0.3, json = false, reasoningEffort }) {
   if (!aiEnabled()) throw new Error('SIN_CLAVE');
 
   const res = await fetch(GROQ_URL, {
@@ -55,6 +62,14 @@ async function groq({ messages, model = MODEL_TEXT, maxTokens = 1024, temperatur
       max_tokens: maxTokens,
       temperature,
       ...(json ? { response_format: { type: 'json_object' } } : {}),
+      // openai/gpt-oss-* "piensa" antes de contestar, y esos tokens de
+      // razonamiento salen del mismo max_tokens que el JSON final — sin
+      // acotarlo (reportado en el foro de Groq y reproducido acá: "Groq
+      // 400: Failed to validate JSON") puede comerse todo el presupuesto
+      // y devolver un JSON cortado a la mitad. 'low' alcanza de sobra
+      // para esto (interpretar una instrucción corta, no resolver un
+      // problema difícil) y deja el presupuesto para la respuesta.
+      ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
     }),
   });
 
@@ -136,7 +151,7 @@ export async function askCatalog({ question, candidates, settings, history = [],
     },
   ];
 
-  const raw = await groq({ messages, json: true, maxTokens: 600 });
+  const raw = await groq({ messages, json: true, maxTokens: 600, reasoningEffort: 'low' });
   const out = parseJson(raw);
 
   // Nos quedamos sólo con slugs que existen de verdad: si el modelo se
@@ -159,44 +174,100 @@ export async function askCatalog({ question, candidates, settings, history = [],
 
 const SYSTEM_STOCK = () =>
   `
-Interpretás instrucciones en español rioplatense sobre el stock de un catálogo y proponés qué cambiar.
-Te paso la lista completa de productos (slug | nombre | rubro | stock actual | visible actual).
+Interpretás mensajes en español rioplatense sobre el stock de un catálogo. Pueden ser dos cosas
+distintas, y a veces las dos juntas:
+1. Un pedido de cambio (ej: "sacá del stock el dinosaurio y la mochila") — proponés qué cambiar,
+   nunca lo aplicás vos.
+2. Una pregunta informativa (ej: "¿hay productos repetidos?", "¿qué no tiene stock hace rato?",
+   "¿cuántos productos del rubro Juguetería están sin stock?") — la contestás con texto, usando
+   sólo lo que ves en la lista.
+Te paso la lista de productos, una línea por producto con su NOMBRE y algunos datos más (varía
+según la pregunta, pero el nombre siempre está).
 
 REGLAS:
-- Sólo podés proponer cambios sobre productos que están en la lista. Si la persona nombra algo que no
-  reconocés en la lista, ponelo en "no_encontrados" tal cual lo escribió, no inventes un slug parecido.
+- En "acciones" identificás cada producto por su "nombre", copiado EXACTO tal cual figura en la
+  lista (mismas mayúsculas, tildes y todo) — nunca lo acortes, resumas ni inventes uno parecido.
+- Para preguntas informativas: sólo podés mencionar productos que están LITERALMENTE en la lista
+  que te paso, con su nombre real. Nunca inventes un producto ni un dato que no esté en la lista.
+  Si no tenés forma de contestar con lo que ves, decilo en "respuesta" en vez de inventar.
+- Para pedidos de cambio: sólo podés proponer cambios sobre productos que están en la lista. Si la
+  persona nombra algo que no reconocés en la lista, ponelo en "no_encontrados" tal cual lo escribió,
+  no inventes un nombre parecido.
 - "cambio" es uno de: "sin_stock", "con_stock", "ocultar", "mostrar".
 - Si la instrucción describe productos NUEVOS que hay que cargar (ej: "compré 5 productos nuevos"),
   no propongas nada: dejá "acciones" vacío y contestá en "aclaracion" que eso se carga desde
   "Nuevo producto" o "Carga masiva", no desde acá.
 - Si la instrucción es ambigua o no reconocés a qué producto se refiere, no adivines: sumalo a
   "no_encontrados".
+- "respuesta" es para el texto de una pregunta informativa. Dejala vacía si el mensaje era sólo un
+  pedido de cambio y no hace falta explicar nada más allá de la propuesta.
 
-Devolvé JSON: {"acciones":[{"slug":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":""}
+Devolvé JSON: {"acciones":[{"nombre":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":"","respuesta":""}
 `.trim();
 
+/* La lista completa (351 productos y creciendo) con TODOS los campos no
+   entra ni de cerca en el presupuesto de tokens por minuto del plan
+   gratis de Groq (~8K TPM: probado en producción, category+stock+
+   visible+fecha para 351 productos pidió 14403 tokens de una) — el
+   pedido devolvía siempre "413: Request too large", sin importar el
+   modelo. En vez de mandar todo, se arma una lista corta con sólo el
+   campo que hace falta para el tipo de pregunta — nombre siempre (es lo
+   que el modelo usa para identificar el producto), más UN campo extra
+   como mucho. Combinar dos ya no entra con margen cómodo para que el
+   catálogo pueda seguir creciendo sin volver a romperse. */
+const STALE_RE = /actualiz|hace tiempo|hace rato|hace mucho|viejo|antiguo|desde cuando|sin tocar/i;
+const VISIBILITY_RE = /ocult|mostr|visible/i;
+
+function buildCatalogLines(products, instruction) {
+  if (STALE_RE.test(instruction)) {
+    return products.map((p) => `- ${p.name} | ${(p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha'}`).join('\n');
+  }
+  if (VISIBILITY_RE.test(instruction)) {
+    return products.map((p) => `- ${p.name} | ${p.visible === false ? 'oculto' : 'visible'}`).join('\n');
+  }
+  // Default: cubre preguntas de stock, cambios ("sacá del stock X"),
+  // duplicados y resúmenes generales — ninguno de esos necesita fecha
+  // ni visibilidad para ser útil.
+  return products.map((p) => `- ${p.name} | ${p.inStock ? 'con stock' : 'sin stock'}`).join('\n');
+}
+
 export async function proposeStockActions({ instruction, products }) {
-  const lista = products
-    .map((p) => `- ${p.slug} | ${p.name} | ${p.category} | ${p.inStock ? 'con stock' : 'sin stock'} | ${p.visible === false ? 'oculto' : 'visible'}`)
-    .join('\n');
+  const lista = buildCatalogLines(products, instruction);
 
   const messages = [
     { role: 'system', content: SYSTEM_STOCK() },
     { role: 'user', content: `Catálogo:\n${lista}\n\nInstrucción: ${instruction}` },
   ];
 
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 1400 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 900, reasoningEffort: 'low' }));
 
-  const validSlugs = new Set(products.map((p) => p.slug));
+  // El modelo identifica por nombre, no por slug (ver comentario arriba) —
+  // acá se resuelve contra el catálogo real. Hay un único par de nombres
+  // idénticos en todo el catálogo hoy ("Plancha de Rizado SEIS PP24-A");
+  // si el nombre no es único, se propone la acción para CADA producto que
+  // lo tenga — la tabla de confirmación los muestra por separado y cada
+  // fila se puede destildar antes de aplicar, no se pierde el control.
+  const byName = new Map();
+  for (const p of products) {
+    const k = p.name.trim();
+    if (!byName.has(k)) byName.set(k, []);
+    byName.get(k).push(p);
+  }
+
   const validCambios = new Set(['sin_stock', 'con_stock', 'ocultar', 'mostrar']);
-  const acciones = (Array.isArray(out.acciones) ? out.acciones : []).filter(
-    (a) => validSlugs.has(a?.slug) && validCambios.has(a?.cambio)
-  );
+  const acciones = [];
+  for (const a of Array.isArray(out.acciones) ? out.acciones : []) {
+    if (!validCambios.has(a?.cambio)) continue;
+    const matches = byName.get(String(a?.nombre || '').trim());
+    if (!matches) continue;
+    for (const p of matches) acciones.push({ slug: p.slug, cambio: a.cambio, motivo: a.motivo });
+  }
 
   return {
     acciones,
     no_encontrados: Array.isArray(out.no_encontrados) ? out.no_encontrados.map(String).slice(0, 20) : [],
     aclaracion: String(out.aclaracion || '').trim(),
+    respuesta: String(out.respuesta || '').trim(),
   };
 }
 
@@ -226,7 +297,7 @@ export async function draftFromText({ text, settings }) {
     { role: 'system', content: SYSTEM_FICHAS(settings.categories) },
     { role: 'user', content: text.slice(0, 6000) },
   ];
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 2500 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 2500, reasoningEffort: 'low' }));
   return normalizeDrafts(out.productos, settings);
 }
 
@@ -300,7 +371,7 @@ export async function summarizeActivity({ entries }) {
     { role: 'system', content: SYSTEM_RESUMEN() },
     { role: 'user', content: lista },
   ];
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 600 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 600, reasoningEffort: 'low' }));
   return String(out.resumen || '').trim();
 }
 

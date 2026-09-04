@@ -17,6 +17,7 @@ export const handler = async (event) => {
       acciones: out.acciones.map((a) => ({ ...a, name: bySlug.get(a.slug)?.name })),
       no_encontrados: out.no_encontrados,
       aclaracion: out.aclaracion,
+      respuesta: out.respuesta,
     });
   } catch (err) {
     return aiErrorResponse(err);

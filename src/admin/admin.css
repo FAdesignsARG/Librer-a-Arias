@@ -25,19 +25,37 @@
 .loginscreen[hidden] {
   display: none;
 }
+/* Mismo criterio premium que ya usa la tarjeta de "Promos activas" del
+   catálogo y el diálogo del asistente de stock: borde dorado fino en vez
+   del gris neutro de cualquier tarjeta genérica, y una elevación que
+   cambia de naturaleza según el tema activo (glow ambiente en oscuro,
+   sombra suave estilo Apple en claro) en vez de una sola sombra fija que
+   en oscuro no se nota — así la tarjeta "cambia de color" con el tono
+   que está activo, no queda igual en los dos. */
 .logincard {
-  width: min(380px, 100%);
+  width: min(400px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 4px;
-  padding: clamp(28px, 5vw, 40px) clamp(24px, 5vw, 32px) clamp(30px, 5vw, 36px);
+  padding: clamp(32px, 6vw, 44px) clamp(26px, 5vw, 36px) clamp(32px, 5vw, 38px);
   border-radius: var(--r-xl);
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold-edge);
   background: var(--surface);
-  box-shadow: var(--shadow-pop);
   animation: login-in 0.5s var(--ease-out) both;
+}
+:root:not([data-theme='light']) .logincard {
+  box-shadow:
+    0 0 0 1px rgba(254, 206, 1, 0.05),
+    0 0 42px -10px rgba(254, 206, 1, 0.24),
+    var(--shadow-pop);
+}
+:root[data-theme='light'] .logincard {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 14px 32px -10px rgba(0, 0, 0, 0.1),
+    0 36px 72px -20px rgba(0, 0, 0, 0.14);
 }
 @keyframes login-in {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
@@ -48,34 +66,88 @@
     animation: none;
   }
 }
-.logincard img {
-  width: 52px;
-  height: 52px;
+
+/* El isotipo con un anillo fino alrededor — mismo lenguaje que el "ping"
+   del splash de entrada del catálogo (theme.css), acá quieto: es la
+   marca de la tienda haciendo de ícono de app, no un logo de formulario
+   genérico. */
+.logincard__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+}
+.logincard__mark::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
   border-radius: 50%;
-  margin-bottom: 18px;
+  border: 1px solid var(--gold-edge);
+}
+:root:not([data-theme='light']) .logincard__mark::before {
+  box-shadow: 0 0 26px -4px rgba(254, 206, 1, 0.4);
+}
+:root[data-theme='light'] .logincard__mark::before {
+  box-shadow: 0 0 20px -6px rgba(203, 156, 0, 0.28);
+}
+.logincard__mark img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
 }
-:root[data-theme='light'] .logincard img {
+:root[data-theme='light'] .logincard__mark img {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
 }
 .logincard h1 {
-  font-size: 1.35rem;
+  font-size: 1.38rem;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
 .logincard > p {
   margin-top: 6px;
-  margin-bottom: 26px;
-  font-size: 0.88rem;
+  margin-bottom: 28px;
+  font-size: 0.9rem;
   color: var(--text-2);
 }
 .logincard .field {
   width: 100%;
   text-align: left;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
+.logincard .field label {
+  font-size: 0.8rem;
+  margin-bottom: 7px;
+}
+
+/* Campo con ícono integrado — envuelve label+input así el ícono se puede
+   centrar contra la ALTURA REAL del input nomás (no la del .field
+   entero, que también incluye el label arriba), sin math de porcentajes
+   frágil. */
+.logininput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.logininput svg {
+  position: absolute;
+  left: 15px;
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.logincard .field .logininput input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: var(--r-lg);
+  font-size: 1rem;
+}
+
 .logincard .btn {
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-block: 14px;
+  font-size: 0.98rem;
   width: 100%;
 }
 .loginerror {
@@ -872,10 +944,15 @@
    type="…" no contemplado (url, email, tel, number, date…) cae en el
    estilo nativo del navegador — una caja blanca que rompe el tema oscuro.
    Pasó de verdad con "Link de Google Maps" (type=url) y con .catNew (el
-   input de rubro nuevo, que ni siquiera vivía dentro de un .field). */
+   input de rubro nuevo, que ni siquiera vivía dentro de un .field).
+   type="password" faltaba en esta lista desde siempre — el campo de
+   contraseña del login quedaba con el estilo nativo del navegador (una
+   caja blanca) adentro de una tarjeta oscura, la causa real de que el
+   formulario de login se sintiera "no integrado". */
 .field input[type='text'],
 .field input[type='url'],
 .field input[type='email'],
+.field input[type='password'],
 .field input[type='tel'],
 .field input[type='number'],
 .field input[type='date'],
@@ -1458,6 +1535,314 @@
 .btable .iconbtn {
   width: 28px;
   height: 28px;
+}
+
+/* ==========================================================================
+   ASISTENTE DE STOCK — CHAT
+   El diálogo (.editor, sin <form> propio) no es flex por defecto: acá se
+   fuerza a columna así el historial (.stockchat) puede quedar flex:1 con
+   scroll propio y el compositor fijo abajo, sin que el diálogo entero
+   crezca sin límite con cada mensaje nuevo.
+
+   Marco premium: mismo criterio que la tarjeta de "Promos activas" del
+   catálogo público — el borde pasa a un filo dorado fino en vez del gris
+   neutro de cualquier otro .editor, y la elevación cambia de naturaleza
+   según el tema (glow dorado ambiente en oscuro, sombra suave estilo
+   Apple en claro) en vez de una sola sombra fija que en oscuro no se nota.
+   ========================================================================== */
+.stockai {
+  display: flex;
+  flex-direction: column;
+  border-color: var(--gold-edge);
+}
+.stockai .editor__head {
+  flex: none;
+}
+:root:not([data-theme='light']) .stockai {
+  box-shadow:
+    0 0 0 1px rgba(254, 206, 1, 0.05),
+    0 0 36px -10px rgba(254, 206, 1, 0.24),
+    var(--shadow-card);
+}
+:root[data-theme='light'] .stockai {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 28px -8px rgba(0, 0, 0, 0.1),
+    0 32px 64px -20px rgba(0, 0, 0, 0.14);
+}
+
+/* Aviso permanente: una nota suave con ícono, no una franja de alerta.
+   Vive flotando entre el header y el chat, no pegada a ningún borde.
+   align-items:center (no flex-start): con el texto en una sola línea la
+   mayoría de las veces, centrado contra el ícono se ve más prolijo que
+   alineado arriba — que sólo tenía sentido pensando en 2+ líneas. */
+.stockchat__notice {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 20px 0;
+  padding: 13px 16px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  font-size: 0.88rem;
+  font-weight: 520;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: var(--text);
+}
+.stockchat__notice svg {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  color: var(--gold-text);
+}
+
+/* Historial: panel apenas más hundido que el resto del diálogo —igual
+   criterio que separa una sidebar de su contenido en una app nativa,
+   sin recurrir a otro borde más. */
+.stockchat {
+  flex: 1;
+  min-height: 220px;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--ink);
+}
+/* Estado vacío: nada de JS para esto, un solo mensaje centrado con el chat
+   recién abierto y sin historial todavía. */
+.stockchat:empty::before {
+  content: 'Escribí una instrucción o hacé una pregunta sobre el stock para arrancar.';
+  margin: auto;
+  max-width: 30ch;
+  text-align: center;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
+.stockchat__msg {
+  max-width: 88%;
+  padding: 12px 15px;
+  border-radius: var(--r-lg);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.stockchat__msg p {
+  white-space: pre-wrap;
+}
+.stockchat__msg--user {
+  align-self: flex-end;
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-bottom-right-radius: var(--r-sm);
+}
+/* Sin borde: una burbuja de chat se separa del fondo por relleno + sombra
+   propia, no por un contorno duro — mismo criterio que la tarjeta de
+   promos, adaptado a algo mucho más chico. */
+.stockchat__msg--bot {
+  align-self: flex-start;
+  background: var(--surface-hi);
+  border-bottom-left-radius: var(--r-sm);
+}
+:root:not([data-theme='light']) .stockchat__msg--bot {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='light'] .stockchat__msg--bot {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+}
+.stockchat__msg--bot .stockchat__meta {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+.stockchat__msg--bot p + .stockchat__table,
+.stockchat__msg--bot p + .stockchat__apply {
+  margin-top: 10px;
+}
+
+/* "Escribiendo…": tres puntos que rebotan, sin librerías */
+.stockchat__typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 15px 17px;
+}
+.stockchat__typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  animation: stockchat-bounce 1.1s ease-in-out infinite;
+}
+.stockchat__typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.stockchat__typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes stockchat-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Propuesta de cambios dentro de un mensaje del asistente: un panel
+   hundido dentro de la burbuja (mismo --ink que el fondo del historial),
+   así se lee como "datos", distinto del texto conversacional de arriba.
+   La burbuja ya achica el ancho disponible (max-width:88%) —
+   overflow-x:auto de respaldo por si un nombre largo no entra en mobile;
+   overflow-y:hidden explícito al lado (no "overflow:hidden" solo) para no
+   dejar que ese eje caiga en "visible" por el efecto secundario de fijar
+   sólo el otro. */
+.stockchat__table {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--ink);
+}
+.stockchat__table .btable {
+  font-size: 0.82rem;
+  min-width: 260px;
+}
+.stockchat__table .btable th,
+.stockchat__table .btable td {
+  padding: 7px 8px;
+}
+.stockchat__apply {
+  margin-top: 10px;
+}
+.stockchat__applied {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 620;
+  color: var(--ok);
+}
+.stockchat__applied svg {
+  width: 15px;
+  height: 15px;
+}
+
+.stockchat__composer {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.stockchat__composer textarea {
+  flex: 1;
+  resize: none;
+  appearance: none;
+  min-height: 50px;
+  max-height: 130px;
+  padding: 14px 18px;
+  /* Radio grande pero no píldora completa: una píldora se ve rara apenas
+     el campo crece a 2-3 líneas. Este valor se mantiene proporcionado
+     tanto en una línea como estirado. */
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+  /* overflow-y:auto es el default de un <textarea> — con scrollbars
+     clásicas de Windows (no las "overlay" finitas de Mac/Chrome en otros
+     sistemas) eso dibuja una barra CON sus botones de flecha arriba/abajo
+     incluso con una sola línea de alto, que en un campo así de bajo se ve
+     como un ícono suelto pegado al borde — mismo criterio que ya usa
+     .attention-carousel__track para su scroll horizontal: sigue
+     scrolleando cuando el texto pasa las 120px de max-height, sólo se
+     esconde el cromado nativo. */
+  scrollbar-width: none;
+}
+.stockchat__composer textarea::-webkit-scrollbar {
+  display: none;
+}
+.stockchat__composer textarea:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+  box-shadow: 0 0 0 3px var(--gold-wash);
+}
+
+/* Acciones rápidas: fila de sugerencias fijas arriba del compositor —
+   quien no sabe qué preguntarle todavía tiene por dónde arrancar con un
+   solo click, en vez de mirar un campo vacío. Scroll horizontal propio
+   (mismo criterio que .chips del catálogo público) en vez de envolver:
+   una fila prolija siempre, sin empujar el resto del diálogo hacia
+   abajo si hay muchas. */
+.stockchat__quick {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.stockchat__quick::-webkit-scrollbar {
+  display: none;
+}
+.stockchat__chip {
+  flex: none;
+  padding: 9px 15px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--gold-text);
+  font-size: 0.84rem;
+  font-weight: 560;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+@media (hover: hover) {
+  .stockchat__chip:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--gold-ink);
+  }
+}
+.stockchat__chip:active {
+  transform: scale(0.96);
+}
+
+.stockchat__send {
+  flex: none;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--gold-ink);
+  box-shadow: 0 2px 10px -2px rgba(254, 206, 1, 0.5);
+  transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop),
+    box-shadow var(--dur-fast) var(--ease-soft);
+}
+.stockchat__send svg {
+  width: 22px;
+  height: 22px;
+}
+@media (hover: hover) {
+  .stockchat__send:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 14px -2px rgba(254, 206, 1, 0.6);
+  }
+}
+.stockchat__send:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  pointer-events: none;
 }
 
 /* ==========================================================================
