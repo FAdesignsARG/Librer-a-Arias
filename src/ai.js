@@ -173,17 +173,18 @@ distintas, y a veces las dos juntas:
 2. Una pregunta informativa (ej: "¿hay productos repetidos?", "¿qué no tiene stock hace rato?",
    "¿cuántos productos del rubro Juguetería están sin stock?") — la contestás con texto, usando
    sólo lo que ves en la lista.
-Te paso la lista completa de productos (slug | nombre | rubro | stock actual | visible actual |
-última actualización).
+Te paso la lista de productos, una línea por producto con su NOMBRE y algunos datos más (varía
+según la pregunta, pero el nombre siempre está).
 
 REGLAS:
+- En "acciones" identificás cada producto por su "nombre", copiado EXACTO tal cual figura en la
+  lista (mismas mayúsculas, tildes y todo) — nunca lo acortes, resumas ni inventes uno parecido.
 - Para preguntas informativas: sólo podés mencionar productos que están LITERALMENTE en la lista
-  que te paso, con su nombre real tal cual figura ahí. Nunca inventes un producto, un slug ni un
-  dato que no esté en la lista. Si no tenés forma de contestar con lo que ves, decilo en
-  "respuesta" en vez de inventar.
+  que te paso, con su nombre real. Nunca inventes un producto ni un dato que no esté en la lista.
+  Si no tenés forma de contestar con lo que ves, decilo en "respuesta" en vez de inventar.
 - Para pedidos de cambio: sólo podés proponer cambios sobre productos que están en la lista. Si la
   persona nombra algo que no reconocés en la lista, ponelo en "no_encontrados" tal cual lo escribió,
-  no inventes un slug parecido.
+  no inventes un nombre parecido.
 - "cambio" es uno de: "sin_stock", "con_stock", "ocultar", "mostrar".
 - Si la instrucción describe productos NUEVOS que hay que cargar (ej: "compré 5 productos nuevos"),
   no propongas nada: dejá "acciones" vacío y contestá en "aclaracion" que eso se carga desde
@@ -193,31 +194,66 @@ REGLAS:
 - "respuesta" es para el texto de una pregunta informativa. Dejala vacía si el mensaje era sólo un
   pedido de cambio y no hace falta explicar nada más allá de la propuesta.
 
-Devolvé JSON: {"acciones":[{"slug":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":"","respuesta":""}
+Devolvé JSON: {"acciones":[{"nombre":"","cambio":"","motivo":""}],"no_encontrados":[""],"aclaracion":"","respuesta":""}
 `.trim();
 
+/* La lista completa (351 productos y creciendo) con TODOS los campos no
+   entra ni de cerca en el presupuesto de tokens por minuto del plan
+   gratis de Groq (~8K TPM: probado en producción, category+stock+
+   visible+fecha para 351 productos pidió 14403 tokens de una) — el
+   pedido devolvía siempre "413: Request too large", sin importar el
+   modelo. En vez de mandar todo, se arma una lista corta con sólo el
+   campo que hace falta para el tipo de pregunta — nombre siempre (es lo
+   que el modelo usa para identificar el producto), más UN campo extra
+   como mucho. Combinar dos ya no entra con margen cómodo para que el
+   catálogo pueda seguir creciendo sin volver a romperse. */
+const STALE_RE = /actualiz|hace tiempo|hace rato|hace mucho|viejo|antiguo|desde cuando|sin tocar/i;
+const VISIBILITY_RE = /ocult|mostr|visible/i;
+
+function buildCatalogLines(products, instruction) {
+  if (STALE_RE.test(instruction)) {
+    return products.map((p) => `- ${p.name} | ${(p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha'}`).join('\n');
+  }
+  if (VISIBILITY_RE.test(instruction)) {
+    return products.map((p) => `- ${p.name} | ${p.visible === false ? 'oculto' : 'visible'}`).join('\n');
+  }
+  // Default: cubre preguntas de stock, cambios ("sacá del stock X"),
+  // duplicados y resúmenes generales — ninguno de esos necesita fecha
+  // ni visibilidad para ser útil.
+  return products.map((p) => `- ${p.name} | ${p.inStock ? 'con stock' : 'sin stock'}`).join('\n');
+}
+
 export async function proposeStockActions({ instruction, products }) {
-  const lista = products
-    .map(
-      (p) =>
-        `- ${p.slug} | ${p.name} | ${p.category} | ${p.inStock ? 'con stock' : 'sin stock'} | ${
-          p.visible === false ? 'oculto' : 'visible'
-        } | actualizado ${(p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha'}`
-    )
-    .join('\n');
+  const lista = buildCatalogLines(products, instruction);
 
   const messages = [
     { role: 'system', content: SYSTEM_STOCK() },
     { role: 'user', content: `Catálogo:\n${lista}\n\nInstrucción: ${instruction}` },
   ];
 
-  const out = parseJson(await groq({ messages, json: true, maxTokens: 1400 }));
+  const out = parseJson(await groq({ messages, json: true, maxTokens: 900 }));
 
-  const validSlugs = new Set(products.map((p) => p.slug));
+  // El modelo identifica por nombre, no por slug (ver comentario arriba) —
+  // acá se resuelve contra el catálogo real. Hay un único par de nombres
+  // idénticos en todo el catálogo hoy ("Plancha de Rizado SEIS PP24-A");
+  // si el nombre no es único, se propone la acción para CADA producto que
+  // lo tenga — la tabla de confirmación los muestra por separado y cada
+  // fila se puede destildar antes de aplicar, no se pierde el control.
+  const byName = new Map();
+  for (const p of products) {
+    const k = p.name.trim();
+    if (!byName.has(k)) byName.set(k, []);
+    byName.get(k).push(p);
+  }
+
   const validCambios = new Set(['sin_stock', 'con_stock', 'ocultar', 'mostrar']);
-  const acciones = (Array.isArray(out.acciones) ? out.acciones : []).filter(
-    (a) => validSlugs.has(a?.slug) && validCambios.has(a?.cambio)
-  );
+  const acciones = [];
+  for (const a of Array.isArray(out.acciones) ? out.acciones : []) {
+    if (!validCambios.has(a?.cambio)) continue;
+    const matches = byName.get(String(a?.nombre || '').trim());
+    if (!matches) continue;
+    for (const p of matches) acciones.push({ slug: p.slug, cambio: a.cambio, motivo: a.motivo });
+  }
 
   return {
     acciones,
