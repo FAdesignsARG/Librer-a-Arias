@@ -5,7 +5,7 @@
  * bloque se activa sólo si encuentra los elementos que necesita.
  */
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
-import { wireDialog, closeDialog } from './ui.js';
+import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // cardHtml es la MISMA función que arma las tarjetas en el servidor: antes
 // existían dos copias (una acá, otra en templates.js) que había que
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
@@ -356,6 +356,7 @@ function openSheet() {
 
 fab?.addEventListener('click', openSheet);
 wireDialog(sheet, $('#sheetClose'));
+enableDragToClose(sheet, { header: $('.sheet__head', sheet), scrollEl: sheetBody });
 
 /* ---- Confirmación tras enviar + plan B si WhatsApp no abrió ---- */
 const sheetSent = $('#sheetSent');
@@ -636,6 +637,7 @@ bellBtn?.addEventListener('click', () => {
   if (bellDot) bellDot.hidden = true;
 });
 wireDialog(notify, $('#notifyClose'));
+enableDragToClose(notify, { header: $('.notify__head', notify), scrollEl: notifyBody });
 
 /* ==========================================================================
    NAV + REVELADO
@@ -886,6 +888,7 @@ sortBtn?.addEventListener('click', () => {
   sortSheet.focus(); // ver comentario en openSheet()
 });
 wireDialog(sortSheet, $('#sortSheetClose'));
+enableDragToClose(sortSheet, { header: $('.sortsheet__head', sortSheet) });
 
 sortSheet?.addEventListener('click', (e) => {
   const btn = e.target.closest('.sortopt');
@@ -909,6 +912,7 @@ priceBtn?.addEventListener('click', () => {
   priceSheet.focus(); // ver comentario en openSheet()
 });
 wireDialog(priceSheet, $('#priceSheetClose'));
+enableDragToClose(priceSheet, { header: $('.sortsheet__head', priceSheet) });
 
 priceSheet?.addEventListener('click', (e) => {
   const btn = e.target.closest('.sortopt');
@@ -931,6 +935,7 @@ menuBtn?.addEventListener('click', () => {
   menuSheet.focus(); // ver comentario en openSheet()
 });
 wireDialog(menuSheet, $('#menuSheetClose'));
+enableDragToClose(menuSheet, { header: $('.sortsheet__head', menuSheet), scrollEl: $('.menusheet__body', menuSheet) });
 
 // Los links de Catálogo/Horarios/Visitanos navegan solos (son <a> con
 // href) — esto sólo cierra la hoja para que no quede abierta encima.

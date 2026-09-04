@@ -76,7 +76,7 @@
 }
 /* Latido corto cada vez que se suma algo */
 .fab[data-bump='true'] {
-  animation: fab-bump 0.42s var(--ease-pop);
+  animation: fab-bump var(--dur-relaxed) var(--ease-pop);
 }
 @keyframes fab-bump {
   0% { transform: scale(1); }
@@ -131,10 +131,10 @@
   animation: fade-in var(--dur) var(--ease-soft);
 }
 .sheet[data-closing='true'] {
-  animation: sheet-out 0.2s var(--ease-soft) forwards;
+  animation: sheet-out var(--dur-quick) var(--ease-soft) forwards;
 }
 .sheet[data-closing='true']::backdrop {
-  animation: fade-out 0.2s var(--ease-soft) forwards;
+  animation: fade-out var(--dur-quick) var(--ease-soft) forwards;
 }
 /* Desktop tiene su propio gesto — no es sólo mobile pero angosto. Al slide
    se le suma un pop de escala + fundido, así entra con más presencia que
@@ -185,8 +185,30 @@
     animation: sheet-up var(--dur) var(--ease-out);
   }
   .sheet[data-closing='true'] {
-    animation: sheet-down 0.2s var(--ease-soft) forwards;
+    animation: sheet-down var(--dur-quick) var(--ease-soft) forwards;
   }
+  .sheet .dialog__grabber {
+    display: flex;
+  }
+}
+
+/* Barrita de "esto se arrastra" — mismo lenguaje visual que las hojas
+   inferiores de iOS/Rappi. La crea enableDragToClose() (ui.js) y la
+   antepone a cada <dialog>; por default no se ve en ningún lado — cada
+   hoja la muestra sólo dentro de su propio breakpoint de mobile (más
+   abajo en este archivo, y en assistant.css/theme.css/styles.css/
+   notify.css para el chat/menú/ordenar-precio/novedades), que es el
+   único momento en que el gesto de arrastrar tiene sentido (el panel
+   sube desde abajo; en desktop está centrado, arrastrar no significa
+   nada ahí). */
+.dialog__grabber {
+  display: none;
+  flex: none;
+  width: 36px;
+  height: 4px;
+  margin: 10px auto 0;
+  border-radius: var(--r-pill);
+  background: var(--line-strong);
 }
 
 .sheet__head {
@@ -212,11 +234,17 @@
   place-items: center;
   border-radius: 50%;
   color: var(--text-2);
-  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .sheet__close:hover {
   background: var(--fill-hi);
   color: var(--text);
+}
+/* Se usa como botón de cerrar en todos los <dialog> del sitio (pedido,
+   chat, campanita, promos) — el mismo feedback táctil en todos lados. */
+.sheet__close:active {
+  transform: scale(0.88);
 }
 .sheet__close svg {
   width: 17px;
@@ -280,11 +308,15 @@
   color: var(--text-2);
   font-size: 0.78rem;
   font-weight: 550;
-  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .sheet__copy:hover {
   background: var(--fill);
   border-color: var(--line-strong);
+}
+.sheet__copy:active {
+  transform: scale(0.95);
 }
 .sheet__copy svg {
   width: 13px;
@@ -310,7 +342,7 @@
   text-align: center;
   gap: 8px;
   padding: 40px 24px;
-  animation: line-in 0.35s var(--ease-out);
+  animation: line-in var(--dur-moderate) var(--ease-out);
 }
 .sheet__sent[hidden] {
   display: none;
@@ -347,7 +379,7 @@
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
-  animation: line-in 0.3s var(--ease-out);
+  animation: line-in var(--dur-moderate) var(--ease-out);
 }
 .line:last-child {
   border-bottom: 0;
@@ -404,11 +436,15 @@
   display: grid;
   place-items: center;
   color: var(--text-2);
-  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .qty button:hover {
   background: var(--fill-hi);
   color: var(--text);
+}
+.qty button:active {
+  transform: scale(0.85);
 }
 .qty svg {
   width: 13px;
@@ -426,7 +462,11 @@
   font-size: 0.78rem;
   color: var(--text-3);
   border-radius: var(--r-sm);
-  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
+}
+.line__remove:active {
+  transform: scale(0.94);
 }
 .line__remove:hover {
   color: #ff6b6b;
@@ -770,7 +810,7 @@
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 0.32s;
+    animation-duration: var(--dur-moderate);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -787,7 +827,7 @@
 @supports not (view-transition-name: none) {
   @media (prefers-reduced-motion: no-preference) {
     body {
-      animation: page-in 0.4s var(--ease-out) both;
+      animation: page-in var(--dur-relaxed) var(--ease-out) both;
     }
   }
 }

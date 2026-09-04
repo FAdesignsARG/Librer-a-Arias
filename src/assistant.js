@@ -10,7 +10,7 @@
  * O sea: el botón nunca queda roto. Con IA conversa; sin IA, busca.
  */
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
-import { wireDialog } from './ui.js';
+import { wireDialog, enableDragToClose } from './ui.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 import { offerActive, offerHasDiscount } from './templates.js';
 
@@ -262,6 +262,7 @@ function openChat() {
 
 $('#askBtn')?.addEventListener('click', openChat);
 wireDialog(dlg, $('#chatClose'));
+enableDragToClose(dlg, { header: $('.chat__head', dlg), scrollEl: body });
 
 /* ---- Globo de invitación al asistente ----
    Aparece una vez por sesión (no en cada página que se visita), apuntando

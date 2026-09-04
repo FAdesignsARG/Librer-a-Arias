@@ -63,16 +63,39 @@
   --r-pill: 999px;
 
   /* Curvas de animación.
-     out  = entradas y salidas normales (desaceleración fuerte, tipo iOS)
-     soft = movimientos de layout
-     pop  = micro rebote para feedback táctil */
+     out     = entradas y salidas normales (desaceleración fuerte, tipo iOS)
+     soft    = movimientos de layout
+     pop     = micro rebote para feedback táctil
+     premium = variante de "out" más suave en el arranque — para el gesto
+               de arrastrar (Ronda 4): un cierre que se siente "soltado",
+               no frenado en seco. Deliberadamente parecida a --ease-out
+               (misma familia, misma sensación de marca) en vez de una
+               curva completamente distinta que desentonaría al lado. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Duraciones. --dur-fast/--dur/--dur-slow ya existían y siguen para lo
+     mismo de siempre (hover, foco, toggles chicos) — no se les tocó el
+     valor para no redestimar transiciones ya aprobadas. Lo que faltaba
+     era una escala para animaciones de una sola vez (entradas/salidas de
+     diálogos, tarjetas, mensajes): antes cada regla tenía su propio
+     número parecido pero distinto (0.3, 0.32, 0.34, 0.35, 0.4, 0.42s...)
+     sin ningún criterio que los conectara — Ronda 4 los junta en esta
+     escala. Quedan afuera a propósito las animaciones AMBIENTE/infinitas
+     (shimmer del esqueleto, los puntitos de "escribiendo", el pulso del
+     botón de WhatsApp, el flote del origami del hero): su duración es un
+     ritmo propio, no una "velocidad de transición" reutilizable en otro
+     lado — forzarlas a esta escala sería ruido, no consistencia. */
   --dur-fast: 0.16s;
+  --dur-quick: 0.2s; /* salidas de diálogo: X, fondo, Esc */
   --dur: 0.28s;
+  --dur-moderate: 0.32s; /* la mayoría de las entradas: tarjetas, mensajes, líneas */
+  --dur-relaxed: 0.44s; /* entradas con más protagonismo: pop-ups grandes */
   --dur-slow: 0.5s;
+  --dur-slower: 0.6s; /* coreografías (cortinas del splash) */
+  --dur-slowest: 0.85s; /* el momento más lento: halo del splash */
 
   /* Layout */
   --page: 1200px;
@@ -151,8 +174,8 @@ html[data-theme-anim] .sheet,
 html[data-theme-anim] .chip,
 html[data-theme-anim] .search input,
 html[data-theme-anim] .attn__slide--promos {
-  transition: background-color 0.35s var(--ease-soft), color 0.35s var(--ease-soft),
-    border-color 0.35s var(--ease-soft), box-shadow 0.35s var(--ease-soft);
+  transition: background-color var(--dur-moderate) var(--ease-soft), color var(--dur-moderate) var(--ease-soft),
+    border-color var(--dur-moderate) var(--ease-soft), box-shadow var(--dur-moderate) var(--ease-soft);
 }
 
 /* ---------- Reset ---------- */
@@ -543,7 +566,7 @@ dialog:focus-visible {
   height: auto;
   border-radius: 50%;
   filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45));
-  animation: crane-in 0.8s var(--ease-out) both, crane-float 6s ease-in-out 0.9s infinite;
+  animation: crane-in var(--dur-slowest) var(--ease-out) both, crane-float 6s ease-in-out 0.9s infinite;
 }
 :root[data-theme='light'] .hero__crane {
   filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.16));
@@ -940,11 +963,17 @@ dialog:focus-visible {
   place-items: center;
   border-radius: 50%;
   color: var(--text-3);
-  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .search__clear:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.09);
+}
+/* translate (no transform) hace el centrado vertical arriba — scale acá
+   compone con eso en vez de pisarlo, son propiedades CSS separadas. */
+.search__clear:active {
+  transform: scale(0.85);
 }
 .search[data-filled='true'] .search__clear {
   display: grid;
@@ -1066,7 +1095,17 @@ dialog:focus-visible {
   animation: sheet-up var(--dur) var(--ease-out);
 }
 .sortsheet[data-closing='true'] {
-  animation: sheet-down 0.2s var(--ease-soft) forwards;
+  animation: sheet-down var(--dur-quick) var(--ease-soft) forwards;
+}
+/* .sortsheet ya se ve como hoja inferior a cualquier ancho (a diferencia
+   de .sheet/.chat, que sólo pasan a serlo en mobile) — pero el GESTO de
+   arrastrar (enableDragToClose, ui.js) sólo se activa por debajo de
+   560px, así que la barrita se muestra sólo ahí: mostrarla siempre
+   prometería un arrastre que en desktop no hace nada. */
+@media (max-width: 560px) {
+  .sortsheet .dialog__grabber {
+    display: flex;
+  }
 }
 .sortsheet__head {
   display: flex;
@@ -1098,6 +1137,11 @@ dialog:focus-visible {
 }
 .sortopt:hover {
   background: var(--fill);
+}
+/* Fila ancha de lista: oscurecer el fondo se siente más natural al tocar
+   que un scale, que en un elemento así de ancho se ve raro. */
+.sortopt:active {
+  background: var(--fill-hi);
 }
 .sortopt[aria-current='true'] {
   color: var(--text);
@@ -1415,7 +1459,7 @@ dialog:focus-visible {
   backdrop-filter: blur(6px);
 }
 .promodlg[open] {
-  animation: welcome-in 0.35s var(--ease-out);
+  animation: welcome-in var(--dur-moderate) var(--ease-out);
 }
 .promodlg__head {
   flex: none;
@@ -1455,6 +1499,11 @@ dialog:focus-visible {
   .promodlg__imgbtn:hover .promodlg__img {
     transform: scale(1.03);
   }
+}
+/* Mismo lenguaje que el hover (zoom), pero al tacto se "hunde" un poco
+   en vez de agrandarse — la sensación de estar presionando la foto. */
+.promodlg__imgbtn:active .promodlg__img {
+  transform: scale(0.98);
 }
 .promodlg__zoom {
   position: absolute;
@@ -1545,7 +1594,7 @@ dialog:focus-visible {
   backdrop-filter: blur(6px);
 }
 .promoimg[open] {
-  animation: welcome-in 0.3s var(--ease-out);
+  animation: welcome-in var(--dur-moderate) var(--ease-out);
 }
 .promoimg__pic {
   width: 100%;
@@ -1567,11 +1616,15 @@ dialog:focus-visible {
   border: 1px solid var(--line-strong);
   color: var(--text);
   box-shadow: var(--shadow-pop);
+  transition: background var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-pop);
 }
 @media (hover: hover) {
   .promoimg__close:hover {
     background: var(--fill-hi);
   }
+}
+.promoimg__close:active {
+  transform: scale(0.88);
 }
 
 /* ==========================================================================
@@ -1606,7 +1659,7 @@ dialog:focus-visible {
   backdrop-filter: blur(6px);
 }
 .promonudge[open] {
-  animation: welcome-in 0.35s var(--ease-out);
+  animation: welcome-in var(--dur-moderate) var(--ease-out);
 }
 .promonudge__head {
   flex: none;
@@ -1997,10 +2050,10 @@ dialog:focus-visible {
    desfasaje largo o sobre las 125 tarjetas se sentiría como parpadeo, no
    como algo premium. Corto y acotado. */
 .card:not(.card--skel) {
-  animation: card-in 0.32s var(--ease-out) backwards;
+  animation: card-in var(--dur-moderate) var(--ease-out) backwards;
 }
 .card:not(.card--skel):nth-child(n + 9) {
-  animation-duration: 0.22s;
+  animation-duration: var(--dur-quick);
   animation-delay: 0s !important;
 }
 .card:not(.card--skel):nth-child(2) { animation-delay: 0.03s; }
@@ -2048,7 +2101,7 @@ dialog:focus-visible {
 [data-reveal] {
   opacity: 0;
   translate: 0 14px;
-  transition: opacity 0.55s var(--ease-out), translate 0.55s var(--ease-out);
+  transition: opacity var(--dur-relaxed) var(--ease-out), translate var(--dur-relaxed) var(--ease-out);
 }
 [data-reveal][data-shown='true'] {
   opacity: 1;
@@ -2260,8 +2313,10 @@ dialog:focus-visible {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
   [data-reveal] {
     opacity: 1;

@@ -174,13 +174,13 @@
   background: var(--surface);
   border: 1px solid var(--line-strong);
   box-shadow: var(--shadow-pop);
-  animation: nudge-in 0.4s var(--ease-pop) both;
+  animation: nudge-in var(--dur-relaxed) var(--ease-pop) both;
 }
 .ainudge[hidden] {
   display: none;
 }
 .ainudge[data-closing='true'] {
-  animation: nudge-out 0.22s var(--ease-soft) forwards;
+  animation: nudge-out var(--dur-quick) var(--ease-soft) forwards;
 }
 @keyframes nudge-in {
   from { opacity: 0; transform: translateY(8px) scale(0.94); }
@@ -212,11 +212,15 @@
   place-items: center;
   border-radius: 50%;
   color: var(--text-3);
-  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft),
+    transform var(--dur-fast) var(--ease-pop);
 }
 .ainudge__close:hover {
   background: var(--fill-hi);
   color: var(--text);
+}
+.ainudge__close:active {
+  transform: scale(0.85);
 }
 .ainudge__close svg {
   width: 12px;
@@ -288,7 +292,7 @@
   animation: sheet-in var(--dur) var(--ease-pop);
 }
 .chat[data-closing='true'] {
-  animation: sheet-out 0.2s var(--ease-soft) forwards;
+  animation: sheet-out var(--dur-quick) var(--ease-soft) forwards;
 }
 
 @media (max-width: 560px) {
@@ -306,7 +310,10 @@
     animation: sheet-up var(--dur) var(--ease-out);
   }
   .chat[data-closing='true'] {
-    animation: sheet-down 0.2s var(--ease-soft) forwards;
+    animation: sheet-down var(--dur-quick) var(--ease-soft) forwards;
+  }
+  .chat .dialog__grabber {
+    display: flex;
   }
 }
 
@@ -355,7 +362,7 @@
   border-radius: 18px;
   font-size: 0.91rem;
   line-height: 1.5;
-  animation: msg-in 0.3s var(--ease-out);
+  animation: msg-in var(--dur-moderate) var(--ease-out);
 }
 @keyframes msg-in {
   from { opacity: 0; transform: translateY(6px); }
@@ -420,7 +427,7 @@
   border: 1px solid var(--line);
   background: var(--surface-hi);
   transition: border-color var(--dur-fast) var(--ease-soft);
-  animation: msg-in 0.34s var(--ease-out) backwards;
+  animation: msg-in var(--dur-moderate) var(--ease-out) backwards;
 }
 .pick:hover {
   border-color: var(--gold-edge);

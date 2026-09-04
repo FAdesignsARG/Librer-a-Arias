@@ -78,7 +78,7 @@
   transform: translate(-50%, -50%) scale(0.7);
 }
 .splash[data-run='true'] .splash__halo {
-  animation: splash-halo 0.85s var(--ease-out) 0.05s forwards;
+  animation: splash-halo var(--dur-slowest) var(--ease-out) 0.05s forwards;
 }
 @keyframes splash-halo {
   0% { transform: translate(-50%, -50%) scale(0.72); opacity: 0.65; }
@@ -153,21 +153,21 @@
    0.86-1.00  el logo se va y las cortinas se abren
 */
 .splash[data-run='true'] .splash__logo {
-  animation: splash-pop 0.52s var(--ease-pop) forwards, splash-out 0.34s var(--ease-soft) 0.86s forwards;
+  animation: splash-pop var(--dur-slow) var(--ease-pop) forwards, splash-out var(--dur-moderate) var(--ease-soft) 0.86s forwards;
 }
 .splash[data-run='true'] .splash__bar {
-  animation: splash-wipe 0.44s var(--ease-out) 0.34s forwards;
+  animation: splash-wipe var(--dur-relaxed) var(--ease-out) 0.34s forwards;
 }
 .splash[data-run='true'] .splash__panel--top {
-  animation: curtain-up 0.62s var(--ease-out) 0.9s forwards;
+  animation: curtain-up var(--dur-slower) var(--ease-out) 0.9s forwards;
 }
 .splash[data-run='true'] .splash__panel--bottom {
-  animation: curtain-down 0.62s var(--ease-out) 0.9s forwards;
+  animation: curtain-down var(--dur-slower) var(--ease-out) 0.9s forwards;
 }
 @media (min-width: 860px) {
   /* Entra apenas después del pop del logo, se va junto con él */
   .splash[data-run='true'] .splash__word {
-    animation: word-in 0.46s var(--ease-out) 0.4s forwards, splash-out 0.34s var(--ease-soft) 0.86s forwards;
+    animation: word-in var(--dur-relaxed) var(--ease-out) 0.4s forwards, splash-out var(--dur-moderate) var(--ease-soft) 0.86s forwards;
   }
 }
 @keyframes word-in {
@@ -196,7 +196,7 @@
 
 /* El contenido sube apenas mientras se abren las cortinas */
 html[data-splash='running'] body > *:not(.splash) {
-  animation: content-rise 0.7s var(--ease-out) 0.9s backwards;
+  animation: content-rise var(--dur-slower) var(--ease-out) 0.9s backwards;
 }
 @keyframes content-rise {
   from { opacity: 0; transform: translateY(12px); }
@@ -264,7 +264,7 @@ html[data-splash='running'] body > *:not(.splash) {
 }
 /* Giro corto al cambiar */
 .themebtn[data-spin='true'] svg {
-  animation: theme-spin 0.45s var(--ease-out);
+  animation: theme-spin var(--dur-relaxed) var(--ease-out);
 }
 @keyframes theme-spin {
   from { transform: rotate(-90deg) scale(0.6); opacity: 0.3; }
@@ -301,7 +301,7 @@ html[data-splash='running'] body > *:not(.splash) {
   backdrop-filter: blur(6px);
 }
 .welcome[open] {
-  animation: welcome-in 0.4s var(--ease-out);
+  animation: welcome-in var(--dur-relaxed) var(--ease-out);
 }
 @keyframes welcome-in {
   from { opacity: 0; transform: translateY(14px) scale(0.97); }
@@ -429,7 +429,7 @@ html[data-splash='running'] body > *:not(.splash) {
 /* ---- Paso 2: por dónde arrancar ---- */
 .welcome__step2 {
   padding: 4px 26px 0;
-  animation: step2-in 0.34s var(--ease-out);
+  animation: step2-in var(--dur-moderate) var(--ease-out);
 }
 @keyframes step2-in {
   from { opacity: 0; transform: translateY(8px); }
