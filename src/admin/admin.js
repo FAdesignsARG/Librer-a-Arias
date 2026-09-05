@@ -1939,6 +1939,112 @@ $('#settingsForm').addEventListener('submit', async (e) => {
 });
 
 /* ==========================================================================
+   PROMOCIONES (Ronda 1.3)
+   Mismo patrón que #settingsForm: el dialog precarga settings.promos (ya
+   existe en Firestore desde la Ronda 1), se edita acá, y al guardar se
+   escribe SÓLO el campo promos con merge (updateDoc no pisa el resto de
+   settings/main) y se dispara el mismo rebuild — vía logActivity(), que ya
+   programa scheduleRebuild() más abajo, igual que hace #settingsForm.
+   ========================================================================== */
+const promosDlg = $('#promosDlg');
+const tiersGridEl = $('#tiersGrid');
+let tiersState = [];
+
+function renderTiersGrid() {
+  tiersGridEl.innerHTML = tiersState
+    .map(
+      (t, i) => `<div class="tierrow" data-i="${i}">
+      <div class="field">
+        <label>Desde</label>
+        <div class="money"><span>$</span><input type="text" inputmode="numeric" data-field="minAmount" value="${t.minAmount}"></div>
+      </div>
+      <div class="field">
+        <label>Descuento</label>
+        <div class="percent"><input type="text" inputmode="numeric" data-field="percent" value="${t.percent}"><span>%</span></div>
+      </div>
+      <button type="button" class="tierrow__del" data-i="${i}" aria-label="Sacar este tramo">${ico.x}</button>
+    </div>`
+    )
+    .join('');
+}
+
+// Un solo listener delegado: limpia lo que no sea dígito (mismo criterio
+// que #fPrice/#fOfferPrice) y sincroniza el estado en el mismo evento.
+tiersGridEl.addEventListener('input', (e) => {
+  const input = e.target.closest('input[data-field]');
+  if (!input) return;
+  const clean = input.value.replace(/[^\d]/g, '');
+  if (clean !== input.value) input.value = clean;
+  const i = Number(input.closest('.tierrow').dataset.i);
+  tiersState[i][input.dataset.field] = Number(clean) || 0;
+});
+
+tiersGridEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.tierrow__del');
+  if (!btn) return;
+  tiersState.splice(Number(btn.dataset.i), 1);
+  renderTiersGrid();
+});
+
+$('#tierAddBtn').addEventListener('click', () => {
+  const last = tiersState[tiersState.length - 1];
+  tiersState.push({ minAmount: (last?.minAmount || 0) + 50000, percent: (last?.percent || 0) + 5 });
+  renderTiersGrid();
+});
+
+$('#btnPromos').addEventListener('click', () => {
+  tiersState = (settings.promos?.tiers || []).map((t) => ({ ...t }));
+  renderTiersGrid();
+  $('#pChachos').value = settings.promos?.chachosPercent ?? '';
+  $('#pPaymentNote').value = settings.promos?.paymentNote || '';
+  $('#pDisclaimer').value = settings.promos?.disclaimer || '';
+  closeDialog(adminMenuDlg).then(() => openDialog(promosDlg));
+});
+
+wireDialog(promosDlg, $('#promosClose'));
+$('#promosCancel').addEventListener('click', () => closeDialog(promosDlg));
+
+$('#promosForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('#promosSave');
+
+  const chachosPercent = Number($('#pChachos').value.replace(/\D/g, '')) || 0;
+  if (chachosPercent > 100) return toast('El % de CHACHOS tiene que estar entre 0 y 100.');
+
+  if (!tiersState.length) return toast('Tiene que quedar al menos un tramo.');
+  if (tiersState.some((t) => t.percent > 100)) return toast('Cada descuento tiene que estar entre 0% y 100%.');
+
+  // Se reordena de menor a mayor por monto en vez de rechazar el guardado
+  // si se cargaron desordenados — el prompt de esta ronda lo pide así.
+  const sorted = [...tiersState].sort((a, b) => a.minAmount - b.minAmount);
+  const montos = sorted.map((t) => t.minAmount);
+  if (new Set(montos).size !== montos.length) return toast('No puede haber dos tramos con el mismo monto.');
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  const promos = {
+    tiers: sorted,
+    chachosPercent,
+    paymentNote: $('#pPaymentNote').value.trim(),
+    disclaimer: $('#pDisclaimer').value.trim(),
+  };
+
+  try {
+    await updateDoc(doc(db, 'settings', 'main'), { promos });
+    settings = { ...settings, promos };
+    closeDialog(promosDlg);
+    toast('Promociones guardadas.', ico.check);
+    logActivity('promos_updated', 'Actualizó las promociones');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  }
+});
+
+/* ==========================================================================
    REGISTRO DE ACTIVIDAD Y REPORTES
    Cada escritura real (crear/editar/eliminar producto, stock, carga
    masiva, configuración) queda anotada acá: quién, cuándo y desde dónde

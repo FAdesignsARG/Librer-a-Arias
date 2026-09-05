@@ -1333,6 +1333,94 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Mismo criterio que .money pero con el símbolo al final — para % */
+.percent {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .percent:hover {
+    border-color: var(--line-strong);
+  }
+}
+.percent:focus-within {
+  border-color: var(--gold-edge);
+  box-shadow: 0 0 0 4px var(--gold-wash);
+}
+.percent span {
+  padding-right: 13px;
+  color: var(--text-3);
+}
+.percent input {
+  border: 0 !important;
+  background: none !important;
+  padding-right: 4px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Promociones (Ronda 1.3) ---------- */
+.tiersgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.tierrow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .tierrow:hover {
+    border-color: var(--line-strong);
+  }
+}
+.tierrow .field {
+  flex: 1;
+  min-width: 0;
+}
+.tierrow .field label {
+  font-size: 0.76rem;
+}
+.tierrow__del {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+.tierrow__del:hover {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+.tierrow__del svg {
+  width: 14px;
+  height: 14px;
+}
+/* El aviso del delay de publicación tiene que notarse — no es un hint
+   más entre otros, es la única aclaración de esta ronda que el roadmap
+   pide que sea imposible de pasar por alto. */
+.promos__delay {
+  padding: 10px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--gold-text);
+  font-size: 0.82rem;
+}
+
 /* ---------- Interruptores ---------- */
 .switches {
   display: flex;
