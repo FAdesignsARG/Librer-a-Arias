@@ -28,6 +28,21 @@ export const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
 export const offerActive = (p) => !!p.offer?.until && new Date(p.offer.until).getTime() > Date.now();
 export const offerHasDiscount = (p) => offerActive(p) && Number(p.offer.price) > 0;
 
+/** Días de calendario que quedan hasta que vence una oferta activa
+    (Ronda 5: cuenta regresiva real en la ficha de producto). Por
+    CALENDARIO, no por horas exactas: algo que vence a las 23:59 de hoy
+    tiene que decir "Termina hoy", no "Termina mañana" sólo porque
+    quedan menos de 24hs completas (Math.ceil de milisegundos daba ese
+    resultado incorrecto). Sólo tiene sentido llamarla si offerActive(p)
+    ya dio true. */
+export const offerDaysLeft = (p) => {
+  const until = new Date(p.offer.until);
+  const now = new Date();
+  const untilDay = new Date(until.getFullYear(), until.getMonth(), until.getDate());
+  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((untilDay - nowDay) / 86400000);
+};
+
 export const isNew = (p, days = 14) =>
   !!p.createdAt && Date.now() - new Date(p.createdAt).getTime() < days * 86400000;
 
@@ -882,8 +897,17 @@ export function renderProduct({ product: p, related, settings: s }) {
     <div class="product__info">
       <div class="product__badges">
         <span class="product__cat">${esc(p.category)}</span>
-        ${offerActive(p) ? `<span class="flag flag--offer">${ico.tag}Oferta hasta el ${dateFmt(p.offer.until)}</span>` : ''}
+        ${
+          offerActive(p)
+            ? offerDaysLeft(p) <= 3
+              ? `<span class="flag flag--urgent">${ico.fire}${
+                  offerDaysLeft(p) <= 0 ? 'Termina hoy' : offerDaysLeft(p) === 1 ? 'Termina mañana' : `Termina en ${offerDaysLeft(p)} días`
+                }</span>`
+              : `<span class="flag flag--offer">${ico.tag}Oferta hasta el ${dateFmt(p.offer.until)}</span>`
+            : ''
+        }
         ${!offerActive(p) && isNew(p) ? `<span class="flag flag--new">Nuevo</span>` : ''}
+        ${p.featured ? `<span class="flag flag--featured">${ico.sparkle}Lo más elegido</span>` : ''}
       </div>
       <h1 class="t-h1">${esc(p.name)}</h1>
       <p class="product__price-row">

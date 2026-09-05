@@ -1888,17 +1888,35 @@ dialog:focus-visible {
   color: var(--text-2);
   border: 1px solid var(--line);
 }
-.flag--offer {
+.flag--offer,
+.flag--urgent {
   /* d43a15 da 4.76:1 contra blanco — medido, no a ojo: el texto de un
      flag es chico (0.68rem) y no llega al umbral de "texto grande" que
-     permitiría un contraste más laxo. */
+     permitiría un contraste más laxo. .flag--urgent (Ronda 5) es la
+     misma oferta real, sólo con el texto de cuenta regresiva en vez de
+     la fecha — nunca conviven los dos en el mismo producto, así que
+     comparten color a propósito, no son dos familias distintas. */
   display: inline-flex;
   align-items: center;
   gap: 4px;
   background: #d43a15;
   color: #fff;
 }
-.flag--offer svg {
+.flag--offer svg,
+.flag--urgent svg {
+  width: 11px;
+  height: 11px;
+}
+/* Ronda 5: mismo lenguaje visual que .flag--new (curación real, no un
+   dato inventado) — sólo cambia el ícono para distinguirlo de "Nuevo". */
+.flag--featured {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+.flag--featured svg {
   width: 11px;
   height: 11px;
 }
