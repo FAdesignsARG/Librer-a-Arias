@@ -767,6 +767,47 @@
   flex: 1 1 180px;
 }
 
+/* ---- Selector de cantidad (Ronda 8) ---- */
+.qtystepper {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--tap);
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.qtystepper__btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .qtystepper__btn:hover {
+    background: var(--fill);
+    color: var(--text);
+  }
+}
+.qtystepper__btn:active {
+  transform: scale(0.9);
+}
+.qtystepper__btn svg {
+  width: 15px;
+  height: 15px;
+}
+.qtystepper__val {
+  min-width: 26px;
+  text-align: center;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---- Barra fija de "Agregar al pedido" (sólo mobile) ----
    Duplica el CTA principal de la ficha, pero siempre al alcance del
    pulgar — el patrón de las apps de delivery: no importa cuánto se
@@ -818,6 +859,116 @@
 }
 .stickycta__add {
   flex: none;
+}
+
+/* ==========================================================================
+   LIGHTBOX DE LA GALERÍA (Ronda 8)
+   A pantalla completa (no el marco chico de .promoimg, que es para la
+   imagen de promos) — necesita todo el viewport para el pinch/pan. El
+   gesto en sí (transform 1:1 con el dedo) lo mueve app.js sin transición
+   CSS; sólo el snap del doble-tap y el open/close del <dialog> animan,
+   y quedan cubiertos por la regla global de prefers-reduced-motion.
+   ========================================================================== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.lightbox:not([open]) {
+  display: none;
+}
+.lightbox::backdrop {
+  background: rgba(0, 0, 0, 0.94);
+}
+.lightbox[open] {
+  animation: welcome-in var(--dur-moderate) var(--ease-out);
+}
+.lightbox__stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  /* El gesto de pinch/pan lo interpreta JS — sin esto, el navegador
+     compite por el mismo toque con su propio scroll/zoom nativo. */
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+.lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.lightbox__close {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: 16px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  transition: background var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+.lightbox__close:active {
+  transform: scale(0.9);
+}
+.lightbox__nav {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 8px;
+  /* Deja pasar el toque al centro (donde está la foto, para el gesto) —
+     sólo los botones de las puntas son clickeables. */
+  pointer-events: none;
+}
+.lightbox__arrow {
+  pointer-events: auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  transition: background var(--dur-fast) var(--ease-soft);
+}
+@media (hover: hover) {
+  .lightbox__arrow:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+.lightbox__arrow:active {
+  transform: scale(0.9);
+}
+.lightbox__arrow svg {
+  width: 20px;
+  height: 20px;
+}
+.lightbox__arrow--prev svg {
+  transform: scaleX(-1);
 }
 
 .related {

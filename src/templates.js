@@ -18,6 +18,20 @@ export const esc = (s) =>
 
 export const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
 
+/** Slug de un rubro para sus páginas SEO (Ronda 9) — mismo criterio que
+    el slugify de productos que ya existe en admin.js/scripts/extract.js
+    (sin tildes, minúsculas, guiones), pero vive acá porque
+    scripts/build.js y src/sitemap.js ya importan de este archivo y
+    admin.js no se puede importar en Node (arrastra el SDK de Firebase
+    del navegador). */
+export const categorySlug = (cat) =>
+  String(cat)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 /* ---------- ofertas ----------
    Una oferta vive DENTRO del producto (product.offer), no en una colección
    aparte: cada producto tiene como mucho una oferta activa a la vez, que es
@@ -843,6 +857,86 @@ ${footer(s)}`;
 }
 
 /* ==========================================================================
+   PÁGINA DE RUBRO (Ronda 9 — SEO por categoría)
+   Generada en scripts/build.js, una por cada rubro con al menos un
+   producto visible — no reemplaza el filtro client-side de la portada
+   (?cat=, los chips), es una URL indexable aparte.
+   ========================================================================== */
+
+export function renderCategory({ category, products, settings: s }) {
+  const url = `${s.siteUrl}/c/${categorySlug(category)}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      localBusiness(s),
+      {
+        '@type': 'CollectionPage',
+        '@id': `${url}#page`,
+        url,
+        name: `${category} — ${s.storeName}`,
+        isPartOf: { '@id': `${s.siteUrl}/#website` },
+        about: { '@id': `${s.siteUrl}/#store` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${s.siteUrl}/` },
+          { '@type': 'ListItem', position: 2, name: category, item: url },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        name: category,
+        numberOfItems: products.length,
+        itemListElement: products.map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `${s.siteUrl}/p/${p.slug}/`,
+          name: p.name,
+        })),
+      },
+    ],
+  });
+
+  // Sin id="grid": mismo estilo visual que la grilla de la portada (clase
+  // .grid), pero a propósito SIN el id que busca app.js — esta página no
+  // tiene buscador ni chips, así que no hay que engancharla al render()
+  // client-side de la portada (ese bloque ya hace `if (!grid) return`,
+  // no rompe nada con esto, simplemente no aplica acá).
+  const body = `
+<div class="shell">
+  <nav class="crumbs" aria-label="Migas de pan">
+    <a href="/">Inicio</a>${ico.chevron}
+    <span>${esc(category)}</span>
+  </nav>
+  <div class="section__head" data-reveal>
+    <h1 class="t-h1">${esc(category)}</h1>
+    <p class="t-body">${products.length} ${products.length === 1 ? 'producto' : 'productos'} de ${esc(category)} en ${esc(s.storeName)}, La Rioja.</p>
+  </div>
+  <div class="grid">
+    ${products.map(cardHtml).join('\n    ')}
+  </div>
+</div>
+
+${footer(s)}`;
+
+  return layout({
+    head: {
+      title: `${category} — ${s.storeName} | Juguetería, librería y bazar en La Rioja`,
+      description: clamp(
+        `${category} en ${s.storeName}: ${products.length} productos con precio. Consultá y pedí por WhatsApp.`,
+        158
+      ),
+      canonical: url,
+      jsonLd,
+    },
+    body,
+    settings: s,
+  });
+}
+
+/* ==========================================================================
    LANDING DE PRODUCTO
    ========================================================================== */
 
@@ -918,6 +1012,15 @@ export function renderProduct({ product: p, related, settings: s }) {
       <p class="product__stock" data-out="${!p.inStock}">${p.inStock ? 'Disponible en el local' : 'Sin stock por ahora'}</p>
       <p class="product__desc">${esc(p.description)}</p>
       <div class="product__actions">
+        <!-- Ronda 8: cantidad antes de agregar. El botón de la barra fija de
+             mobile (.stickycta__add, más abajo) lee este mismo valor — no
+             tiene su propio stepper, para no tener dos estados separados
+             de la misma cosa. -->
+        <div class="qtystepper" id="productQty">
+          <button type="button" class="qtystepper__btn" data-qty-step="-1" aria-label="Restar uno">${ico.minus}</button>
+          <span class="qtystepper__val" id="productQtyVal">1</span>
+          <button type="button" class="qtystepper__btn" data-qty-step="1" aria-label="Sumar uno">${ico.plus}</button>
+        </div>
         <button class="btn btn--gold" data-add="${esc(p.slug)}">${ico.plus} Agregar al pedido</button>
         <button type="button" class="btn btn--ghost" id="askAboutBtn"
                 data-ask="${esc(`Quiero consultar por: ${p.name} (${money(p.price)})`)}">
@@ -927,6 +1030,26 @@ export function renderProduct({ product: p, related, settings: s }) {
     </div>
   </article>
 </div>
+
+<!-- Ronda 8: lightbox de la galería, se abre al tocar la foto principal.
+     Reusa openDialog/closeDialog/wireDialog/enableDragToClose de ui.js
+     igual que el resto de los dialogs del sitio; el pinch-zoom/pan/swipe
+     de adentro lo maneja app.js con Pointer Events nativos, sin ninguna
+     librería. -->
+<dialog class="lightbox" id="galleryLightbox" aria-label="${esc(p.name)}" tabindex="-1">
+  <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Cerrar">${ico.x}</button>
+  <div class="lightbox__stage" id="lightboxStage">
+    <img class="lightbox__img" id="lightboxImg" src="${esc(fullSrc(main))}" alt="${esc(p.name)}">
+  </div>
+  ${
+    p.images.length > 1
+      ? `<div class="lightbox__nav">
+    <button type="button" class="lightbox__arrow lightbox__arrow--prev" id="lightboxPrev" aria-label="Foto anterior">${ico.chevron}</button>
+    <button type="button" class="lightbox__arrow lightbox__arrow--next" id="lightboxNext" aria-label="Foto siguiente">${ico.chevron}</button>
+  </div>`
+      : ''
+  }
+</dialog>
 
 <!-- En mobile duplica el CTA de arriba, fijo abajo: el precio y el botón
      de agregar quedan siempre al alcance del pulgar sin importar cuánto

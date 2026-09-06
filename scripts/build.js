@@ -16,7 +16,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { renderHome, renderProduct } from '../src/templates.js';
+import { renderHome, renderProduct, renderCategory, categorySlug } from '../src/templates.js';
 import { buildSitemap } from '../src/sitemap.js';
 import { getDb } from '../src/firebase-admin.js';
 import { loadEnv } from '../src/ai.js';
@@ -77,6 +77,28 @@ for (const product of visible) {
   );
 }
 console.log(`${String(visible.length).padStart(3)} landings de producto      ${kb(productBytes)}`);
+
+// Ronda 9: una página por rubro. Se recorren los rubros que existen DE
+// VERDAD entre los productos visibles (no settings.categories) a
+// propósito: settings.categories es la lista curada de chips de la
+// portada, y no necesariamente coincide con los rubros reales de los
+// productos — se encontró un caso real (6 productos visibles en
+// "Electrónica", que ya no está en settings.categories) que con
+// settings.categories como fuente se quedaba sin página propia pero
+// igual aparecía en el sitemap (armado aparte, de los productos reales),
+// dejando un link roto. Derivando los dos del mismo dato no puede pasar.
+let categoryBytes = 0;
+let categoryCount = 0;
+const categoriesInCatalog = [...new Set(visible.map((p) => p.category))];
+for (const category of categoriesInCatalog) {
+  const inCategory = visible.filter((p) => p.category === category);
+  categoryCount++;
+  categoryBytes += await write(
+    path.join('c', categorySlug(category), 'index.html'),
+    renderCategory({ category, products: inCategory, settings })
+  );
+}
+console.log(`${String(categoryCount).padStart(3)} páginas de rubro          ${kb(categoryBytes)}`);
 
 /* ---------- estáticos ----------
    Sólo lo que el sitio público necesita. Nada de src/admin ni scripts. */
