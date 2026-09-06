@@ -14,8 +14,15 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+// root?. (no sólo el default `= document`): un default de parámetro sólo
+// entra en juego con `undefined`, nunca con `null` explícito — y varios
+// llamados de más abajo pasan un elemento que puede no existir en esta
+// página (ej. $('.sortsheet__head', sortSheet) cuando sortSheet es null
+// fuera de la portada). Sin el '?.' eso tira un TypeError no capturado
+// que frena TODO el resto del script — incluida loadData() — dejando
+// "Agregar al pedido" roto en cualquier página que no sea la portada.
+const $ = (sel, root = document) => root?.querySelector(sel) ?? null;
+const $$ = (sel, root = document) => (root ? [...root.querySelectorAll(sel)] : []);
 
 const thumbOf = (id) => cloudinaryUrl(id, { width: 400 });
 
@@ -154,11 +161,11 @@ const cartTotal = () =>
    de esa, ya lo sabe. Nada de banner permanente ocupando pantalla. */
 const CART_HINT_KEY = 'arias.cartHintShown';
 
-function addToCart(slug, { silent = false } = {}) {
+function addToCart(slug, { silent = false, qty = 1 } = {}) {
   const p = bySlug.get(slug);
   if (!p) return;
   const firstEver = cart.size === 0 && !localStorage.getItem(CART_HINT_KEY);
-  cart.set(slug, (cart.get(slug) || 0) + 1);
+  cart.set(slug, (cart.get(slug) || 0) + qty);
   saveCart();
   syncCartUI();
   if (!silent) {
@@ -166,7 +173,7 @@ function addToCart(slug, { silent = false } = {}) {
       toast('¡Va a tu pedido! Armalo y mandalo por WhatsApp cuando quieras', ico.check, 4200);
       localStorage.setItem(CART_HINT_KEY, 'true');
     } else {
-      toast(`${p.name} agregado`, ico.check);
+      toast(qty > 1 ? `${qty} × ${p.name} agregados` : `${p.name} agregado`, ico.check);
     }
   }
   bumpFab();
@@ -505,12 +512,22 @@ sheetBody?.addEventListener('click', (e) => {
 });
 
 /* Delegación global del botón "+": sirve para las tarjetas de la grilla
-   (que se re-renderizan) y para el botón de la landing. */
+   (que se re-renderizan), los picks del asistente y los dos botones de
+   agregar de la ficha de producto (el de arriba y el de la barra fija
+   de mobile). Sólo estos dos últimos suman más de 1 de una vez (Ronda
+   8): leen el stepper de cantidad de la ficha si existe, y sólo si el
+   botón tocado es uno de esos dos — la grilla y los picks del
+   asistente no tienen ningún stepper propio, siguen sumando 1 como
+   siempre. */
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-add]');
   if (!btn) return;
   e.preventDefault();
-  addToCart(btn.dataset.add);
+  const qtyEl = document.getElementById('productQtyVal');
+  const isProductPageAdd = qtyEl && (btn.closest('.product__actions') || btn.classList.contains('stickycta__add'));
+  const qty = isProductPageAdd ? Number(qtyEl.textContent) || 1 : 1;
+  addToCart(btn.dataset.add, { qty });
+  if (isProductPageAdd) qtyEl.textContent = '1';
 });
 
 /* ==========================================================================
@@ -1037,6 +1054,213 @@ askAboutBtn?.addEventListener('click', () => {
     new CustomEvent('arias:preguntar', { detail: { pregunta: askAboutBtn.dataset.ask } })
   );
 });
+
+/* ---- Selector de cantidad (Ronda 8) ----
+   El valor vive en un solo lugar (#productQtyVal): tanto "Agregar al
+   pedido" de arriba como el de la barra fija de mobile lo leen desde la
+   delegación global de [data-add], más arriba en este archivo. */
+const productQtyEl = $('#productQty');
+const productQtyVal = $('#productQtyVal');
+productQtyEl?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-qty-step]');
+  if (!btn || !productQtyVal) return;
+  const next = Number(productQtyVal.textContent) + Number(btn.dataset.qtyStep);
+  productQtyVal.textContent = String(Math.max(1, next));
+});
+
+/* ==========================================================================
+   LIGHTBOX DE LA GALERÍA (Ronda 8)
+   Pinch-zoom + pan táctil, click-to-zoom + arrastre en desktop, swipe o
+   tocar los costados para cambiar de foto — todo con Pointer Events
+   nativos (unifican mouse/touch), sin ninguna librería. El open/close
+   del <dialog> en sí reusa el patrón de ui.js tal cual.
+   ========================================================================== */
+const lightboxDlg = $('#galleryLightbox');
+if (lightboxDlg && $('#stage')) {
+  const stage = $('#lightboxStage');
+  const img = $('#lightboxImg');
+  const prevBtn = $('#lightboxPrev');
+  const nextBtn = $('#lightboxNext');
+
+  // Misma lista de fotos que ya arma #thumbs (data-src) — no hace falta
+  // volver a pedirle el producto al servidor ni buscarlo en PRODUCTS.
+  const fullSrcsOf = () =>
+    thumbs ? $$('button[data-src]', thumbs).map((b) => b.dataset.src) : $('#stage') ? [$('#stage').src] : [];
+
+  function currentIndex() {
+    if (!thumbs) return 0;
+    const i = $$('button', thumbs).findIndex((b) => b.getAttribute('aria-current') === 'true');
+    return i < 0 ? 0 : i;
+  }
+
+  let scale = 1, tx = 0, ty = 0;
+  function applyTransform() {
+    img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+  // Sólo el "snap" (doble-tap, reset) anima — el pinch/pan en curso no
+  // lleva transición nunca, tiene que seguir al dedo 1:1. La duración
+  // real bajo prefers-reduced-motion ya la fuerza a ~0 la regla global
+  // (*,*::before,*::after{transition-duration:0.01ms!important}).
+  function snapTo(nextScale, nextTx, nextTy) {
+    img.style.transition = 'transform 0.2s var(--ease-out)';
+    scale = nextScale; tx = nextTx; ty = nextTy;
+    applyTransform();
+    setTimeout(() => { img.style.transition = 'none'; }, 220);
+  }
+  const resetZoom = () => snapTo(1, 0, 0);
+
+  function goTo(i) {
+    const srcs = fullSrcsOf();
+    if (!srcs.length) return;
+    const idx = (i + srcs.length) % srcs.length;
+    resetZoom();
+    img.src = srcs[idx];
+    // Sincroniza la miniatura y la foto principal para cuando se cierre.
+    if (thumbs) {
+      $$('button', thumbs).forEach((b, bi) => b.setAttribute('aria-current', String(bi === idx)));
+      const stageImg = $('#stage');
+      if (stageImg) stageImg.src = srcs[idx];
+    }
+  }
+
+  function zoomAt(clientX, clientY) {
+    const r = stage.getBoundingClientRect();
+    snapTo(2, -(clientX - r.left - r.width / 2), -(clientY - r.top - r.height / 2));
+  }
+
+  $('#stage').addEventListener('click', () => {
+    scale = 1; tx = 0; ty = 0;
+    img.style.transition = 'none';
+    applyTransform();
+    img.src = fullSrcsOf()[currentIndex()] || $('#stage').src;
+    lightboxDlg.showModal();
+    lightboxDlg.focus();
+  });
+  wireDialog(lightboxDlg, $('#lightboxClose'));
+  lightboxDlg.addEventListener('close', resetZoom);
+
+  prevBtn?.addEventListener('click', () => goTo(currentIndex() - 1));
+  nextBtn?.addEventListener('click', () => goTo(currentIndex() + 1));
+
+  // ---- Gesto: pinch (2 punteros), pan (1 puntero con zoom), tap/doble-tap ----
+  const pointers = new Map();
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+  let panStart = null;
+  let downAt = 0;
+  let downPos = null;
+  let moved = false;
+  let lastTapAt = 0;
+
+  stage?.addEventListener('pointerdown', (e) => {
+    // Sin try/catch, un setPointerCapture que falla (pasa de verdad en
+    // algunos navegadores/casos borde) tira una excepción no capturada
+    // que corta TODO el resto del handler — ni siquiera queda registrado
+    // el puntero, y el gesto entero deja de responder. Sin la captura el
+    // gesto igual sigue andando mientras el dedo no se vaya de #stage,
+    // sólo se pierde ese caso borde.
+    try {
+      stage.setPointerCapture(e.pointerId);
+    } catch {}
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    img.style.transition = 'none';
+    if (pointers.size === 1) {
+      downAt = Date.now();
+      downPos = { x: e.clientX, y: e.clientY };
+      panStart = { x: e.clientX - tx, y: e.clientY - ty };
+      moved = false;
+    } else if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      pinchStartDist = dist(a, b);
+      pinchStartScale = scale;
+      moved = true; // un pinch nunca cuenta como tap al soltar
+    }
+  });
+
+  stage?.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2 && pinchStartDist) {
+      const [a, b] = [...pointers.values()];
+      scale = Math.min(4, Math.max(1, pinchStartScale * (dist(a, b) / pinchStartDist)));
+      applyTransform();
+    } else if (pointers.size === 1 && panStart) {
+      if (scale > 1) {
+        tx = e.clientX - panStart.x;
+        ty = e.clientY - panStart.y;
+        applyTransform();
+      } else {
+        // Sin zoom, un arrastre vertical es "tirar para cerrar" — sigue
+        // al dedo con un fade sutil (mismo lenguaje que un lightbox de
+        // apps de fotos). enableDragToClose (ui.js) no aplica acá: está
+        // pensado para hojas que suben desde abajo, no para un visor a
+        // pantalla completa.
+        const dy = Math.max(0, e.clientY - downPos.y);
+        if (dy > Math.abs(e.clientX - downPos.x)) {
+          img.style.transform = `translateY(${dy}px)`;
+          img.style.opacity = String(Math.max(0.35, 1 - dy / 400));
+        }
+      }
+      if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 8) moved = true;
+    }
+  });
+
+  function onPointerUp(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStartDist = 0;
+    if (pointers.size > 0) return;
+
+    panStart = null;
+    const dy = downPos ? e.clientY - downPos.y : 0;
+    const dx = downPos ? e.clientX - downPos.x : 0;
+    if (scale <= 1 && dy > 90 && dy > Math.abs(dx)) {
+      moved = false;
+      closeDialog(lightboxDlg).then(() => {
+        img.style.transform = '';
+        img.style.opacity = '';
+      });
+      return;
+    }
+    if (scale <= 1 && (img.style.transform || img.style.opacity)) {
+      // No llegó al umbral: vuelve a su lugar en vez de quedar corrida.
+      img.style.transition = 'transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out)';
+      img.style.transform = '';
+      img.style.opacity = '';
+      setTimeout(() => { img.style.transition = 'none'; }, 220);
+    }
+
+    const wasQuickTap = !moved && Date.now() - downAt < 400;
+    moved = false;
+    if (!wasQuickTap) return;
+
+    const now = Date.now();
+    if (now - lastTapAt < 300) {
+      // doble-tap: alterna zoom
+      if (scale > 1) resetZoom();
+      else zoomAt(e.clientX, e.clientY);
+    } else if (scale <= 1 && fullSrcsOf().length > 1) {
+      // un solo tap a un costado cambia de foto; en el centro, zoom simple
+      const r = stage.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      if (x < r.width * 0.25) goTo(currentIndex() - 1);
+      else if (x > r.width * 0.75) goTo(currentIndex() + 1);
+      else zoomAt(e.clientX, e.clientY);
+    } else if (scale <= 1) {
+      zoomAt(e.clientX, e.clientY);
+    } else {
+      resetZoom();
+    }
+    lastTapAt = now;
+  }
+  stage?.addEventListener('pointerup', onPointerUp);
+  stage?.addEventListener('pointercancel', (e) => {
+    pointers.delete(e.pointerId);
+    panStart = null;
+    moved = false;
+  });
+}
 
 /* ==========================================================================
    ARRANQUE
