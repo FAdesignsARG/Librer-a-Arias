@@ -6,7 +6,7 @@
   "scripts": {
     "extract": "node scripts/extract.js",
     "dev": "node --use-system-ca server.js",
-    "build": "node scripts/build.js"
+    "build": "node --use-system-ca scripts/build.js"
   },
   "dependencies": {
     "firebase": "^12.17.1",
