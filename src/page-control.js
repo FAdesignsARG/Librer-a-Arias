@@ -194,15 +194,26 @@ function applySections(visibleNames, orderNames) {
   const sections = [...document.querySelectorAll('[data-arias-section]')];
   if (!sections.length) return;
 
+  const realNames = new Set(sections.map((s) => s.dataset.ariasSection));
   const list = (Array.isArray(visibleNames) ? visibleNames : []).filter(Boolean);
-  if (list.length) {
+
+  // Sólo se controla la visibilidad si la lista de Base44 nombra secciones
+  // que EXISTEN en esta página. Si viene con los nombres genéricos del
+  // template de ejemplo ("categorias", "beneficios"...) que acá no
+  // existen, se ignora — así una config armada para la estructura
+  // genérica no oculta el carrusel o el bloque "Visitanos" sin querer.
+  // Los nombres reales están en docs/base44-integracion/RESUMEN-PARA-RODRI.md:
+  // hero · promos · destacados · productos · visitanos.
+  const controlsThisPage = list.some((name) => realNames.has(name));
+
+  if (list.length && controlsThisPage) {
     const visible = new Set(list);
     sections.forEach((s) => {
       s.hidden = !visible.has(s.dataset.ariasSection);
     });
   } else {
-    // Lista vacía o ausente = Base44 no está controlando la visibilidad:
-    // se revierte cualquier ocultamiento previo (nunca "ocultar todo").
+    // Lista vacía, ausente, o para otra estructura de página: no se toca
+    // la visibilidad y se revierte cualquier ocultamiento previo.
     sections.forEach((s) => {
       s.hidden = false;
     });
