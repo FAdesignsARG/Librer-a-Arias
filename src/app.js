@@ -349,7 +349,10 @@ function buildOrderMessage() {
     '¿Me confirman stock y forma de pago?',
   ].join('\n');
 }
-const buildOrderLink = () => `https://wa.me/${SETTINGS.whatsapp}?text=${encodeURIComponent(buildOrderMessage())}`;
+// window.__ARIAS_WA lo puede setear page-control.js si Base44 tiene un
+// número distinto configurado (marketing). Sin eso, el de siempre.
+const buildOrderLink = () =>
+  `https://wa.me/${window.__ARIAS_WA || SETTINGS.whatsapp}?text=${encodeURIComponent(buildOrderMessage())}`;
 
 function openSheet() {
   if (!sheet) return;
@@ -698,6 +701,17 @@ const promoInfo = $('#promoInfo');
 
 let activeCat = 'Todos';
 
+/* Productos destacados desde Base44 (page-control.js emite este evento con
+   los slugs elegidos por marketing). Es NO destructivo: sólo reordena la
+   grilla para poner esos primero, y sólo en modo "Recomendados" para no
+   pelear con un orden explícito como "Menor precio". Sin evento, o con
+   lista vacía, la grilla queda como siempre. */
+let ariasFeaturedSlugs = [];
+window.addEventListener('arias:featured-products', (e) => {
+  ariasFeaturedSlugs = Array.isArray(e.detail?.productIds) ? e.detail.productIds : [];
+  if (grid) render();
+});
+
 function sortList(list, mode) {
   const out = [...list];
   if (mode === 'destacados') {
@@ -728,7 +742,14 @@ function render() {
         ? getIndex().filter((e) => offerActive(e.p))
         : getIndex().filter((e) => e.p.category === activeCat);
   const found = filterByPrice(searchProducts(searchEl.value, pool), priceEl?.value);
-  const list = sortList(found, sortEl?.value || 'relevancia');
+  let list = sortList(found, sortEl?.value || 'relevancia');
+
+  if (ariasFeaturedSlugs.length && (sortEl?.value || 'relevancia') === 'relevancia') {
+    const rank = new Map(ariasFeaturedSlugs.map((slug, i) => [slug, i]));
+    list = [...list].sort(
+      (a, b) => (rank.has(a.slug) ? rank.get(a.slug) : Infinity) - (rank.has(b.slug) ? rank.get(b.slug) : Infinity)
+    );
+  }
 
   grid.innerHTML = list.map(cardHtml).join('');
 

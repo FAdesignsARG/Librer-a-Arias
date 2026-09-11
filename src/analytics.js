@@ -39,7 +39,8 @@
  * mandan los utm_source/utm_medium/utm_campaign en cada evento y pedido.
  */
 
-const ARIAS_APP_ID = '6a7e432be6e59ad993e40158';
+import { getBase44 } from './base44-client.js';
+
 const MAX_EVENTS_PER_SESSION = 120;
 const CART_KEY = 'arias.pedido.v1';
 const SESSION_KEY = 'arias_catalog_session_v1';
@@ -451,15 +452,9 @@ async function loadProducts() {
 async function init() {
   if (looksLikeBot()) return;
 
-  try {
-    const [{ createClient }] = await Promise.all([
-      import('https://esm.sh/@base44/sdk@0.8.41?bundle'),
-      loadProducts(),
-    ]);
-    base44 = createClient({ appId: ARIAS_APP_ID });
-  } catch {
-    return; // sin SDK no se manda nada — nunca rompe la navegación del catálogo
-  }
+  const [client] = await Promise.all([getBase44(), loadProducts()]);
+  if (!client) return; // sin SDK no se manda nada — nunca rompe la navegación del catálogo
+  base44 = client;
 
   trackCatalogEvent('Visita');
   trackProductPageView();

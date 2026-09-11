@@ -244,6 +244,7 @@ function layout({ head, body, settings, bodyClass = '' }) {
 <link rel="stylesheet" href="/src/theme.css">
 <link rel="stylesheet" href="/src/assistant.css">
 <link rel="stylesheet" href="/src/notify.css">
+<link rel="stylesheet" href="/src/page-control.css">
 ${head.preload || ''}
 ${themeBootScript}
 <script type="application/ld+json">${head.jsonLd}</script>
@@ -260,6 +261,10 @@ ${welcomeHtml(s)}
 <script type="module" src="/src/app.js"></script>
 <script type="module" src="/src/assistant.js"></script>
 <script type="module" src="/src/analytics.js"></script>
+<!-- Control remoto de página desde Base44 (marketing). Para desactivarlo
+     por completo: poner enabled:false acá, o borrar estas dos líneas. -->
+<script>window.ARIAS_PAGE_CONTROL = { enabled: true, refreshMs: 60000 };</script>
+<script type="module" src="/src/page-control.js"></script>
 </body>
 </html>`;
 }
@@ -300,7 +305,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
       ${ico.bell}<span class="bellbtn__dot" id="bellDot" hidden></span>
     </button>
     ${themeButton}
-    <a class="btn btn--gold btn--sm nav__wa" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">
+    <a class="btn btn--gold btn--sm nav__wa" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">
       ${ico.wa} Escribinos
     </a>
     <button type="button" class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-label="Menú">
@@ -398,7 +403,7 @@ const orderSheet = (s) => `
     <span class="fab__count" id="fabCount">0</span>
   </button>
   <div class="dock__row">
-    <a class="dockbtn dockbtn--wa" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener"
+    <a class="dockbtn dockbtn--wa" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener"
        aria-label="Escribinos por WhatsApp" title="Escribinos por WhatsApp">
       ${ico.wa}
     </a>
@@ -501,7 +506,7 @@ const footer = (s) => `<footer class="footer">
         <h4>Dónde estamos</h4>
         <ul>
           <li><a href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">${esc(s.address)}</a></li>
-          <li><a href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${esc(s.phoneDisplay)}</a></li>
+          <li><a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${esc(s.phoneDisplay)}</a></li>
         </ul>
       </div>
       <div>
@@ -617,16 +622,21 @@ export function renderHome({ products, settings: s }) {
   });
 
   const body = `
-<header class="hero">
+<header class="hero" data-arias-section="hero">
   <div class="hero__bg" style="background-image:url('/assets/brand/hero-bg.webp')"></div>
   <div class="hero__mark">${crane('hero__crane', 132)}</div>
   <img class="hero__title brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211"
        alt="${esc(s.storeName)}" fetchpriority="high">
   <img class="hero__title brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211"
        alt="${esc(s.storeName)}" fetchpriority="high">
+  <!-- Título/subtítulo/CTA opcionales que puede completar Base44 (marketing).
+       Ocultos por defecto: si Base44 no manda nada, el hero se ve como siempre. -->
+  <h2 class="hero__headline" data-arias-hero-title hidden></h2>
+  <p class="hero__sub" data-arias-hero-subtitle hidden></p>
   <div class="hero__actions">
     <a class="btn btn--gold" href="#catalogo">Ver el catálogo</a>
     <a class="btn btn--ghost" href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">${ico.pin} Cómo llegar</a>
+    <a class="btn btn--gold" data-arias-hero-cta hidden></a>
   </div>
   <div class="social">
     <a href="${esc(s.social.maps)}" target="_blank" rel="noopener" aria-label="Ubicación">${ico.mapPin}</a>
@@ -636,7 +646,9 @@ export function renderHome({ products, settings: s }) {
   </div>
 </header>
 
-<section class="attention-carousel" id="attentionCarousel" data-reveal>
+<div data-arias-slot="superior"></div>
+
+<section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
   <div class="attention-carousel__track">
     <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
          aria-label="Ver el detalle de las promociones vigentes">
@@ -664,7 +676,7 @@ export function renderHome({ products, settings: s }) {
 
 ${
   picks.length
-    ? `<section class="picks" data-reveal>
+    ? `<section class="picks" data-arias-section="destacados" data-reveal>
   <div class="shell">
     <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
     <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
@@ -718,6 +730,7 @@ ${
         )
         .join('\n      ')}
     </div>
+    <div data-arias-slot="debajo_buscador"></div>
   </div>
 </div>
 
@@ -791,19 +804,21 @@ ${
   </div>
 </dialog>
 
-<main class="shell">
+<div data-arias-slot="antes_productos"></div>
+
+<main class="shell" data-arias-section="productos">
   <p class="results-line" id="resultsLine"></p>
   <div class="grid" id="grid">${skeletonCards(10)}</div>
   <div class="empty" id="empty" hidden>
     <h3>No encontramos nada con esa búsqueda</h3>
     <p class="t-body">Probá con otras palabras, o escribinos y lo buscamos por vos.</p>
     <p style="margin-top:18px">
-      <a class="btn btn--gold" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} Consultar por WhatsApp</a>
+      <a class="btn btn--gold" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} Consultar por WhatsApp</a>
     </p>
   </div>
 </main>
 
-<section class="section" id="visitanos">
+<section class="section" id="visitanos" data-arias-section="visitanos">
   <div class="shell">
     <div class="section__head" data-reveal>
       <h2 class="t-h1">Visitanos</h2>
@@ -832,11 +847,13 @@ ${
         <div class="info-card__icon">${ico.wa}</div>
         <h3>Consultas y pedidos</h3>
         <p>Armá tu pedido acá y te lo mandamos escrito por WhatsApp. Te confirmamos stock y forma de pago.</p>
-        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} ${esc(s.phoneDisplay)}</a></p>
+        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} ${esc(s.phoneDisplay)}</a></p>
       </div>
     </div>
   </div>
 </section>
+
+<div data-arias-slot="pie"></div>
 
 ${footer(s)}`;
 

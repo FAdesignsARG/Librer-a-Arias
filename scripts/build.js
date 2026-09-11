@@ -113,6 +113,7 @@ const copies = [
   ['src/theme.css', 'src/theme.css'],
   ['src/assistant.css', 'src/assistant.css'],
   ['src/notify.css', 'src/notify.css'],
+  ['src/page-control.css', 'src/page-control.css'],
   ['src/app.js', 'src/app.js'],
   ['src/ui.js', 'src/ui.js'],
   ['src/theme.js', 'src/theme.js'],
@@ -120,6 +121,9 @@ const copies = [
   ['src/assistant.js', 'src/assistant.js'],
   ['src/search-engine.js', 'src/search-engine.js'],
   ['src/analytics.js', 'src/analytics.js'],
+  // Control remoto de página desde Base44 (marketing) + su cliente compartido.
+  ['src/page-control.js', 'src/page-control.js'],
+  ['src/base44-client.js', 'src/base44-client.js'],
   // templates.js importa dailyPicks de acá (Ronda 1) — mismo problema que ya
   // pasó antes con cloudinary-config.js: sin esto, templates.js falla al
   // resolver su propio import en el navegador (404) y como app.js importa

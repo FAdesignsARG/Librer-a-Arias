@@ -1,0 +1,117 @@
+{
+  "name": "ConfiguracionPagina",
+  "type": "object",
+  "properties": {
+    "clave": {
+      "type": "string",
+      "title": "Clave",
+      "default": "principal"
+    },
+    "sitio_activo": {
+      "type": "boolean",
+      "title": "Sitio activo",
+      "default": true
+    },
+    "mensaje_mantenimiento": {
+      "type": "string",
+      "title": "Mensaje de mantenimiento",
+      "default": "Estamos actualizando el catálogo. Volvé a intentarlo en unos minutos."
+    },
+    "whatsapp": {
+      "type": "string",
+      "title": "WhatsApp público"
+    },
+    "barra_aviso_activa": {
+      "type": "boolean",
+      "title": "Barra de aviso activa",
+      "default": false
+    },
+    "barra_aviso_texto": {
+      "type": "string",
+      "title": "Texto de barra de aviso"
+    },
+    "barra_aviso_link": {
+      "type": "string",
+      "title": "Link de barra de aviso"
+    },
+    "hero_activo": {
+      "type": "boolean",
+      "title": "Hero activo",
+      "default": true
+    },
+    "hero_titulo": {
+      "type": "string",
+      "title": "Título del hero"
+    },
+    "hero_subtitulo": {
+      "type": "string",
+      "title": "Subtítulo del hero"
+    },
+    "hero_imagen_url": {
+      "type": "string",
+      "title": "Imagen del hero"
+    },
+    "hero_cta_texto": {
+      "type": "string",
+      "title": "Texto CTA hero"
+    },
+    "hero_cta_url": {
+      "type": "string",
+      "title": "URL CTA hero"
+    },
+    "secciones_visibles": {
+      "type": "array",
+      "title": "Secciones visibles",
+      "items": { "type": "string" },
+      "default": ["hero", "categorias", "destacados", "productos", "beneficios"]
+    },
+    "orden_secciones": {
+      "type": "array",
+      "title": "Orden de secciones",
+      "items": { "type": "string" },
+      "default": ["hero", "categorias", "destacados", "productos", "beneficios"]
+    },
+    "productos_destacados": {
+      "type": "array",
+      "title": "IDs de productos destacados",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "etiqueta_stock_bajo_activa": {
+      "type": "boolean",
+      "title": "Mostrar etiqueta de stock bajo",
+      "default": true
+    },
+    "umbral_stock_bajo": {
+      "type": "number",
+      "title": "Umbral stock bajo",
+      "default": 1
+    },
+    "texto_stock_bajo": {
+      "type": "string",
+      "title": "Texto stock bajo",
+      "default": "Última unidad"
+    },
+    "mostrar_sin_stock": {
+      "type": "boolean",
+      "title": "Mostrar productos sin stock",
+      "default": false
+    },
+    "actualizado_en": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Última actualización"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas internas"
+    }
+  },
+  "required": ["clave"],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

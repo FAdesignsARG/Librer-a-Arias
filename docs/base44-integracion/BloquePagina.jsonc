@@ -1,0 +1,89 @@
+{
+  "name": "BloquePagina",
+  "type": "object",
+  "properties": {
+    "clave": {
+      "type": "string",
+      "title": "Clave del bloque"
+    },
+    "tipo": {
+      "type": "string",
+      "title": "Tipo",
+      "enum": ["Promo", "Banner", "Aviso", "Destacado"],
+      "default": "Promo"
+    },
+    "ubicacion": {
+      "type": "string",
+      "title": "Ubicación",
+      "enum": ["superior", "debajo_buscador", "antes_productos", "entre_productos", "pie"],
+      "default": "antes_productos"
+    },
+    "activo": {
+      "type": "boolean",
+      "title": "Activo",
+      "default": true
+    },
+    "titulo": {
+      "type": "string",
+      "title": "Título"
+    },
+    "texto": {
+      "type": "string",
+      "title": "Texto"
+    },
+    "imagen_url": {
+      "type": "string",
+      "title": "Imagen"
+    },
+    "cta_texto": {
+      "type": "string",
+      "title": "Texto del botón"
+    },
+    "cta_url": {
+      "type": "string",
+      "title": "URL del botón"
+    },
+    "fecha_inicio": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Mostrar desde"
+    },
+    "fecha_fin": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Mostrar hasta"
+    },
+    "prioridad": {
+      "type": "number",
+      "title": "Prioridad",
+      "default": 100
+    },
+    "dispositivo": {
+      "type": "string",
+      "title": "Dispositivo",
+      "enum": ["Todos", "Móvil", "Escritorio"],
+      "default": "Todos"
+    },
+    "product_ids": {
+      "type": "array",
+      "title": "Productos relacionados",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "categoria": {
+      "type": "string",
+      "title": "Categoría relacionada"
+    },
+    "notas": {
+      "type": "string",
+      "title": "Notas internas"
+    }
+  },
+  "required": ["clave", "tipo", "ubicacion"],
+  "rls": {
+    "create": { "user_condition": { "role": "admin" } },
+    "read": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

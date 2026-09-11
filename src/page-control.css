@@ -1,0 +1,128 @@
+/* ==========================================================================
+   CONTROL REMOTO DE PÁGINA (Base44) — estilo de lo que inyecta el script
+   src/page-control.js. Todo con los tokens de la marca y tema claro/oscuro
+   como el resto del sitio. Sin nada de esto la web se ve igual que siempre:
+   estas reglas sólo aplican a nodos que el script crea si Base44 manda algo.
+   ========================================================================== */
+
+/* ---------- barra de aviso (arriba de todo) ---------- */
+.arias-pc-bar {
+  width: 100%;
+  padding: 9px 16px;
+  text-align: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.35;
+  background: var(--gold);
+  color: var(--gold-ink);
+  position: relative;
+  z-index: 101; /* por encima de la nav sticky mientras está a la vista */
+  animation: arias-pc-slide var(--dur-moderate) var(--ease-out);
+}
+.arias-pc-bar a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+@keyframes arias-pc-slide {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* ---------- bloque / promo dinámica en un slot ---------- */
+.arias-pc-block {
+  display: grid;
+  gap: 10px;
+  max-width: var(--page);
+  margin: 16px auto;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--gold-edge);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  animation: arias-pc-fade var(--dur-moderate) var(--ease-out);
+}
+@keyframes arias-pc-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.arias-pc-block__img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-md);
+  display: block;
+}
+.arias-pc-block__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.arias-pc-block__text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.arias-pc-block__cta {
+  justify-self: start;
+}
+
+/* ---------- modo mantenimiento ---------- */
+.arias-pc-maint {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--ink);
+  color: var(--text);
+}
+.arias-pc-maint__box {
+  max-width: 520px;
+  text-align: center;
+}
+.arias-pc-maint__box h1 {
+  margin: 0 0 10px;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+.arias-pc-maint__box p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+/* ---------- etiqueta de stock bajo (la agrega decorateProductCard) ---------- */
+.arias-pc-stock {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- hero: título/subtítulo/CTA que puede completar Base44 ---------- */
+.hero__headline {
+  margin: 4px 0 0;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--text);
+  text-wrap: balance;
+}
+.hero__sub {
+  margin: 8px 0 0;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
