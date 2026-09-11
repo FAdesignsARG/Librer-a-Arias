@@ -43,8 +43,13 @@ borrar esas dos líneas) y rebuild.
 
 3. **CORS**: la función tiene que aceptar el dominio productivo real, que
    es **`https://libreriaarias.com.ar`** (no `libreria-arias.netlify.app`).
-   Sumar también `http://localhost:4321` y `http://localhost:4322` para
-   desarrollo.
+   Sumar también:
+   - `https://preview--libreria-arias.netlify.app` — para poder probar
+     todo el flujo en el deploy de preview antes de producción. **Hoy este
+     dominio da 403** en `functions/catalogo-metricas` (no está en la lista
+     de CORS), así que ni las métricas ni page-control funcionan desde
+     ahí; en el dominio real sí.
+   - `http://localhost:4321` y `http://localhost:4322` — desarrollo.
 
 4. La acción `configuracion_pagina` **es de sólo lectura**. No debe
    aceptar ninguna escritura. Todas las ediciones de `ConfiguracionPagina`
