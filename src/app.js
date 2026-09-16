@@ -1,3 +1,4 @@
+import { initHomeSearchMotion } from './home-search-motion.js';
 /**
  * Lógica del catálogo en el navegador.
  *
@@ -262,10 +263,47 @@ function bumpFab() {
   setTimeout(() => delete fab.dataset.bump, 430);
 }
 
+/* El precio flotante del pedido vive dentro del dock (carrito/WhatsApp/IA),
+   fijo abajo a la derecha. En fichas con foto alta, mostrarlo apenas se
+   carga la página lo hace tapar el título (se solapa con el <h1>, sin
+   necesidad de scrollear). Se lo gatea a que aparezca recién después de
+   scrollear un poco: en esa altura ya no queda nada arriba del fold con
+   lo que pueda chocar. */
+let fabScrollReady = false;
+function updateFabVisibility() {
+  if (!fab) return;
+  fab.hidden = cartCount() === 0 || !fabScrollReady;
+}
+window.addEventListener(
+  'scroll',
+  () => {
+    const ready = window.scrollY > window.innerHeight * 0.6;
+    if (ready === fabScrollReady) return;
+    fabScrollReady = ready;
+    updateFabVisibility();
+  },
+  { passive: true }
+);
+
 function syncCartUI() {
   const n = cartCount();
+  const homeCount = $('#homeOrderCount');
+  if (homeCount) homeCount.textContent = String(n);
+  // Contador de la isla flotante de la home: cambia al instante y late
+  // (fab-bump) solo cuando sube, como confirmación de "agregado".
+  $$('[data-order-count]').forEach((el) => {
+    const prev = Number(el.textContent) || 0;
+    el.textContent = String(n);
+    el.closest('[data-open-order]')?.setAttribute('aria-label', `Mi pedido: ${n} ${n === 1 ? 'producto' : 'productos'}`);
+    el.dataset.empty = String(n === 0);
+    if (n > prev) {
+      delete el.dataset.bump;
+      void el.offsetWidth;
+      el.dataset.bump = 'true';
+    }
+  });
   if (fab) {
-    fab.hidden = n === 0;
+    updateFabVisibility();
     fabCount.textContent = String(n);
     fabTotal.textContent = money(cartTotal());
   }
@@ -368,6 +406,9 @@ function openSheet() {
 }
 
 fab?.addEventListener('click', openSheet);
+$('#homeOrder')?.addEventListener('click', openSheet);
+$$('[data-open-order]').forEach((btn) => btn.addEventListener('click', openSheet));
+$('#homeHelp')?.addEventListener('click', () => $('#askBtn')?.click());
 wireDialog(sheet, $('#sheetClose'));
 enableDragToClose(sheet, { header: $('.sheet__head', sheet), scrollEl: sheetBody });
 
@@ -773,6 +814,8 @@ function render() {
     : '';
 
   searchWrap.dataset.filled = String(searchEl.value.length > 0);
+  // Keep this history entry's filters when returning from a product page.
+  history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '');
   syncCartUI();
 }
 
@@ -872,6 +915,7 @@ wireDialog(promoImageDlg, $('#promoImageClose'));
    nunca se pierde funcionalidad, sólo el movimiento automático.
    ========================================================================== */
 function wireAttentionCarousel() {
+  if (document.body.classList.contains('page-home')) return;
   const el = $('#attentionCarousel');
   const track = $('.attention-carousel__track', el || document);
   if (!el || !track) return;
@@ -999,35 +1043,76 @@ priceSheet?.addEventListener('click', (e) => {
 const menuBtn = $('#menuBtn');
 const menuSheet = $('#menuSheet');
 
-menuBtn?.addEventListener('click', () => {
+const themeLabel = () => {
+  const label = $('[data-theme-label]', menuSheet);
+  if (label) label.textContent = document.documentElement.dataset.theme === 'light' ? 'Pasar a modo oscuro' : 'Pasar a modo claro';
+};
+
+/* En la home mobile el menú es el panel expandido de la isla: nace del
+   mismo lugar que la píldora (clip-path desde su rectángulo) en vez de
+   subir como una hoja aparte. Sin la isla, o con movimiento reducido,
+   abre como siempre. */
+function openMenu(from) {
+  if (!menuSheet) return;
+  themeLabel();
+  delete menuSheet.dataset.closing;
   menuSheet.showModal();
   menuSheet.focus(); // ver comentario en openSheet()
-});
+  const pill = from?.closest('.search');
+  if (!pill || !menuSheet.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const a = pill.getBoundingClientRect();
+  const b = menuSheet.getBoundingClientRect();
+  const inset = [a.top - b.top, b.right - a.right, b.bottom - a.bottom, a.left - b.left].map((v) => `${Math.max(0, v)}px`);
+  const css = getComputedStyle(document.documentElement);
+  menuSheet.animate(
+    [
+      { clipPath: `inset(${inset.join(' ')} round ${a.height / 2}px)`, opacity: 0.7 },
+      { clipPath: `inset(0 round ${css.getPropertyValue('--r-xl').trim() || '28px'})`, opacity: 1 },
+    ],
+    { duration: (parseFloat(css.getPropertyValue('--dur-slow')) || 0.5) * 1000, easing: css.getPropertyValue('--ease-premium').trim() || 'ease-out' }
+  );
+}
+
+menuBtn?.addEventListener('click', () => openMenu());
+$$('[data-open-menu]').forEach((btn) => btn.addEventListener('click', () => openMenu(btn)));
 wireDialog(menuSheet, $('#menuSheetClose'));
 enableDragToClose(menuSheet, { header: $('.sortsheet__head', menuSheet), scrollEl: $('.menusheet__body', menuSheet) });
 
-// Los links de Catálogo/Horarios/Visitanos navegan solos (son <a> con
-// href) — esto sólo cierra la hoja para que no quede abierta encima.
-$('#menusheetLinks')?.addEventListener('click', (e) => {
+// Los links (Catálogo/Horarios/Visitanos, rubros, WhatsApp) navegan solos
+// — esto sólo cierra la hoja para que no quede abierta encima.
+menuSheet?.addEventListener('click', (e) => {
   if (e.target.closest('a')) closeDialog(menuSheet);
 });
+
+function runGuide(action) {
+  if (action === 'chat') {
+    $('#askBtn')?.click();
+  } else if (action === 'news') {
+    $('#bellBtn')?.click();
+  } else if (action === 'catalog' && grid) {
+    grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (action === 'cart') {
+    openSheet();
+  } else {
+    location.href = '/#catalogo';
+  }
+}
 
 menuSheet?.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-guide]');
   if (!btn) return;
   const action = btn.dataset.guide;
-  closeDialog(menuSheet).then(() => {
-    if (action === 'chat') {
-      $('#askBtn')?.click();
-    } else if (action === 'catalog' && grid) {
-      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else if (action === 'cart') {
-      openSheet();
-    } else {
-      location.href = '/#catalogo';
-    }
-  });
+  // El tema se cambia con el panel abierto: se ve el resultado al instante.
+  if (action === 'theme') {
+    $('#themeBtn')?.click();
+    themeLabel();
+    return;
+  }
+  closeDialog(menuSheet).then(() => runGuide(action));
 });
+
+// Accesos rápidos de la home que no son links (ej. "Preguntar").
+$$('.home-quick [data-guide]').forEach((btn) => btn.addEventListener('click', () => runGuide(btn.dataset.guide)));
 
 /* ---- Atajo de teclado: "/" salta al buscador (sólo desktop tiene
    sentido, pero no hace daño dejarlo activo en todos lados) ---- */
@@ -1299,6 +1384,51 @@ if (grid) {
   // Permite entrar directo a un rubro (o a Ofertas) desde afuera:
   // /?cat=Bazar, /?cat=Ofertas. selectCategory ya llama a render() si
   // encuentra el chip — si no, hace falta el render manual de siempre.
-  const wanted = new URLSearchParams(location.search).get('cat');
+  const saved = history.state?.ariasCatalog;
+  if (saved && typeof saved.q === 'string') {
+    searchEl.value = saved.q;
+    if (sortEl && saved.sort) sortEl.value = saved.sort;
+    if (priceEl) priceEl.value = saved.price || '';
+  }
+  const wanted = new URLSearchParams(location.search).get('cat') || saved?.category;
   if (!wanted || !selectCategory(wanted)) render();
+}
+
+// One search field, shared by the hero and the floating capsule.
+if ($('#homeSearch')) {
+  initHomeSearchMotion();
+  const form = $('#homeSearch');
+  const suggestions = $('#homeSuggestions');
+  const closeSuggestions = () => { suggestions.hidden = true; searchEl.setAttribute('aria-expanded', 'false'); };
+  searchEl.setAttribute('aria-expanded', 'false');
+  searchEl.setAttribute('aria-controls', 'homeSuggestions grid');
+  // Isla: mientras se escribe, Pedido y Menú se corren y aparece "Buscar".
+  // Pedido/Menú no cuentan como parte de la búsqueda: si el foco llega a
+  // ellos (Tab), la isla vuelve a su forma normal.
+  const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__submit'));
+  const setSearching = on => form.classList.toggle('is-searching', on);
+  searchEl.addEventListener('focus', () => { suggestions.hidden = false; searchEl.setAttribute('aria-expanded', 'true'); setSearching(true); });
+  form.addEventListener('focusin', e => setSearching(searchParts(e.target)));
+  form.addEventListener('focusout', e => { if (!searchParts(e.relatedTarget)) { closeSuggestions(); setSearching(false); } });
+  // Tocar Buscar, Borrar o una sugerencia no le saca el foco al campo: así
+  // la isla no cambia de forma debajo del dedo (Safari no enfoca botones).
+  form.addEventListener('mousedown', e => { if (form.classList.contains('is-searching') && searchParts(e.target) && e.target !== searchEl) e.preventDefault(); });
+  form.addEventListener('keydown', e => { if(e.key === 'Escape') {closeSuggestions(); searchEl.focus({preventScroll:true});} });
+  if (bellDot) {
+    const mirror = () => $$('#islandDot, #islandPanelDot').forEach(d => { d.hidden = bellDot.hidden; });
+    new MutationObserver(mirror).observe(bellDot, { attributes: true, attributeFilter: ['hidden'] });
+    mirror();
+  }
+  const results = () => {
+    clearTimeout(searchTimer); render(); closeSuggestions();
+    // En el celular el teclado taparía los resultados.
+    if (matchMedia('(pointer: coarse)').matches) searchEl.blur();
+    $('#catalogo').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  };
+  form.addEventListener('submit', e => { e.preventDefault(); results(); });
+  $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; searchEl.focus({preventScroll:true}); results(); }));
+  $$('[data-home-category]').forEach(link => link.addEventListener('click', e => {
+    if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); selectCategory(link.dataset.homeCategory); results();
+  }));
 }

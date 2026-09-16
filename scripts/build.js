@@ -115,6 +115,8 @@ const copies = [
   ['src/notify.css', 'src/notify.css'],
   ['src/page-control.css', 'src/page-control.css'],
   ['src/app.js', 'src/app.js'],
+  ['src/home.css', 'src/home.css'],
+  ['src/home-search-motion.js', 'src/home-search-motion.js'],
   ['src/ui.js', 'src/ui.js'],
   ['src/theme.js', 'src/theme.js'],
   // El asistente se publica: sin servidor detrás cae solo al buscador local.

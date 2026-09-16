@@ -103,11 +103,11 @@ const ico = {
 /* ---------- tema ----------
    Corre antes de que el navegador pinte nada. Si esperáramos al módulo,
    se vería un flash del tema equivocado en cada carga. */
-const themeBootScript = `<script>(function(){try{
+const themeBootScript = (home = false) => `<script>(function(){try{
 var t=localStorage.getItem('arias.tema');
 if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
 document.documentElement.dataset.theme=t;
-if(sessionStorage.getItem('arias.splash.visto')!=='1')document.documentElement.dataset.splash='running';
+${home ? '' : "if(sessionStorage.getItem('arias.splash.visto')!=='1')document.documentElement.dataset.splash='running';"}
 }catch(e){document.documentElement.dataset.theme='dark';}})();<\/script>`;
 
 const splashHtml = (s) => `<div class="splash" id="splash" aria-hidden="true">
@@ -127,9 +127,11 @@ const splashHtml = (s) => `<div class="splash" id="splash" aria-hidden="true">
   </div>
 </div>`;
 
+const themeIcons = `<svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+  <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>`;
+
 const themeButton = `<button class="themebtn" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema">
-  <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
-  <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+  ${themeIcons}
 </button>`;
 
 const welcomeHtml = (s) => `<dialog class="welcome" id="welcome" aria-labelledby="welcomeTitle">
@@ -242,21 +244,22 @@ function layout({ head, body, settings, bodyClass = '' }) {
 <link rel="stylesheet" href="/src/styles.css">
 <link rel="stylesheet" href="/src/styles-parts.css">
 <link rel="stylesheet" href="/src/theme.css">
+${bodyClass === 'page-home' ? '<link rel="stylesheet" href="/src/home.css">' : ''}
 <link rel="stylesheet" href="/src/assistant.css">
 <link rel="stylesheet" href="/src/notify.css">
 <link rel="stylesheet" href="/src/page-control.css">
 ${head.preload || ''}
-${themeBootScript}
+${themeBootScript(bodyClass === 'page-home')}
 <script type="application/ld+json">${head.jsonLd}</script>
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
-${splashHtml(s)}
-${navbar(s)}
+${bodyClass === 'page-home' ? '' : splashHtml(s)}
+${navbar(s, bodyClass === 'page-home')}
 ${body}
 ${orderSheet(s)}
 ${notifyPanel()}
-${menuSheetHtml()}
-${welcomeHtml(s)}
+${menuSheetHtml(bodyClass === 'page-home' ? s : null)}
+${bodyClass === 'page-home' ? '' : welcomeHtml(s)}
 <script type="module" src="/src/theme.js"></script>
 <script type="module" src="/src/app.js"></script>
 <script type="module" src="/src/assistant.js"></script>
@@ -290,7 +293,12 @@ const crane = (cls, size) => {
 const askIco =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>';
 
-const navbar = (s) => `<nav class="nav" id="nav">
+const menuIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+const gridIco =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>';
+
+const navbar = (s, home = false) => `<nav class="nav" id="nav">
   <div class="nav__inner">
     <a class="nav__brand" href="/" aria-label="${esc(s.storeName)} — inicio">
       ${crane('nav__crane', 32)}
@@ -311,6 +319,7 @@ const navbar = (s) => `<nav class="nav" id="nav">
     <button type="button" class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-label="Menú">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
+    ${home ? `<div class="home-tools"><button type="button" id="homeHelp" aria-haspopup="dialog" aria-label="Ayuda">${askIco}<span>Ayuda</span></button><button type="button" id="homeOrder" aria-haspopup="dialog">Mi pedido <span id="homeOrderCount">0</span></button></div>` : ''}
   </div>
 </nav>`;
 
@@ -324,7 +333,7 @@ const chatIco =
  * botón que HACE cada cosa en vez de explicarla, nada de plantearlo como
  * un instructivo de compra.
  */
-const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
+const menuSheetHtml = (home) => home ? islandPanelHtml(home) : `<dialog class="sortsheet menusheet" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
   <div class="sortsheet__head">
     <h2 id="menuSheetTitle">Menú</h2>
     <button type="button" class="sheet__close" id="menuSheetClose" aria-label="Cerrar">${ico.x}</button>
@@ -375,6 +384,37 @@ const menuSheetHtml = () => `<dialog class="sortsheet menusheet" id="menuSheet" 
         </span>
         <button type="button" class="guidestep__btn" data-guide="cart">Escribir</button>
       </div>
+    </div>
+  </div>
+</dialog>`;
+
+/**
+ * Home mobile: el mismo #menuSheet, pero como panel expandido de la isla
+ * flotante (buscador + pedido + menú). Absorbe lo que en la home dejaba de
+ * verse: rubros, asistente, WhatsApp, novedades, horarios y tema. Conserva
+ * los IDs del menú común para que app.js lo maneje con el mismo código.
+ */
+const islandPanelHtml = (s) => `<dialog class="sortsheet menusheet menusheet--island" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="menuSheetTitle">Menú</h2>
+    <button type="button" class="sheet__close" id="menuSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="menusheet__body">
+    <p class="island-panel__label" style="--i:0">Rubros</p>
+    <nav class="island-panel__cats" id="menusheetLinks" aria-label="Rubros" style="--i:1">
+      ${['Todos', 'Ofertas', ...s.categories].map((c) => `<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c === 'Todos' ? 'Ver todo' : esc(c)}</a>`).join('')}
+    </nav>
+    <p class="island-panel__label" style="--i:2">Te ayudamos</p>
+    <div class="island-panel__list" style="--i:3">
+      <button type="button" data-guide="chat"><span class="island-panel__ico">${askIco}</span><span><strong>Preguntar al asistente</strong><small>Te ayuda a encontrar lo que buscás</small></span></button>
+      <a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener"><span class="island-panel__ico">${ico.wa}</span><span><strong>Escribinos por WhatsApp</strong><small>Te respondemos desde el local</small></span></a>
+      <button type="button" data-guide="news"><span class="island-panel__ico">${ico.bell}<span class="island__dot" id="islandPanelDot" hidden></span></span><span><strong>Novedades y ofertas</strong><small>Lo nuevo y lo que tiene descuento</small></span></button>
+    </div>
+    <p class="island-panel__label" style="--i:4">El local</p>
+    <div class="island-panel__list" style="--i:5">
+      <a href="/#horarios"><span class="island-panel__ico">${ico.clock}</span><span><strong>Horarios</strong><small>Cuándo abrimos</small></span></a>
+      <a href="/#visitanos"><span class="island-panel__ico">${ico.pin}</span><span><strong>Visitanos</strong><small>Dirección y cómo llegar</small></span></a>
+      <button type="button" data-guide="theme"><span class="island-panel__ico">${themeIcons}</span><span><strong data-theme-label>Cambiar tema</strong><small>Claro u oscuro, como te guste</small></span></button>
     </div>
   </div>
 </dialog>`;
@@ -591,6 +631,11 @@ const productLd = (s, p) => ({
 export function renderHome({ products, settings: s }) {
   const cats = ['Todos', 'Ofertas', ...s.categories];
   const picks = dailyPicks(products, { count: 5 });
+  const favorites = ['pizarra-lcd-de-12-pulgadas', 'auriculares-gamer-g007', 'velador-patito', 'tumbler-vaso-termico-caka-coffee-club-rosa', 'puzzle-capybara'];
+  const covers = s.categories.map(category => ({category, product: products.find(p => p.category === category && p.inStock && p.images?.length && favorites.includes(p.slug)) || products.find(p => p.category === category && p.inStock && p.images?.length)})).filter(c => c.product);
+  const scene = covers.slice(0,5);
+  const discoverySlugs = ['cubo-de-actividades-de-madera', 'camara-digital-para-ninos-rosa', 'robot-proyector-de-galaxia', 'cafetera-moka-gris-premium', 'pizarra-magnetica-de-madera'];
+  const discovery = covers.map(({category,product}) => ({category, product: products.find(p => p.category === category && p.inStock && p.images?.length && discoverySlugs.includes(p.slug)) || products.find(p => p.category === category && p.inStock && p.images?.length && p.slug !== product.slug) || product}));
   // Ronda 1.1: badge de urgencia con el tramo más alto real — si cambia en
   // Firestore, el número del carrusel cambia solo, nunca queda hardcodeado.
   const maxPromoPercent = Math.max(...s.promos.tiers.map((t) => t.percent));
@@ -622,31 +667,56 @@ export function renderHome({ products, settings: s }) {
   });
 
   const body = `
-<header class="hero" data-arias-section="hero">
-  <div class="hero__bg" style="background-image:url('/assets/brand/hero-bg.webp')"></div>
-  <div class="hero__mark">${crane('hero__crane', 132)}</div>
-  <img class="hero__title brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211"
-       alt="${esc(s.storeName)}" fetchpriority="high">
-  <img class="hero__title brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211"
-       alt="${esc(s.storeName)}" fetchpriority="high">
-  <!-- Título/subtítulo/CTA opcionales que puede completar Base44 (marketing).
-       Ocultos por defecto: si Base44 no manda nada, el hero se ve como siempre. -->
-  <h2 class="hero__headline" data-arias-hero-title hidden></h2>
-  <p class="hero__sub" data-arias-hero-subtitle hidden></p>
-  <div class="hero__actions">
-    <a class="btn btn--gold" href="#catalogo">Ver el catálogo</a>
-    <a class="btn btn--ghost" href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">${ico.pin} Cómo llegar</a>
-    <a class="btn btn--gold" data-arias-hero-cta hidden></a>
+<header class="hero home-hero" data-arias-section="hero">
+  <div class="home-scene" aria-label="Ideas para descubrir">
+    ${scene.map(({product:p},i)=>`<a class="home-scene__card" style="--i:${i}" href="/p/${esc(p.slug)}/"><img src="${esc(thumbSrc(p.images[0]))}" width="300" height="300" alt="${esc(p.name)}" fetchpriority="${i===2?'high':'auto'}"><span>${esc(p.category)}</span><strong>${money(offerHasDiscount(p)?p.offer.price:p.price)}</strong></a>`).join('')}
   </div>
-  <div class="social">
-    <a href="${esc(s.social.maps)}" target="_blank" rel="noopener" aria-label="Ubicación">${ico.mapPin}</a>
-    <a href="${esc(s.social.instagram)}" target="_blank" rel="noopener" aria-label="Instagram">${ico.ig}</a>
-    <a href="${esc(s.social.facebook)}" target="_blank" rel="noopener" aria-label="Facebook">${ico.fb}</a>
-    <a href="${esc(s.social.tiktok)}" target="_blank" rel="noopener" aria-label="TikTok">${ico.tk}</a>
+  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"><img class="brand-light" src="/assets/brand/wordmark-light-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"></h1>
+  <p class="home-tagline">${esc(s.tagline)}</p>
+  <div id="homeSearchAnchor" class="home-search-anchor">
+    <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
+      <div class="search" id="searchWrap">
+        ${ico.search}<input id="search" name="q" type="search" enterkeyhint="search" placeholder="¿Qué buscás?" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
+        <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
+        <button class="home-search__submit" type="submit" aria-label="Buscar">${ico.chevron}</button>
+        <div class="island__actions">
+          <button type="button" class="island__order" data-open-order aria-haspopup="dialog">${ico.bag}<span class="island__orderLabel">Pedido</span><span class="island__count" data-order-count>0</span></button>
+          <button type="button" class="island__menu" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet" aria-label="Menú">${menuIco}<span class="island__dot" id="islandDot" hidden></span></button>
+        </div>
+      </div>
+      <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p>${['Regalos','Auriculares','Mochilas'].map(q=>`<button type="button" data-search-idea="${q}">${ico.search}${q}${ico.chevron}</button>`).join('')}<button type="submit" class="home-search__results">Ver resultados ${ico.chevron}</button></div>
+    </form>
   </div>
+  <nav class="home-quick" aria-label="Accesos rápidos">
+    <a href="/?cat=Todos#catalogo" data-home-category="Todos" style="--i:0"><span class="home-quick__ico">${gridIco}</span>Catálogo</a>
+    <a href="/?cat=Ofertas#catalogo" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
+    <button type="button" data-guide="chat" style="--i:2"><span class="home-quick__ico">${askIco}</span>Preguntar</button>
+    <a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener" style="--i:3"><span class="home-quick__ico">${ico.wa}</span>WhatsApp</a>
+  </nav>
+  <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
+  <h2 class="hero__headline" data-arias-hero-title hidden></h2><p class="hero__sub" data-arias-hero-subtitle hidden></p><a class="btn btn--gold" data-arias-hero-cta hidden></a>
 </header>
+<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/?cat=${encodeURIComponent(category)}#catalogo" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
 
 <div data-arias-slot="superior"></div>
+
+
+
+${
+  picks.length
+    ? `<section class="picks" data-arias-section="destacados" data-reveal>
+  <div class="shell">
+    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
+    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
+  </div>
+  <div class="picks__row">
+    ${picks
+      .map((p, i) => `<div class="picks__item" data-reveal style="transition-delay:${i * 70}ms">${cardHtml(p)}</div>`)
+      .join('\n    ')}
+  </div>
+</section>`
+    : ''
+}
 
 <section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
   <div class="attention-carousel__track">
@@ -674,33 +744,9 @@ export function renderHome({ products, settings: s }) {
   </div>
 </section>
 
-${
-  picks.length
-    ? `<section class="picks" data-arias-section="destacados" data-reveal>
-  <div class="shell">
-    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
-    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
-  </div>
-  <div class="picks__row">
-    ${picks
-      .map((p, i) => `<div class="picks__item" data-reveal style="transition-delay:${i * 70}ms">${cardHtml(p)}</div>`)
-      .join('\n    ')}
-  </div>
-</section>`
-    : ''
-}
-
 <div class="controls" id="catalogo">
   <div class="shell">
     <div class="controls__row">
-      <div class="search" id="searchWrap">
-        ${ico.search}
-        <input id="search" type="text" autocomplete="off" enterkeyhint="search"
-               placeholder="Buscá por nombre, o probá &quot;regalo para nena&quot;"
-               aria-label="Buscar productos">
-        <kbd class="search__kbd" aria-hidden="true">/</kbd>
-        <button class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
-      </div>
       <select class="sort" id="sort" aria-label="Ordenar">
         <option value="relevancia">Recomendados</option>
         <option value="destacados">Destacados primero</option>
@@ -866,9 +912,10 @@ ${footer(s)}`;
       ),
       canonical: `${s.siteUrl}/`,
       jsonLd,
-      preload: `<link rel="preload" as="image" href="/assets/brand/wordmark-dark.webp">`,
+
     },
     body,
+    bodyClass: 'page-home',
     settings: s,
   });
 }
