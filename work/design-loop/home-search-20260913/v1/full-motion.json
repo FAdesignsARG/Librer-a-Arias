@@ -1,0 +1,92 @@
+[
+  {
+    "ms": 0,
+    "style": "--search-keyboard-bottom: 0px;",
+    "top": 157,
+    "y": 0
+  },
+  {
+    "ms": 44,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 828,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 74,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 803.8655395507812,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 112,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 776.3554077148438,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 144,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 755.7871704101562,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 175,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 746.525146484375,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 218,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 740.9547119140625,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 252,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 738.6221313476562,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 298,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 737.0281982421875,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 348,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 736.5072631835938,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 391,
+    "style": "--search-keyboard-bottom: 0px; inset: 736.4px auto auto 16px; position: fixed; width: 328px; height: 63.6px; transform: none; transition: none; z-index: 120; will-change: transform; box-sizing: border-box;",
+    "top": 736.4042358398438,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 432,
+    "style": "--search-keyboard-bottom: 0px; bottom: calc(var(--search-bottom-gap, 24px) + env(safe-area-inset-bottom, 0px) + var(--search-keyboard-bottom, 0px));",
+    "top": 736.4000244140625,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 468,
+    "style": "--search-keyboard-bottom: 0px; bottom: calc(var(--search-bottom-gap, 24px) + env(safe-area-inset-bottom, 0px) + var(--search-keyboard-bottom, 0px));",
+    "top": 736.4000244140625,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 498,
+    "style": "--search-keyboard-bottom: 0px; bottom: calc(var(--search-bottom-gap, 24px) + env(safe-area-inset-bottom, 0px) + var(--search-keyboard-bottom, 0px));",
+    "top": 736.4000244140625,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 525,
+    "style": "--search-keyboard-bottom: 0px; bottom: calc(var(--search-bottom-gap, 24px) + env(safe-area-inset-bottom, 0px) + var(--search-keyboard-bottom, 0px));",
+    "top": 736.4000244140625,
+    "y": 446.3999938964844
+  }
+]

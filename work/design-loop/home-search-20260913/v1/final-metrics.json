@@ -1,0 +1,125 @@
+[
+  {
+    "buttons": [
+      {
+        "h": 44,
+        "id": "themeBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "menuBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeHelp",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeOrder",
+        "w": 102.0250015258789
+      }
+    ],
+    "client": 305,
+    "count": 1,
+    "font": "17px",
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "buttons": [
+      {
+        "h": 44,
+        "id": "themeBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "menuBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeHelp",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeOrder",
+        "w": 110.0250015258789
+      }
+    ],
+    "client": 360,
+    "count": 1,
+    "font": "17px",
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "client": 753,
+    "count": 1,
+    "font": "17px",
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "buttons": [
+      {
+        "h": 44,
+        "id": "bellBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "themeBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeHelp",
+        "w": 102.9000015258789
+      },
+      {
+        "h": 44,
+        "id": "homeOrder",
+        "w": 118.0250015258789
+      }
+    ],
+    "client": 1009,
+    "count": 1,
+    "font": "17px",
+    "scroll": 1009,
+    "width": 1024
+  },
+  {
+    "buttons": [
+      {
+        "h": 44,
+        "id": "bellBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "themeBtn",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "id": "homeHelp",
+        "w": 102.9000015258789
+      },
+      {
+        "h": 44,
+        "id": "homeOrder",
+        "w": 118.0250015258789
+      }
+    ],
+    "client": 1425,
+    "count": 1,
+    "font": "17px",
+    "scroll": 1425,
+    "width": 1440
+  }
+]

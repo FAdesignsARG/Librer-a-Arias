@@ -1,0 +1,72 @@
+[
+  {
+    "ms": 0,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 736.4000244140625,
+    "y": 446.3999938964844
+  },
+  {
+    "ms": 39,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 736.4000244140625,
+    "y": 0
+  },
+  {
+    "ms": 81,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 776.1566772460938,
+    "y": 0
+  },
+  {
+    "ms": 134,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 822.3451538085938,
+    "y": 0
+  },
+  {
+    "ms": 161,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 826.7198486328125,
+    "y": 0
+  },
+  {
+    "ms": 192,
+    "cls": "home-search is-docked",
+    "opacity": "1",
+    "top": 827.8842163085938,
+    "y": 0
+  },
+  {
+    "ms": 236,
+    "cls": "home-search",
+    "opacity": "0",
+    "top": 157,
+    "y": 0
+  },
+  {
+    "ms": 272,
+    "cls": "home-search",
+    "opacity": "0.787799",
+    "top": 157,
+    "y": 0
+  },
+  {
+    "ms": 315,
+    "cls": "home-search",
+    "opacity": "0.986011",
+    "top": 157,
+    "y": 0
+  },
+  {
+    "ms": 351,
+    "cls": "home-search",
+    "opacity": "0.99983",
+    "top": 157,
+    "y": 0
+  }
+]

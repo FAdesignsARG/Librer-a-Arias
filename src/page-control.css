@@ -5,28 +5,90 @@
    estas reglas sólo aplican a nodos que el script crea si Base44 manda algo.
    ========================================================================== */
 
-/* ---------- barra de aviso (arriba de todo) ---------- */
+/* ---------- aviso de la tienda (globito que va y viene) ---------- */
+/* Ya no es una banda fija arriba de todo: flota abajo, con margen propio,
+   aparece unos segundos y se va. Así deja de ser lo primero de la pantalla
+   y la mancha de amarillo más grande — que era lo que tapaba al buscador.
+   Nunca se pone encima de la isla de búsqueda ni del botón flotante. */
 .arias-pc-bar {
-  width: 100%;
-  padding: 9px 16px;
-  text-align: center;
-  font-size: 0.86rem;
-  font-weight: 600;
-  line-height: 1.35;
+  position: fixed;
+  z-index: 101;
+  left: 12px;
+  right: 12px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  max-width: 460px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 10px 16px;
+  border-radius: var(--r-pill, 999px);
   background: var(--gold);
   color: var(--gold-ink);
-  position: relative;
-  z-index: 101; /* por encima de la nav sticky mientras está a la vista */
-  animation: arias-pc-slide var(--dur-moderate) var(--ease-out);
+  font-size: 17px; /* mismo cuerpo que el resto: no suma un tamaño nuevo */
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: var(--shadow-pop, 0 12px 36px #00000026);
+  transition: opacity var(--dur-moderate, 360ms) var(--ease-out, ease),
+              translate var(--dur-moderate, 360ms) var(--ease-pop, ease),
+              scale var(--dur-moderate, 360ms) var(--ease-pop, ease),
+              visibility 0s linear var(--dur-moderate, 360ms);
+}
+.arias-pc-bar[data-visible='false'] {
+  opacity: 0;
+  translate: 0 16px;
+  scale: .96;
+  visibility: hidden;
+  pointer-events: none;
+}
+.arias-pc-bar[data-visible='true'] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.arias-pc-bar a,
+.arias-pc-bar > span {
+  flex: 1;
+  min-width: 0;
+  color: inherit;
 }
 .arias-pc-bar a {
-  color: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-@keyframes arias-pc-slide {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+.arias-pc-bar__close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.arias-pc-bar__close:hover { background: #0000001a; }
+.arias-pc-bar__close:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: -4px; }
+
+/* Con el botón flotante a la derecha, el aviso se corre a la izquierda. */
+@media (min-width: 721px) {
+  .arias-pc-bar {
+    right: auto;
+    left: 24px;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    margin-inline: 0;
+  }
+}
+
+/* Accesibilidad: sin movimiento, aparece y desaparece sin deslizarse. */
+@media (prefers-reduced-motion: reduce) {
+  .arias-pc-bar { transition: opacity 1ms linear, visibility 0s; translate: none; scale: none; }
+  .arias-pc-bar[data-visible='false'] { translate: none; scale: none; }
 }
 
 /* ---------- bloque / promo dinámica en un slot ---------- */

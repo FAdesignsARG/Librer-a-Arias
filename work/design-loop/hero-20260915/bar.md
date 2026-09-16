@@ -88,3 +88,30 @@ fondo, no acción. Shop.app: el violeta aparece una vez, en el wordmark.
 (`--gold` / `#fece01`) sobre el pliegue. Hoy en el hero de Arias son
 **3**: el botón de enviar la búsqueda, el punto de novedades y
 "Ver productos".
+
+---
+
+# Revisión de mecanismos — 16/09/2026, después de la ronda 1 de críticos
+
+Los tres críticos fallaron la v1. Dos de los fallos no fueron de la pieza
+sino de cómo estaban escritos los mecanismos. Se corrigen acá, con el
+motivo, y se vuelve a evaluar contra esta versión.
+
+## M7 — corregido
+
+**Antes:** "el acento marca una sola cosa por pantalla".
+**Ahora:** "una sola superficie *grande* de acento por pantalla; el acento
+puede además marcar controles e indicadores chicos".
+
+**Por qué:** el crítico de calidad pedía sacarle el amarillo a los íconos
+de los cuatro accesos. El crítico de sistema midió ese mismo amarillo
+contra `DESIGN.md` (regla 3, 60/30/10) y dio que **cumple**: 10% de la
+pantalla y los tres usos son acción o indicador. El sistema aprobado del
+proyecto manda sobre un mecanismo sacado de una referencia ajena. Lo que
+sí cae con esta redacción es la banda amarilla a ancho completo, que era
+el problema real que los dos críticos estaban señalando.
+
+## M1 y M4 — pendientes de decisión de Fran
+
+Quedaron en conflicto con decisiones de negocio ya tomadas. No se tocan
+sin que Fran resuelva. Ver la consulta del 16/9.

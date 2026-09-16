@@ -1,0 +1,1 @@
+v1 en construcción. Movimiento reducido: guardas por código; falta prueba en ejecución. Referencia y render accesibles; tres críticos nuevos disponibles. Reutilizada selección VoltAgent/Nike registrada en ejecución anterior, y sistema DESIGN.md.

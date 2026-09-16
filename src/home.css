@@ -145,15 +145,14 @@
  .island__actions svg {width:20px;height:20px;}
  .island__order {padding:0 6px 0 10px;}
  .island__count {min-width:24px;height:24px;padding:0 6px;border-radius:var(--r-pill);display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-size:14px;font-variant-numeric:tabular-nums;}
- .island__count[data-empty='true'] {background:var(--fill-hi);color:var(--text-2);}
+ .island__count[data-empty='true'] {background:var(--fill-hi);color:var(--text);}
  .home-search:not(.is-searching) :is(.search__clear,.home-search__submit) {opacity:0;visibility:hidden;pointer-events:none;}
  .home-search :is(.search__clear,.home-search__submit) {transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop),background var(--dur-fast);}
 
  /* Isla buscando: Pedido y Menú se corren; aparecen Borrar y Buscar. */
  .home-search.is-searching .search input {padding-right:104px;}
- /* Sin visibility:hidden a propósito: con Tab el foco llega a Pedido/Menú y
-    eso devuelve la isla a su forma normal (ver focusin en app.js). */
- .home-search.is-searching .island__actions {opacity:0;scale:.9;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-soft);}
+ /* Con inert desde app.js: si no se ven ni responden, tampoco reciben foco. */
+ .home-search.is-searching .island__actions {opacity:0;scale:.9;visibility:hidden;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-soft),visibility 0s linear var(--dur-fast);}
 
  /* La isla entra última y con el efecto más marcado. */
  .home-search .search {animation:island-arrive var(--dur-slower) var(--ease-pop) backwards;animation-delay:240ms;transition:background var(--dur) var(--ease-soft),box-shadow var(--dur) var(--ease-soft),border-color var(--dur-fast);}
@@ -166,7 +165,7 @@
 
  /* 4 accesos grandes en la primera pantalla; los rubros pasan al panel. */
  .home-categories {display:none;}
- .home-quick {display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3);margin-top:var(--s-4);}
+ .home-quick {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-3);margin-top:var(--s-4);}
  .home-quick>* {display:flex;align-items:center;gap:var(--s-3);min-height:64px;padding:var(--s-2) var(--s-3);border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);font-size:17px;font-weight:600;color:var(--text);text-align:left;transition:scale var(--dur-fast) var(--ease-pop),background var(--dur-fast) var(--ease-soft);animation:home-arrive var(--dur-slow) var(--ease-out) backwards;animation-delay:calc(var(--i)*60ms);}
  .home-quick>*:active {scale:.96;background:var(--surface-hi);}
  .home-quick__ico,.island-panel__ico {position:relative;flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--gold-wash);color:var(--gold-text);}
@@ -207,17 +206,12 @@
 
  /* M3: el buscador entra en el primer tercio. La escena de producto pasa
     a ser lo que viene DESPUÉS, no lo que empuja al buscador hacia abajo. */
- .home-wordmark {order:1;max-width:230px;margin-bottom:var(--s-3);}
- .hero__headline {order:2;}
- .home-tagline {order:3;}
- .hero__sub {order:4;}
- .home-search-anchor {order:5;width:min(760px,100%);min-height:80px;}
- .home-quick {order:6;}
- .home-scene {order:7;height:200px;margin:var(--s-6) auto 0;}
- [data-arias-hero-cta] {order:8;}
+ .home-wordmark {max-width:230px;margin-bottom:var(--s-3);}
+ .home-search-anchor {width:min(760px,100%);min-height:80px;}
+ .home-scene {height:200px;margin:var(--s-6) auto 0;}
 
  /* M5: tres tamaños de texto. Título del mensaje, cuerpo y etiqueta. */
- .home-hero .hero__headline {margin:0 0 var(--s-1);font-size:32px;line-height:1.15;letter-spacing:-.035em;text-align:center;}
+ .home-hero .hero__headline {margin:var(--s-5) 0 var(--s-1);font-size:32px;line-height:1.15;letter-spacing:-.035em;text-align:center;}
  .home-hero :is(.home-tagline,.hero__sub) {margin:0 auto var(--s-4);max-width:52ch;font-size:17px;line-height:1.5;color:var(--text-2);text-align:center;}
  /* El mensaje de Base44 reemplaza al lema fijo cuando está activo, en vez
     de apilarse debajo con el mismo peso. */
@@ -235,7 +229,7 @@
  /* M7: el amarillo marca una sola cosa, el botón de buscar. El llamado a
     la acción que manda Base44 queda secundario: repite lo que ya hacen los
     cuatro accesos, no compite con la búsqueda. */
- .home-hero [data-arias-hero-cta] {order:8;align-self:center;margin-top:var(--s-4);font-size:17px;background:var(--surface);color:var(--text);border:1px solid var(--line);}
+ .home-hero [data-arias-hero-cta] {align-self:center;margin-top:var(--s-4);font-size:17px;background:var(--surface);color:var(--text);border:1px solid var(--line);}
 
  /* M1/M2: menos acciones repetidas arriba. "Catálogo" ya es uno de los
     cuatro accesos y "Ayuda" ya es "Preguntar" y el botón flotante. */
@@ -269,3 +263,6 @@
 @media(max-width:720px){
  .home-hero .hero__headline:not([hidden]) {margin-top:var(--s-5);padding-top:var(--s-5);border-top:1px solid var(--line);}
 }
+
+/* El estado del local quedaba en 12,48px, abajo del piso de 14px. */
+.page-home .statusbadge {font-size:14px;}

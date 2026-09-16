@@ -1,0 +1,52 @@
+[
+  {
+    "bodySize": "17px",
+    "clientWidth": 305,
+    "height": 812,
+    "minCategoryTarget": 44,
+    "pageWidth": 305,
+    "searchTarget": 48,
+    "unloadedImages": 0,
+    "width": 320
+  },
+  {
+    "bodySize": "17px",
+    "clientWidth": 360,
+    "height": 812,
+    "minCategoryTarget": 44,
+    "pageWidth": 360,
+    "searchTarget": 48,
+    "unloadedImages": 0,
+    "width": 375
+  },
+  {
+    "bodySize": "17px",
+    "clientWidth": 753,
+    "height": 1000,
+    "minCategoryTarget": 48,
+    "pageWidth": 753,
+    "searchTarget": 48,
+    "unloadedImages": 0,
+    "width": 768
+  },
+  {
+    "bodySize": "17px",
+    "clientWidth": 1009,
+    "height": 1000,
+    "minCategoryTarget": 48,
+    "pageWidth": 1009,
+    "searchTarget": 48,
+    "unloadedImages": 0,
+    "width": 1024
+  },
+  {
+    "bodySize": "17px",
+    "clientWidth": 1425,
+    "height": 1000,
+    "minCategoryTarget": 48,
+    "pageWidth": 1425,
+    "searchTarget": 48,
+    "unloadedImages": 0,
+    "width": 1440
+  }
+]

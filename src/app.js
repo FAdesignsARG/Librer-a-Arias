@@ -1399,15 +1399,29 @@ if ($('#homeSearch')) {
   initHomeSearchMotion();
   const form = $('#homeSearch');
   const suggestions = $('#homeSuggestions');
-  const closeSuggestions = () => { suggestions.hidden = true; searchEl.setAttribute('aria-expanded', 'false'); };
+  const closeSuggestions = () => setSuggestions(false);
   searchEl.setAttribute('aria-expanded', 'false');
   searchEl.setAttribute('aria-controls', 'homeSuggestions grid');
   // Isla: mientras se escribe, Pedido y Menú se corren y aparece "Buscar".
-  // Pedido/Menú no cuentan como parte de la búsqueda: si el foco llega a
-  // ellos (Tab), la isla vuelve a su forma normal.
+  // Mientras están corridos van con inert: antes seguían en el orden de
+  // tabulación estando invisibles y sin responder al toque, así que con Tab
+  // se llegaba a botones fantasma. Lo mismo con los cuatro accesos cuando
+  // el panel de sugerencias los tapa.
   const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__submit'));
-  const setSearching = on => form.classList.toggle('is-searching', on);
-  searchEl.addEventListener('focus', () => { suggestions.hidden = false; searchEl.setAttribute('aria-expanded', 'true'); setSearching(true); });
+  const islandActions = form.querySelector('.island__actions');
+  const quickAccess = $('.home-quick');
+  const setSearching = on => {
+    form.classList.toggle('is-searching', on);
+    islandActions?.toggleAttribute('inert', on);
+  };
+  const setSuggestions = open => {
+    suggestions.hidden = !open;
+    searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // El panel se dibuja encima de los accesos: mientras está abierto no
+    // pueden recibir foco, o el Tab salta a botones tapados.
+    quickAccess?.toggleAttribute('inert', open);
+  };
+  searchEl.addEventListener('focus', () => { setSuggestions(true); setSearching(true); });
   form.addEventListener('focusin', e => setSearching(searchParts(e.target)));
   form.addEventListener('focusout', e => { if (!searchParts(e.relatedTarget)) { closeSuggestions(); setSearching(false); } });
   // Tocar Buscar, Borrar o una sugerencia no le saca el foco al campo: así

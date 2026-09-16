@@ -111,20 +111,72 @@ function applySiteState(config) {
     String(config.mensaje_mantenimiento || 'Estamos actualizando el catálogo. Volvé en unos minutos.');
 }
 
-/* ---------- barra de aviso ---------- */
+/* ---------- aviso de la tienda (globito que va y viene) ---------- */
+
+/* Antes era una banda fija arriba de todo. Decisión de Fran del 16/9:
+   pasa a aparecer un rato, irse y volver cada tanto. El acceso a WhatsApp
+   ya vive en el botón flotante y en los cuatro accesos de la home, así que
+   el aviso no necesita ocupar la primera pantalla de forma permanente;
+   donde no hay botón flotante (la home en celular, que lo absorbe en la
+   isla) este aviso cumple esa función.
+
+   Frenos, para que "cada tanto" no termine siendo una molestia:
+   - Si la persona lo cierra, no vuelve más en esa visita.
+   - Con movimiento reducido entra y sale sin animación (lo resuelve el CSS).
+   - Los temporizadores se pausan con la pestaña en segundo plano. */
+const AVISO_ESPERA_MS = 6_000;   // antes de la primera aparición
+const AVISO_VISIBLE_MS = 8_000;  // cuánto se queda a la vista
+const AVISO_PAUSA_MS = 20_000;   // cuánto tarda en volver
+const AVISO_CERRADO = 'arias-aviso-cerrado';
+
+let avisoTimer = null;
+let avisoEscucha = false;
+
+function avisoDescartado() {
+  try {
+    return sessionStorage.getItem(AVISO_CERRADO) === '1';
+  } catch {
+    return false; // navegación privada o storage bloqueado: se muestra igual
+  }
+}
+
+function descartarAviso(el) {
+  clearTimeout(avisoTimer);
+  avisoTimer = null;
+  try { sessionStorage.setItem(AVISO_CERRADO, '1'); } catch {}
+  el.remove();
+}
+
+function cicloAviso(el, mostrar) {
+  clearTimeout(avisoTimer);
+  if (!el.isConnected || avisoDescartado()) return;
+  el.dataset.visible = mostrar ? 'true' : 'false';
+  avisoTimer = setTimeout(
+    () => cicloAviso(el, !mostrar),
+    mostrar ? AVISO_VISIBLE_MS : AVISO_PAUSA_MS,
+  );
+}
 
 function applyAnnouncement(bar) {
   let el = document.querySelector('[data-arias-announcement]');
 
-  if (!bar?.activa || !bar?.texto) {
+  if (!bar?.activa || !bar?.texto || avisoDescartado()) {
+    clearTimeout(avisoTimer);
+    avisoTimer = null;
     el?.remove();
     return;
   }
+
+  const primeraVez = !el;
   if (!el) {
     el = document.createElement('div');
     el.dataset.ariasAnnouncement = 'true';
     el.className = 'arias-pc-bar';
-    document.body.insertBefore(el, document.body.firstChild);
+    el.dataset.visible = 'false';
+    // Va y viene solo: se ofrece con cortesía, no interrumpe la lectura.
+    el.setAttribute('role', 'complementary');
+    el.setAttribute('aria-label', 'Aviso de la tienda');
+    document.body.append(el);
   }
   el.replaceChildren();
 
@@ -135,7 +187,33 @@ function applyAnnouncement(bar) {
     a.textContent = bar.texto;
     el.append(a);
   } else {
-    el.textContent = bar.texto;
+    const span = document.createElement('span');
+    span.textContent = bar.texto;
+    el.append(span);
+  }
+
+  const cerrar = document.createElement('button');
+  cerrar.type = 'button';
+  cerrar.className = 'arias-pc-bar__close';
+  cerrar.setAttribute('aria-label', 'Cerrar aviso');
+  cerrar.textContent = '×';
+  cerrar.addEventListener('click', () => descartarAviso(el));
+  el.append(cerrar);
+
+  if (primeraVez) {
+    avisoTimer = setTimeout(() => cicloAviso(el, true), AVISO_ESPERA_MS);
+  }
+  if (!avisoEscucha) {
+    avisoEscucha = true;
+    document.addEventListener('visibilitychange', () => {
+      const vivo = document.querySelector('[data-arias-announcement]');
+      if (document.hidden) {
+        clearTimeout(avisoTimer);
+        avisoTimer = null;
+      } else if (!avisoTimer && vivo && !avisoDescartado()) {
+        cicloAviso(vivo, false);
+      }
+    });
   }
 }
 

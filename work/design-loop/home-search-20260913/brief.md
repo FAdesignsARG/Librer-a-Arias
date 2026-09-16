@@ -1,0 +1,5 @@
+# Brief · Home y buscador persistente
+13/09/2026. Cambio explícito de objetivo del usuario: reconstruir home estilo Shop.app, profesional, énfasis en animación del buscador. UN único campo, desde hero a cápsula inferior al hacer scroll y regreso al inicio. Conservar texto y foco. No publicar.
+Audiencia: clientes de Librería Arias, uso sencillo en móvil y escritorio. Datos y fotos reales Firestore/Cloudinary, identidad Arias, dos temas, controles accesibles y movimiento reducido. Descubrimiento por rubros, búsqueda, pedido y ayuda deben seguir funcionando.
+Referencia directa observada Shop.app el 13/09/2026: buscador central, después del scroll cápsula inferior centrada de 600px a 36px del borde en viewport1440x1000; wrapper declara transición transform300ms ease-in-out. Shop muestra dos textareas en DOM al acoplar: Arias debe satisfacer pedido más estricto, UN nodo sin duplicar.
+Se reinicia ronda porque fuente anterior fue restaurada al HEAD antes de esta petición. Evidencias anteriores se conservan separadas.

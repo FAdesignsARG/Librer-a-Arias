@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="es-AR">
+<head><script>
+// Local QA only: exercise the production JS animation when the host requests reduced motion.
+const originalMatchMedia = window.matchMedia.bind(window);
+window.matchMedia = q => q === '(prefers-reduced-motion: reduce)' ? {matches:false, media:q, addEventListener(){}, removeEventListener(){},addListener(){},removeListener(){}} : originalMatchMedia(q);
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Librería Arias — Juguetería, librería y tecnología en La Rioja</title>
+<meta name="description" content="Catálogo online de Librería Arias: juguetes, librería, bazar, regalería, electrónica y tecnología en La Rioja. 486 productos con precio. Consultá y pedí por…">
+<link rel="canonical" href="https://libreriaarias.com.ar/">
+<meta name="theme-color" content="#08080a">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Librería Arias">
+<meta property="og:locale" content="es_AR">
+<meta property="og:title" content="Librería Arias — Juguetería, librería y tecnología en La Rioja">
+<meta property="og:description" content="Catálogo online de Librería Arias: juguetes, librería, bazar, regalería, electrónica y tecnología en La Rioja. 486 productos con precio. Consultá y pedí por…">
+<meta property="og:url" content="https://libreriaarias.com.ar/">
+<meta property="og:image" content="https://libreriaarias.com.ar/assets/brand/mark-light@256.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Librería Arias — Juguetería, librería y tecnología en La Rioja">
+<meta name="twitter:description" content="Catálogo online de Librería Arias: juguetes, librería, bazar, regalería, electrónica y tecnología en La Rioja. 486 productos con precio. Consultá y pedí por…">
+<meta name="twitter:image" content="https://libreriaarias.com.ar/assets/brand/mark-light@256.webp">
+
+<link rel="icon" type="image/webp" href="/assets/brand/favicon.webp">
+<link rel="apple-touch-icon" href="/assets/brand/mark-dark@256.webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles.css">
+<link rel="stylesheet" href="/src/styles-parts.css">
+<link rel="stylesheet" href="/src/theme.css">
+<link rel="stylesheet" href="/src/home.css">
+<link rel="stylesheet" href="/src/assistant.css">
+<link rel="stylesheet" href="/src/notify.css">
+<link rel="stylesheet" href="/src/page-control.css">
+
+<script>(function(){try{
+var t=localStorage.getItem('arias.tema');
+if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+document.documentElement.dataset.theme=t;
+
+}catch(e){document.documentElement.dataset.theme='dark';}})();</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Store","@id":"https://libreriaarias.com.ar/#store","name":"Librería Arias","description":"Librería · Bazar · Juguetería · Regalería · Electrónica · Tecnología","url":"https://libreriaarias.com.ar","telephone":"+5493804505150","image":"https://libreriaarias.com.ar/assets/brand/mark-light@256.webp","address":{"@type":"PostalAddress","streetAddress":"Esquina España y Bulnes","addressLocality":"La Rioja","addressRegion":"La Rioja","addressCountry":"AR"},"hasMap":"https://www.google.com/maps/search/?api=1&query=Libreria+Arias%2C+La+Rioja&query_place_id=ChIJYa8YyDLaJ5QRypXtUmCt3PA","priceRange":"$$","currenciesAccepted":"ARS","sameAs":["https://www.instagram.com/libreriaarias?igsh=NXZrcXd5OHR3bjkz&utm_source=qr","https://www.facebook.com/ariaslibreria/","https://www.tiktok.com/@libreriaarias"],"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"13:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"18:00","closes":"21:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday"],"opens":"09:30","closes":"13:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday"],"opens":"18:30","closes":"21:30"}]},{"@type":"WebSite","@id":"https://libreriaarias.com.ar/#website","url":"https://libreriaarias.com.ar","name":"Librería Arias","inLanguage":"es-AR","publisher":{"@id":"https://libreriaarias.com.ar/#store"}},{"@type":"ItemList","name":"Catálogo","numberOfItems":486,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://libreriaarias.com.ar/p/grifo-mezclador-monocomando-flexible/","name":"Grifo Mezclador Monocomando Flexible"},{"@type":"ListItem","position":2,"url":"https://libreriaarias.com.ar/p/dispensador-de-jabon-automatico/","name":"Dispensador de Jabón Automático"},{"@type":"ListItem","position":3,"url":"https://libreriaarias.com.ar/p/hieleras-en-forma-de-panel/","name":"Hieleras en Forma de Panel"},{"@type":"ListItem","position":4,"url":"https://libreriaarias.com.ar/p/secador-de-pelo-seis/","name":"Secador de Pelo Seis"},{"@type":"ListItem","position":5,"url":"https://libreriaarias.com.ar/p/aspiradora-de-mano-lambo-tech/","name":"Aspiradora de Mano Lambo Tech"},{"@type":"ListItem","position":6,"url":"https://libreriaarias.com.ar/p/plancha-de-vapor-electrica/","name":"Plancha de Vapor Eléctrica"},{"@type":"ListItem","position":7,"url":"https://libreriaarias.com.ar/p/plancha-de-pelo-profesional/","name":"Plancha de Pelo Profesional"},{"@type":"ListItem","position":8,"url":"https://libreriaarias.com.ar/p/ositos-que-respiran/","name":"Ositos que Respiran"},{"@type":"ListItem","position":9,"url":"https://libreriaarias.com.ar/p/dispensador-de-agua-portatil-automatica/","name":"Dispensador de Agua Portátil Automática"},{"@type":"ListItem","position":10,"url":"https://libreriaarias.com.ar/p/aspiradora-de-mano-oryx/","name":"Aspiradora de Mano Oryx"},{"@type":"ListItem","position":11,"url":"https://libreriaarias.com.ar/p/red-portatil-tenis-de-mesa/","name":"Red Portátil Tenis de Mesa"},{"@type":"ListItem","position":12,"url":"https://libreriaarias.com.ar/p/set-de-tenedores-x6/","name":"Set de Tenedores x6"},{"@type":"ListItem","position":13,"url":"https://libreriaarias.com.ar/p/cuchillos-para-frutas/","name":"Set de Cuchillos x6"},{"@type":"ListItem","position":14,"url":"https://libreriaarias.com.ar/p/mopa-con-balde-escurridor/","name":"Mopa con Balde Escurridor"},{"@type":"ListItem","position":15,"url":"https://libreriaarias.com.ar/p/vaporizador-de-ropa-oryx/","name":"Vaporizador de Ropa Oryx"},{"@type":"ListItem","position":16,"url":"https://libreriaarias.com.ar/p/soplador-inalambrico-oryx/","name":"Soplador Inalámbrico Oryx"},{"@type":"ListItem","position":17,"url":"https://libreriaarias.com.ar/p/jarra-electrica-oryx/","name":"Jarra Eléctrica Oryx"},{"@type":"ListItem","position":18,"url":"https://libreriaarias.com.ar/p/fabrica-de-helados/","name":"Fábrica de Helados"},{"@type":"ListItem","position":19,"url":"https://libreriaarias.com.ar/p/microondas-hytoshy/","name":"Microondas Hytoshy"},{"@type":"ListItem","position":20,"url":"https://libreriaarias.com.ar/p/taza-medidora/","name":"Taza Medidora"},{"@type":"ListItem","position":21,"url":"https://libreriaarias.com.ar/p/juguete-para-gatos-pajaro/","name":"Juguete para Gatos Pájaro"},{"@type":"ListItem","position":22,"url":"https://libreriaarias.com.ar/p/dispenser-de-cereales-doble/","name":"Dispenser de Cereales Doble"},{"@type":"ListItem","position":23,"url":"https://libreriaarias.com.ar/p/adhesivo-de-silicona-burlete/","name":"Adhesivo de Silicona Burlete"},{"@type":"ListItem","position":24,"url":"https://libreriaarias.com.ar/p/retractil-enrollable-barrera/","name":"Retráctil Enrollable Barrera"},{"@type":"ListItem","position":25,"url":"https://libreriaarias.com.ar/p/lampara-led-con-sensor-de-movimiento/","name":"Lámpara LED con Sensor de Movimiento"},{"@type":"ListItem","position":26,"url":"https://libreriaarias.com.ar/p/presentador-inalambrico-con-puntero-laser/","name":"Presentador Inalámbrico con Puntero Láser"},{"@type":"ListItem","position":27,"url":"https://libreriaarias.com.ar/p/escalera-tijera-aluminio/","name":"Escalera Tijera Aluminio"},{"@type":"ListItem","position":28,"url":"https://libreriaarias.com.ar/p/banquito-escalera-plegable-de-aluminio-2-pisos/","name":"Banquito escalera Plegable de Aluminio 2 pisos"},{"@type":"ListItem","position":29,"url":"https://libreriaarias.com.ar/p/set-organizador-de-bano/","name":"Set Organizador de Baño"},{"@type":"ListItem","position":30,"url":"https://libreriaarias.com.ar/p/gorro-termico/","name":"Gorro Térmico"},{"@type":"ListItem","position":31,"url":"https://libreriaarias.com.ar/p/estanteria-organizadora-4-niveles-con-ruedas/","name":"Estantería Organizadora 4 niveles con ruedas"},{"@type":"ListItem","position":32,"url":"https://libreriaarias.com.ar/p/estanteria-organizadora-movil/","name":"Estantería Organizadora movil 3 niveles"},{"@type":"ListItem","position":33,"url":"https://libreriaarias.com.ar/p/estante-organizador/","name":"Estante Organizador 4 niveles"},{"@type":"ListItem","position":34,"url":"https://libreriaarias.com.ar/p/auriculares-gamer-g007/","name":"Auriculares Gamer G007"},{"@type":"ListItem","position":35,"url":"https://libreriaarias.com.ar/p/set-de-asado/","name":"Set de asado"},{"@type":"ListItem","position":36,"url":"https://libreriaarias.com.ar/p/pastillero-semanal/","name":"Pastillero Semanal"},{"@type":"ListItem","position":37,"url":"https://libreriaarias.com.ar/p/tubos-1-2-pulgada-pulgada/","name":"Tubos 1/2 Pulgada Pulgada"},{"@type":"ListItem","position":38,"url":"https://libreriaarias.com.ar/p/limpiador-a-vapor/","name":"Limpiador a Vapor"},{"@type":"ListItem","position":39,"url":"https://libreriaarias.com.ar/p/organizador-de-bano-estante/","name":"Organizador de Baño Estante"},{"@type":"ListItem","position":40,"url":"https://libreriaarias.com.ar/p/selladora-al-vacio/","name":"Selladora al Vacío"},{"@type":"ListItem","position":41,"url":"https://libreriaarias.com.ar/p/bomba-de-vacio-a-piston/","name":"Bomba de Vacío a Pistón"},{"@type":"ListItem","position":42,"url":"https://libreriaarias.com.ar/p/cable-4-en-1-universal/","name":"Cable 4 en 1 Universal"},{"@type":"ListItem","position":43,"url":"https://libreriaarias.com.ar/p/kit-de-limpieza-para-aire-acondicionado-split/","name":"Kit de Limpieza para Aire Acondicionado Split"},{"@type":"ListItem","position":44,"url":"https://libreriaarias.com.ar/p/zapatero-de-4-estantes-estructura-metal/","name":"Zapatero de 4 Estantes Estructura Metal"},{"@type":"ListItem","position":45,"url":"https://libreriaarias.com.ar/p/guirnalda-led-rgb-control-remoto-y-app/","name":"Guirnalda LED RGB Control Remoto y App"},{"@type":"ListItem","position":46,"url":"https://libreriaarias.com.ar/p/soporte-plegable-para-celular-y-tablet/","name":"Soporte Plegable para Celular y Tablet"},{"@type":"ListItem","position":47,"url":"https://libreriaarias.com.ar/p/huevera-organizadora-con-tapa/","name":"Huevera Organizadora con Tapa"},{"@type":"ListItem","position":48,"url":"https://libreriaarias.com.ar/p/lupa-con-luz-led-brazo-articulado/","name":"Lupa con Luz LED Brazo Articulado"},{"@type":"ListItem","position":49,"url":"https://libreriaarias.com.ar/p/llave-de-impacto-inalambrica-onica-21v/","name":"Llave de Impacto Inalámbrica Onica 21V"},{"@type":"ListItem","position":50,"url":"https://libreriaarias.com.ar/p/fabricador-de-cubos-de-hielo-genie/","name":"Fabricador de Cubos de Hielo Genie"},{"@type":"ListItem","position":51,"url":"https://libreriaarias.com.ar/p/molinillo-manual-para-cafe/","name":"Molinillo Manual para Café"},{"@type":"ListItem","position":52,"url":"https://libreriaarias.com.ar/p/cable-clips-organizador-20-pcs-organizar-cables-facil/","name":"Cable Clips Organizador 20 pcs  Organizar Cables Facil"},{"@type":"ListItem","position":53,"url":"https://libreriaarias.com.ar/p/oryx-termo-electrico-digital-1l/","name":"ORYX Termo Eléctrico Digital 1L"},{"@type":"ListItem","position":54,"url":"https://libreriaarias.com.ar/p/oryx-secaplatos-2-niveles-10-platos/","name":"ORYX Secaplatos 2 Niveles 10 Platos"},{"@type":"ListItem","position":55,"url":"https://libreriaarias.com.ar/p/dinax-licuadora-de-mano-4-en-1/","name":"Dinax Licuadora de Mano 4 EN 1!"},{"@type":"ListItem","position":56,"url":"https://libreriaarias.com.ar/p/adhesive-wall-hooks-sin-marcas-adhesivos-ganchos-para-pegar/","name":"Adhesive Wall Hooks Sin Marcas - Adhesivos - Ganchos para pegar"},{"@type":"ListItem","position":57,"url":"https://libreriaarias.com.ar/p/rejilla-stop-protector-de-desagues-18x18-filtro-de-bichos/","name":"Rejilla Stop Protector de Desagües 18x18 Filtro de Bichos"},{"@type":"ListItem","position":58,"url":"https://libreriaarias.com.ar/p/sellador-de-puerta-premium/","name":"Sellador de Puerta Premium"},{"@type":"ListItem","position":59,"url":"https://libreriaarias.com.ar/p/gancho-adhesivo-facil-de-aplicar/","name":"Gancho adhesivo facil de aplicar"},{"@type":"ListItem","position":60,"url":"https://libreriaarias.com.ar/p/cinta-selladora-adhesiva-para-cocina/","name":"Cinta Selladora Adhesiva para Cocina"}]}]}</script>
+</head>
+<body class="page-home">
+
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="/" aria-label="Librería Arias — inicio">
+      <img class="nav__crane brand-dark" src="/assets/brand/mark-dark.webp"
+       width="32" height="32" alt="" loading="eager" decoding="async">
+  <img class="nav__crane brand-light" src="/assets/brand/mark-light.webp"
+       width="32" height="32" alt="" loading="eager" decoding="async">
+      <span>Librería Arias</span>
+    </a>
+    <a class="statusbadge" id="statusBadge" href="/#horarios" hidden></a>
+    <div class="nav__links">
+      <a class="nav__link" href="/#catalogo">Catálogo</a>
+      <a class="nav__link" href="/#visitanos">Visitanos</a>
+    </div>
+    <button class="bellbtn" id="bellBtn" aria-haspopup="dialog" aria-label="Novedades y ofertas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bellbtn__dot" id="bellDot" hidden></span>
+    </button>
+    <button class="themebtn" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema">
+  <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+  <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+</button>
+    <a class="btn btn--gold btn--sm nav__wa" data-arias-whatsapp href="https://wa.me/5493804505150" target="_blank" rel="noopener">
+      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg> Escribinos
+    </a>
+    <button type="button" class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-label="Menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="home-tools"><button type="button" id="homeHelp" aria-haspopup="dialog" aria-label="Ayuda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg><span>Ayuda</span></button><button type="button" id="homeOrder" aria-haspopup="dialog">Mi pedido <span id="homeOrderCount">0</span></button></div>
+  </div>
+</nav>
+
+<header class="hero home-hero" data-arias-section="hero">
+  <div class="home-scene" aria-label="Ideas para descubrir">
+    <a class="home-scene__card" style="--i:0" href="/p/puzzle-capybara/"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/jn4wnwabktsxpo8knws1" width="300" height="300" alt="Puzzle Capybara" fetchpriority="auto"><span>Juguetería</span><strong>$9.000</strong></a><a class="home-scene__card" style="--i:1" href="/p/auriculares-gamer-g007/"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/efarlry27rub1p80oc6y" width="300" height="300" alt="Auriculares Gamer G007" fetchpriority="auto"><span>Tecnología</span><strong>$18.500</strong></a><a class="home-scene__card" style="--i:2" href="/p/velador-patito/"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/mv507na4akdyo7tr3tnh" width="300" height="300" alt="Velador Patito" fetchpriority="high"><span>Regalería</span><strong>$19.500</strong></a><a class="home-scene__card" style="--i:3" href="/p/tumbler-vaso-termico-caka-coffee-club-rosa/"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/trg5fn7e4ujgefop9cy9" width="300" height="300" alt="Tumbler Vaso Térmico Caka Coffee Club Rosa" fetchpriority="auto"><span>Bazar</span><strong>$24.000</strong></a><a class="home-scene__card" style="--i:4" href="/p/pizarra-lcd-de-12-pulgadas/"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/qc5egjbf0dheurbm2lnu" width="300" height="300" alt="Pizarra LCD de 12 pulgadas" fetchpriority="auto"><span>Librería</span><strong>$15.500</strong></a>
+  </div>
+  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark-logo.webp" width="780" height="211" alt="Librería Arias"><img class="brand-light" src="/assets/brand/wordmark-light-logo.webp" width="780" height="211" alt="Librería Arias"></h1>
+  <p class="home-tagline">Librería · Bazar · Juguetería · Regalería · Electrónica · Tecnología</p>
+  <div id="homeSearchAnchor" class="home-search-anchor">
+    <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
+      <div class="search" id="searchWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search" name="q" type="search" enterkeyhint="search" placeholder="Buscá productos" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
+        <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <button class="home-search__submit" type="submit" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>
+      <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p><button type="button" data-search-idea="Regalos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Regalos<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" data-search-idea="Auriculares"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Auriculares<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="button" data-search-idea="Mochilas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Mochilas<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button><button type="submit" class="home-search__results">Ver resultados <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button></div>
+    </form>
+  </div>
+  <div class="home-categories" aria-label="Explorar rubros"><a href="/?cat=Todos#catalogo" data-home-category="Todos">Ver todo</a><a href="/?cat=Ofertas#catalogo" data-home-category="Ofertas">Ofertas</a><a href="/?cat=Jugueter%C3%ADa#catalogo" data-home-category="Juguetería">Juguetería</a><a href="/?cat=Tecnolog%C3%ADa#catalogo" data-home-category="Tecnología">Tecnología</a><a href="/?cat=Regaler%C3%ADa#catalogo" data-home-category="Regalería">Regalería</a><a href="/?cat=Bazar#catalogo" data-home-category="Bazar">Bazar</a><a href="/?cat=Librer%C3%ADa#catalogo" data-home-category="Librería">Librería</a></div>
+  <h2 class="hero__headline" data-arias-hero-title hidden></h2><p class="hero__sub" data-arias-hero-subtitle hidden></p><a class="btn btn--gold" data-arias-hero-cta hidden></a>
+</header>
+<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="home-discover__row"><a class="home-discover__card" href="/?cat=Jugueter%C3%ADa#catalogo" data-home-category="Juguetería"><span class="home-discover__image"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/jn4wnwabktsxpo8knws1" alt="" width="400" height="400" loading="lazy"></span><span>Juguetería <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></a><a class="home-discover__card" href="/?cat=Tecnolog%C3%ADa#catalogo" data-home-category="Tecnología"><span class="home-discover__image"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/efarlry27rub1p80oc6y" alt="" width="400" height="400" loading="lazy"></span><span>Tecnología <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></a><a class="home-discover__card" href="/?cat=Regaler%C3%ADa#catalogo" data-home-category="Regalería"><span class="home-discover__image"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/mv507na4akdyo7tr3tnh" alt="" width="400" height="400" loading="lazy"></span><span>Regalería <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></a><a class="home-discover__card" href="/?cat=Bazar#catalogo" data-home-category="Bazar"><span class="home-discover__image"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/trg5fn7e4ujgefop9cy9" alt="" width="400" height="400" loading="lazy"></span><span>Bazar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></a><a class="home-discover__card" href="/?cat=Librer%C3%ADa#catalogo" data-home-category="Librería"><span class="home-discover__image"><img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/qc5egjbf0dheurbm2lnu" alt="" width="400" height="400" loading="lazy"></span><span>Librería <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></a></div></section>
+
+<div data-arias-slot="superior"></div>
+
+
+
+<section class="picks" data-arias-section="destacados" data-reveal>
+  <div class="shell">
+    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
+    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
+  </div>
+  <div class="picks__row">
+    <div class="picks__item" data-reveal style="transition-delay:0ms"><article class="card" data-slug="lampara-led-de-escritorio-x-7188">
+  <div class="card__media">
+    <div class="card__flags"><span class="flag flag--new">Nuevo</span></div>
+    <img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/juvhadx9ggeogloxoapc" width="400" height="400" loading="lazy" decoding="async" alt="Lámpara LED de Escritorio X-7188">
+    <button class="card__add" data-add="lampara-led-de-escritorio-x-7188" aria-label="Agregar Lámpara LED de Escritorio X-7188 al pedido"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="card__body">
+    <span class="card__cat">Tecnología</span>
+    <a class="card__name card__link" href="/p/lampara-led-de-escritorio-x-7188/">Lámpara LED de Escritorio X-7188</a>
+    <span class="card__stock">En stock</span>
+    <span class="card__price-row">
+      
+      <span class="card__price">$4.500</span>
+    </span>
+  </div>
+</article></div>
+    <div class="picks__item" data-reveal style="transition-delay:70ms"><article class="card" data-slug="multi-function-hand-cooker-2-0l-triturador-cortador-picador">
+  <div class="card__media">
+    <div class="card__flags"><span class="flag flag--new">Nuevo</span></div>
+    <img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/jjttsezmyzm2ppyt78gw" width="400" height="400" loading="lazy" decoding="async" alt="Multi-Function Hand Cooker 2.0L Triturador Cortador Picador">
+    <button class="card__add" data-add="multi-function-hand-cooker-2-0l-triturador-cortador-picador" aria-label="Agregar Multi-Function Hand Cooker 2.0L Triturador Cortador Picador al pedido"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="card__body">
+    <span class="card__cat">Bazar</span>
+    <a class="card__name card__link" href="/p/multi-function-hand-cooker-2-0l-triturador-cortador-picador/">Multi-Function Hand Cooker 2.0L Triturador Cortador Picador</a>
+    <span class="card__stock">En stock</span>
+    <span class="card__price-row">
+      
+      <span class="card__price">$31.000</span>
+    </span>
+  </div>
+</article></div>
+    <div class="picks__item" data-reveal style="transition-delay:140ms"><article class="card" data-slug="balanza-portatil-dinax">
+  <div class="card__media">
+    <div class="card__flags"></div>
+    <img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/joony4tedgbz63dybosa" width="400" height="400" loading="lazy" decoding="async" alt="Balanza Portátil Dinax">
+    <button class="card__add" data-add="balanza-portatil-dinax" aria-label="Agregar Balanza Portátil Dinax al pedido"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="card__body">
+    <span class="card__cat">Tecnología</span>
+    <a class="card__name card__link" href="/p/balanza-portatil-dinax/">Balanza Portátil Dinax</a>
+    <span class="card__stock">En stock</span>
+    <span class="card__price-row">
+      
+      <span class="card__price">$11.000</span>
+    </span>
+  </div>
+</article></div>
+    <div class="picks__item" data-reveal style="transition-delay:210ms"><article class="card" data-slug="molinillo-2-en-1-para-sal-y-pimienta">
+  <div class="card__media">
+    <div class="card__flags"><span class="flag flag--new">Nuevo</span></div>
+    <img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/tmfqehz1rtld7e3kfn10" width="400" height="400" loading="lazy" decoding="async" alt="Molinillo 2 en 1 para Sal y Pimienta">
+    <button class="card__add" data-add="molinillo-2-en-1-para-sal-y-pimienta" aria-label="Agregar Molinillo 2 en 1 para Sal y Pimienta al pedido"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="card__body">
+    <span class="card__cat">Bazar</span>
+    <a class="card__name card__link" href="/p/molinillo-2-en-1-para-sal-y-pimienta/">Molinillo 2 en 1 para Sal y Pimienta</a>
+    <span class="card__stock">En stock</span>
+    <span class="card__price-row">
+      
+      <span class="card__price">$12.500</span>
+    </span>
+  </div>
+</article></div>
+    <div class="picks__item" data-reveal style="transition-delay:280ms"><article class="card" data-slug="vaso-reutilizable-con-asa-y-pajita">
+  <div class="card__media">
+    <div class="card__flags"></div>
+    <img src="https://res.cloudinary.com/nzyq1xgf/image/upload/f_auto,q_auto,w_400/mdnoauuiulmcilxmvkj8" width="400" height="400" loading="lazy" decoding="async" alt="Vaso Reutilizable con Asa y Pajita">
+    <button class="card__add" data-add="vaso-reutilizable-con-asa-y-pajita" aria-label="Agregar Vaso Reutilizable con Asa y Pajita al pedido"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="card__body">
+    <span class="card__cat">Bazar</span>
+    <a class="card__name card__link" href="/p/vaso-reutilizable-con-asa-y-pajita/">Vaso Reutilizable con Asa y Pajita</a>
+    <span class="card__stock">En stock</span>
+    <span class="card__price-row">
+      
+      <span class="card__price">$9.500</span>
+    </span>
+  </div>
+</article></div>
+  </div>
+</section>
+
+<section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
+  <div class="attention-carousel__track">
+    <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
+         aria-label="Ver el detalle de las promociones vigentes">
+      <div class="attn__media">
+        <img class="attn__mascot" src="/assets/promos/adolfito-cupon-descuento.webp" width="500" height="625"
+             loading="lazy" alt="">
+      </div>
+      <div class="attn__content">
+        <span class="attn__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg>Hasta 20% OFF</span>
+        <h2 class="attn__title">Promos activas</h2>
+        <p class="attn__desc">Mirá cuánto ahorrás pagando en efectivo o transferencia</p>
+        <button type="button" class="attn__cta" id="promoBannerCta">Ver promociones</button>
+      </div>
+    </div>
+    <a class="attn__slide attn__slide--wa" id="waBanner" href="https://whatsapp.com/channel/0029VbDBqiGLY6cxTVJTw01j" target="_blank" rel="noopener">
+      <img class="attn__full-img" src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
+           alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
+    </a>
+  </div>
+  <div class="attention-carousel__dots">
+    <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ir a promociones"></button>
+    <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ir al canal de WhatsApp"></button>
+  </div>
+</section>
+
+<div class="controls" id="catalogo">
+  <div class="shell">
+    <div class="controls__row">
+      <select class="sort" id="sort" aria-label="Ordenar">
+        <option value="relevancia">Recomendados</option>
+        <option value="destacados">Destacados primero</option>
+        <option value="precio-asc">Menor precio</option>
+        <option value="precio-desc">Mayor precio</option>
+        <option value="nombre">Nombre A-Z</option>
+      </select>
+      <button type="button" class="sortbtn" id="sortBtn" aria-haspopup="dialog" aria-label="Ordenar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0 3 3m-3-3-3 3"/></svg>
+      </button>
+      <select class="sort" id="priceFilter" aria-label="Filtrar por precio">
+        <option value="">Cualquier precio</option>
+        <option value="0-10000">Hasta $10.000</option>
+        <option value="10000-30000">$10.000 a $30.000</option>
+        <option value="30000-60000">$30.000 a $60.000</option>
+        <option value="60000-">Más de $60.000</option>
+      </select>
+      <button type="button" class="sortbtn" id="priceBtn" aria-haspopup="dialog" aria-label="Filtrar por precio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      </button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por rubro">
+      <button class="chip" data-cat="Todos" aria-pressed="true">Todos</button>
+      <button class="chip chip--ofertas" data-cat="Ofertas" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg>Ofertas</button>
+      <button class="chip" data-cat="Juguetería" aria-pressed="false">Juguetería</button>
+      <button class="chip" data-cat="Tecnología" aria-pressed="false">Tecnología</button>
+      <button class="chip" data-cat="Regalería" aria-pressed="false">Regalería</button>
+      <button class="chip" data-cat="Bazar" aria-pressed="false">Bazar</button>
+      <button class="chip" data-cat="Librería" aria-pressed="false">Librería</button>
+    </div>
+    <div data-arias-slot="debajo_buscador"></div>
+  </div>
+</div>
+
+<div class="promoinfo" id="promoInfo" hidden>
+  <div class="shell">
+    <button type="button" class="promoinfo__trigger" id="promoInfoOpen">
+      <span class="promoinfo__trigger-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg></span>
+      <span class="promoinfo__trigger-text">
+        <strong>Llevá más, pagá menos</strong>
+        <span>Hasta 20% OFF pagando en efectivo o transferencia</span>
+      </span>
+      <span class="promoinfo__trigger-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    </button>
+  </div>
+</div>
+
+<dialog class="promodlg" id="promoInfoDlg" aria-labelledby="promoInfoTitle" tabindex="-1">
+  <div class="promodlg__head">
+    <h2 id="promoInfoTitle">Llevá más, pagá menos</h2>
+    <button type="button" class="sheet__close" id="promoInfoClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="promodlg__body">
+    <button type="button" class="promodlg__imgbtn" id="promoImageOpen" aria-label="Ver la imagen completa">
+      <img class="promodlg__img" src="/assets/promos/promo-llevamas-pagamenos.webp"
+           width="1122" height="1402" loading="lazy"
+           alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
+      <span class="promodlg__zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg> Ver completa</span>
+    </button>
+    <ul class="promodlg__tiers">
+      <li><strong>5% OFF</strong><span>desde $50.000</span></li>
+      <li><strong>10% OFF</strong><span>desde $100.000</span></li>
+      <li><strong>15% OFF</strong><span>desde $150.000</span></li>
+      <li><strong>20% OFF</strong><span>desde $200.000</span></li>
+    </ul>
+    <p class="promodlg__note">Solo efectivo o transferencia</p>
+    <p class="promodlg__chachos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg>Pagando con CHACHOS: <strong>10% adicional</strong></p>
+    <p class="promodlg__disclaimer">Descuentos no acumulables con otras promociones</p>
+  </div>
+</dialog>
+
+<dialog class="promoimg" id="promoImageDlg" aria-label="Imagen ampliada de la promoción" tabindex="-1">
+  <button type="button" class="promoimg__close" id="promoImageClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <img class="promoimg__pic" src="/assets/promos/promo-llevamas-pagamenos.webp"
+       width="1122" height="1402" alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
+</dialog>
+
+<dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="sortSheetTitle">Ordenar por</h2>
+    <button type="button" class="sheet__close" id="sortSheetClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="sortsheet__body" id="sortSheetBody">
+    <button type="button" class="sortopt" data-sort="relevancia">Recomendados</button>
+    <button type="button" class="sortopt" data-sort="destacados">Destacados primero</button>
+    <button type="button" class="sortopt" data-sort="precio-asc">Menor precio</button>
+    <button type="button" class="sortopt" data-sort="precio-desc">Mayor precio</button>
+    <button type="button" class="sortopt" data-sort="nombre">Nombre A-Z</button>
+  </div>
+</dialog>
+
+<dialog class="sortsheet" id="priceSheet" aria-labelledby="priceSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="priceSheetTitle">Filtrar por precio</h2>
+    <button type="button" class="sheet__close" id="priceSheetClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="sortsheet__body" id="priceSheetBody">
+    <button type="button" class="sortopt" data-price="">Cualquier precio</button>
+    <button type="button" class="sortopt" data-price="0-10000">Hasta $10.000</button>
+    <button type="button" class="sortopt" data-price="10000-30000">$10.000 a $30.000</button>
+    <button type="button" class="sortopt" data-price="30000-60000">$30.000 a $60.000</button>
+    <button type="button" class="sortopt" data-price="60000-">Más de $60.000</button>
+  </div>
+</dialog>
+
+<div data-arias-slot="antes_productos"></div>
+
+<main class="shell" data-arias-section="productos">
+  <p class="results-line" id="resultsLine"></p>
+  <div class="grid" id="grid"><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div><div class="card card--skel" aria-hidden="true">
+    <div class="card__media"></div>
+    <div class="card__body">
+      <span class="skel-line" style="width:40%"></span>
+      <span class="skel-line" style="width:85%"></span>
+      <span class="skel-line" style="width:30%;margin-top:8px"></span>
+    </div>
+  </div></div>
+  <div class="empty" id="empty" hidden>
+    <h3>No encontramos nada con esa búsqueda</h3>
+    <p class="t-body">Probá con otras palabras, o escribinos y lo buscamos por vos.</p>
+    <p style="margin-top:18px">
+      <a class="btn btn--gold" data-arias-whatsapp href="https://wa.me/5493804505150" target="_blank" rel="noopener"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg> Consultar por WhatsApp</a>
+    </p>
+  </div>
+</main>
+
+<section class="section" id="visitanos" data-arias-section="visitanos">
+  <div class="shell">
+    <div class="section__head" data-reveal>
+      <h2 class="t-h1">Visitanos</h2>
+      <p class="t-body">Estamos en pleno centro de La Rioja. Si buscás algo puntual, escribinos y te decimos si lo tenemos antes de que vengas.</p>
+    </div>
+    <div class="info-grid">
+      <div class="info-card" data-reveal>
+        <div class="info-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.58 7-12a7 7 0 0 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+        <h3>Dirección</h3>
+        <p>Esquina España y Bulnes, La Rioja</p>
+        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" href="https://www.google.com/maps/search/?api=1&amp;query=Libreria+Arias%2C+La+Rioja&amp;query_place_id=ChIJYa8YyDLaJ5QRypXtUmCt3PA" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.58 7-12a7 7 0 0 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> Ver en el mapa</a></p>
+      </div>
+      <div class="info-card info-card--highlight" id="horarios" data-reveal>
+        <div class="info-card__top">
+          <div class="info-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <span class="info-card__status" id="hoursCardStatus" hidden></span>
+        </div>
+        <h3>Horarios</h3>
+        <div class="hours-list">
+          <div><span>Lunes a Viernes</span><span>09:00 a 13:00 · 18:00 a 21:00</span></div>
+          <div><span>Sábado</span><span>09:30 a 13:30 · 18:30 a 21:30</span></div>
+        </div>
+      </div>
+      <div class="info-card" data-reveal>
+        <div class="info-card__icon"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg></div>
+        <h3>Consultas y pedidos</h3>
+        <p>Armá tu pedido acá y te lo mandamos escrito por WhatsApp. Te confirmamos stock y forma de pago.</p>
+        <p style="margin-top:10px"><a class="btn btn--gold btn--sm" data-arias-whatsapp href="https://wa.me/5493804505150" target="_blank" rel="noopener"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg> 3804 505150</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div data-arias-slot="pie"></div>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer__grid">
+      <div>
+        <h4>Librería Arias</h4>
+        <p>Librería · Bazar · Juguetería · Regalería · Electrónica · Tecnología</p>
+      </div>
+      <div>
+        <h4>Dónde estamos</h4>
+        <ul>
+          <li><a href="https://www.google.com/maps/search/?api=1&amp;query=Libreria+Arias%2C+La+Rioja&amp;query_place_id=ChIJYa8YyDLaJ5QRypXtUmCt3PA" target="_blank" rel="noopener">Esquina España y Bulnes, La Rioja</a></li>
+          <li><a data-arias-whatsapp href="https://wa.me/5493804505150" target="_blank" rel="noopener">3804 505150</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Horarios</h4>
+        <ul>
+          <li>Lunes a Viernes: 09:00 a 13:00 · 18:00 a 21:00</li>
+          <li>Sábado: 09:30 a 13:30 · 18:30 a 21:30</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Seguinos</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/libreriaarias?igsh=NXZrcXd5OHR3bjkz&amp;utm_source=qr" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.facebook.com/ariaslibreria/" target="_blank" rel="noopener">Facebook</a></li>
+          <li><a href="https://www.tiktok.com/@libreriaarias" target="_blank" rel="noopener">TikTok</a></li>
+          <li><a href="https://whatsapp.com/channel/0029VbDBqiGLY6cxTVJTw01j" target="_blank" rel="noopener">Canal de WhatsApp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">© 2026 Librería Arias · La Rioja, Argentina</div>
+  </div>
+</footer>
+
+<div class="dock">
+  <button class="fab" id="fab" hidden aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg>
+    <span class="fab__label">Mi pedido</span>
+    <span class="fab__total" id="fabTotal">$0</span>
+    <span class="fab__count" id="fabCount">0</span>
+  </button>
+  <div class="dock__row">
+    <a class="dockbtn dockbtn--wa" data-arias-whatsapp href="https://wa.me/5493804505150" target="_blank" rel="noopener"
+       aria-label="Escribinos por WhatsApp" title="Escribinos por WhatsApp">
+      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg>
+    </a>
+    <button class="dockbtn dockbtn--ai" id="askBtn" aria-haspopup="dialog" aria-label="Preguntarle al asistente">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>
+      <span>Preguntame</span>
+    </button>
+  </div>
+  <div class="ainudge" id="aiNudge" hidden>
+    <button type="button" class="ainudge__close" id="aiNudgeClose" aria-label="Cerrar aviso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button type="button" class="ainudge__body" id="aiNudgeBody">
+      <span class="ainudge__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg></span>
+      <span class="ainudge__txt">¿Buscás algo puntual? Preguntame, te ayudo a encontrarlo</span>
+    </button>
+  </div>
+</div>
+
+<dialog class="chat" id="chat" aria-labelledby="chatTitle" tabindex="-1">
+  <div class="chat__head">
+    <img class="brand-dark" src="/assets/brand/mark-dark.webp" width="34" height="34" alt="">
+    <img class="brand-light" src="/assets/brand/mark-light.webp" width="34" height="34" alt="">
+    <div class="chat__title">
+      <h2 id="chatTitle">Asistente de Librería Arias</h2>
+      <p id="chatSub">Te ayudo a encontrar lo que buscás</p>
+    </div>
+    <button class="sheet__close" id="chatClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="chat__body" id="chatBody"></div>
+  <div class="chat__foot">
+    <form class="chat__form" id="chatForm">
+      <textarea id="chatInput" rows="1" placeholder="¿Qué estás buscando?" enterkeyhint="send" autocomplete="off"></textarea>
+      <button class="chat__send" id="chatSend" type="submit" aria-label="Enviar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m0 0-6-6m6 6-6 6"/></svg>
+      </button>
+    </form>
+    <p class="chat__note">Los precios y el stock salen del catálogo. Para confirmar, escribinos por WhatsApp.</p>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle" tabindex="-1">
+  <div class="sheet__head">
+    <h2 id="sheetTitle">Mi pedido</h2>
+    <button class="sheet__close" id="sheetClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="sheet__body" id="sheetBody"></div>
+  <div class="sheet__foot" id="sheetFoot" hidden>
+    <div class="sheet__total"><span class="t-small">Total estimado</span><strong id="sheetTotal">$0</strong></div>
+    <a class="btn btn--gold btn--block" id="sheetSend" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg> Enviar pedido por WhatsApp
+    </a>
+    <p class="sheet__note">Te abrimos WhatsApp con el pedido escrito. Confirmamos stock y forma de pago por ahí.</p>
+    <div class="sheet__fallback">
+      <span>¿No se abrió WhatsApp?</span>
+      <button type="button" class="sheet__copy" id="sheetCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        Copiar pedido
+      </button>
+      <a class="sheet__phone" href="tel:+5493804505150">o llamanos al 3804 505150</a>
+    </div>
+  </div>
+  <div class="sheet__sent" id="sheetSent" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5.5 5.5L20 7"/></svg>
+    <h3>¡Pedido enviado!</h3>
+    <p>En breve te responden por WhatsApp para confirmar stock y forma de pago.</p>
+    <div class="sheet__sent-actions">
+      <button type="button" class="btn btn--ghost" id="sheetSentClear">Vaciar pedido</button>
+      <button type="button" class="btn btn--gold" id="sheetSentContinue">Seguir comprando</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Antes de mandar el pedido, si queda algo en oferta afuera del carrito
+     se ofrece sumarlo — una sola vez por sesión (app.js). Las filas de
+     .promonudge__picks se arman en JS, acá sólo va el marco. -->
+<dialog class="promonudge" id="promoNudge" aria-labelledby="promoNudgeTitle" tabindex="-1">
+  <div class="promonudge__head">
+    <h2 id="promoNudgeTitle">¿Sumamos algo en oferta?</h2>
+    <button type="button" class="sheet__close" id="promoNudgeClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="promonudge__body">
+    <p class="promonudge__sub">Todavía no está en tu pedido — antes de mandarlo, mirá si te sirve:</p>
+    <div class="promonudge__picks" id="promoNudgePicks"></div>
+  </div>
+  <div class="promonudge__foot">
+    <button type="button" class="btn btn--ghost" id="promoNudgeSkip">No gracias, continuar</button>
+    <button type="button" class="btn btn--gold" id="promoNudgeAdd">Agregar y continuar</button>
+  </div>
+</dialog>
+
+<div id="toasts" aria-live="polite"></div>
+<dialog class="notify" id="notify" aria-labelledby="notifyTitle" tabindex="-1">
+  <div class="notify__head">
+    <h2 id="notifyTitle">Novedades</h2>
+    <button class="sheet__close" id="notifyClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="notify__body" id="notifyBody"></div>
+</dialog>
+<dialog class="sortsheet menusheet" id="menuSheet" aria-labelledby="menuSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="menuSheetTitle">Menú</h2>
+    <button type="button" class="sheet__close" id="menuSheetClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="menusheet__body">
+    <nav class="menusheet__links" id="menusheetLinks">
+      <a href="/#catalogo">Catálogo</a>
+      <a href="/#horarios">Horarios</a>
+      <a href="/#visitanos">Visitanos</a>
+    </nav>
+    <div class="menusheet__guide">
+      <p class="menusheet__guideTitle">Guía rápida</p>
+      <div class="guidestep">
+        <span class="guidestep__n">1</span>
+        <span class="guidestep__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg></span>
+        <span class="guidestep__info">
+          <strong>Preguntale al asistente</strong>
+          <span>Te ayuda a encontrar lo que buscás</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="chat">Preguntar</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">2</span>
+        <span class="guidestep__ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+        </span>
+        <span class="guidestep__info">
+          <strong>Mirá el catálogo</strong>
+          <span>Filtrá por rubro, precio o stock</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="catalog">Ver catálogo</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">3</span>
+        <span class="guidestep__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg></span>
+        <span class="guidestep__info">
+          <strong>Revisá tu selección</strong>
+          <span>Cantidades y el total, siempre a mano</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="cart">Ver selección</button>
+      </div>
+      <div class="guidestep">
+        <span class="guidestep__n">4</span>
+        <span class="guidestep__ico"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg></span>
+        <span class="guidestep__info">
+          <strong>Escribinos por WhatsApp</strong>
+          <span>Para lo que necesites</span>
+        </span>
+        <button type="button" class="guidestep__btn" data-guide="cart">Escribir</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script type="module" src="/src/theme.js"></script>
+<script type="module" src="/src/app.js"></script>
+<script type="module" src="/src/assistant.js"></script>
+<script type="module" src="/src/analytics.js"></script>
+<!-- Control remoto de página desde Base44 (marketing). Para desactivarlo
+     por completo: poner enabled:false acá, o borrar estas dos líneas. -->
+<script>window.ARIAS_PAGE_CONTROL = { enabled: true, refreshMs: 60000 };</script>
+<script type="module" src="/src/page-control.js"></script>
+</body>
+</html>
