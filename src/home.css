@@ -358,3 +358,20 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
 }
 @media(min-width:721px) and (hover:hover){.island-panel__list>*:hover,.island-panel__cats a:hover {background:var(--fill);}}
 @media(min-width:721px) and (prefers-reduced-motion:reduce){.menusheet--island[open],.menusheet--island[data-closing='true'] {animation:none;}}
+
+/* ==========================================================================
+   Hero v5 · lo que marcaron los críticos sobre la v4 (16/09/2026)
+   ========================================================================== */
+@media(max-width:720px){
+ /* Con tres accesos, los tres iguales en una fila (antes WhatsApp ocupaba
+    la fila entera y era casi tan grande como el buscador). Ícono arriba y
+    nombre abajo para que entren a 375px. */
+ .home-quick:has(>[hidden]) {grid-template-columns:repeat(3,minmax(0,1fr));}
+ .home-quick:has(>[hidden])>* {flex-direction:column;justify-content:center;gap:var(--s-1);min-height:64px;padding:var(--s-2) var(--s-1);text-align:center;}
+ .home-quick:has(>[hidden])>:last-child {grid-column:auto;}
+
+ /* Dentro de la isla lo que más se lee tiene que ser el buscador, no
+    "Pedido": misma medida, menos peso. La cantidad sigue a la vista. */
+ .island__orderLabel {font-weight:500;color:var(--text-2);}
+}
+@media(max-width:374px){.home-quick:has(>[hidden])>* {font-size:14px;}}

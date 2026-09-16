@@ -195,3 +195,19 @@
   .page-home .arias-pc-bar { bottom: calc(16px + env(safe-area-inset-bottom)); }
   .page-home:has(.home-search.is-docked) .arias-pc-bar { bottom: calc(92px + env(safe-area-inset-bottom)); }
 }
+
+/* Foco sobre el amarillo: el anillo general de la home es claro en tema
+   oscuro y sobre el aviso quedaba en 1,37:1. Acá va siempre en tinta. */
+.page-home .arias-pc-bar :is(a, button):focus-visible,
+.arias-pc-bar :is(a, button):focus-visible {
+  outline: 2px solid var(--gold-ink);
+  outline-offset: 2px;
+}
+.page-home .arias-pc-bar .arias-pc-bar__close:focus-visible,
+.arias-pc-bar .arias-pc-bar__close:focus-visible { outline-offset: -4px; }
+
+/* En celular el aviso pasaba el 10% de amarillo de la pantalla (10,3% a
+   375px y 11,4% a 320px): menos aire vertical, el mismo texto. */
+@media (max-width: 720px) {
+  .arias-pc-bar { padding-block: 6px; line-height: 1.25; }
+}

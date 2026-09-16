@@ -198,9 +198,14 @@ function applyAnnouncement(bar) {
     if (hero) hero.after(el);
     else document.body.append(el);
   }
+  const href = safeUrl(bar.link);
+  // Si Base44 manda lo mismo que ya está a la vista, no se toca: rearmarlo al
+  // volver a la pestaña le sacaba el foco a quien lo estaba usando.
+  if (!primeraVez && el.dataset.texto === bar.texto && el.dataset.href === href) return;
+  el.dataset.texto = bar.texto;
+  el.dataset.href = href;
   el.replaceChildren();
 
-  const href = safeUrl(bar.link);
   if (href) {
     const a = document.createElement('a');
     a.href = href;

@@ -1418,7 +1418,7 @@ if ($('#homeSearch')) {
   syncHasText();
   // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9):
   // uno de los cuatro accesos principales no puede llevar a una lista vacía.
-  if (!PRODUCTS.some(offerActive)) $$('.home-quick [data-home-category="Ofertas"]').forEach(el => { el.hidden = true; });
+  if (!PRODUCTS.some(offerActive)) $$('[data-home-category="Ofertas"]').forEach(el => { el.hidden = true; });
   const setSuggestions = open => {
     suggestions.hidden = !open;
     searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
