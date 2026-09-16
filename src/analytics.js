@@ -309,19 +309,21 @@ function wireHomeEvents() {
   const gridEl = document.getElementById('grid');
   let searchTimer = null;
 
-  // 1.2s de espera desde la última tecla — mide la búsqueda, no cada letra.
+  // 400ms de espera desde la última tecla — mide la búsqueda, no cada letra
+  // (pedido de Rodri 15/9: antes 1.2s, colapsaba tipeos incrementales pero
+  // tardaba de más en registrar la búsqueda real).
   searchEl?.addEventListener('input', () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       const query = safeText(searchEl.value, 120);
-      if (query.length < 2) return;
+      if (query.length < 3) return; // pedido de Rodri: no medir 1-2 letras sueltas
       const results = gridEl?.querySelectorAll('.card').length || 0;
       trackCatalogEvent(results ? 'Búsqueda' : 'Búsqueda sin resultados', {
         consulta: query,
         categoria: chipsEl?.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || '',
         resultados: results,
       });
-    }, 1200);
+    }, 400);
   });
 
   chipsEl?.addEventListener('click', (event) => {
