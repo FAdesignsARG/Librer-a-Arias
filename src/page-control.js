@@ -130,6 +130,10 @@ const AVISO_PAUSA_MS = 20_000;   // cuánto tarda en volver
 const AVISO_CERRADO = 'arias-aviso-cerrado';
 
 let avisoTimer = null;
+
+const buscando = () =>
+  !!document.querySelector('.home-search.is-searching') ||
+  !!document.activeElement?.closest?.('#homeSearch');
 let avisoEscucha = false;
 
 function avisoDescartado() {
@@ -150,9 +154,15 @@ function descartarAviso(el) {
 function cicloAviso(el, mostrar) {
   clearTimeout(avisoTimer);
   if (!el.isConnected || avisoDescartado()) return;
-  // Mientras la persona está escribiendo en el buscador no se interrumpe:
-  // se saltea esta aparición y se vuelve a intentar en la próxima vuelta.
-  if (mostrar && document.querySelector('.home-search.is-searching')) {
+  // Con el mouse encima o el foco adentro no se va: antes desaparecía a los
+  // 8 s aunque la persona estuviera por tocarlo, y el foco se perdía.
+  if (!mostrar && el.matches(':hover, :focus-within')) {
+    avisoTimer = setTimeout(() => cicloAviso(el, false), 1_000);
+    return;
+  }
+  // Mientras la persona está buscando no se interrumpe: se saltea esta
+  // aparición y se vuelve a intentar en la próxima vuelta.
+  if (mostrar && buscando()) {
     avisoTimer = setTimeout(() => cicloAviso(el, true), AVISO_PAUSA_MS);
     return;
   }
@@ -182,7 +192,11 @@ function applyAnnouncement(bar) {
     // Va y viene solo: se ofrece con cortesía, no interrumpe la lectura.
     el.setAttribute('role', 'complementary');
     el.setAttribute('aria-label', 'Aviso de la tienda');
-    document.body.append(el);
+    // En el HTML va justo después del hero y no al final de la página: así
+    // el Tab llega a él después de los controles de la primera pantalla.
+    const hero = document.querySelector('[data-arias-section="hero"]');
+    if (hero) hero.after(el);
+    else document.body.append(el);
   }
   el.replaceChildren();
 
@@ -223,6 +237,13 @@ function applyAnnouncement(bar) {
   }
   if (!avisoEscucha) {
     avisoEscucha = true;
+    // Si arranca una búsqueda con el aviso a la vista, se retira.
+    document.addEventListener('focusin', (e) => {
+      const vivo = document.querySelector('[data-arias-announcement]');
+      if (vivo?.dataset.visible === 'true' && e.target.closest?.('#homeSearch')) {
+        cicloAviso(vivo, false);
+      }
+    });
     document.addEventListener('visibilitychange', () => {
       const vivo = document.querySelector('[data-arias-announcement]');
       if (document.hidden) {
@@ -238,12 +259,13 @@ function applyAnnouncement(bar) {
 /* ---------- hero ---------- */
 
 function applyHero(hero) {
-  const section = document.querySelector('[data-arias-section="hero"]');
-  if (!section) return;
-
-  const title = section.querySelector('[data-arias-hero-title]');
-  const subtitle = section.querySelector('[data-arias-hero-subtitle]');
-  const cta = section.querySelector('[data-arias-hero-cta]');
+  // En la home el mensaje vive fuera del hero (más abajo): se busca en toda
+  // la página. Si Base44 oculta la sección "hero", el CSS oculta también el
+  // mensaje, como pasaba cuando estaba adentro.
+  const title = document.querySelector('[data-arias-hero-title]');
+  const subtitle = document.querySelector('[data-arias-hero-subtitle]');
+  const cta = document.querySelector('[data-arias-hero-cta]');
+  if (!title && !subtitle && !cta) return;
 
   if (title) {
     const t = String(hero?.titulo || '').trim();

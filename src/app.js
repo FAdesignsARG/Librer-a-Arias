@@ -1410,6 +1410,15 @@ if ($('#homeSearch')) {
   // Menú ni a los cuatro accesos.
   const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__submit'));
   const setSearching = on => form.classList.toggle('is-searching', on);
+  // Las ideas fijas ("Regalos", "Auriculares", "Mochilas") sirven para
+  // arrancar con el campo vacío; con texto escrito confundían, porque no
+  // tienen nada que ver con lo que se busca. Queda sólo "Ver resultados".
+  const syncHasText = () => form.classList.toggle('has-text', !!searchEl.value.trim());
+  searchEl.addEventListener('input', syncHasText);
+  syncHasText();
+  // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9):
+  // uno de los cuatro accesos principales no puede llevar a una lista vacía.
+  if (!PRODUCTS.some(offerActive)) $$('.home-quick [data-home-category="Ofertas"]').forEach(el => { el.hidden = true; });
   const setSuggestions = open => {
     suggestions.hidden = !open;
     searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -1422,7 +1431,7 @@ if ($('#homeSearch')) {
   form.addEventListener('mousedown', e => { if (form.classList.contains('is-searching') && searchParts(e.target) && e.target !== searchEl) e.preventDefault(); });
   form.addEventListener('keydown', e => { if(e.key === 'Escape') {closeSuggestions(); searchEl.focus({preventScroll:true});} });
   if (bellDot) {
-    const mirror = () => $$('#islandDot, #islandPanelDot').forEach(d => { d.hidden = bellDot.hidden; });
+    const mirror = () => $$('#islandDot, #islandPanelDot, #navMenuDot').forEach(d => { d.hidden = bellDot.hidden; });
     new MutationObserver(mirror).observe(bellDot, { attributes: true, attributeFilter: ['hidden'] });
     mirror();
   }

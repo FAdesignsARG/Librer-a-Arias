@@ -317,7 +317,7 @@ const navbar = (s, home = false) => `<nav class="nav" id="nav">
       ${ico.wa} Escribinos
     </a>
     <button type="button" class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-label="Menú">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>${home ? '<span class="island__dot" id="navMenuDot" hidden></span>' : ''}
     </button>
     ${home ? `<div class="home-tools"><button type="button" id="homeHelp" aria-haspopup="dialog" aria-label="Ayuda">${askIco}<span>Ayuda</span></button><button type="button" id="homeOrder" aria-haspopup="dialog">Mi pedido <span id="homeOrderCount">0</span></button></div>` : ''}
   </div>
@@ -694,7 +694,6 @@ export function renderHome({ products, settings: s }) {
     ${scene.map(({product:p},i)=>`<a class="home-scene__card" style="--i:${i}" href="/p/${esc(p.slug)}/"><img src="${esc(thumbSrc(p.images[0]))}" width="300" height="300" alt="${esc(p.name)}" fetchpriority="auto"><span>${esc(p.category)}</span><strong>${money(offerHasDiscount(p)?p.offer.price:p.price)}</strong></a>`).join('')}
   </div>
   <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
-  <h2 class="hero__headline" data-arias-hero-title hidden></h2><p class="hero__sub" data-arias-hero-subtitle hidden></p><a class="btn btn--gold" data-arias-hero-cta hidden></a>
 </header>
 <section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/?cat=${encodeURIComponent(category)}#catalogo" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
 
@@ -744,6 +743,7 @@ ${
   </div>
 </section>
 
+<section class="home-message shell" aria-label="Sobre la tienda"><h2 class="hero__headline" data-arias-hero-title hidden></h2><p class="hero__sub" data-arias-hero-subtitle hidden></p><a class="btn btn--gold" data-arias-hero-cta hidden></a></section>
 <div class="controls" id="catalogo">
   <div class="shell">
     <div class="controls__row">
