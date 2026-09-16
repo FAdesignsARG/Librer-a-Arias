@@ -115,3 +115,29 @@ el problema real que los dos críticos estaban señalando.
 
 Quedaron en conflicto con decisiones de negocio ya tomadas. No se tocan
 sin que Fran resuelva. Ver la consulta del 16/9.
+
+## M1 — corregido (aprobado por Fran el 16/9)
+
+**Antes:** "el buscador es el elemento de mayor área entre todo lo tocable
+de la primera pantalla".
+**Ahora:** "el buscador es el **control** más grande de la primera
+pantalla, y ningún botón supera la mitad de su área. Las fotos de producto
+son contenido, no controles, y no entran en la comparación."
+
+**Por qué:** la medición mostró que Mercado Libre falla la versión
+estricta en los dos tamaños (su banner publicitario es 12 veces el
+buscador) y Shop.app la pasa sólo porque no muestra producto arriba.
+Mostrar producto temprano es bueno para vender; la regla apuntaba a que
+ningún botón le robe protagonismo a la búsqueda, no a esconder el
+catálogo. Se mide lo que la regla quería medir.
+
+## M4 — corregido (aprobado por Fran el 16/9)
+
+**Antes:** "cero enlaces que saquen del sitio en la primera pantalla".
+**Ahora:** "cero enlaces a redes sociales y a mapas en la primera
+pantalla. WhatsApp es el canal de venta del negocio: cuenta como acción
+del comercio, no como fuga."
+
+**Por qué:** WhatsApp es uno de los cuatro accesos elegidos por Fran y el
+destino del aviso de la tienda. La regla nació para que la primera
+pantalla no derive a Instagram, Facebook y TikTok — eso sigue en pie.
