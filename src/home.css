@@ -123,7 +123,7 @@
    Vidrio solo en lo que flota (excepción aprobada por Fran a la regla 2).
    ========================================================================== */
 .island__actions,.home-quick {display:none;}
-.search .island__actions svg,.home-quick svg,.island-panel__ico svg {position:static;translate:none;left:auto;top:auto;color:currentColor;pointer-events:none;}
+.island__actions svg,.home-quick svg,.island-panel__ico svg {position:static;translate:none;left:auto;top:auto;color:currentColor;pointer-events:none;}
 .island__dot {position:absolute;top:7px;right:7px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--surface);}
 .island__count[data-bump='true'] {animation:fab-bump var(--dur-relaxed) var(--ease-pop);}
 .island-panel__ico .ico-moon,:root[data-theme='light'] .island-panel__ico .ico-sun {display:none;}
@@ -152,7 +152,7 @@
  /* Isla buscando: Pedido y Menú se corren; aparecen Borrar y Buscar. */
  .home-search.is-searching .search input {padding-right:104px;}
  /* Con inert desde app.js: si no se ven ni responden, tampoco reciben foco. */
- .home-search.is-searching .island__actions {opacity:0;scale:.9;visibility:hidden;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-soft),visibility 0s linear var(--dur-fast);}
+ .home-search.is-searching .island__actions {opacity:0;scale:.9;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-soft);}
 
  /* La isla entra última y con el efecto más marcado. */
  .home-search .search {animation:island-arrive var(--dur-slower) var(--ease-pop) backwards;animation-delay:240ms;transition:background var(--dur) var(--ease-soft),box-shadow var(--dur) var(--ease-soft),border-color var(--dur-fast);}
@@ -192,7 +192,7 @@
  .page-home :is(.island__actions button,.home-quick>*,.island-panel__list>*,.island-panel__cats a):focus-visible {outline:2px solid var(--text);outline-offset:2px;}
 }
 @media(max-width:720px) and (hover:hover){.island-panel__list>*:hover,.island-panel__cats a:hover {background:var(--fill);}}
-@media(max-width:374px){.island__orderLabel {display:none;}.home-search .search input {padding-right:124px;}.home-quick>* {font-size:16px;gap:var(--s-2);}}
+@media(max-width:374px){.island__orderLabel {display:none;}.home-search .search input {padding-right:124px;}.home-quick>* {gap:var(--s-2);padding-inline:var(--s-3);}}
 
 /* ==========================================================================
    Hero · Design Loop hero-20260915, Ronda 2
@@ -211,7 +211,7 @@
  .home-scene {height:200px;margin:var(--s-6) auto 0;}
 
  /* M5: tres tamaños de texto. Título del mensaje, cuerpo y etiqueta. */
- .home-hero .hero__headline {margin:var(--s-5) 0 var(--s-1);font-size:32px;line-height:1.15;letter-spacing:-.035em;text-align:center;}
+ .home-hero .hero__headline {margin:var(--s-5) 0 var(--s-1);font-size:26px;line-height:1.15;letter-spacing:-.035em;text-align:center;}
  .home-hero :is(.home-tagline,.hero__sub) {margin:0 auto var(--s-4);max-width:52ch;font-size:17px;line-height:1.5;color:var(--text-2);text-align:center;}
  /* El mensaje de Base44 reemplaza al lema fijo cuando está activo, en vez
     de apilarse debajo con el mismo peso. */
@@ -266,3 +266,27 @@
 
 /* El estado del local quedaba en 12,48px, abajo del piso de 14px. */
 .page-home .statusbadge {font-size:14px;}
+
+/* ==========================================================================
+   Hero v3 · lo que marcaron los tres críticos sobre la v2 (16/09/2026)
+   ========================================================================== */
+@media(max-width:720px){
+ /* El buscador tiene que mandar en el celular: más alto que los accesos,
+    y el logo cede lugar (220x47 → 160 de ancho). */
+ .home-wordmark {max-width:160px;}
+ .home-search .search input {height:60px;}
+ .home-search-anchor {min-height:68px;}
+
+ /* Los cuatro accesos siguen siendo cuatro, pero con menos peso: más bajos,
+    sin tarjeta rellena y con el ícono suelto en vez de la cápsula. */
+ .home-quick>* {min-height:52px;background:transparent;border:1px solid var(--line-strong,var(--line));}
+ .home-quick>*:active {background:var(--fill);}
+ .home-quick__ico {width:24px;height:24px;background:transparent;border-radius:0;}
+ .home-quick__ico svg {width:22px;height:22px;}
+}
+/* Desktop: la barra de arriba usa el mismo tamaño que las etiquetas (14px)
+   y sus controles llegan a 44px de alto. */
+@media(min-width:721px){
+ .page-home .nav__link,.page-home .nav__brand,.page-home .nav__brand span {font-size:14px;}
+ .page-home .nav__link,.page-home .statusbadge {min-height:44px;display:inline-flex;align-items:center;}
+}

@@ -676,12 +676,12 @@ export function renderHome({ products, settings: s }) {
         ${ico.search}<input id="search" name="q" type="search" enterkeyhint="search" placeholder="¿Qué buscás?" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
         <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
         <button class="home-search__submit" type="submit" aria-label="Buscar">${ico.chevron}</button>
-        <div class="island__actions">
-          <button type="button" class="island__order" data-open-order aria-haspopup="dialog">${ico.bag}<span class="island__orderLabel">Pedido</span><span class="island__count" data-order-count>0</span></button>
-          <button type="button" class="island__menu" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet" aria-label="Menú">${menuIco}<span class="island__dot" id="islandDot" hidden></span></button>
-        </div>
       </div>
       <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p>${['Regalos','Auriculares','Mochilas'].map(q=>`<button type="button" data-search-idea="${q}">${ico.search}${q}${ico.chevron}</button>`).join('')}<button type="submit" class="home-search__results">Ver resultados ${ico.chevron}</button></div>
+      <div class="island__actions">
+        <button type="button" class="island__order" data-open-order aria-haspopup="dialog">${ico.bag}<span class="island__orderLabel">Pedido</span><span class="island__count" data-order-count>0</span></button>
+        <button type="button" class="island__menu" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet" aria-label="Menú">${menuIco}<span class="island__dot" id="islandDot" hidden></span></button>
+      </div>
     </form>
   </div>
   <nav class="home-quick" aria-label="Accesos rápidos">
@@ -852,7 +852,7 @@ ${
 
 <div data-arias-slot="antes_productos"></div>
 
-<main class="shell" data-arias-section="productos">
+<main class="shell" id="productos" data-arias-section="productos">
   <p class="results-line" id="resultsLine"></p>
   <div class="grid" id="grid">${skeletonCards(10)}</div>
   <div class="empty" id="empty" hidden>

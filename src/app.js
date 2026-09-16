@@ -1403,23 +1403,16 @@ if ($('#homeSearch')) {
   searchEl.setAttribute('aria-expanded', 'false');
   searchEl.setAttribute('aria-controls', 'homeSuggestions grid');
   // Isla: mientras se escribe, Pedido y Menú se corren y aparece "Buscar".
-  // Mientras están corridos van con inert: antes seguían en el orden de
-  // tabulación estando invisibles y sin responder al toque, así que con Tab
-  // se llegaba a botones fantasma. Lo mismo con los cuatro accesos cuando
-  // el panel de sugerencias los tapa.
+  // En el HTML van después de las sugerencias, así que el Tab llega a ellos
+  // al salir de la búsqueda: focusout cierra el panel y devuelve la isla a
+  // su forma normal antes de que el foco aterrice en Pedido. Sin inert: con
+  // inert el foco pasaba de largo y con Tab no se llegaba nunca a Pedido,
+  // Menú ni a los cuatro accesos.
   const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__submit'));
-  const islandActions = form.querySelector('.island__actions');
-  const quickAccess = $('.home-quick');
-  const setSearching = on => {
-    form.classList.toggle('is-searching', on);
-    islandActions?.toggleAttribute('inert', on);
-  };
+  const setSearching = on => form.classList.toggle('is-searching', on);
   const setSuggestions = open => {
     suggestions.hidden = !open;
     searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
-    // El panel se dibuja encima de los accesos: mientras está abierto no
-    // pueden recibir foco, o el Tab salta a botones tapados.
-    quickAccess?.toggleAttribute('inert', open);
   };
   searchEl.addEventListener('focus', () => { setSuggestions(true); setSearching(true); });
   form.addEventListener('focusin', e => setSearching(searchParts(e.target)));

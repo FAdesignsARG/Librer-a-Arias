@@ -55,8 +55,7 @@
   color: inherit;
 }
 .arias-pc-bar a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
 }
 .arias-pc-bar__close {
   flex: none;
@@ -187,4 +186,12 @@
   font-size: 1rem;
   line-height: 1.5;
   color: var(--text-2);
+}
+
+/* En la home no hay botón flotante abajo (la isla lo absorbe): el aviso va
+   pegado al borde y no cae sobre las acciones del hero. Cuando la isla sí
+   flota abajo, sube por encima de ella. */
+@media (max-width: 720px) {
+  .page-home .arias-pc-bar { bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .page-home:has(.home-search.is-docked) .arias-pc-bar { bottom: calc(92px + env(safe-area-inset-bottom)); }
 }

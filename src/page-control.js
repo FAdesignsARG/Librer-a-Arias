@@ -150,6 +150,12 @@ function descartarAviso(el) {
 function cicloAviso(el, mostrar) {
   clearTimeout(avisoTimer);
   if (!el.isConnected || avisoDescartado()) return;
+  // Mientras la persona está escribiendo en el buscador no se interrumpe:
+  // se saltea esta aparición y se vuelve a intentar en la próxima vuelta.
+  if (mostrar && document.querySelector('.home-search.is-searching')) {
+    avisoTimer = setTimeout(() => cicloAviso(el, true), AVISO_PAUSA_MS);
+    return;
+  }
   el.dataset.visible = mostrar ? 'true' : 'false';
   avisoTimer = setTimeout(
     () => cicloAviso(el, !mostrar),
@@ -196,7 +202,19 @@ function applyAnnouncement(bar) {
   cerrar.type = 'button';
   cerrar.className = 'arias-pc-bar__close';
   cerrar.setAttribute('aria-label', 'Cerrar aviso');
-  cerrar.textContent = '×';
+  // Ícono, no un carácter: una "×" de texto sumaba un tamaño tipográfico más.
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', '20');
+  svg.setAttribute('height', '20');
+  svg.setAttribute('aria-hidden', 'true');
+  const trazo = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  trazo.setAttribute('d', 'M6 6l12 12M18 6L6 18');
+  trazo.setAttribute('stroke', 'currentColor');
+  trazo.setAttribute('stroke-width', '2.2');
+  trazo.setAttribute('stroke-linecap', 'round');
+  svg.append(trazo);
+  cerrar.append(svg);
   cerrar.addEventListener('click', () => descartarAviso(el));
   el.append(cerrar);
 
