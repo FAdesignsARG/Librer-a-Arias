@@ -8,6 +8,67 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
+## 0. Actualización 15/9/2026 (última prueba del día) — ya responde
+
+Volvimos a probar al cierre del día desde el sitio de preview y **la acción
+`configuracion_pagina` ya está andando**. Capturado en vivo sobre
+`https://preview--libreria-arias.netlify.app`, leyendo el evento
+`arias:page-config-updated` que dispara `src/page-control.js`:
+
+```json
+{
+  "orden_secciones":    ["hero","promos","destacados","productos","visitanos"],
+  "secciones_visibles": ["hero","promos","destacados","productos","visitanos"],
+  "barra_aviso": {
+    "activa": true,
+    "texto":  "¿No encontraste lo que buscabas? Escribinos por WhatsApp y te ayudamos.",
+    "link":   "https://wa.me/5493804505150"
+  }
+}
+```
+
+Así que el checklist de la sección 7 **sí quedó aplicado**: los nombres de
+sección que mandan son los reales de esta página y la barra de aviso se
+está pintando. La nota de más abajo (400 "Acción no admitida") queda
+**superada** — era de unas horas antes, el mismo día.
+
+**Un bug nuestro que esto destapó, ya corregido:** al recibir
+`orden_secciones` por primera vez, nuestro código reordenaba las
+secciones con `append()`, que sobre nodos que ya existen no ordena sino
+que los **manda al final** del documento. Resultado: en el preview el pie
+de página aparecía arriba y el hero, el carrusel y las 486 fichas
+quedaban debajo. Arreglado en `src/page-control.js` marcando la posición
+original de cada sección y reinsertando ahí. **No hay nada que cambiar de
+su lado por esto.**
+
+---
+
+## 0. Actualización 15/9/2026 — SUPERADA — sigue pendiente del lado de Base44
+
+Volvimos a probar hoy, directo contra la función (no el SDK, para
+descartar cualquier tema de caché o versión del sitio):
+
+```
+POST https://base44.app/api/apps/6a7e432be6e59ad993e40158/functions/catalogo-metricas
+{ "action": "configuracion_pagina" }
+```
+
+- ❌ **`configuracion_pagina` sigue devolviendo 400 `"Acción no admitida"`.**
+  El checklist de la sección 7 (entidades + bloque en la función + CORS)
+  todavía no está aplicado del lado de Base44 — puntos 1 a 5 del último
+  pedido (config dinámica, hero, barra de aviso, bloques, destacados)
+  dependen 100% de esto y quedan en pausa hasta que exista.
+- ✅ **Buena noticia:** la acción nueva `pedido` (para el seguimiento de
+  pedidos con código `LAWEB-XXXXXXXX`, punto 8) **sí está andando** —
+  devuelve `pedido_id`, `codigo` y `estado` correctamente. Esa parte ya se
+  puede dar por confirmada.
+
+Mientras tanto seguimos con todo lo que no depende de Base44 (búsqueda,
+mensaje de WhatsApp, checkout). Avisar cuando esté lista la parte de
+`configuracion_pagina` para volver a probar antes de prometer fecha.
+
+---
+
 ## 1. Resumen en una línea
 
 La **parte de la página ya está hecha y desplegada en preview**. Falta la

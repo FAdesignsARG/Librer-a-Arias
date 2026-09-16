@@ -34,6 +34,7 @@ const GIVE_UP_AFTER = 5; // fallos seguidos -> se corta el polling hasta recarga
 let currentConfig = null;
 let refreshTimer = null;
 let consecutiveFails = 0;
+let sectionSlots = null;
 
 const opts = () => ({
   enabled: window.ARIAS_PAGE_CONTROL?.enabled !== false,
@@ -222,19 +223,54 @@ function applySections(visibleNames, orderNames) {
   if (!Array.isArray(orderNames) || !orderNames.length) return;
 
   // Reordenar sólo si todas las secciones controlables cuelgan del mismo
-  // contenedor — en esta página no es el caso (el hero es <header>, otras
-  // son <section> sueltas), así que en la práctica el orden queda como
-  // está y sólo funciona mostrar/ocultar. Se deja el guard por si la
-  // estructura cambia en el futuro.
+  // contenedor. En esta página sí es el caso: las cinco (hero · promos ·
+  // destacados · productos · visitanos) son hijas directas de <body>.
   const parents = new Set(sections.map((s) => s.parentElement));
   if (parents.size !== 1) return;
 
-  const parent = [...parents][0];
+  // OJO: acá NO se puede usar parent.append(seccion) para ordenar. Como los
+  // nodos ya existen en el DOM, append() no los ordena: los MUEVE al final
+  // del contenedor. Sobre <body> eso los dejaba después del footer y de los
+  // <script>, y la página quedaba con el hero y todo el catálogo abajo del
+  // pie de página.
+  // En su lugar: la primera vez se marca con un comentario la posición
+  // original de cada sección (su "hueco"), y después cada sección se
+  // inserta en el hueco que le toca según el orden que pide Base44.
+  const slots = ensureSectionSlots(sections);
+  if (slots.length !== sections.length) return;
+
   const byName = new Map(sections.map((s) => [s.dataset.ariasSection, s]));
+  const wanted = [];
   orderNames.forEach((name) => {
     const s = byName.get(name);
-    if (s) parent.append(s);
+    if (s && !wanted.includes(s)) wanted.push(s);
   });
+  // Las secciones que Base44 no nombra conservan su orden relativo, después
+  // de las nombradas — nunca se pierden ni se van al final del documento.
+  sections.forEach((s) => {
+    if (!wanted.includes(s)) wanted.push(s);
+  });
+
+  wanted.forEach((section, i) => {
+    const slot = slots[i];
+    if (!slot?.parentNode) return;
+    if (slot.previousSibling === section) return; // ya está en su hueco
+    slot.parentNode.insertBefore(section, slot);
+  });
+}
+
+/** Marca la posición original de cada sección con un comentario, una sola
+    vez, para poder reordenarlas sin sacarlas de su lugar en el documento. */
+function ensureSectionSlots(sections) {
+  if (sectionSlots) return sectionSlots;
+  sectionSlots = sections
+    .filter((s) => s.parentNode)
+    .map((s) => {
+      const slot = document.createComment('arias-section-slot');
+      s.parentNode.insertBefore(slot, s);
+      return slot;
+    });
+  return sectionSlots;
 }
 
 /* ---------- bloques dinámicos en slots ---------- */
