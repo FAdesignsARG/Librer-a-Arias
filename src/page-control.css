@@ -56,6 +56,9 @@
 }
 .arias-pc-bar a {
   text-decoration: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .arias-pc-bar__close {
   flex: none;
@@ -188,12 +191,17 @@
   color: var(--text-2);
 }
 
-/* En la home no hay botón flotante abajo (la isla lo absorbe): el aviso va
-   pegado al borde y no cae sobre las acciones del hero. Cuando la isla sí
-   flota abajo, sube por encima de ella. */
+/* El aviso ocupa la capa inferior mientras la búsqueda está en el hero.
+   Cuando la misma isla se acopla abajo, el aviso se retira: nunca compiten
+   dos flotantes ni tapan juntos el catálogo. */
 @media (max-width: 720px) {
   .page-home .arias-pc-bar { bottom: calc(16px + env(safe-area-inset-bottom)); }
-  .page-home:has(.home-search.is-docked) .arias-pc-bar { bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .page-home:has(.home-search.is-docked) .arias-pc-bar {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    translate: 0 18px;
+  }
 }
 
 /* Foco sobre el amarillo: el anillo general de la home es claro en tema

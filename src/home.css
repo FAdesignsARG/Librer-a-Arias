@@ -375,3 +375,6 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
  .island__orderLabel {font-weight:500;color:var(--text-2);}
 }
 @media(max-width:374px){.home-quick:has(>[hidden])>* {font-size:14px;}}
+/* El atributo hidden debe ganar incluso sobre layouts flex de accesos/chips. */
+[data-home-category="Ofertas"][hidden],
+[data-cat="Ofertas"][hidden] { display: none !important; }

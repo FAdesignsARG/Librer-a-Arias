@@ -1416,9 +1416,11 @@ if ($('#homeSearch')) {
   const syncHasText = () => form.classList.toggle('has-text', !!searchEl.value.trim());
   searchEl.addEventListener('input', syncHasText);
   syncHasText();
-  // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9):
-  // uno de los cuatro accesos principales no puede llevar a una lista vacía.
-  if (!PRODUCTS.some(offerActive)) $$('[data-home-category="Ofertas"]').forEach(el => { el.hidden = true; });
+  // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9).
+  // La regla cubre cada entrada de la home: acceso, menú y chip del catálogo.
+  if (!PRODUCTS.some(offerActive)) {
+    $$('[data-home-category="Ofertas"], [data-cat="Ofertas"]').forEach(el => { el.hidden = true; });
+  }
   const setSuggestions = open => {
     suggestions.hidden = !open;
     searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
