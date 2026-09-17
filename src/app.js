@@ -1058,6 +1058,7 @@ function openMenu(from) {
   delete menuSheet.dataset.closing;
   menuSheet.showModal();
   menuSheet.focus(); // ver comentario en openSheet()
+  from?.setAttribute('aria-expanded', 'true');
   const pill = from?.closest('.search');
   if (!pill || !menuSheet.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const a = pill.getBoundingClientRect();
@@ -1421,9 +1422,14 @@ if ($('#homeSearch')) {
   if (!PRODUCTS.some(offerActive)) {
     $$('[data-home-category="Ofertas"], [data-cat="Ofertas"]').forEach(el => { el.hidden = true; });
   }
+  const quickAccess = $('.home-quick');
   const setSuggestions = open => {
     suggestions.hidden = !open;
     searchEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // El panel se dibuja encima de los accesos y les dejaba asomando 5px
+    // abajo, tocables. Mientras está abierto no se ven ni reciben foco.
+    quickAccess?.classList.toggle('is-covered', open);
+    quickAccess?.toggleAttribute('inert', open);
   };
   searchEl.addEventListener('focus', () => { setSuggestions(true); setSearching(true); });
   form.addEventListener('focusin', e => setSearching(searchParts(e.target)));

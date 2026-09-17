@@ -378,3 +378,31 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
 /* El atributo hidden debe ganar incluso sobre layouts flex de accesos/chips. */
 [data-home-category="Ofertas"][hidden],
 [data-cat="Ofertas"][hidden] { display: none !important; }
+
+/* ==========================================================================
+   Hero v6 · el buscador es lo que más se ve (crítico de objetivo, 16/09)
+   El problema medido: buscador y accesos hechos del mismo material, y los
+   accesos ganaban — 2px más altos, texto en 600, íconos amarillos. En reposo
+   el amarillo de marca estaba del lado de los botones y no del buscador.
+   ========================================================================== */
+
+/* El único amarillo del hero en reposo pasa a ser la lupa del buscador. */
+.home-search .search>svg {color:var(--gold-text);}
+.home-search .search input::placeholder {color:var(--text-2);font-weight:500;}
+.home-quick__ico {background:transparent;color:var(--text-2);}
+
+@media(max-width:720px){
+ /* Los accesos, más bajos que la píldora (70 contra 56: 14px de diferencia)
+    y con menos peso de texto. */
+ .home-quick>*,.home-quick:has(>[hidden])>* {min-height:56px;font-weight:500;}
+ .home-quick:has(>[hidden])>* {font-size:17px;line-height:1.1;padding:2px;gap:0;}
+ .home-quick:has(>[hidden]) .home-quick__ico svg {width:18px;height:18px;}
+ .home-quick__ico svg {width:20px;height:20px;}
+
+ /* Mientras el panel de sugerencias los tapa no se ven. */
+ .home-quick.is-covered {opacity:0;}
+}
+@media(min-width:721px){
+ .home-quick>* {min-height:52px;font-weight:500;}
+ .home-quick__ico {width:24px;height:24px;}
+}
