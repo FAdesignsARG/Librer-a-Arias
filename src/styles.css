@@ -304,11 +304,13 @@ dialog:focus-visible {
   letter-spacing: -0.008em;
 }
 .t-eyebrow {
-  font-size: 0.72rem;
+  /* 14px: piso de DESIGN.md regla 4. Antes 0.72rem = 11,52px, y con
+     --text-3 daba 3,6:1 en tema oscuro, abajo del 4,5:1 de 06-calidad. */
+  font-size: 14px;
   font-weight: 620;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .shell {
@@ -1874,7 +1876,7 @@ dialog:focus-visible {
 .flag {
   padding: 4px 9px;
   border-radius: var(--r-pill);
-  font-size: 0.68rem;
+  font-size: 14px; /* piso de DESIGN.md regla 4; antes 0.68rem = 10,88px */
   font-weight: 620;
   letter-spacing: 0.01em;
   backdrop-filter: blur(8px);

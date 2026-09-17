@@ -691,7 +691,7 @@ export function renderHome({ products, settings: s }) {
     <a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener" style="--i:3"><span class="home-quick__ico">${ico.wa}</span>WhatsApp</a>
   </nav>
   <div class="home-scene" aria-label="Ideas para descubrir">
-    ${scene.map(({product:p},i)=>`<a class="home-scene__card" style="--i:${i}" href="/p/${esc(p.slug)}/"><img src="${esc(thumbSrc(p.images[0]))}" width="300" height="300" alt="${esc(p.name)}" fetchpriority="auto"><span>${esc(p.category)}</span><strong>${money(offerHasDiscount(p)?p.offer.price:p.price)}</strong></a>`).join('')}
+    ${scene.map(({product:p},i)=>`<a class="home-scene__card" style="--i:${i}" href="/p/${esc(p.slug)}/"><img src="${esc(thumbSrc(p.images[0]))}" width="300" height="300" alt="${esc(p.name)}" fetchpriority="auto"><span>${esc(p.name)}</span><strong>${money(offerHasDiscount(p)?p.offer.price:p.price)}</strong></a>`).join('')}
   </div>
   <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
 </header>

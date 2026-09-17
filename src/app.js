@@ -1450,6 +1450,17 @@ if ($('#homeSearch')) {
     $('#catalogo').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   };
   form.addEventListener('submit', e => { e.preventDefault(); results(); });
+  // Enter no dispara submit cuando el botón de enviar está en
+  // visibility:hidden (en celular aparece sólo al escribir) y el de las
+  // sugerencias está dentro del panel oculto: el navegador no encuentra
+  // botón de envío. Se atiende la tecla para que los dos caminos hagan lo
+  // mismo — antes filtraba la grilla pero dejaba la vista arriba, sin
+  // ninguna señal de que hubiera resultados 2.000px más abajo.
+  searchEl.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.isComposing) return;
+    e.preventDefault();
+    results();
+  });
   $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; searchEl.focus({preventScroll:true}); results(); }));
   $$('[data-home-category]').forEach(link => link.addEventListener('click', e => {
     if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

@@ -13,8 +13,8 @@
 .arias-pc-bar {
   position: fixed;
   z-index: 101;
-  left: 12px;
-  right: 12px;
+  left: 16px;
+  right: 16px;
   bottom: calc(88px + env(safe-area-inset-bottom));
   max-width: 460px;
   margin-inline: auto;

@@ -406,3 +406,21 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
  .home-quick>* {min-height:52px;font-weight:500;}
  .home-quick__ico {width:24px;height:24px;}
 }
+
+/* ==========================================================================
+   Hero v7 · lo que marcaron los críticos sobre la v6 (17/09/2026)
+   ========================================================================== */
+
+/* El texto de ayuda del buscador tenía la mitad de tinta y de contraste que
+   las etiquetas de los botones: 16px en gris contra 17px en blanco. */
+.home-search .search input::placeholder {font-size:17px;color:var(--text);font-weight:500;}
+@media(max-width:720px){.home-search input::placeholder {font-size:17px;}}
+
+@media(max-width:720px){
+ /* La × se ve siempre que haya algo escrito, no sólo con el campo enfocado:
+    si no, el catálogo queda filtrado y sin forma visible de limpiarlo. */
+ .home-search.has-text .search__clear {opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
+}
+
+/* Mismo riel de 16px que el hero. */
+@media(max-width:720px){.home-discover {--gutter:16px;}}
