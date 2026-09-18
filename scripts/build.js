@@ -114,6 +114,7 @@ const copies = [
   ['src/assistant.css', 'src/assistant.css'],
   ['src/notify.css', 'src/notify.css'],
   ['src/page-control.css', 'src/page-control.css'],
+  ['src/glass.css', 'src/glass.css'],
   ['src/app.js', 'src/app.js'],
   ['src/home.css', 'src/home.css'],
   ['src/home-search-motion.js', 'src/home-search-motion.js'],

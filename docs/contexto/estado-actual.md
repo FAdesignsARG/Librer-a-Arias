@@ -86,3 +86,22 @@ Fuente: `docs/setup-estado-pc.md`, comprobación fechada 10/09/2026.
   habilitado: ahí no aparece el aviso flotante).
 - Pendiente de confirmar en un teléfono real: que Enter en el buscador
   baje a los resultados (el navegador de pruebas manda la tecla sin `key`).
+
+## Sistema de vidrio (17/09/2026, Ronda 3, rama `preview`)
+- `src/glass.css` (se carga último, en todas las páginas): tokens `--glass-*`
+  por tema y su aplicación. Oscuro: rgba(24,24,26,.86) + blur 28px + borde
+  de luz arriba (Apple). Claro: rgba(255,255,255,.88) + blur 24px (shop.app).
+- Lleva vidrio todo lo que se superpone: hojas y modales (pedido, orden,
+  menú, promo, pop-up de ofertas, bienvenida, asistente, novedades),
+  sugerencias del buscador, isla, dock, botón flotante, barra pegajosa,
+  nav, barra de filtros del catálogo, chips y accesos. El pedido (FAB,
+  contador de la isla, Mi pedido) lleva glow amarillo. El contenido
+  (tarjetas de producto, hero, secciones) sigue plano.
+- Fallbacks: sin `backdrop-filter` → superficie sólida; con
+  `prefers-reduced-transparency: reduce` → sólido y sin blur. OJO: el
+  navegador de pruebas del panel tiene esa preferencia activa, así que ahí
+  el vidrio no se ve salvo que se borre esa regla en la pestaña; en un
+  teléfono o desktop normal sí se ve.
+- Verificado a 375 (oscuro y claro) y 1280 (claro): valores computados
+  correctos en isla, chips, hoja del pedido, menú y nav; fondo detrás de
+  los modales desenfocado.

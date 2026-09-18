@@ -260,6 +260,7 @@ ${bodyClass === 'page-home' ? '<link rel="stylesheet" href="/src/home.css">' : '
 <link rel="stylesheet" href="/src/assistant.css">
 <link rel="stylesheet" href="/src/notify.css">
 <link rel="stylesheet" href="/src/page-control.css">
+<link rel="stylesheet" href="/src/glass.css">
 ${head.preload || ''}
 ${themeBootScript(bodyClass === 'page-home')}
 <script type="application/ld+json">${head.jsonLd}</script>

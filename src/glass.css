@@ -1,0 +1,227 @@
+/* ==========================================================================
+   SISTEMA DE VIDRIO — Ronda 3 (17/09/2026, decisión de Fran)
+   Todo lo que se superpone al contenido lleva vidrio: modales, hojas,
+   pop-ups, sugerencias, dock, botón flotante, barra de filtros, chips.
+   Oscuro: glass profundo estilo Apple (iOS/macOS), con borde de luz arriba.
+   Claro: glass blanco estilo shop.app, luminoso y con sombra suave.
+
+   Se carga último a propósito: gana por orden a los fondos sólidos que cada
+   componente traía. Las superficies de contenido (tarjetas de producto,
+   hero, secciones) siguen planas: el vidrio es para lo que flota o filtra.
+
+   Tokens: --glass-* viven acá y no en styles.css para que el sistema entero
+   se pueda leer, medir y apagar desde un solo archivo.
+   ========================================================================== */
+
+:root {
+  --glass-bg: rgba(28, 28, 30, 0.72);
+  --glass-bg-strong: rgba(24, 24, 26, 0.86);
+  --glass-chip: rgba(255, 255, 255, 0.07);
+  --glass-chip-hi: rgba(255, 255, 255, 0.12);
+  --glass-blur: 28px;
+  --glass-sat: 180%;
+  --glass-edge: rgba(255, 255, 255, 0.16);   /* borde de luz, arriba */
+  --glass-edge-2: rgba(255, 255, 255, 0.04); /* borde, abajo */
+  --glass-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.75), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+  --glass-glow: 0 0 0 1px rgba(254, 206, 1, 0.18), 0 10px 40px -8px rgba(254, 206, 1, 0.45);
+  --backdrop: rgba(0, 0, 0, 0.5);
+  --backdrop-blur: 10px;
+}
+:root[data-theme='light'] {
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.88);
+  --glass-chip: rgba(255, 255, 255, 0.6);
+  --glass-chip-hi: rgba(255, 255, 255, 0.85);
+  --glass-blur: 24px;
+  --glass-sat: 160%;
+  --glass-edge: rgba(255, 255, 255, 0.95);
+  --glass-edge-2: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 18px 48px -18px rgba(0, 0, 0, 0.28), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --glass-glow: 0 0 0 1px rgba(203, 156, 0, 0.25), 0 10px 36px -8px rgba(254, 206, 1, 0.5);
+  --backdrop: rgba(20, 20, 24, 0.28);
+  --backdrop-blur: 8px;
+}
+
+/* ---------- Superficies flotantes: hojas, modales, pop-ups, paneles ---------- */
+.sheet,
+.sortsheet,
+.menusheet,
+.menusheet--island,
+.promodlg,
+.promonudge,
+.welcome,
+.chat,
+.notify,
+.home-search__suggestions,
+.home-search.is-docked .search,
+.arias-pc-maint__box {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 0;
+  box-shadow: var(--glass-shadow);
+}
+/* Borde de luz: un degradé fino de arriba (luz) a abajo (sombra), pegado
+   al radio real del componente. Con máscara para no tapar el contenido. */
+.sheet::before,
+.sortsheet::before,
+.menusheet::before,
+.promodlg::before,
+.promonudge::before,
+.welcome::before,
+.chat::before,
+.notify::before,
+.home-search__suggestions::before,
+.home-search.is-docked .search::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, var(--glass-edge), var(--glass-edge-2));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+.sheet, .sortsheet, .menusheet, .promodlg, .promonudge, .welcome, .chat, .notify,
+.home-search__suggestions {
+  position: relative; /* para el ::before; los <dialog> ya son fixed */
+}
+.sheet, .sortsheet, .menusheet, .promodlg, .promonudge, .welcome, .chat, .notify { position: fixed; }
+/* Las cabeceras y pies con fondo sólido dentro de las hojas pasan a ser
+   del mismo vidrio, si no se ve un rectángulo opaco encima. */
+.sheet__head,
+.sheet__foot,
+.sortsheet__head,
+.chat__head,
+.notify__head,
+.promodlg__head,
+.promonudge__head,
+.promonudge__foot {
+  background: transparent;
+}
+
+/* ---------- Fondo detrás de los modales ---------- */
+.sheet::backdrop,
+.sortsheet::backdrop,
+.menusheet::backdrop,
+.promodlg::backdrop,
+.promonudge::backdrop,
+.welcome::backdrop,
+.chat::backdrop,
+.notify::backdrop {
+  background: var(--backdrop);
+  -webkit-backdrop-filter: blur(var(--backdrop-blur));
+  backdrop-filter: blur(var(--backdrop-blur));
+}
+
+/* ---------- Dock, botón flotante del pedido, barra pegajosa ---------- */
+.dockbtn,
+.fab,
+.stickycta {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-edge-2);
+  box-shadow: var(--glass-shadow);
+}
+/* El pedido destaca en amarillo con glow (decisión de Fran, 17/9). */
+.fab,
+.dockbtn--wa,
+.island__count:not([data-empty='true']),
+#homeOrder:has(#homeOrderCount:not(:empty)) {
+  box-shadow: var(--glass-glow);
+}
+.fab {
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-color: transparent;
+}
+
+/* ---------- Barra de filtros del catálogo (pegajosa) ---------- */
+.controls {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border-bottom: 1px solid var(--glass-edge-2);
+}
+/* En la home, home.css la deja sólida con dos clases: se iguala la
+   especificidad para que el vidrio gane también ahí. La barra de filtros
+   de la home queda plana a propósito: no flota, va en el flujo. */
+.nav,
+.page-home .nav {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+
+/* ---------- Chips y accesos ---------- */
+.chip,
+.island-panel__cats a,
+.home-quick > *,
+.sortbtn,
+.sort {
+  background: var(--glass-chip);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--glass-sat));
+  backdrop-filter: blur(16px) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-edge-2);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+}
+@media (hover: hover) {
+  .chip:hover,
+  .island-panel__cats a:hover,
+  .home-quick > *:hover,
+  .sortbtn:hover {
+    background: var(--glass-chip-hi);
+  }
+}
+.chip[aria-pressed='true'] {
+  background: var(--text);
+  color: var(--ink);
+  border-color: transparent;
+  box-shadow: none;
+}
+.chip--ofertas[aria-pressed='true'] {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+
+/* ---------- La isla del buscador en la home ---------- */
+.home-search .search {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-edge-2);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-edge);
+}
+.home-search .search:focus-within {
+  box-shadow: var(--glass-glow), var(--glass-shadow);
+  border-color: transparent;
+}
+
+/* ---------- Sin soporte de backdrop-filter: sólido, no transparente ---------- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sheet, .sortsheet, .menusheet, .promodlg, .promonudge, .welcome, .chat, .notify,
+  .home-search__suggestions, .home-search.is-docked .search, .dockbtn, .stickycta,
+  .controls, .nav, .home-search .search, .arias-pc-maint__box {
+    background: var(--surface);
+  }
+  .chip, .island-panel__cats a, .home-quick > *, .sortbtn, .sort { background: var(--surface-hi); }
+}
+
+/* ---------- Accesibilidad: quien pide menos transparencia la tiene ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .sheet, .sortsheet, .menusheet, .promodlg, .promonudge, .welcome, .chat, .notify,
+  .home-search__suggestions, .home-search.is-docked .search, .dockbtn, .stickycta,
+  .controls, .nav, .home-search .search, .arias-pc-maint__box {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .chip, .island-panel__cats a, .home-quick > *, .sortbtn, .sort {
+    background: var(--surface-hi);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
