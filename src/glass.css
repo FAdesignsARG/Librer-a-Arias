@@ -1080,3 +1080,98 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   #catalogo .filters .filterpill--clear {order:9;grid-column:1 / -1;min-height:44px;justify-content:center;background:transparent;text-decoration:underline;text-underline-offset:4px;color:var(--text-2);}
   #catalogo .filters .filterpill--clear > span {flex:none;}
 }
+
+
+/* ==========================================================================
+   Celular más claro, más grande y con más aire · 18/09/2026 (pedido de Fran)
+   Antes: títulos de sección en tres tamaños (21,6 / 22 / 29,6px), márgenes
+   laterales de 16 o 18px según la sección, enlaces y textos secundarios a
+   14px. Ahora: un solo margen (20px), un solo título de sección (26px), 64px
+   entre secciones, textos de lectura a 16-17px y botones más altos.
+   ========================================================================== */
+@media (max-width:720px) {
+  :root {--gutter:20px;--m-gap:64px;}
+
+  /* Un solo margen lateral para toda la página. */
+  body.page-home .home-hero,
+  body.page-home .home-discover,
+  body.page-home #productos,
+  body.page-home .picks > .shell,
+  body.page-home #visitanos .shell,
+  body.page-home .footer .shell,
+  body.page-home #catalogo .shell {padding-inline:var(--gutter);}
+  body.page-home .home-quick {padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);margin-inline:calc(var(--gutter) * -1);}
+  body.page-home .picks__row {padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);gap:14px;}
+  body.page-home .attention-carousel.banners {padding-inline:var(--gutter);}
+
+  /* Un solo título de sección. */
+  body.page-home .home-section-head h2,
+  body.page-home .picks__title,
+  body.page-home #visitanos .section__head h2,
+  body.page-home #featuredTitle {font-size:26px;line-height:1.15;font-weight:600;letter-spacing:-.035em;margin:0;}
+  body.page-home .home-section-head {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+  body.page-home .home-section-head a {display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:16px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  body.page-home .home-section-head a svg {width:18px;height:18px;}
+  body.page-home .picks__eyebrow {font-size:15px;margin-bottom:6px;}
+  body.page-home .picks__title {margin-bottom:0;}
+  body.page-home .picks__timer {margin-top:12px;}
+
+  /* Mismo aire entre todas las secciones. */
+  body.page-home .home-hero {padding-top:28px;padding-bottom:8px;}
+  body.page-home:not(.page-catalog) .attention-carousel.banners {margin-block:12px 0;}
+  body.page-home .home-discover {padding-block:var(--m-gap) 0;}
+  body.page-home .picks {padding-block:var(--m-gap) 0;}
+  body.page-home .picks__row {padding-block:20px 8px;}
+  body.page-home:not(.page-catalog) #productos {padding-top:var(--m-gap);}
+  body.page-home .featured-head {padding-top:0;}
+  body.page-home #visitanos {padding-block:var(--m-gap) 56px;}
+
+  /* Primera pantalla: todo un poco más grande. */
+  body.page-home:not(.page-catalog) .home-mark__img {width:84px;height:84px;}
+  body.page-home:not(.page-catalog) .home-wordmark {max-width:280px;margin-bottom:18px;}
+  body.page-home .home-quick {gap:10px;margin-top:20px;}
+  body.page-home .home-quick > * {min-height:52px;padding-inline:18px 20px;font-size:17px;}
+
+  /* Rubros: tarjetas más grandes, con el nombre más legible. */
+  body.page-home .home-discover__row {grid-template-columns:repeat(5,178px);gap:14px;}
+  body.page-home .home-discover__card span {font-size:17px;}
+
+  /* Destacados: más separación entre tarjetas y salida bien visible. */
+  body.page-home #grid {gap:18px 14px;}
+  body.page-home .picks__item {flex-basis:250px;}
+  body.page-home .featured-more {margin:36px 0 0;}
+  body.page-home .featured-more .btn {width:100%;min-height:58px;font-size:17px;border-radius:999px;}
+
+  /* Visitanos: texto de lectura a 16-17px y tarjetas con aire. */
+  body.page-home #visitanos .section__head {margin-bottom:24px;}
+  body.page-home #visitanos .section__head .t-body {font-size:17px;line-height:1.55;margin-top:10px;}
+  body.page-home .info-grid {gap:16px;}
+  body.page-home .info-card {padding:24px;border-radius:26px;}
+  body.page-home .info-card h3 {font-size:19px;margin-bottom:8px;}
+  body.page-home .info-card p,
+  body.page-home .hours-list {font-size:16px;line-height:1.55;}
+  body.page-home .hours-list > div {padding-block:6px;}
+  body.page-home .info-card .btn--sm {min-height:50px;padding-inline:22px;font-size:16px;border-radius:999px;}
+
+  /* Pie: enlaces legibles y con toque cómodo. */
+  .footer {padding-top:48px;}
+  .footer h4 {font-size:15px;margin-bottom:6px;}
+  .footer a,.footer p,.footer li {font-size:16px;line-height:1.5;}
+  .footer__bottom {font-size:14px;margin-top:28px;}
+
+  /* Catálogo: un filtro por fila, grande y a todo el ancho. */
+  #catalogo .filters {grid-template-columns:minmax(0,1fr);gap:10px;}
+  #catalogo .filters .filterpill {min-height:56px;padding:0 20px;font-size:17px;}
+  #catalogo .filters #featuredBtn[hidden] + #sortBtn {grid-column:auto;}
+  body.page-catalog #catalogTitle {font-size:30px;}
+  body.page-catalog .results-line {font-size:16px;}
+}
+@media (max-width:720px) {
+  /* Ajustes tras medir: el título de "Elegidos" quedaba corrido (su contenedor se
+     encogía y se centraba) y la sección de rubros pisaba el margen con el suyo. */
+  body.page-home .picks > .shell {width:100%;max-width:none;margin-inline:0;}
+  body.page-home .home-discover {--gutter:20px;}
+  /* Las pastillas de acceso entran completas dentro del margen. */
+  body.page-home .home-quick {gap:8px;}
+  body.page-home .home-quick > * {font-size:16px;padding-inline:14px 18px;}
+}
