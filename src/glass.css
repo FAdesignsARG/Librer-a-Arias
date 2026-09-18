@@ -433,18 +433,6 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
 .page-home .attention-carousel {margin-top:8px;}
 @media (max-width:720px) {.page-home .attention-carousel {margin-block:0 32px;}}
 
-/* Flotantes de WhatsApp e IA otra vez en la home. "Mi pedido" no se duplica:
-   en la home ya vive en la isla (celular) y en la barra (desktop). */
-.page-home .dock {display:flex;transition:bottom var(--dur) var(--ease-out);}
-.page-home .dock .fab {display:none;}
-/* Cuando la isla está acoplada abajo, o está el aviso, los flotantes suben
-   para no pisarse (la isla centrada mide hasta 600px: choca hasta ~1040). */
-@media (max-width:1040px) {
-  body:has(.home-search.is-docked) .dock,
-  body:has(.arias-pc-bar[data-visible='true']) .dock {bottom:calc(max(16px, env(safe-area-inset-bottom)) + 88px);}
-}
-
-
 /* ==========================================================================
    Home v2 · Ronda B · "Elegidos para vos" rota cada 5 minutos
    La tarjeta que sale se empaña y se hunde; la que entra aparece nítida
@@ -591,15 +579,6 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
    Flotantes, chat del asistente y tarjetas de producto.
    ========================================================================== */
 
-/* ---- Flotantes de WhatsApp y del asistente: 60px (antes 52) ---- */
-.dockbtn {height:60px;width:60px;}
-.dockbtn svg {width:28px;height:28px;}
-.dockbtn--ai {width:auto;padding:0 22px 0 18px;font-size:16px;font-weight:600;}
-.dock__row {gap:12px;}
-@media (max-width:520px) {
-  .dockbtn--ai {width:60px;padding:0;}
-}
-
 /* ---- Chat del asistente ---- */
 .chat .chat__title h2 {font-size:18px;line-height:1.25;}
 .chat .chat__title p {font-size:14px;color:var(--text-2);}
@@ -704,38 +683,6 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
 .sortsheet.is-popover .sortsheet__body {padding:8px;}
 @keyframes filter-pop {from {opacity:0;translate:0 -6px;scale:.98;} to {opacity:1;translate:0 0;scale:1;}}
 @media (prefers-reduced-motion: reduce) {.sortsheet.is-popover[open] {animation:none;}}
-
-
-/* ==========================================================================
-   Flotantes de WhatsApp y del asistente, rehechos · 18/09/2026
-   Fran: "no se ven estéticos". El sistema de vidrio les había sacado el color:
-   WhatsApp quedaba como un círculo oscuro con un aro. Ahora WhatsApp es el
-   botón amarillo de la marca, y el asistente es Adolfito asomando de una
-   pastilla de vidrio.
-   ========================================================================== */
-.dock .dockbtn--wa {background:var(--gold);color:var(--gold-ink);border:0;-webkit-backdrop-filter:none;backdrop-filter:none;
-  box-shadow:0 10px 28px -8px rgba(254,206,1,.6),0 2px 6px rgba(0,0,0,.25);}
-.dock .dockbtn--wa:hover {background:var(--gold-hi, #ffd92e);}
-.dock .dockbtn--wa svg {width:30px;height:30px;}
-:root[data-theme='light'] .dock .dockbtn--wa {box-shadow:0 0 0 1.5px rgba(26,18,0,.75),0 10px 24px -10px rgba(0,0,0,.45);}
-
-.dock .dockbtn--ai {position:relative;overflow:visible;height:60px;padding:0 24px 0 72px;gap:0;font-size:16px;font-weight:600;color:var(--text);
-  background:var(--glass-bg-strong, rgba(24,24,26,.86));border:1px solid var(--glass-edge-2, rgba(255,255,255,.14));
-  box-shadow:0 12px 32px -12px rgba(0,0,0,.6),0 0 0 1px rgba(254,206,1,.10);}
-/* Adolfito es más grande que el botón y asoma por arriba: ahí está la personalidad. */
-.dockbtn__face {position:absolute;left:6px;bottom:4px;width:64px;height:64px;border-radius:50%;object-fit:cover;pointer-events:none;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));transform-origin:50% 90%;transition:rotate var(--dur) var(--ease-pop),scale var(--dur) var(--ease-pop);}
-.dock .dockbtn--ai:hover .dockbtn__face,.dock .dockbtn--ai:focus-visible .dockbtn__face {rotate:-8deg;scale:1.08;}
-.dock .dockbtn--ai:focus-visible,.dock .dockbtn--wa:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
-@media (max-width:520px) {
-  /* En celular, sólo Adolfito en un círculo de vidrio con aro amarillo. */
-  .dock .dockbtn--ai {width:64px;height:64px;padding:0;border-color:var(--gold-edge);}
-  .dock .dockbtn--ai span {display:none;}
-  .dockbtn__face {left:50%;bottom:0;translate:-50% 0;width:72px;height:72px;}
-  .dock .dockbtn--wa {width:64px;height:64px;}
-  .dock__row {align-items:flex-end;}
-}
-@media (prefers-reduced-motion: reduce) {.dockbtn__face {transition:none;}}
 
 
 /* ==========================================================================
@@ -916,12 +863,103 @@ html[data-splash="running"] body.page-home:not(.page-catalog) > .home-hero {anim
 }
 
 
-/* Ícono oficial de Adolfito para el asistente (18/09/2026): se muestra entero,
-   con su globito y su pulgar, sin recortarlo en círculo. */
-.dock .dockbtn--ai {padding-left:84px;}
-.dockbtn__face {left:4px;bottom:0;width:80px;height:80px;max-width:none;border-radius:0;object-fit:contain;}
+/* Avatar de Adolfito en la cabecera del chat (ícono oficial, entero). */
 .chat .chat__head .chat__avatar {width:52px;height:52px;border-radius:0;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));}
+
+
+/* ==========================================================================
+   Botones flotantes (WhatsApp + asistente) · versión única · 18/09/2026
+   Reemplaza las tres capas anteriores. Criterios:
+   - Una sola fila, los dos a 64px de alto, alineados por abajo, 14px entre sí.
+   - "Preguntame" es el que más destaca: aro y glow amarillo que respira,
+     Adolfito con aire a los costados (no toca el texto) y un vaivén suave.
+   - No pisan nada: suben cuando hay isla acoplada, aviso o barra de compra.
+   ========================================================================== */
+.dock {right:max(20px, env(safe-area-inset-right));bottom:max(20px, env(safe-area-inset-bottom));gap:12px;padding-top:22px;pointer-events:none;
+  transition:bottom var(--dur) var(--ease-out);}
+.dock > * {pointer-events:auto;}
+.page-home .dock {display:flex;}
+.page-home .dock .fab {display:none;}
+.dock__row {display:flex;align-items:flex-end;gap:14px;}
+
+.dock .dockbtn {position:relative;height:64px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  transition:translate var(--dur) var(--ease-pop),scale var(--dur-fast) var(--ease-pop),box-shadow var(--dur) var(--ease-soft),background var(--dur-fast) var(--ease-soft);}
+@media (hover:hover) {.dock .dockbtn:hover {translate:0 -3px;}}
+.dock .dockbtn:active {scale:.95;}
+.dock .dockbtn:focus-visible {outline:2px solid var(--text);outline-offset:4px;}
+
+/* WhatsApp: círculo amarillo de la marca, limpio (sin el aro que latía). */
+.dock .dockbtn--wa {width:64px;background:var(--gold);color:var(--gold-ink);border:0;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 12px 28px -10px rgba(254,206,1,.55),0 3px 8px rgba(0,0,0,.28);}
+.dock .dockbtn--wa::after {display:none;}
+.dock .dockbtn--wa:hover {background:var(--gold-hi, #ffd92e);}
+.dock .dockbtn--wa svg {width:30px;height:30px;}
+:root[data-theme="light"] .dock .dockbtn--wa {box-shadow:0 0 0 1.5px rgba(26,18,0,.8),0 12px 24px -12px rgba(0,0,0,.45);}
+
+/* Preguntame: pastilla de vidrio con aro y glow amarillo. */
+.dock .dockbtn--ai {width:auto;overflow:visible;padding:0 30px 0 104px;gap:0;color:var(--text);font-size:17px;font-weight:600;letter-spacing:-.015em;white-space:nowrap;
+  background:var(--glass-bg-strong, rgba(24,24,26,.88));border:1.5px solid rgba(254,206,1,.6);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);
+  box-shadow:0 0 0 5px rgba(254,206,1,.10),0 14px 38px -10px rgba(254,206,1,.5),0 12px 30px -14px rgba(0,0,0,.7);
+  animation:dock-breathe 3.6s ease-in-out infinite;}
+.dock .dockbtn--ai:hover {background:var(--glass-bg-strong, rgba(30,30,32,.95));border-color:var(--gold);}
+:root[data-theme="light"] .dock .dockbtn--ai {background:rgba(255,255,255,.92);border-color:rgba(203,156,0,.75);
+  box-shadow:0 0 0 5px rgba(254,206,1,.18),0 14px 34px -12px rgba(203,156,0,.55),0 10px 24px -14px rgba(0,0,0,.35);}
+/* Adolfito: 80px, con 12px de aire a la izquierda y 12px antes del texto;
+   asoma 20px por arriba de la pastilla. */
+.dock .dockbtn__face {position:absolute;left:12px;bottom:4px;width:80px;height:80px;max-width:none;border-radius:0;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.4));transform-origin:50% 95%;animation:dock-bob 3.6s ease-in-out infinite;}
+@media (hover:hover) {.dock .dockbtn--ai:hover .dockbtn__face {animation-duration:1.2s;}}
+
+@keyframes dock-breathe {
+  0%,100% {box-shadow:0 0 0 5px rgba(254,206,1,.10),0 14px 38px -10px rgba(254,206,1,.5),0 12px 30px -14px rgba(0,0,0,.7);}
+  50% {box-shadow:0 0 0 9px rgba(254,206,1,.16),0 18px 52px -8px rgba(254,206,1,.75),0 12px 30px -14px rgba(0,0,0,.7);}
+}
+@keyframes dock-bob {
+  0%,100% {translate:0 0;rotate:-2deg;}
+  50% {translate:0 -4px;rotate:3deg;}
+}
+:root[data-theme="light"] .dock .dockbtn--ai {animation-name:dock-breathe-light;}
+@keyframes dock-breathe-light {
+  0%,100% {box-shadow:0 0 0 5px rgba(254,206,1,.18),0 14px 34px -12px rgba(203,156,0,.55),0 10px 24px -14px rgba(0,0,0,.35);}
+  50% {box-shadow:0 0 0 9px rgba(254,206,1,.28),0 18px 46px -10px rgba(203,156,0,.75),0 10px 24px -14px rgba(0,0,0,.35);}
+}
+
 @media (max-width:520px) {
-  .dock .dockbtn--ai {padding:0;}
-  .dockbtn__face {left:50%;bottom:-2px;width:84px;height:84px;}
+  .dock {right:max(16px, env(safe-area-inset-right));bottom:max(16px, env(safe-area-inset-bottom));padding-top:26px;}
+  .dock__row {gap:16px;}
+  /* Sin texto: círculo de vidrio con el mismo aro y glow, y Adolfito asomando. */
+  .dock .dockbtn--ai {width:68px;height:68px;padding:0;}
+  .dock .dockbtn--ai span {display:none;}
+  .dock .dockbtn__face {left:50%;margin-left:-42px;bottom:0;width:84px;height:84px;}
+  .dock .dockbtn--wa {width:60px;height:60px;}
+  .dock .dockbtn--wa svg {width:28px;height:28px;}
+}
+
+/* No pisar nada */
+@media (max-width:1040px) {
+  /* Isla del buscador acoplada abajo (home y catálogo) o aviso flotante a la vista. */
+  body:has(.home-search.is-docked) .dock,
+  body:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(max(16px, env(safe-area-inset-bottom)) + 92px);}
+}
+@media (max-width:640px) {
+  /* Ficha: arriba de la barra fija de "Agregar". */
+  body.page-product .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)));}
+}
+@media (max-width:1100px) {
+  /* Ficha en pantallas medianas: el buscador flotante dejaría de entrar al lado de los botones. */
+  .page-product .psearch {position:static;}
+}
+@media (max-width:520px) {
+  /* Los puntitos del carrusel de banners se corren a la izquierda: centrados,
+     el segundo quedaba debajo del botón de WhatsApp al entrar a la home. */
+  .banners .attention-carousel__dots {justify-self:start;margin-left:calc(50% - 88px);}
+}
+/* Con una hoja o diálogo abierto, los flotantes no compiten. */
+body:has(dialog[open]) .dock {opacity:0;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft);}
+body:has(dialog[open]) .dock > * {pointer-events:none;}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock .dockbtn--ai,.dock .dockbtn__face {animation:none;}
+  .dock .dockbtn {transition:none;}
 }

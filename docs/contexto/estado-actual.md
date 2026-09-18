@@ -429,3 +429,22 @@ margen, se dejó cuadrado y se exportó a `assets/brand/adolfito-chat.webp` (256
 botón flotante del asistente (80px asomando de la pastilla en desktop, 84px sobre
 el círculo en celular) y como avatar de 52px en la cabecera del chat. Se borró el
 recorte provisorio `adolfito-cara*.webp`.
+
+## Botones flotantes, versión única (18/09/2026)
+Fran: Adolfito quedaba pegado al texto y desproporcionado; en celular "se ve raro";
+pidió que "Preguntame" destaque mucho más y que no se superpongan con nada.
+- Se borraron las tres capas anteriores del dock en `glass.css` y quedó un solo bloque.
+- Desktop: los dos a 64px de alto, alineados por abajo, 14px entre sí. WhatsApp es un
+  círculo amarillo limpio (se sacó el aro que latía). "Preguntame" es una pastilla de
+  vidrio con aro amarillo de 1,5px y glow que respira (3,6s); Adolfito a 80px con 10px
+  de aire a la izquierda y 12px antes del texto, asoma 20px por arriba y tiene un vaivén
+  suave (se acelera al pasar el mouse); 31px de aire a la derecha del texto; 17px/600.
+- Celular: WhatsApp 60px, asistente círculo de 68px con el mismo aro y glow y Adolfito
+  de 84px asomando; 16px entre los dos.
+- No pisan nada (medido): con la isla acoplada o el aviso suben 92px (24px de aire sobre
+  la isla); en la ficha quedan 20px arriba de la barra de "Agregar"; los puntitos del
+  carrusel de banners se corren a la izquierda en celular; en la ficha a ≤1100px el
+  buscador flotante deja de flotar; con cualquier diálogo abierto los flotantes se ocultan.
+  `.dock` tiene `padding-top` para que el globito de ayuda se ubique arriba de la cabeza
+  de Adolfito y no encima.
+- Con movimiento reducido no hay respiración ni vaivén.
