@@ -718,7 +718,7 @@ const productLd = (s, p) => ({
    PORTADA
    ========================================================================== */
 
-export function renderHome({ products, settings: s, mode = 'home' }) {
+export function renderHome({ products, settings: s, mode = 'home', category = '', inCategory = [], head: headOverride = null }) {
   const isCatalog = mode === 'catalog';
   // Un solo cuerpo para las dos páginas: los bloques marcados se quedan o se van.
   const only = (html) => html
@@ -804,7 +804,7 @@ export function renderHome({ products, settings: s, mode = 'home' }) {
     <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ver el canal de WhatsApp"></button>
   </div>
 </section>
-<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/catalogo/?cat=${encodeURIComponent(category)}" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
+<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/c/${categorySlug(category)}/" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
 
 <div data-arias-slot="superior"></div>
 
@@ -828,9 +828,9 @@ ${
 }
 <!--/home-only-->
 
-<!--catalog-only--><div class="controls" id="catalogo">
+<!--catalog-only--><div class="controls" id="catalogo"${category ? ` data-initial-cat="${esc(category)}"` : ''}>
   <div class="shell">
-    <div class="home-section-head catalog-head"><h1 id="catalogTitle">Catálogo</h1></div>
+    <div class="home-section-head catalog-head"><h1 id="catalogTitle">${category ? esc(category) : 'Catálogo'}</h1></div>
     <div class="filters" id="filters" role="group" aria-label="Filtros del catálogo">
       <button type="button" class="filterpill" id="catBtn" aria-haspopup="dialog" aria-controls="catSheet"><span id="catBtnLabel">Categoría</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <button type="button" class="filterpill" id="priceBtn" aria-haspopup="dialog" aria-controls="priceSheet"><span id="priceBtnLabel">Precio</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -939,7 +939,7 @@ ${
 <main class="shell" id="productos"${isCatalog ? '' : ' data-arias-section="productos"'}>
   <!--home-only--><div class="home-section-head featured-head"><h2 id="featuredTitle">Destacados</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><!--/home-only-->
   <p class="results-line" id="resultsLine"></p>
-  <div class="grid" id="grid">${skeletonCards(10)}</div>
+  <div class="grid" id="grid">${category && inCategory.length ? inCategory.map(cardHtml).join('\n    ') : skeletonCards(10)}</div>
   <div class="empty" id="empty" hidden>
     <h3>No encontramos nada con esa búsqueda</h3>
     <p class="t-body">Probá con otras palabras, o escribinos y lo buscamos por vos.</p>
@@ -1000,6 +1000,7 @@ ${footer(s)}`;
       canonical: isCatalog ? `${s.siteUrl}/catalogo/` : `${s.siteUrl}/`,
       jsonLd,
       ...(isCatalog ? { title: `Catálogo — ${s.storeName} | Buscá entre ${products.length} productos` } : {}),
+      ...(headOverride || {}),
     },
     body: only(body),
     bodyClass: isCatalog ? 'page-home page-catalog' : 'page-home',
@@ -1014,7 +1015,7 @@ ${footer(s)}`;
    (?cat=, los chips), es una URL indexable aparte.
    ========================================================================== */
 
-export function renderCategory({ category, products, settings: s }) {
+export function renderCategory({ category, products, all = [], settings: s }) {
   const url = `${s.siteUrl}/c/${categorySlug(category)}/`;
 
   const jsonLd = JSON.stringify({
@@ -1050,29 +1051,15 @@ export function renderCategory({ category, products, settings: s }) {
     ],
   });
 
-  // Sin id="grid": mismo estilo visual que la grilla de la portada (clase
-  // .grid), pero a propósito SIN el id que busca app.js — esta página no
-  // tiene buscador ni chips, así que no hay que engancharla al render()
-  // client-side de la portada (ese bloque ya hace `if (!grid) return`,
-  // no rompe nada con esto, simplemente no aplica acá).
-  const body = `
-<div class="shell">
-  <nav class="crumbs" aria-label="Migas de pan">
-    <a href="/">Inicio</a>${ico.chevron}
-    <span>${esc(category)}</span>
-  </nav>
-  <div class="section__head" data-reveal>
-    <h1 class="t-h1">${esc(category)}</h1>
-    <p class="t-body">${products.length} ${products.length === 1 ? 'producto' : 'productos'} de ${esc(category)} en ${esc(s.storeName)}, La Rioja.</p>
-  </div>
-  <div class="grid">
-    ${products.map(cardHtml).join('\n    ')}
-  </div>
-</div>
-
-${footer(s)}`;
-
-  return layout({
+  // Misma página que /catalogo/ (buscador, filtros, grilla), abierta en este
+  // rubro y con sus productos ya en el HTML: carga más rápido y los buscadores
+  // ven los enlaces sin ejecutar JavaScript.
+  return renderHome({
+    products: all.length ? all : products,
+    settings: s,
+    mode: 'catalog',
+    category,
+    inCategory: products,
     head: {
       title: `${category} — ${s.storeName} | Juguetería, librería y bazar en La Rioja`,
       description: clamp(
@@ -1082,11 +1069,8 @@ ${footer(s)}`;
       canonical: url,
       jsonLd,
     },
-    body,
-    settings: s,
   });
 }
-
 /* ==========================================================================
    LANDING DE PRODUCTO
    ========================================================================== */
@@ -1115,7 +1099,7 @@ export function renderProduct({ product: p, related, settings: s }) {
 <div class="shell">
   <nav class="crumbs" aria-label="Migas de pan">
     <a href="/">Inicio</a>${ico.chevron}
-    <a href="/catalogo/?cat=${encodeURIComponent(p.category)}">${esc(p.category)}</a>${ico.chevron}
+    <a href="/c/${categorySlug(p.category)}/">${esc(p.category)}</a>${ico.chevron}
     <span>${esc(p.name)}</span>
   </nav>
 

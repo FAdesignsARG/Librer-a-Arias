@@ -100,7 +100,7 @@ for (const category of categoriesInCatalog) {
   categoryCount++;
   categoryBytes += await write(
     path.join('c', categorySlug(category), 'index.html'),
-    renderCategory({ category, products: inCategory, settings })
+    renderCategory({ category, products: inCategory, all: visible, settings })
   );
 }
 console.log(`${String(categoryCount).padStart(3)} páginas de rubro          ${kb(categoryBytes)}`);

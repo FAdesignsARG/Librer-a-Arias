@@ -491,3 +491,22 @@ muy suave), pero en Arias de arriba hacia abajo y en vidrio.
 - Verificado por DOM forzando el scroll (el panel no genera cuadros): cuadros
   clave correctos en los dos sentidos y aterrizaje exacto en x, y y ancho.
   **La suavidad hay que mirarla en el deploy o en un teléfono.**
+
+## Páginas de rubro `/c/<rubro>/` con el diseño del catálogo (18/09/2026)
+- `renderCategory()` conserva sus metadatos (título, descripción, canónica,
+  `CollectionPage` + migas + `ItemList` en JSON-LD) y delega el cuerpo en
+  `renderHome({ mode: "catalog", category, inCategory })`: es la misma página
+  que `/catalogo/` (buscador, filtros en pastillas, grilla), abierta en ese
+  rubro, con `h1` = rubro y **los productos del rubro ya en el HTML** (antes
+  de que cargue el JS y para buscadores).
+- `app.js`: `PAGE_CAT` (de `#catalogo[data-initial-cat]`) es el rubro inicial.
+  Mientras se ve ese rubro sin búsqueda la URL sigue siendo `/c/<rubro>/`; al
+  cambiar de rubro o buscar pasa a `/catalogo/?cat=…&q=…` con `replaceState`.
+  Un rubro con página pero sin opción en el filtro (Electrónica, 6 productos)
+  se filtra igual.
+- "Un mundo para descubrir" y la miga de la ficha enlazan a `/c/<rubro>/`.
+- Verificado: `/c/bazar/` (127), cambio a Librería → `/catalogo/?cat=Librería`
+  (8), `/c/electronica/` (6), barra lateral marca "Catálogo".
+- Las fichas pesan ~70 KB de HTML (12 relacionados, hoja de compartir, barra
+  lateral); `dist/` pasó de 31 a 49 MB. Comprimido es poco, pero si molesta, el
+  primer recorte es bajar los relacionados de 12 a 8.

@@ -23,7 +23,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 |---|---|---|
 | A | Marca al frente (logo + wordmark con lema), fuera tarjetas flotantes, banner pegado al hero, vuelven los flotantes de WhatsApp e IA | **Hecha** — falta pasarla por críticos |
 | B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | **Hecha** — mirar la animación en el deploy (el panel de pruebas no genera cuadros) |
-| C | Filtros en una fila de pastillas (C1); catálogo en /catalogo/ y home con 50 destacados, sin tocar el contrato de Base44 (C2) | **Hecha** — queda rediseñar las páginas SEO /c/<rubro>/ |
+| C | Filtros en una fila de pastillas (C1); catálogo en /catalogo/ y home con 50 destacados, sin tocar el contrato de Base44 (C2) | **Hecha** (incluidas las páginas de rubro `/c/<rubro>/`) |
 | D | Barra lateral en desktop / isla en mobile (shop.app) | **Hecha** (sin ícono de favoritos hasta que exista la función) |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | **Hecha** — mirar la suavidad en el deploy / teléfono real |
 | + | Compartir productos con vista previa (WhatsApp primero) y mobile más grande: flotantes, chat y tarjetas | **Hecha** — falta probar la vista previa real en WhatsApp con una URL pública |
@@ -49,8 +49,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
    compartir un producto por WhatsApp** (mandarse un enlace de `diseno--…`).
 2. ~~Ronda D~~ hecha el 18/09 (barra lateral en desktop).
 3. ~~Ronda E~~ hecha el 18/09 (el buscador viaja de arriba hacia abajo y vuelve).
-4. Rediseñar las páginas SEO `/c/<rubro>/` con el mismo lenguaje que `/catalogo/`
-   (hoy tienen el diseño viejo y nada de la home enlaza a ellas).
+4. ~~Páginas `/c/<rubro>/`~~ hechas el 18/09 (mismo diseño que `/catalogo/`, productos en el HTML).
 5. **Actualizar la vara** (`work/design-loop/hero-20260915/bar.md`) al brief
    nuevo y recién ahí correr `criticos-arias` sobre home, `/catalogo/` y ficha.
    Nada de lo hecho el 18/09 pasó por críticos. Con la marca arriba el buscador

@@ -32,7 +32,9 @@ abajo es para que quede prolija y aproveche lo nuevo.
       productos marcados como destacados.
 - [ ] **4. Usar los enlaces nuevos** en bloques, avisos y campañas:
       `/catalogo/` (todo), `/catalogo/?cat=Bazar` (un rubro),
-      `/catalogo/?q=termos` (una búsqueda). Los viejos (`/?cat=…`, `/?q=…`,
+      `/catalogo/?q=termos` (una búsqueda). Para un rubro también sirve su página
+      propia, que carga más rápido: `/c/bazar/`, `/c/jugueteria/`, `/c/libreria/`,
+      `/c/regaleria/`, `/c/tecnologia/`, `/c/electronica/`. Los viejos (`/?cat=…`, `/?q=…`,
       `/#catalogo`) siguen andando porque redirigen solos, pero con los nuevos
       se evita el salto.
 - [ ] **5. Revisar que ningún texto cargado en Base44 hable de otra promo.**

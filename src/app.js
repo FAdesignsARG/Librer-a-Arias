@@ -46,6 +46,8 @@ const ico = {
 const IS_CATALOG = document.body.classList.contains('page-catalog');
 const IS_HOME = document.body.classList.contains('page-home') && !IS_CATALOG;
 const HOME_LIMIT = 50;
+// Página de rubro (/c/<rubro>/): es el catálogo abierto en un rubro.
+const PAGE_CAT = document.getElementById('catalogo')?.dataset.initialCat || '';
 if (IS_HOME) {
   const old = new URLSearchParams(location.search);
   if (old.has('cat') || old.has('q') || location.hash === '#catalogo') {
@@ -920,8 +922,10 @@ function render() {
   // Keep this history entry's filters when returning from a product page.
   const here = new URL(location.href);
   if (IS_CATALOG) {
+    // En una página de rubro, salir de ese rubro o buscar es pasar al catálogo general.
+    if (PAGE_CAT && (activeCat !== PAGE_CAT || query.trim())) here.pathname = '/catalogo/';
     if (query.trim()) here.searchParams.set('q', query.trim()); else here.searchParams.delete('q');
-    if (activeCat !== 'Todos') here.searchParams.set('cat', activeCat); else here.searchParams.delete('cat');
+    if (activeCat !== 'Todos' && here.pathname.startsWith('/catalogo')) here.searchParams.set('cat', activeCat); else here.searchParams.delete('cat');
   }
   history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '', here);
   syncFilterPills();
@@ -1333,7 +1337,8 @@ if (rail) {
   }));
   // Dónde estoy: marca el ítem de la página actual.
   const here = location.pathname === '/' ? 'home'
-    : location.pathname.startsWith('/catalogo') ? (new URLSearchParams(location.search).get('cat') === 'Ofertas' ? 'offers' : 'catalog') : '';
+    : location.pathname.startsWith('/catalogo') ? (new URLSearchParams(location.search).get('cat') === 'Ofertas' ? 'offers' : 'catalog')
+    : location.pathname.startsWith('/c/') ? 'catalog' : '';
   $$('[data-rail]', rail).forEach((a) => { if (a.dataset.rail === here) a.setAttribute('aria-current', 'page'); });
   // El punto de novedades copia al de la campanita.
   const railDot = $('#railDot');
@@ -1631,8 +1636,12 @@ if (grid) {
   }
   const urlQuery = new URLSearchParams(location.search).get('q');
   if (IS_CATALOG && urlQuery != null) searchEl.value = urlQuery;
-  const wanted = new URLSearchParams(location.search).get('cat') || saved?.category;
-  if (!wanted || !selectCategory(wanted)) render();
+  const wanted = new URLSearchParams(location.search).get('cat') || saved?.category || PAGE_CAT;
+  if (!wanted || !selectCategory(wanted)) {
+    // Rubro con página propia pero sin opción en el filtro (ej. Electrónica): se filtra igual.
+    if (PAGE_CAT && wanted === PAGE_CAT) activeCat = PAGE_CAT;
+    render();
+  }
 }
 
 // One search field, shared by the hero and the floating capsule.
