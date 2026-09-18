@@ -753,6 +753,7 @@ ${
 
 <div class="controls" id="catalogo">
   <div class="shell">
+    <div class="home-section-head catalog-head"><h2 id="catalogTitle">Catálogo</h2></div>
     <div class="controls__row">
       <select class="sort" id="sort" aria-label="Ordenar">
         <option value="relevancia">Recomendados</option>

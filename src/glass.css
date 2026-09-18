@@ -488,3 +488,27 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   .picks__item.is-leaving::after,.picks__item.is-entering::after {animation:none;}
   .picks__timer span {transition:none !important;}
 }
+
+
+/* ==========================================================================
+   Home v2 · Ronda C1 · filtros del catálogo en una sola fila de pastillas
+   Antes: dos botones cuadrados sueltos a la derecha, las pastillas de rubro en
+   otra fila, sin título. Ahora todo mide 44px, radio de pastilla, una fila
+   (referencia: la barra de filtros de resultados de shop.app).
+   ========================================================================== */
+#catalogo .shell {display:flex;flex-wrap:wrap;align-items:center;gap:12px 8px;}
+#catalogo .catalog-head {flex:0 0 100%;margin:0 0 4px;}
+#catalogo .controls__row {order:2;flex:none;width:auto;margin:0 0 0 auto;gap:8px;justify-content:flex-start;}
+#catalogo .chips {order:1;flex:1 1 0;min-width:0;margin:0;padding:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+#catalogo .chips::-webkit-scrollbar {display:none;}
+#catalogo [data-arias-slot] {order:3;flex:0 0 100%;}
+#catalogo .sort,
+#catalogo .sortbtn {height:44px;min-height:44px;border-radius:999px;font-size:14px;}
+#catalogo .sort {padding-inline:18px 38px;}
+#catalogo .sortbtn {width:44px;}
+@media (max-width:720px) {
+  /* En celular los dos botones redondos van primero, como el filtro de shop.app,
+     y las pastillas siguen en la misma fila, desplazables hasta el borde. */
+  #catalogo .controls__row {order:1;margin:0;}
+  #catalogo .chips {order:2;margin-right:calc(var(--gutter,16px) * -1);padding-right:var(--gutter,16px);}
+}

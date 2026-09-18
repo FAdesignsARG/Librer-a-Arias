@@ -23,7 +23,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 |---|---|---|
 | A | Marca al frente (logo + wordmark con lema), fuera tarjetas flotantes, banner pegado al hero, vuelven los flotantes de WhatsApp e IA | **Hecha** — falta pasarla por críticos |
 | B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | **Hecha** — mirar la animación en el deploy (el panel de pruebas no genera cuadros) |
-| C | Home liviana (50 destacados + "Ver más"), página `/catalogo/` y rubros `/c/<rubro>/` como páginas aparte, filtros en pastillas a una altura | Pendiente |
+| C | Home liviana (50 destacados + "Ver más"), página `/catalogo/` y rubros `/c/<rubro>/` como páginas aparte, filtros en pastillas a una altura | **C1 hecha** (filtros en una fila de pastillas + título). Falta C2: páginas aparte y home con 50 destacados — **espera OK de Fran** (saca de la home la sección productos que Rodri ordena desde Base44) |
 | D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
 | — | Favoritos por sesión | Más adelante (Fran: "no ahora") |

@@ -269,3 +269,15 @@ antes de los próximos críticos.
   clases correcta en las 5 tarjetas y 5 productos nuevos. La calidad visual de
   la animación no se puede juzgar en el panel (no genera cuadros): **mirarla en
   el deploy**.
+
+## Home v2 — Ronda C1: filtros del catálogo en una fila (18/09/2026)
+Fran: "lo veo roto, con los filtros mal diseñados y los botones a diferentes
+alturas". Medido antes: orden y precio en una fila aparte, a la derecha, con
+radio 14; pastillas de rubro en otra fila con radio 999; sin título. Ahora la
+sección tiene título ("Catálogo") y una sola fila: todo 44px y radio de
+pastilla. En celular van primero los dos botones redondos (orden, precio) y
+las pastillas siguen en la misma fila, desplazables hasta el borde; en desktop
+las pastillas a la izquierda y orden/precio a la derecha. Sin desborde a 375
+ni a 1280. Falta el resto de la Ronda C (catálogo como página aparte y home con
+50 destacados), que espera el OK de Fran porque saca de la home la sección
+`productos` que Rodri ordena desde Base44.
