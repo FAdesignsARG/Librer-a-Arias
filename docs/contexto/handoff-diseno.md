@@ -41,26 +41,40 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | Críticos v8–v10 | Última medición completa (v9): calidad PASS 9/9, objetivo FAIL, sistema FAIL. Sobre la v10 sólo llegó calidad: PASS 8/9; objetivo y sistema murieron por límite de uso | Corregido lo señalado; la vara cambia con el brief nuevo |
 | 6 | Banners como imagen sola, alternando cada 10 s; verticales en celular | **Hecha** (`scripts/build_banners.cjs`; los PNG originales no se versionan) |
 
-## Pendientes concretos
-1. Seguir con la Ronda D del brief nuevo (barra lateral en desktop / isla en mobile). Antes de volver a lanzar críticos,
-   **actualizar la vara** (`work/design-loop/hero-20260915/bar.md`): con la
-   marca arriba, el buscador queda a ~40% de la altura en desktop (mecanismo 3
-   pedía primer tercio) y eso es decisión de Fran, no defecto.
-2. Resuelto por el feedback del 18/09: el lema vuelve (wordmark con "El Temu
-   2.0 riojano"); la pastilla de WhatsApp cortada ya no existe (WhatsApp e IA
-   son flotantes; las pastillas son Catálogo · Ofertas · Novedades).
-3. Siguen abiertas para Fran: isla en tema claro (¿vidrio claro o siempre
-   oscura?); cartel "CUPÓN DESCUENTO" de la mascota (no hay cupón); tarjeta de
-   horarios en amarillo pleno. El bloque "¿No encontraste…?" de Base44 arriba
-   de los resultados y las dos barras a 1280 se resuelven en las rondas C y D.
-4. Aviso flotante: su enlace mide 258x55 (59% del buscador) y tapa el "10% OFF";
-   el crítico de calidad propone una sola línea y ~48px de alto. El texto lo
-   carga Rodri en Base44.
-5. Las ideas del buscador se comprueban con el buscador real (correr
-   `src/search-engine.js` en Node sobre `products.json`), no por cantidad.
-6. `#waBanner` y la tarjeta de promo (radio 20 + borde) siguen fuera del sistema de 28px → Ronda 6.
-7. Prueba en teléfono real: isla (bajar rápido → se recoge; frenar → se ofrece; tocar → crece; volver arriba → se suelta), Enter/lupa del teclado → baja a resultados, y que los flotantes suban cuando la isla se acopla.
-8. Nada de esto está en `main`. Pasar a producción requiere OK explícito de Fran.
+## Pendientes concretos (en el orden en que conviene hacerlos)
+1. **Fran tiene que mirar en el deploy** lo que el panel de pruebas no deja
+   juzgar (no genera cuadros): splash de entrada (pestaña nueva o incógnito),
+   rotación de "Elegidos para vos" (cada 5 min), fundido de los banners (10 s),
+   vuelo de la isla del buscador al hacer scroll, y **la vista previa real al
+   compartir un producto por WhatsApp** (mandarse un enlace de `diseno--…`).
+2. **Ronda D** del brief: barra lateral en desktop (logo arriba; inicio,
+   categorías, pedido, ofertas, favoritos, tema; menú abajo) que en mobile es
+   la isla flotante. Resuelve también las "dos barras" a 1280.
+3. **Ronda E**: transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio.
+4. Rediseñar las páginas SEO `/c/<rubro>/` con el mismo lenguaje que `/catalogo/`
+   (hoy tienen el diseño viejo y nada de la home enlaza a ellas).
+5. **Actualizar la vara** (`work/design-loop/hero-20260915/bar.md`) al brief
+   nuevo y recién ahí correr `criticos-arias` sobre home, `/catalogo/` y ficha.
+   Nada de lo hecho el 18/09 pasó por críticos. Con la marca arriba el buscador
+   queda a ~40% de la altura en desktop: es decisión de Fran, no defecto.
+6. Limpieza: CSS muerto de `.attn__*`, `.home-scene`, `.sortbtn` y chips viejos;
+   `assets/brand/banner-canal.webp`, `assets/promos/adolfito-cupon-descuento.webp`
+   y `wordmark-*-logo.webp` sin uso; `glass.css` creció con una capa por ronda y
+   conviene consolidarlo cuando el diseño se estabilice.
+7. Esperan a Rodri (ver "LEER PRIMERO" en `docs/base44-integracion/RESUMEN-PARA-RODRI.md`):
+   CORS del dominio `diseno--…`, texto del aviso en una línea, 10-15 destacados,
+   y el OK para mandar el evento `Producto compartido` (la web ya emite
+   `arias:share` en `window`; falta conectarlo en `analytics.js`).
+8. Decisiones abiertas de Fran: isla en tema claro (¿vidrio claro o siempre
+   oscura?); cartel "CUPÓN DESCUENTO" en los banners (no existe cupón, el 10% es
+   automático); tarjeta de horarios en amarillo pleno.
+9. Más adelante (pedido por Fran, no ahora): favoritos por sesión; reseñas con
+   estrellas (requiere registro) y, con ellas, el filtro "Calificación".
+10. Hoy los 551 productos tienen una sola foto: la galería con miniaturas y el
+    cambio animado de la ficha están listos pero no se ven hasta que se carguen más.
+11. Nada de esto está en `main`. Pasar a producción requiere OK explícito de Fran.
+    Los PNG originales de banners e ícono (`Banners de Adolfito/`, `Banners Mobile/`,
+    `Iconito Chat/`) no se versionan; los WebP sí.
 
 ## Trampas del entorno de pruebas (no son defectos del sitio)
 - El panel del navegador puede no generar cuadros: `requestAnimationFrame`

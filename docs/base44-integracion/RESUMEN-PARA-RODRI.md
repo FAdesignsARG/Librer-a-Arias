@@ -1,10 +1,91 @@
 # Integración Base44 ↔ página de Librería Arias — estado
 
-**Fecha:** 11/9/2026
+**Fecha:** 11/9/2026 · **Última actualización:** 18/9/2026 (ver "LEER PRIMERO")
 **Para:** equipo de marketing (Rodri / Gonza)
 **Web:** `libreriaarias.com.ar` (sigue en Netlify, sin migrar)
 
 Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
+
+---
+
+## LEER PRIMERO — 18/09/2026: qué cambió en la web y qué necesitamos de ustedes
+
+Todo esto está en la rama `preview` y publicado para revisar en
+`https://diseno--libreria-arias.netlify.app`. **Todavía no está en
+producción.** La integración sigue funcionando sin que toquen nada; lo de
+abajo es para que quede prolija y aproveche lo nuevo.
+
+### A. Lo que les pedimos que hagan (por prioridad)
+
+- [ ] **1. CORS: sumar `https://diseno--libreria-arias.netlify.app`** a la
+      función `catalogo-metricas` (pendiente desde el 17/9). Hoy en ese link no
+      se ven ni la barra de aviso ni los bloques, y no salen métricas, así que
+      Fran no puede revisar ahí lo que ustedes configuran.
+- [ ] **2. Acortar el texto de la barra de aviso a una sola línea** (hasta ~35
+      caracteres). Ejemplo: `¿No lo encontrás? Escribinos`. El texto actual
+      ("¿No encontraste lo que buscabas? Escribinos por WhatsApp y te
+      ayudamos.") ocupa tres líneas en celular: el aviso queda casi tan grande
+      como el buscador y tapa el banner de la promo. El link puede seguir igual.
+- [ ] **3. Cargar entre 10 y 15 slugs en `productos_destacados`.** Antes sólo
+      reordenaban la grilla; ahora se usan en cuatro lugares (ver B). Con pocos
+      destacados la home se ve siempre igual. Hoy en el catálogo hay sólo 2
+      productos marcados como destacados.
+- [ ] **4. Usar los enlaces nuevos** en bloques, avisos y campañas:
+      `/catalogo/` (todo), `/catalogo/?cat=Bazar` (un rubro),
+      `/catalogo/?q=termos` (una búsqueda). Los viejos (`/?cat=…`, `/?q=…`,
+      `/#catalogo`) siguen andando porque redirigen solos, pero con los nuevos
+      se evita el salto.
+- [ ] **5. Revisar que ningún texto cargado en Base44 hable de otra promo.**
+      La única real es **10% por comprar desde la web**, sobre el total, no
+      acumulable. Nada de "hasta 20%", descuentos por medio de pago ni por monto.
+- [ ] **6. Confirmarnos si podemos mandar un evento nuevo: `Producto compartido`.**
+      La web ahora permite compartir productos (WhatsApp primero). Todavía **no
+      mandamos nada** a métricas por esto, para no meterles un `tipo` que su
+      función o sus tableros no esperan. Propuesta, con la misma forma que los
+      demás eventos (`action: 'evento'`):
+      `tipo: 'Producto compartido'`, `product_id` (slug), `product_name`,
+      `categoria`, y en `datos.canal` uno de: `whatsapp`, `sistema` (menú de
+      compartir del teléfono: Instagram, etc.), `facebook`, `mail`, `enlace`,
+      `mail-diseno`, `imagen`. Si nos dicen que sí (y si `tipo` es una lista
+      cerrada, que lo sumen), lo conectamos del lado de la web.
+- [ ] **7. Tableros:** el campo `pagina` de los eventos ahora trae
+      `/catalogo/` además de `/` y `/p/<slug>/`. Las búsquedas y los cambios de
+      rubro pasan a venir casi todos de `/catalogo/`. Si algún tablero filtra
+      por `pagina = "/"`, hay que ampliarlo.
+
+### B. Qué hace ahora cada cosa que ustedes controlan
+
+| Lo que configuran | Qué pasa en la web hoy |
+|---|---|
+| `secciones_visibles` / `orden_secciones` | Igual que siempre, con los mismos 5 nombres, **sólo en la home**. El orden sí se aplica (se arregló el 15/9). |
+| Sección `hero` | Logo, nombre con el lema, buscador y accesos. Los campos de texto del hero (título, subtítulo, botón) **no tienen efecto desde el 17/9**: esos elementos ya no existen en la home. |
+| Sección `promos` | Carrusel de dos banners-imagen (promo de la web y canal de WhatsApp) que se alternan cada 10 s. |
+| Sección `destacados` | La fila "Elegidos para vos", que ahora **rota sola cada 5 minutos**. |
+| Sección `productos` | En la home son **50 destacados + botón "Ver todo el catálogo"**, no los 551. El catálogo completo vive en `/catalogo/`, que **no es una sección**: ocultar `productos` no lo apaga. |
+| `productos_destacados` (slugs) | (1) van primero entre los 50 de la home; (2) entran en "Elegidos para vos", hasta dos por tramo de 5 minutos; (3) ordenan `/catalogo/` cuando no hay una búsqueda escrita; (4) son los que muestra el filtro **Destacados** del catálogo. Con una búsqueda escrita manda la relevancia, no los destacados. |
+| Bloque en `debajo_buscador` | En la home aparece junto a los productos (antes de `antes_productos`). En `/catalogo/` aparece **después de los resultados**, para no tapar lo que la persona buscó. Para un bloque tipo "¿No encontraste…?" es el lugar lógico. |
+| Bloques en `superior`, `antes_productos`, `pie` | `superior` sólo existe en la home. `antes_productos` y `pie` existen en la home y en `/catalogo/`. |
+| `barra_aviso` | Globito flotante que aparece unos segundos y se va. Aplica en todas las páginas. Se oculta mientras el buscador está acoplado abajo. |
+| WhatsApp público | Cambia el número en todos lados, incluido el botón nuevo **"Consultar por WhatsApp"** de cada ficha, que conserva su mensaje con el producto (usa `data-arias-whatsapp-message`). Ese botón ya cuenta como `Consulta por WhatsApp` en las métricas. |
+| Modo mantenimiento | Igual que siempre, en todas las páginas. |
+
+### C. Qué cambió en la página (contexto, no requiere nada de ustedes)
+
+- Primera pantalla con la marca al frente (logo, "El Temu 2.0 riojano"),
+  buscador grande y splash de entrada.
+- Catálogo en página aparte con filtros en pastillas: Categoría, Precio,
+  Destacados y Ordenar. Los rubros siguen siendo los mismos botones por dentro,
+  así que el evento de cambio de rubro no cambió.
+- Ficha de producto nueva: precio con la promo web calculada, Agregar,
+  Consultar por WhatsApp, Preguntarle a la IA, Compartir, y 12 relacionados.
+- Compartir productos: cada ficha tiene una imagen de vista previa de 1200x630
+  (marca, nombre, precio y promo) para que el enlace se vea bien en WhatsApp,
+  Facebook e Instagram.
+- Botones flotantes de WhatsApp y del asistente (con Adolfito) en todas las
+  páginas, incluida la home.
+- Pendiente del lado de la web: barra lateral de navegación en desktop,
+  favoritos por sesión y reseñas con estrellas (estas dos últimas van a
+  necesitar hablarlo con ustedes cuando lleguen, porque implican guardar datos).
 
 ---
 
@@ -135,24 +216,22 @@ formas.
 | Nombre | Qué es en la web |
 |---|---|
 | `hero` | La portada con el logo y los botones |
-| `promos` | El carrusel de atención (promos + canal de WhatsApp) |
-| `destacados` | La fila "Elegidos para vos hoy" |
-| `productos` | La grilla de productos |
+| `promos` | El carrusel de dos banners-imagen (promo de la web + canal de WhatsApp) |
+| `destacados` | La fila "Elegidos para vos" (rota cada 5 minutos) |
+| `productos` | En la home: 50 destacados + "Ver todo el catálogo". La grilla completa vive en `/catalogo/` |
 | `visitanos` | La sección de dirección / horarios / contacto |
 
 - **Mostrar / ocultar**: funciona con esos 5 nombres.
 - Lista vacía o sin ese campo = "no controlar la visibilidad" → todo se ve
   (y se revierte cualquier ocultamiento anterior). Nunca oculta todo.
-- **`orden_secciones` no tiene efecto por ahora.** Las secciones de esta
-  web no cuelgan todas del mismo contenedor, así que reordenar es trabajo
-  del desarrollador. Por ahora: sólo mostrar/ocultar.
+- **`orden_secciones` sí se aplica** desde el 15/9 (ver sección 0), sólo en la home.
 
 ### Slots de bloques (`ubicacion` en `BloquePagina`)
 
 | `ubicacion` | Dónde aparece |
 |---|---|
 | `superior` | Arriba del carrusel de promos |
-| `debajo_buscador` | Debajo de los filtros de rubro |
+| `debajo_buscador` | Home: junto a los productos. `/catalogo/`: después de los resultados |
 | `antes_productos` | Justo antes de la grilla de productos |
 | `pie` | Antes del footer |
 
@@ -167,7 +246,8 @@ slug es la última parte de la URL del producto: `.../p/<slug>/`
 
 En `productos_destacados` van esos slugs, en el orden deseado. Efecto: esos
 productos pasan al principio de la grilla, en el orden "Recomendados". Es
-no destructivo (no oculta nada, no toca "Elegidos para vos").
+no destructivo (no oculta nada). Desde el 18/9 también entran en "Elegidos para
+vos" y alimentan el filtro Destacados (ver "LEER PRIMERO", tabla B).
 
 ### Stock / "Última unidad"
 
@@ -178,7 +258,8 @@ pero no hay dato numérico con qué dispararla. Es una decisión aparte:
 
 ### Hero
 
-`titulo`, `subtitulo`, `cta_texto` + `cta_url` funcionan. `imagen_url`
+**Desde el 17/9 no tienen efecto**: el bloque de título, subtítulo y botón ya
+no existe en la home. Antes: `titulo`, `subtitulo`, `cta_texto` + `cta_url` funcionaban. `imagen_url`
 **no está conectado** a propósito: el fondo del hero es un asset de marca.
 
 ---
@@ -313,7 +394,8 @@ funcionando igual. Lo que cambia es del lado de la página:
 - Enlaces viejos: `/?cat=Ofertas`, `/?cat=Bazar`, `/?q=algo` y `/#catalogo`
   redirigen solos a `/catalogo/…`. Los bloques o campañas que ya los usen no se rompen.
 - Métricas: los eventos de búsqueda, rubro y producto siguen saliendo con los
-  mismos nombres. Lo único nuevo es que el campo `pagina` va a traer
+  mismos nombres. Compartir un producto por WhatsApp **no** se cuenta como
+  `Consulta por WhatsApp` (se excluyó a propósito). Lo único nuevo es que el campo `pagina` va a traer
   `/catalogo/` además de `/`.
 - Aviso flotante, número de WhatsApp y modo mantenimiento aplican en todas las
   páginas, igual que antes.

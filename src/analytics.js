@@ -386,6 +386,8 @@ function wireCartEvents() {
     // WhatsApp", el dock flotante, etc.) — no depende de tener carrito.
     const link = event.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"]');
     if (!link) return;
+    // Compartir un producto por WhatsApp no es una consulta al local: no se cuenta acá.
+    if (link.closest('#shareSheet')) return;
     const card = link.closest('.card');
     trackCatalogEvent('Consulta por WhatsApp', card ? cardInfo(card) : {});
   });
