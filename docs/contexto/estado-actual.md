@@ -200,3 +200,28 @@ Pendiente de decisión de Fran: lema bajo el wordmark; isla clara en tema claro
 bloque "¿No encontraste…?" configurado desde Base44 que queda arriba de los
 resultados; tarjeta amarilla de horarios; dos barras flotantes a 1280;
 pastilla de WhatsApp cortada a 375.
+
+## Ronda de los tres críticos sobre la home v10 (18/09/2026)
+Medido sobre `aff3d25` (v9). Veredictos: calidad PASS (9/9), objetivo FAIL,
+sistema FAIL. Corregido:
+- Las ideas de la v9 se habían elegido por cantidad de resultados y no por lo
+  que devolvían ("Lapiceras": 16 productos, ninguna lapicera). Ahora Termos,
+  Relojes y Auriculares, comprobadas corriendo `src/search-engine.js` en Node
+  sobre `products.json` (todo lo que devuelven corresponde).
+- Con una búsqueda escrita manda la relevancia: los destacados de Base44 sólo
+  reordenan el catálogo sin buscar (antes "Peluches" abría con un secaplatos).
+- `aria-expanded` del Menú sigue al atributo `open` del `<dialog>` con un
+  `MutationObserver` (el evento `close` no dispara en el panel de pruebas y
+  puede no disparar en WebViews); cubre también `#menuBtn` en desktop.
+- La × de borrar a 375: el `mousedown` le daba foco al botón, la isla cambiaba
+  de forma y el click caía en otro lado. Ningún botón de la búsqueda roba foco.
+  Verificado con click real: borra al primer intento.
+- Pedido con productos en celular: botón entero amarillo con glow, como a 1280.
+- Placeholder a 16px (3 tamaños sobre el pliegue); vista de resultados en
+  14/16/17 (chips y bloque de Base44 tenían tamaños fraccionarios).
+- Pedido y Menú ya no saltan al medio del panel al buscar; las pastillas
+  tapadas no dejan hueco (`display:none`; `app.js` las destapa antes del Tab).
+Decisión de diseño registrada (no es defecto): en celular el Tab recorre
+campo → × → ideas → Ver resultados y recién después Pedido y Menú. Mientras se
+busca, Pedido y Menú están ocultos; si fueran antes en el orden, enfocarlos
+cerraría el panel y las ideas quedarían inalcanzables con teclado.

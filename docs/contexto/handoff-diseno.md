@@ -22,12 +22,13 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | 4 | Isla que respira con el scroll | Hecha — **falta probar en teléfono real** |
 | 5 / 7 | Comparación directa con shop.app, tarjetas flotantes | Hecha |
 | Críticos v8 | objetivo FAIL, sistema FAIL, calidad PASS 7/9 | Corregido |
-| Críticos v9 | objetivo FAIL, sistema FAIL, calidad PASS 9/9 | Correcciones aplicadas — **falta re-correr objetivo y sistema** |
+| Críticos v9 | objetivo FAIL, sistema FAIL, calidad PASS 9/9 | Corregido |
+| Críticos v10 | sobre la v9: objetivo FAIL, sistema FAIL, calidad PASS 9/9 | Correcciones aplicadas — **falta re-correr los tres** |
 | 6 | Banners como imagen sola (1400x534, fondo transparente) | Bloqueada: faltan los diseños de Fran |
 | 8 | Grilla: hoy dibuja los 523 productos de una (≈97.000px de alto) | Pendiente |
 
 ## Pendientes concretos
-1. Re-correr los críticos de objetivo y sistema con la skill `criticos-arias` sobre la v9 (vara: `work/design-loop/hero-20260915/bar.md`, v2). Calidad ya dio PASS 9/9.
+1. Re-correr los tres críticos con la skill `criticos-arias` sobre la v10 (vara: `work/design-loop/hero-20260915/bar.md`, v2). Las ideas del buscador se comprueban con el buscador real (correr `src/search-engine.js` en Node), no por cantidad de resultados.
 2. Decisiones de Fran que dejaron abiertas los críticos (no resolver solo):
    - ¿Va el lema bajo el wordmark en la primera pantalla? (DESIGN.md dice "wordmark y su lema"; hoy no está.)
    - Isla en tema claro: ¿vidrio claro (como está) o siempre oscuro?

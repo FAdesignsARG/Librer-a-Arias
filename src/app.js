@@ -788,7 +788,7 @@ function render() {
   const found = filterByPrice(searchProducts(searchEl.value, pool), priceEl?.value);
   let list = sortList(found, sortEl?.value || 'relevancia');
 
-  if (ariasFeaturedSlugs.length && (sortEl?.value || 'relevancia') === 'relevancia') {
+  if (ariasFeaturedSlugs.length && !searchEl.value.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
     const rank = new Map(ariasFeaturedSlugs.map((slug, i) => [slug, i]));
     list = [...list].sort(
       (a, b) => (rank.has(a.slug) ? rank.get(a.slug) : Infinity) - (rank.has(b.slug) ? rank.get(b.slug) : Infinity)
@@ -1056,7 +1056,6 @@ function openMenu(from) {
   delete menuSheet.dataset.closing;
   menuSheet.showModal();
   menuSheet.focus(); // ver comentario en openSheet()
-  from?.setAttribute('aria-expanded', 'true');
   const pill = from?.closest('.search');
   if (!pill || !menuSheet.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const a = pill.getBoundingClientRect();
@@ -1075,8 +1074,14 @@ function openMenu(from) {
 menuBtn?.addEventListener('click', () => openMenu());
 $$('[data-open-menu]').forEach((btn) => btn.addEventListener('click', () => openMenu(btn)));
 wireDialog(menuSheet, $('#menuSheetClose'));
-$$('[data-open-menu]').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
-menuSheet?.addEventListener('close', () => $$('[data-open-menu]').forEach((btn) => btn.setAttribute('aria-expanded', 'false')));
+// El estado de los disparadores sigue al atributo open del <dialog>, no al
+// evento close: hay WebViews donde ese evento llega tarde o no llega.
+if (menuSheet) {
+  const menuTriggers = [menuBtn, ...$$('[data-open-menu]')].filter(Boolean);
+  const syncMenuExpanded = () => menuTriggers.forEach((btn) => btn.setAttribute('aria-expanded', String(menuSheet.open)));
+  new MutationObserver(syncMenuExpanded).observe(menuSheet, { attributes: true, attributeFilter: ['open'] });
+  syncMenuExpanded();
+}
 enableDragToClose(menuSheet, { header: $('.sortsheet__head', menuSheet), scrollEl: $('.menusheet__body', menuSheet) });
 
 // Los links (Catálogo/Horarios/Visitanos, rubros, WhatsApp) navegan solos
@@ -1436,7 +1441,7 @@ if ($('#homeSearch')) {
   form.addEventListener('focusout', e => { if (!searchParts(e.relatedTarget)) { closeSuggestions(); setSearching(false); } });
   // Tocar Buscar, Borrar o una sugerencia no le saca el foco al campo: así
   // la isla no cambia de forma debajo del dedo (Safari no enfoca botones).
-  form.addEventListener('mousedown', e => { if (form.classList.contains('is-searching') && searchParts(e.target) && e.target !== searchEl) e.preventDefault(); });
+  form.addEventListener('mousedown', e => { if (searchParts(e.target) && e.target !== searchEl) e.preventDefault(); });
   form.addEventListener('keydown', e => { if(e.key === 'Escape') {closeSuggestions(); searchEl.focus({preventScroll:true});} });
   // En desktop Pedido y Menú no están en la isla: después de la última parte
   // de la búsqueda vienen los accesos, que siguen inertes hasta el focusout.
@@ -1446,7 +1451,7 @@ if ($('#homeSearch')) {
     if (e.key !== 'Tab' || e.shiftKey || !searchParts(e.target)) return;
     const parts = $$('#search, .search__clear, .home-search__go, #homeSuggestions button', form)
       .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
-    if (e.target === parts[parts.length - 1]) quickAccess?.removeAttribute('inert');
+    if (e.target === parts[parts.length - 1]) { quickAccess?.removeAttribute('inert'); quickAccess?.classList.remove('is-covered'); }
   });
   if (bellDot) {
     const mirror = () => $$('#islandDot, #islandPanelDot, #navMenuDot').forEach(d => { d.hidden = bellDot.hidden; });

@@ -379,3 +379,35 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
      llega hasta el borde del toque de la ×, no hasta su dibujo: 70px. */
   .home-search.has-text:not(.is-searching) .search input {padding-right:152px;text-overflow:ellipsis;}
 }
+
+
+/* ==========================================================================
+   Ronda de los tres críticos v10 · 18/09/2026
+   Sobre la v9: calidad PASS 9/9, objetivo FAIL, sistema FAIL.
+   ========================================================================== */
+
+/* Tres tamaños sobre el pliegue: el placeholder medía 17px y el texto tipeado
+   16. Quedan 14 / 16 / 22 en celular y 14 / 16 / 26 en desktop. */
+.home-search .search input,
+.home-search .search input::placeholder {font-size:16px;}
+
+/* Pedido con productos, en celular: el amarillo pleno con glow vivía sólo en
+   el contador de 24px; a 1280 era el botón entero. Ahora es igual en los dos. */
+.home-search .island__order:has(.island__count[data-empty='false']) {background:var(--gold);color:var(--gold-ink);box-shadow:var(--glass-glow);}
+.home-search .island__order:has(.island__count[data-empty='false']) svg {color:inherit;}
+.home-search .island__order:has(.island__count[data-empty='false']) .island__count {background:rgba(0,0,0,.14);color:inherit;box-shadow:none;}
+
+/* Al abrir el panel de ideas, Pedido y Menú saltaban al medio del formulario
+   (van centrados con top:50% y el formulario crece) y quedaban a la vista
+   mientras se desvanecían. Se anclan a la píldora y terminan ocultos. */
+.home-search.is-searching .island__actions {top:35px;visibility:hidden;transition:opacity var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-soft),visibility 0s linear var(--dur-fast);}
+
+/* Con el panel abierto las pastillas quedaban invisibles pero ocupando lugar:
+   un hueco de ~120px debajo del panel. app.js las destapa antes del Tab. */
+.home-quick.is-covered {display:none;}
+
+/* Vista de resultados: ocho tamaños, cinco fraccionarios. Quedan 14 / 16 / 17. */
+.chip {font-size:14px;}
+.arias-pc-block__title {font-size:17px;}
+.arias-pc-block__text {font-size:16px;}
+.arias-pc-block__cta {font-size:14px;}
