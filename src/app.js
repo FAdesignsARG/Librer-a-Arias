@@ -1283,6 +1283,13 @@ addEventListener('keydown', (e) => {
    GALERÍA DE LA LANDING
    ========================================================================== */
 
+// "Leer más" de la descripción larga.
+$('#productDescMore')?.addEventListener('click', (e) => {
+  const open = $('#productDesc').classList.toggle('is-open');
+  e.currentTarget.setAttribute('aria-expanded', String(open));
+  e.currentTarget.textContent = open ? 'Leer menos' : 'Leer más';
+});
+
 const thumbs = $('#thumbs');
 thumbs?.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-src]');

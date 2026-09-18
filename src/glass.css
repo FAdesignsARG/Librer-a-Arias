@@ -736,3 +736,97 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   .dock__row {align-items:flex-end;}
 }
 @media (prefers-reduced-motion: reduce) {.dockbtn__face {transition:none;}}
+
+
+/* ==========================================================================
+   Ficha de producto · 18/09/2026 (referencia: ficha de shop.app)
+   Fotos a la izquierda con miniaturas en columna, y a la derecha una columna
+   de compra: precio, promo web, cantidad, agregar, WhatsApp, IA y compartir;
+   abajo, información real en desplegables.
+   ========================================================================== */
+.page-product .product {gap:clamp(24px,4vw,56px);}
+@media (min-width:860px) {
+  .page-product .product {grid-template-columns:minmax(0,1.25fr) minmax(360px,.9fr);}
+  /* Miniaturas en columna a la izquierda de la foto, como en shop.app. */
+  .page-product .product__gallery {display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;align-items:start;}
+  .page-product .product__stage {grid-column:2;grid-row:1;}
+  .page-product .product__thumbs {grid-column:1;grid-row:1;flex-direction:column;margin:0;max-height:min(70vh,640px);overflow-y:auto;overflow-x:hidden;padding:2px;}
+  .page-product .product__gallery:not(:has(.product__thumbs)) {grid-template-columns:minmax(0,1fr);}
+  .page-product .product__gallery:not(:has(.product__thumbs)) .product__stage {grid-column:1;}
+}
+.page-product .product__stage {position:relative;border-radius:28px;background:#fff;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 24px 60px -30px rgba(0,0,0,.55);cursor:zoom-in;}
+.page-product .product__thumbs button {width:68px;height:68px;border-radius:16px;background:#fff;border:2px solid transparent;opacity:.72;transition:opacity var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.page-product .product__thumbs button[aria-current="true"] {opacity:1;border-color:var(--gold);}
+.page-product .product__thumbs button:hover {opacity:1;}
+.page-product .product__thumbs button:active {scale:.95;}
+
+/* Cambio de foto: la que sale se empaña y se aleja; la que entra llega nítida
+   mientras un barrido de luz cruza el marco. */
+.page-product .product__stage img {transition:opacity .28s var(--ease-soft),scale .5s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),filter .28s var(--ease-soft);}
+.page-product .product__stage.is-swapping img {opacity:0;scale:.96;filter:blur(14px);transition-duration:.18s;}
+.page-product .product__stage::after {content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 48%,rgba(254,206,1,.25) 54%,transparent 66%);background-size:250% 100%;background-position:130% 0;}
+.page-product .product__stage.is-swapping::after {opacity:1;background-position:-30% 0;transition:background-position .6s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),opacity .2s;}
+@media (prefers-reduced-motion: reduce) {
+  .page-product .product__stage img {transition:opacity .15s linear;}
+  .page-product .product__stage.is-swapping img {scale:1;filter:none;}
+  .page-product .product__stage::after {display:none;}
+}
+
+/* Columna de compra */
+.page-product .product__info h1 {font-size:clamp(24px,2.6vw,32px);font-weight:600;letter-spacing:-.035em;line-height:1.15;}
+.page-product .product__price {font-size:clamp(30px,3.2vw,38px);font-weight:600;letter-spacing:-.03em;}
+.product__webprice {display:flex;align-items:flex-start;gap:8px;margin:10px 0 0;padding:10px 14px;border-radius:16px;background:var(--gold-wash);border:1px solid var(--gold-edge);font-size:14px;line-height:1.4;color:var(--text);}
+.product__webprice svg {width:18px;height:18px;flex:none;margin-top:1px;color:var(--gold-text);}
+.product__webprice strong {font-size:16px;font-weight:600;color:var(--gold-text);}
+.page-product .product__actions {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;align-items:center;}
+.page-product .product__actions .qtystepper {grid-column:1 / -1;justify-self:start;}
+.page-product .product__add,.page-product .product__wa {grid-column:1 / -1;min-height:56px;border-radius:999px;font-size:17px;font-weight:600;gap:10px;}
+.page-product .product__add {box-shadow:var(--glass-glow);}
+.page-product .product__wa {display:inline-flex;align-items:center;justify-content:center;background:var(--text);color:var(--ink, #151515);text-decoration:none;}
+.page-product .product__wa:hover {opacity:.92;}
+.page-product .product__wa svg {width:22px;height:22px;}
+.page-product .product__ask,.page-product .product__share {min-height:52px;border-radius:999px;font-size:16px;font-weight:500;gap:8px;padding-inline:12px;
+  background:var(--glass-bg, rgba(255,255,255,.07));border:1px solid var(--glass-edge-2, rgba(255,255,255,.1));}
+.page-product .product__ask svg,.page-product .product__share svg {width:20px;height:20px;}
+
+/* Desplegables de información */
+.product__more {margin-top:28px;border-top:1px solid var(--line);}
+.pacc {border-bottom:1px solid var(--line);}
+.pacc summary {display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px;padding:4px 0;font-size:18px;font-weight:600;letter-spacing:-.02em;cursor:pointer;list-style:none;}
+.pacc summary::-webkit-details-marker {display:none;}
+.pacc summary svg {width:18px;height:18px;flex:none;rotate:90deg;transition:rotate var(--dur) var(--ease-soft);color:var(--text-2);}
+.pacc[open] summary svg {rotate:-90deg;}
+.pacc summary:focus-visible {outline:2px solid var(--text);outline-offset:2px;border-radius:8px;}
+.pacc__body {padding:0 0 20px;font-size:16px;line-height:1.55;color:var(--text-2);display:grid;gap:12px;}
+.pacc__body p {margin:0;}
+.pacc__body p svg {width:18px;height:18px;vertical-align:-3px;margin-right:4px;color:var(--gold-text);}
+.page-product .product__desc {margin:0;font-size:16px;line-height:1.6;color:var(--text-2);}
+.page-product .pacc__body:has(.pacc__more) #productDesc:not(.is-open) {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;line-clamp:6;overflow:hidden;}
+.pacc__more {justify-self:stretch;min-height:44px;border-radius:999px;background:var(--fill, rgba(255,255,255,.07));font-size:14px;font-weight:600;color:var(--text);}
+.pacc__steps {margin:0;padding-left:22px;display:grid;gap:8px;}
+.pacc__steps strong {color:var(--text);font-weight:600;}
+.pacc__hours {display:grid;gap:6px;}
+.pacc__hours div {display:flex;justify-content:space-between;gap:16px;}
+.pacc__hours span:last-child {color:var(--text);}
+.pacc__link {display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--text);font-weight:600;text-decoration:underline;text-underline-offset:4px;}
+.pacc__link svg {width:16px;height:16px;}
+
+/* También te podría gustar + buscador flotante */
+.page-product .related {position:relative;padding-bottom:40px;}
+.page-product .related .t-h2 {font-size:22px;font-weight:600;letter-spacing:-.04em;margin-bottom:20px;}
+@media (min-width:1100px) {.page-product .related .grid {grid-template-columns:repeat(6,minmax(0,1fr));gap:20px 16px;}}
+.psearch {position:sticky;bottom:24px;z-index:5;display:flex;align-items:center;gap:8px;width:min(440px,calc(100% - 32px));margin:32px auto 0;padding:6px 6px 6px 22px;border-radius:999px;
+  background:var(--glass-bg-strong, rgba(24,24,26,.86));border:1px solid var(--glass-edge-2, rgba(255,255,255,.14));
+  -webkit-backdrop-filter:blur(var(--glass-blur,24px)) saturate(var(--glass-sat,160%));backdrop-filter:blur(var(--glass-blur,24px)) saturate(var(--glass-sat,160%));
+  box-shadow:0 18px 48px -16px rgba(0,0,0,.6);}
+.psearch input {flex:1;min-width:0;height:48px;background:transparent;border:0;outline:0;font-size:16px;color:var(--text);}
+.psearch input::placeholder {color:var(--text-2);}
+.psearch button {flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:var(--gold);color:var(--gold-ink);box-shadow:0 4px 24px rgba(254,206,1,.35);}
+.psearch button svg {width:20px;height:20px;}
+.psearch:focus-within {outline:2px solid var(--text);outline-offset:2px;}
+@media (max-width:640px) {
+  /* En celular abajo ya vive la barra de "Agregar": el buscador va en su lugar, sin flotar. */
+  .psearch {position:static;width:calc(100% - 32px);}
+  .page-product .related {padding-bottom:96px;}
+}

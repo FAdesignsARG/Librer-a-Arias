@@ -50,7 +50,8 @@ const relatedTo = (product) =>
   visible
     .filter((p) => p.slug !== product.slug && p.category === product.category)
     .sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price))
-    .slice(0, 4);
+    .concat(visible.filter((p) => p.category !== product.category && p.inStock).sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price)))
+    .slice(0, 12);
 
 /* ---------- limpiar dist ---------- */
 

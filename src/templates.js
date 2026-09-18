@@ -1140,9 +1140,9 @@ export function renderProduct({ product: p, related, settings: s }) {
         ${offerHasDiscount(p) ? `<span class="product__price-old">${money(p.price)}</span>` : ''}
         <span class="product__price">${money(offerHasDiscount(p) ? p.offer.price : p.price)}</span>
       </p>
+      ${webPromo(s) ? `<p class="product__webprice">${ico.tag}<span>Comprando por la web: <strong>${money(Math.round((offerHasDiscount(p) ? p.offer.price : p.price) * (1 - webPromo(s).percent / 100)))}</strong> · ${webPromo(s).percent}% OFF sobre el total del pedido</span></p>` : ''}
       ${offerActive(p) && p.offer.note ? `<p class="product__offer-note">${ico.sparkle} ${esc(p.offer.note)}</p>` : ''}
       <p class="product__stock" data-out="${!p.inStock}">${p.inStock ? 'Disponible en el local' : 'Sin stock por ahora'}</p>
-      <p class="product__desc">${esc(p.description)}</p>
       <div class="product__actions">
         <!-- Ronda 8: cantidad antes de agregar. El botón de la barra fija de
              mobile (.stickycta__add, más abajo) lee este mismo valor — no
@@ -1153,12 +1153,27 @@ export function renderProduct({ product: p, related, settings: s }) {
           <span class="qtystepper__val" id="productQtyVal">1</span>
           <button type="button" class="qtystepper__btn" data-qty-step="1" aria-label="Sumar uno">${ico.plus}</button>
         </div>
-        <button class="btn btn--gold" data-add="${esc(p.slug)}">${ico.plus} Agregar al pedido</button>
-        <button type="button" class="btn btn--ghost" id="askAboutBtn"
+        <button class="btn btn--gold product__add" data-add="${esc(p.slug)}">${ico.plus} Agregar al pedido</button>
+        <a class="btn product__wa" data-arias-whatsapp data-arias-whatsapp-message="${esc(`Hola! Quiero consultar por: ${p.name} (${paidPrice(p)}) ${url}`)}" href="https://wa.me/${s.whatsapp}?text=${encodeURIComponent(`Hola! Quiero consultar por: ${p.name} (${paidPrice(p)}) ${url}`)}" target="_blank" rel="noopener">${ico.wa} Consultar por WhatsApp</a>
+        <button type="button" class="btn btn--ghost product__ask" id="askAboutBtn"
                 data-ask="${esc(`Quiero consultar por: ${p.name} (${money(p.price)})`)}">
           ${askIco} Preguntarle a la IA
         </button>
         <button type="button" class="btn btn--ghost product__share" ${shareAttrs(p)}>${shareIco} Compartir</button>
+      </div>
+      <div class="product__more">
+        <details class="pacc" open>
+          <summary>Descripción ${ico.chevron}</summary>
+          <div class="pacc__body"><p class="product__desc" id="productDesc">${esc(p.description)}</p>${p.description.length > 320 ? `<button type="button" class="pacc__more" id="productDescMore" aria-expanded="false" aria-controls="productDesc">Leer más</button>` : ''}</div>
+        </details>
+        <details class="pacc">
+          <summary>Cómo comprar ${ico.chevron}</summary>
+          <div class="pacc__body"><ol class="pacc__steps"><li>Tocá <strong>Agregar al pedido</strong> y sumá todo lo que quieras.</li><li>Abrí <strong>Mi pedido</strong> y mandalo por WhatsApp${webPromo(s) ? `: el ${webPromo(s).percent}% de descuento ya va aplicado en el total` : ''}.</li><li>Te confirmamos stock y forma de pago, y coordinamos la entrega o el retiro.</li></ol></div>
+        </details>
+        <details class="pacc">
+          <summary>Retiro en el local y horarios ${ico.chevron}</summary>
+          <div class="pacc__body"><p>${ico.pin} ${esc(s.address)}</p><div class="pacc__hours">${s.hoursDisplay.map((h) => `<div><span>${esc(h.label)}</span><span>${esc(h.value)}</span></div>`).join('')}</div><p><a class="pacc__link" href="${esc(s.mapsUrl)}" target="_blank" rel="noopener">Ver en el mapa ${ico.chevron}</a></p></div>
+        </details>
       </div>
     </div>
   </article>
@@ -1200,11 +1215,15 @@ ${
   related.length
     ? `<section class="related">
   <div class="shell">
-    <h2 class="t-h2">También te puede interesar</h2>
+    <h2 class="t-h2">También te podría gustar</h2>
     <div class="grid">
       ${related.map((r) => cardHtml(r)).join('\n      ')}
     </div>
   </div>
+  <form class="psearch" action="/catalogo/" method="get" role="search">
+    <input type="search" name="q" placeholder="¿Qué buscás?" aria-label="Buscar en el catálogo" enterkeyhint="search" autocomplete="off">
+    <button type="submit" aria-label="Buscar">${ico.search}</button>
+  </form>
 </section>`
     : ''
 }
