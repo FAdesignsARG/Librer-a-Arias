@@ -25,11 +25,11 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | **Hecha** — mirar la animación en el deploy (el panel de pruebas no genera cuadros) |
 | C | Filtros en una fila de pastillas (C1); catálogo en /catalogo/ y home con 50 destacados, sin tocar el contrato de Base44 (C2) | **Hecha** — queda rediseñar las páginas SEO /c/<rubro>/ |
 | D | Barra lateral en desktop / isla en mobile (shop.app) | **Hecha** (sin ícono de favoritos hasta que exista la función) |
-| E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
+| E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | **Hecha** — mirar la suavidad en el deploy / teléfono real |
 | + | Compartir productos con vista previa (WhatsApp primero) y mobile más grande: flotantes, chat y tarjetas | **Hecha** — falta probar la vista previa real en WhatsApp con una URL pública |
 | + | Filtros en pastillas con desplegable, flotantes con Adolfito, ficha de producto estilo shop.app y splash que aterriza en la home | **Hecha** — mirar splash y animaciones en el deploy; "Calificación" espera a que existan reseñas |
-| — | Favoritos por sesión |
-| — | Reseñas con estrellas (requiere registro) | Más adelante (Fran) | Más adelante (Fran: "no ahora") |
+| — | Favoritos por sesión | Más adelante (Fran: "no ahora") |
+| — | Reseñas con estrellas (requiere registro) y filtro Calificación | Más adelante (Fran) |
 
 ## Rondas anteriores
 | Ronda | Tema | Estado |
@@ -48,7 +48,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
    vuelo de la isla del buscador al hacer scroll, y **la vista previa real al
    compartir un producto por WhatsApp** (mandarse un enlace de `diseno--…`).
 2. ~~Ronda D~~ hecha el 18/09 (barra lateral en desktop).
-3. **Ronda E**: transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio.
+3. ~~Ronda E~~ hecha el 18/09 (el buscador viaja de arriba hacia abajo y vuelve).
 4. Rediseñar las páginas SEO `/c/<rubro>/` con el mismo lenguaje que `/catalogo/`
    (hoy tienen el diseño viejo y nada de la home enlaza a ellas).
 5. **Actualizar la vara** (`work/design-loop/hero-20260915/bar.md`) al brief

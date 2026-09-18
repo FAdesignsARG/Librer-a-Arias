@@ -469,3 +469,25 @@ sigue siendo la isla flotante.
   que no hace nada sería peor que no tenerlo.
 - Verificado a 1280 en home, catálogo y ficha (todos los botones, página actual,
   sin desborde) y a 375 (la barra no existe, la de arriba sigue, sin cambios).
+
+## Ronda E — el buscador viaja de arriba hacia abajo (18/09/2026)
+Pedido 8 del brief: la transición del buscador de Airbnb (de grande a chico,
+muy suave), pero en Arias de arriba hacia abajo y en vidrio.
+- Antes la isla aparecía desde abajo del borde de la pantalla con un rebote.
+  Ahora **el mismo formulario viaja** (`src/home-search-motion.js`, sin clones):
+  sale de su lugar en el hero, baja hasta acoplarse mientras se achica
+  (760x82 → 600x80 en desktop; en celular mantiene el ancho) y llega con un
+  rebote mínimo; 640ms, curva `cubic-bezier(.22,.9,.24,1)`. Al volver arriba
+  hace el camino inverso (520ms) y aterriza sobre su lugar real; un fundido de
+  140ms tapa cualquier diferencia si la página siguió moviéndose.
+- Se animan el ancho y el alto reales, no una escala: el texto no se deforma.
+  (No se usa `filter` en el formulario: rompería el `backdrop-filter` del vidrio.)
+- Si el origen quedó muy lejos (salto por un ancla), el vuelo arranca apenas por
+  encima del borde; nunca cruza la página entera. Si al volver el hero no está
+  a la vista, sale hacia abajo como antes.
+- Durante el vuelo el formulario lleva `is-flying`: más glow amarillo, borde de
+  luz y un barrido que cruza la píldora una vez (`.search::after`); no recibe
+  toques a medio camino. Con movimiento reducido no hay vuelo (ya era así).
+- Verificado por DOM forzando el scroll (el panel no genera cuadros): cuadros
+  clave correctos en los dos sentidos y aterrizaje exacto en x, y y ancho.
+  **La suavidad hay que mirarla en el deploy o en un teléfono.**

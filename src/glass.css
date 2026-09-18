@@ -1025,3 +1025,22 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
 @media (min-width:1024px) and (prefers-reduced-motion: reduce) {
   .rail__item,.rail__brand,.rail__tip {transition:none;}
 }
+
+
+/* ==========================================================================
+   Ronda E · el buscador viaja de arriba hacia abajo · 18/09/2026
+   El movimiento lo hace home-search-motion.js (mismo formulario, sin clones).
+   Acá va lo que se ve durante el vuelo (clase is-flying): el vidrio se enciende
+   —más glow amarillo y borde de luz— y un barrido lo cruza una vez.
+   ========================================================================== */
+.home-search .search {position:relative;}
+.home-search .search::after {content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;z-index:3;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.22) 46%,rgba(254,206,1,.20) 53%,transparent 70%);background-size:260% 100%;background-position:130% 0;}
+.home-search.is-flying .search {box-shadow:0 0 0 1px rgba(254,206,1,.35),0 22px 60px -14px rgba(254,206,1,.55),0 18px 44px -18px rgba(0,0,0,.65);
+  transition:box-shadow .3s var(--ease-soft, ease);}
+.home-search.is-flying .search::after {opacity:1;background-position:-40% 0;transition:background-position .62s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),opacity .2s;}
+/* Durante el vuelo no se abre el panel ni se pueden tocar los botones a medio camino. */
+.home-search.is-flying {pointer-events:none;}
+@media (prefers-reduced-motion: reduce) {
+  .home-search .search::after {display:none;}
+}
