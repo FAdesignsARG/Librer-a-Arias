@@ -64,3 +64,25 @@ Fuente: `docs/setup-estado-pc.md`, comprobación fechada 10/09/2026.
 3. Para diseño, abrir `DESIGN.md`, el módulo relevante y el índice de referencias; identificar qué reglas están vigentes y cuáles son propuestas.
 4. Consultar solo la implementación afectada con ayuda del mapa y verificar dependencias compartidas.
 5. Registrar nuevas decisiones y pruebas con fecha, versión y alcance; conservar el historial necesario por enlaces.
+
+## Promo única 10% web (17/09/2026, rama `preview`)
+- Decisión de Fran: los tramos "Llevá más, pagá menos" (5-20%) y el 10%
+  por CHACHOS no existen; la única promo es 10% sobre el total por comprar
+  desde la web, no acumulable.
+- `settings/main.promos` en Firestore pasó a `{ webPercent: 10, disclaimer }`
+  con `scripts/set-web-promo.js` (imprime el valor anterior). `webPromo(s)`
+  en `src/templates.js` es la única fuente para página, pedido, WhatsApp,
+  asistente local, prompt de la IA y admin.
+- Verificado sobre el build: sin ningún "20%"/tramo/CHACHOS en la home;
+  pedido de $54.450 → "Descuento web 10%: -$5.445 · Total con descuento:
+  $49.005", mismas líneas en el mensaje de WhatsApp.
+- Se sacan de la home el lema de rubros (`.home-tagline`) y el bloque de
+  título/subtítulo/CTA que mandaba Base44 (redundante con la sección de
+  rubros y el pie). `applyHero` sigue existiendo y no rompe si no hay nodos.
+- Borrada `assets/promos/promo-llevamas-pagamenos.webp` (mostraba los
+  tramos falsos).
+- Link de revisión aparte de preview y producción:
+  https://diseno--libreria-arias.netlify.app (Base44 no tiene ese dominio
+  habilitado: ahí no aparece el aviso flotante).
+- Pendiente de confirmar en un teléfono real: que Enter en el buscador
+  baje a los resultados (el navegador de pruebas manda la tecla sin `key`).

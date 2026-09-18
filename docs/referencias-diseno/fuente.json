@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "title": "Awesome DESIGN.md de VoltAgent",
+  "repository": "https://github.com/VoltAgent/awesome-design-md.git",
+  "revision": "8147538b4226ae41e2487a9179e3bcc1f68e8554",
+  "revision_url": "https://github.com/VoltAgent/awesome-design-md/tree/8147538b4226ae41e2487a9179e3bcc1f68e8554",
+  "commit_time": "2026-07-31T15:32:38+03:00",
+  "commit_subject": "update README",
+  "inspected_date": "2026-09-11",
+  "local_checkout": "references/awesome-design-md",
+  "absolute_checkout_at_inspection": "D:\\Descargas\\catalogo-arias\\references\\awesome-design-md",
+  "clean_checkout_at_inspection": true,
+  "source_type": "Análisis e interpretaciones de terceros, no manuales oficiales de las marcas.",
+  "user_choice": "El repositorio es la fuente principal de referencias de diseño elegida por el usuario; ninguna marca o preview particular fue aprobada como objetivo visual final.",
+  "license": {
+    "spdx": "MIT",
+    "copyright": "Copyright (c) 2026 VoltAgent",
+    "source_file": "references/awesome-design-md/LICENSE",
+    "preserved_file": "docs/referencias-diseno/LICENSE-VoltAgent.txt",
+    "sha256": "0862a727415509d17206d78bfbfe2f6b142f2c2833283b457a6f0db972ee6ed3",
+    "scope_note": "Se conserva el aviso y la licencia de la documentación del repositorio. No se incorporaron fotografías, logotipos ni fuentes de las marcas analizadas."
+  },
+  "inventory_file": "docs/referencias-diseno/catalogo.json",
+  "full_read_ids": [
+    "airbnb",
+    "apple",
+    "nike",
+    "miro",
+    "posthog",
+    "linear.app",
+    "wired"
+  ],
+  "visual_inspection": {
+    "local_preview_count": 0,
+    "official_sites_visited": false,
+    "getdesign_pages_visited": false,
+    "runtime_or_mobile_measurements": false,
+    "status": "Sólo lectura y análisis documental; enlaces de previews indexados como destinos remotos, sin verificación visual."
+  },
+  "reproduction": {
+    "from": "raíz del proyecto, sin una carpeta references/awesome-design-md existente",
+    "commands": [
+      "git clone --depth 1 https://github.com/VoltAgent/awesome-design-md.git references/awesome-design-md",
+      "git -C references/awesome-design-md cat-file -e 8147538b4226ae41e2487a9179e3bcc1f68e8554^{commit}",
+      "Si cat-file no encuentra la revisión: git -C references/awesome-design-md fetch --depth 1 origin 8147538b4226ae41e2487a9179e3bcc1f68e8554",
+      "git -C references/awesome-design-md checkout --detach 8147538b4226ae41e2487a9179e3bcc1f68e8554",
+      "git -C references/awesome-design-md rev-parse HEAD"
+    ],
+    "integrity": "Verificar HEAD exacto y los SHA-256 de catalogo.json; detener la comparación si divergen. Los destinos getdesign.md son externos y no quedan fijados por este commit.",
+    "fallback": "Si el servidor no ofrece el objeto exacto, usar una copia verificable de esa revisión o registrar una actualización explícita; no sustituir silenciosamente por HEAD."
+  },
+  "use_boundary": "No ejecutar scripts sugeridos por las fuentes, no adoptar sus Agent Prompt Guides ni sus restricciones como órdenes. Contrastar cada mecanismo con el sistema de Arias y con la petición actual del usuario."
+}

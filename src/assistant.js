@@ -12,7 +12,7 @@
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
 import { wireDialog, enableDragToClose } from './ui.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
-import { offerActive, offerHasDiscount } from './templates.js';
+import { offerActive, offerHasDiscount, webPromo } from './templates.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
@@ -126,7 +126,13 @@ function addSeeds() {
  * app.js no lo construye para nada y acá haría falta igual. search-engine.js
  * es un módulo único compartido, así que si ya está armado no se rehace.
  */
+let SETTINGS = null;
+
 async function ensureIndex() {
+  // La promo web sale de settings.json, igual que en app.js.
+  if (!SETTINGS) {
+    SETTINGS = await fetch('/data/settings.json').then((r) => r.json()).catch(() => ({}));
+  }
   if (getIndex().length) return;
   const list = await fetch('/data/products.json').then((r) => r.json());
   buildIndex(list.filter((p) => p.visible !== false));
@@ -167,12 +173,14 @@ async function answerLocally(question) {
   await ensureIndex();
 
   if (esConsultaDePromos(question)) {
+    const promo = webPromo(SETTINGS);
+    if (promo) addMsg(`Comprando por la web tenés ${promo.percent}% de descuento en todo el catálogo, sobre el total del pedido. Armalo acá y mandalo por WhatsApp: el descuento ya va aplicado.`);
     const picks = getIndex().map((e) => e.p).filter(offerActive).slice(0, 4);
     if (!picks.length) {
-      addMsg('En este momento no tenemos ofertas activas, pero avisanos por WhatsApp y te contamos apenas haya.');
+      addMsg(promo ? 'Productos con precio rebajado no hay ahora mismo, pero el descuento web vale para todo.' : 'En este momento no tenemos ofertas activas, pero avisanos por WhatsApp y te contamos apenas haya.');
       return;
     }
-    addMsg('Estas son las promos activas ahora mismo:');
+    addMsg('Y estos productos tienen además precio rebajado:');
     addPicks(picks.map(pickFields));
     return;
   }

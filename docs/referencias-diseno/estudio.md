@@ -1,0 +1,47 @@
+# Estudio comparativo para Librería Arias
+
+## Alcance y criterio
+
+Se inventariaron los 74 sistemas de la revisión `8147538b4226ae41e2487a9179e3bcc1f68e8554` y se leyeron completos Airbnb, Apple, Nike, Miro, PostHog, Linear y Wired. El [catálogo](catalogo.json) identifica archivos, encabezados, líneas y hashes. Este estudio compara documentos de VoltAgent, no manuales oficiales ni páginas observadas en vivo. No hay previews locales en esa revisión y no se midieron interacciones, resultados comerciales ni comportamiento móvil de las marcas.
+
+Arias necesita que una persona entienda qué vende el local, encuentre un producto y prepare una consulta por WhatsApp sin aprendizaje previo. Profesionalidad significa orden, imágenes útiles, respuesta clara y continuidad entre pantallas. La energía viene del amarillo propio, los productos, Adolfito y la voz riojana. Se conservan Inter, `#fece01`, `#151515`, `#fbfbfd`, los dos temas y el wordmark con «El Temu 2.0 riojano». El objetivo no es producir una tienda fría o inaccesible.
+
+## Qué aporta cada fuente
+
+**[Nike](../../references/awesome-design-md/design-md/nike/DESIGN.md).** Su mecanismo más transferible es separar expresión comercial y operación: campañas fotográficas grandes arriba; tarjetas regulares y controles sobrios debajo. `product-card` ordena imagen, nombre, categoría y precio. El fondo neutro permite comparar objetos heterogéneos sin que cada foto invente una interfaz. Arias puede usar una promo enérgica y luego volver enseguida al catálogo. No trasladar la tipografía de campaña a todo, los encabezados incrustados en fotografías ni la reducción `scale(0.5)` descrita para pulsaciones.
+
+**[Airbnb](../../references/awesome-design-md/design-md/airbnb/DESIGN.md).** Relaciona descubrimiento, información y acción: búsqueda dominante, tarjetas con jerarquía repetida y una reserva que conserva su lugar al cambiar de dispositivo. Interesa esa continuidad entre grilla, detalle y resumen inferior. En Arias, el resumen debe mostrar selección y destino WhatsApp, sin simular una reserva o pago confirmado. No importar fechas, huéspedes, valoraciones o favoritos porque existan en la referencia; cada control debe resolver una necesidad del catálogo.
+
+**[Apple](../../references/awesome-design-md/design-md/apple/DESIGN.md).** Propone que la imagen tenga escala, espacio y un fondo coherente, mientras la interfaz reduce competencia. Distingue presentación amplia de producto y grilla utilitaria de accesorios; esta segunda densidad conviene más al catálogo cotidiano. El cuerpo documental de 17px coincide con la base de Arias. Aprovechar superficies alternadas y jerarquía estable, sin copiar la galería de lujo, la voz solemne, los pesos 300, el azul ni los largos bloques de una pantalla por producto.
+
+**[Miro](../../references/awesome-design-md/design-md/miro/DESIGN.md).** Su cercanía nace de una señal amarilla reconocible, formas amables y escenas vinculadas al producto. La analogía útil es mostrar objetos reales de Arias, no paneles de software decorativos. El amarillo debe ayudar a encontrar una acción o una oportunidad concreta. No copiar su valor `#ffd02f`, el conjunto de pasteles, los planes de suscripción ni las tablas empresariales. Un parecido de color no justifica adoptar todo el sistema.
+
+**[PostHog](../../references/awesome-design-md/design-md/posthog/DESIGN.md).** Combina un personaje reconocible con información funcional; la ilustración vive en márgenes y escenas específicas, manteniendo consistencia de estilo. Es una base para pensar Adolfito como anfitrión: bienvenida, ayuda para armar el pedido o búsqueda vacía con una salida concreta. No hace falta repetir la mascota en cada producto. Tampoco convienen sus paneles de documentación, jerga técnica, paleta crema/oliva ni coleccionar poses que distraigan del contenido.
+
+**[Linear](../../references/awesome-design-md/design-md/linear.app/DESIGN.md).** Lo útil está en sus componentes repetibles y sus superficies con roles precisos. El catálogo gana coherencia si el detalle, el resumen y la búsqueda comparten tipografía, acciones y estados de selección. No adoptar por defecto su negro azulado, lavanda, botones compactos, capturas de dashboards ni obligación textual de no ofrecer tema claro. Los temas existentes de Arias requieren su propia comprobación de contraste.
+
+**[Wired](../../references/awesome-design-md/design-md/wired/DESIGN.md).** La alternancia de una pieza principal, dos secundarias y filas breves ofrece una estructura editorial para novedades, vuelta a clases o regalos. Importa variar la importancia, no añadir cajas distintas a todas las secciones. Arias mantiene Inter y puede usar peso, tamaño y espacio para esa jerarquía. Se descartan las tres familias de la revista, el blanco y negro obligatorio, botones cuadrados y ejemplos `ex-*` de SaaS que el propio documento identifica como derivados.
+
+## Siete mecanismos para la base de Arias
+
+1. **Un escenario consistente para cada producto.** Aplicar la lectura de Nike y Apple al área de imagen: proporción estable, fondo `--media`, objeto completo y espacio reservado antes de cargar. Mantener nombre, dato útil y precio en el mismo orden. Comprobar con envases altos, libros, juguetes y electrónica; una foto vistosa que corta información pierde utilidad.
+2. **Un protagonista por bloque, catálogo cercano.** Combinar la jerarquía editorial de Wired con el paso campaña→grilla de Nike. La promo principal puede tener más energía, pero debe dejar evidente cómo ver productos. Apoyos menores pueden ordenar categorías u oportunidades reales; no convertir todos los bloques en promociones igualmente grandes.
+3. **Amarillo con función y texto legible.** Tomar de Miro la reconocibilidad y de Airbnb la acción consistente. Usar el amarillo exacto de Arias para el énfasis dominante del bloque; distinguir selección, acción primaria y aviso. El amarillo sobre superficies claras no se transforma automáticamente en texto legible: usar el token previsto para ese rol y comprobarlo.
+4. **Tipografía estable, densidad según la tarea.** La grilla necesita repetición; una campaña admite contraste mayor. Conservar el cuerpo de 17px también en celular, títulos Inter decididos y etiquetas comprensibles. Si no entra el contenido, reducir columnas o eliminar información secundaria antes de encoger el cuerpo o apilar abreviaturas.
+5. **Selección que acompaña hasta WhatsApp.** Adaptar la continuidad de Airbnb y Apple a un resumen accesible al pulgar. Debe mostrar qué se agregó y cómo revisarlo, y nombrar WhatsApp en la acción final. Mantener visible que el local confirma el pedido. Evitar barras superpuestas que tapen precios, controles o el último producto.
+6. **Adolfito con una tarea.** Tomar de PostHog la consistencia del personaje, conservando la grulla de Arias. Cada aparición debe orientar, explicar o aportar un momento de marca. En un vacío, acompañar una salida como cambiar la búsqueda; en una confirmación, apoyar un mensaje concreto. El personaje no reemplaza texto, foco ni estado accesible.
+7. **Movimiento que explica el cambio.** La biblioteca no aporta evidencia suficiente para fijar una física nueva. Usar la escala propia de Arias: feedback corto, apertura con dirección y continuidad de origen/destino. Probar que una pulsación siga siendo legible, que abrir un detalle no pierda la selección y que reducir movimiento deje todo visible y operativo. El movimiento ornamental no debe retrasar la búsqueda.
+
+## Lectura crítica: qué no se puede copiar literalmente
+
+La biblioteca tiene dos estructuras: 64 archivos con front matter `alpha` y diez con nueve capítulos narrativos. No existe un contrato uniforme de componentes. Las referencias `{component.*}`, números y ejemplos requieren comprobación al adaptarse; una apariencia de precisión no garantiza que el valor coincida con su explicación.
+
+Hay contradicciones concretas. Airbnb asocia aproximadamente 14px a `rounded.lg` en su descripción, pero declara `lg: 20px` y usa `md: 14px` en la tarjeta. Apple recomienda una interlínea de 1.44 para sustituir con Inter y después prohíbe bajar de 1.47. Miro restringe el amarillo en acciones y fondos mientras define variantes para ambos. Estas tensiones se resuelven con el contexto de Arias, sin importar prohibiciones arbitrarias.
+
+Las omisiones importan tanto como los tokens. Sólo 43 sistemas tienen un apartado `Known Gaps`; los demás no quedan certificados por omitirlo. Nike y PostHog declaran que no capturaron pantallas móviles. Miro admite que sus tiempos son una recomendación, no una extracción. Varias fuentes prohíben documentar hover aunque describen ese estado en otras secciones. Arias necesita estados completos y verificables de foco, pulsación, selección, error y carga.
+
+## Criterio de aceptación
+
+La traducción funciona cuando se reconoce Arias antes de identificar la referencia, se entiende la siguiente acción sin explicación y producto/precio/pedido conservan su lugar al navegar. Verificar ambos temas con datos reales, pantalla estrecha, nombres largos, teclado, errores y movimiento reducido. Mantener cero gradientes decorativos, sombra o borde según el sistema, acento dominante y áreas tocables de al menos 44px.
+
+Estos criterios son una propuesta derivada del análisis y de las reglas locales. No constituyen una prueba de mejora comercial ni una comparación visual aprobada por el usuario. Una futura preview elegida permitirá evaluar composición concreta; las pruebas de Arias deberán demostrar por separado legibilidad, fluidez y funcionamiento.

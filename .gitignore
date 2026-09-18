@@ -8,3 +8,6 @@ dist/
 # El nombre lleva el hash del proyecto, así que se ignora por patrón.
 *firebase-adminsdk*.json
 serviceAccountKey.json
+
+# Local Netlify folder
+.netlify

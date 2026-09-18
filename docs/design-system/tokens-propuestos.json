@@ -1,0 +1,23 @@
+{
+  "version": "0.1",
+  "intent": "correcciones propuestas para futuras piezas, no cambios publicados",
+  "semantic": {
+    "successTextOnLight": "#167b2c",
+    "errorTextOnLight": "#b42318",
+    "errorTextOnDark": "#ff8a80",
+    "infoTextOnLight": "#2463b5",
+    "infoTextOnDark": "#9bc4ff",
+    "focusOnLightGold": "#8a6a00"
+  },
+  "type": {
+    "body": "17px",
+    "smallUsefulMinimum": "14px",
+    "lineLength": "45-70 characters"
+  },
+  "motion": {
+    "fast": "160ms",
+    "base": "280ms",
+    "panel": "320-440ms",
+    "scene": "440-850ms"
+  }
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galeria visual · Libreria Arias</title>
+  <link rel="stylesheet" href="galeria.css">
+</head>
+<body>
+  <header class="hero">
+    <img class="brand" src="../../assets/brand/wordmark-dark.webp" alt="Libreria Arias">
+    <p>Sistema visual v0.1 para explorar marca, componentes, estados y movimiento antes de tocar la tienda.</p>
+    <button id="theme" class="button" type="button">Cambiar tema</button>
+  </header>
+
+  <main class="page">
+    <section class="band">
+      <h1>Fundamentos</h1>
+      <div class="swatches" aria-label="Colores principales">
+        <span style="--c:#fece01">Marca</span>
+        <span style="--c:#151515">Fondo</span>
+        <span style="--c:#1e1e1e">Superficie</span>
+        <span style="--c:#167b2c">Exito</span>
+        <span style="--c:#b42318">Error</span>
+      </div>
+    </section>
+
+    <section class="band">
+      <h2>Tarjeta de producto</h2>
+      <article class="card">
+        <img src="../../assets/products/pizarra-lcd-de-12-pulgadas.webp" alt="Pizarra LCD de 12 pulgadas">
+        <p class="eyebrow">Jugueteria</p>
+        <h3>Pizarra LCD de 12 pulgadas</h3>
+        <p class="price">$ Consultar</p>
+        <button id="add" class="button" type="button">Agregar al pedido</button>
+        <p id="status" class="status" aria-live="polite">Lista para consultar por WhatsApp.</p>
+      </article>
+    </section>
+
+    <section class="band">
+      <h2>Estados</h2>
+      <div class="states">
+        <button class="button" type="button">Primario</button>
+        <button class="button ghost" type="button">Secundario</button>
+        <button class="button" type="button" disabled>Deshabilitado</button>
+        <p class="notice ok">Producto agregado al pedido.</p>
+        <p class="notice error">No pudimos cargar productos. Proba de nuevo.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="galeria.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+:root {
+  color-scheme: dark;
+  --bg: #151515;
+  --surface: #1e1e1e;
+  --raised: #282828;
+  --text: #f5f5f7;
+  --muted: #a1a1a6;
+  --gold: #fece01;
+  --gold-ink: #1a1200;
+  --line: rgba(255, 255, 255, .12);
+  --ok: #32d74b;
+  --error: #ff8a80;
+}
+
+body.light {
+  color-scheme: light;
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --raised: #f5f5f7;
+  --text: #101012;
+  --muted: #3d3d42;
+  --line: rgba(0, 0, 0, .12);
+  --ok: #167b2c;
+  --error: #b42318;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.55 Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hero,
+.page {
+  width: min(1200px, calc(100% - 36px));
+  margin: 0 auto;
+}
+
+.hero {
+  min-height: 56vh;
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 60px 0 40px;
+}
+
+.brand {
+  width: min(360px, 86vw);
+  height: auto;
+}
+
+.hero p {
+  max-width: 640px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.band {
+  padding: 40px 0;
+  border-top: 1px solid var(--line);
+}
+
+h1,
+h2,
+h3,
+p { margin-top: 0; }
+
+h1,
+h2 {
+  letter-spacing: 0;
+  line-height: 1.12;
+}
+
+.button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  padding: 0 18px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover { filter: brightness(1.04); }
+.button:active { transform: scale(.98); }
+.button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.button:disabled { opacity: .45; cursor: not-allowed; }
+.button.ghost { background: var(--raised); color: var(--text); border: 1px solid var(--line); }
+
+.swatches,
+.states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.swatches span {
+  min-width: 136px;
+  min-height: 64px;
+  display: grid;
+  align-content: end;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--c);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .18);
+}
+
+.swatches span:first-child { color: var(--gold-ink); }
+
+.card {
+  width: min(330px, 100%);
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 14px;
+}
+
+.eyebrow {
+  margin: 18px 0 4px;
+  color: var(--muted);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.price {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-weight: 700;
+}
+
+.status { color: var(--muted); margin: 12px 0 0; }
+.notice { width: min(360px, 100%); padding: 12px 14px; border-radius: 14px; background: var(--raised); }
+.notice.ok { color: var(--ok); }
+.notice.error { color: var(--error); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .button { transition: transform .16s ease, filter .16s ease; }
+  .card { transition: transform .28s cubic-bezier(.16, 1, .3, 1); }
+  .card.added { transform: translateY(-6px); }
+}

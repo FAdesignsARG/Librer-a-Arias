@@ -12,7 +12,7 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
 // aplicado en una sola. templates.js no toca nada de Node, así que se
 // puede importar tal cual también en el navegador.
-import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, ico as tIco } from './templates.js';
+import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 
 // root?. (no sólo el default `= document`): un default de parámetro sólo
@@ -198,36 +198,31 @@ const sheetFoot = $('#sheetFoot');
 const sheetTotal = $('#sheetTotal');
 const sheetSend = $('#sheetSend');
 
-/* ---- Descuento por medio de pago (Ronda 3) ----
-   Puramente informativo: nunca se resta de cartTotal(), que sigue siendo
-   el número definitivo — el medio de pago recién se confirma por
-   WhatsApp, no acá. Sólo se agrega UNA línea aparte cuando corresponde. */
+/* ---- Descuento por comprar desde la web ----
+   La única promo de la tienda (decisión de Fran, 17/9/2026): un porcentaje
+   sobre el total del pedido por armarlo y mandarlo desde acá, no acumulable.
+   cartTotal() sigue siendo el subtotal a precio de lista: el descuento se
+   muestra aparte y el total con descuento se calcula a partir de él, así
+   el panel del pedido y el mensaje de WhatsApp nunca dicen cosas distintas. */
 
-/** El tramo más alto de SETTINGS.promos.tiers cuyo minAmount es <= total,
-    o null si el total no alcanza ninguno (incluye total === 0). */
-function applicablePromo(total) {
-  const tiers = SETTINGS.promos?.tiers;
-  if (!Array.isArray(tiers) || !tiers.length) return null;
-  let best = null;
-  for (const t of tiers) {
-    if (total >= t.minAmount && (!best || t.minAmount > best.minAmount)) best = t;
-  }
-  return best;
+/** { percent, ahorro, totalConDescuento } o null si no hay promo o el
+    pedido está vacío. */
+function webDiscount(total) {
+  const promo = webPromo(SETTINGS);
+  if (!promo || !(total > 0)) return null;
+  const ahorro = Math.round((total * promo.percent) / 100);
+  return { percent: promo.percent, ahorro, totalConDescuento: total - ahorro, disclaimer: promo.disclaimer };
 }
 
-/** Las líneas de texto del descuento aplicable — mismo cálculo para el
-    panel del pedido (HTML) y el mensaje de WhatsApp (texto plano), así
-    no hay dos lugares que puedan quedar diciendo cosas distintas.
-    Vacío si no hay tramo aplicable para ese total. */
+/** Las líneas de texto del descuento — mismas para el panel del pedido y
+    para el mensaje de WhatsApp. Vacío si no aplica. */
 function promoLines(total) {
-  const tier = applicablePromo(total);
-  if (!tier) return [];
-  const ahorro = Math.round((total * tier.percent) / 100);
-  const lines = [`Pagando en efectivo o transferencia: -${tier.percent}% · ahorrás ${money(ahorro)}`];
-  if (SETTINGS.promos?.chachosPercent) {
-    lines.push(`Pagando con CHACHOS: ${SETTINGS.promos.chachosPercent}% adicional`);
-  }
-  return lines;
+  const d = webDiscount(total);
+  if (!d) return [];
+  return [
+    `Descuento web ${d.percent}%: -${money(d.ahorro)}`,
+    `Total con descuento: ${money(d.totalConDescuento)}`,
+  ];
 }
 
 // Se crea una sola vez, apenas se conoce dónde va (junto a .sheet__total)
@@ -240,9 +235,9 @@ sheetPromoLine.className = 'sheet__promo';
 sheetPromoLine.hidden = true;
 $('.sheet__total')?.after(sheetPromoLine);
 
-// Ronda 1.2: los estilos del chip viven en styles-parts.css
-// (.sheet__promo-chip) con los tokens de marca — acá sólo se decide el
-// texto y cuál línea es la principal vs. la secundaria (CHACHOS).
+// Los estilos del chip viven en styles-parts.css (.sheet__promo-chip)
+// con los tokens de marca — acá sólo se decide el texto: la primera línea
+// es el descuento y la segunda el total con descuento.
 function renderPromoLine(total) {
   if (!sheetPromoLine) return;
   const lines = promoLines(total);
@@ -374,7 +369,7 @@ function buildOrderMessage() {
   // vio el panel y necesita esa aclaración para confirmarlo bien.
   const promo = promoLines(total);
   const promoBlock = promo.length
-    ? ['', ...promo, ...(SETTINGS.promos?.disclaimer ? [SETTINGS.promos.disclaimer] : [])]
+    ? ['', ...promo, ...(webDiscount(total)?.disclaimer ? [webDiscount(total).disclaimer] : [])]
     : [];
   return [
     '¡Hola! Quiero hacer este pedido:',
@@ -803,7 +798,7 @@ function render() {
     const body = emptyEl.querySelector('.t-body');
     if (activeCat === 'Ofertas' && !searchEl.value) {
       title.textContent = 'Por ahora no hay ofertas activas';
-      body.textContent = 'Mirá los tramos de descuento de arriba, o escribinos y te contamos qué hay.';
+      body.textContent = 'Igual todo el catálogo tiene descuento comprando por la web. Escribinos y te contamos qué hay.';
     } else {
       title.textContent = 'No encontramos nada con esa búsqueda';
       body.textContent = 'Probá con otras palabras, o escribinos y lo buscamos por vos.';
@@ -859,8 +854,8 @@ const promoBannerEl = $('#promoBanner');
 
 $('#promoBannerCta')?.addEventListener('click', (e) => {
   e.stopPropagation();
-  selectCategory('Ofertas');
-  $('#catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  promoInfoDlg.showModal();
+  promoInfoDlg.focus();
 });
 
 // Distingue un tap real de un swipe/arrastre horizontal para cambiar de
@@ -888,10 +883,9 @@ promoBannerEl?.addEventListener('keydown', (e) => {
 });
 
 /* ==========================================================================
-   DETALLE DE "LLEVÁ MÁS, PAGÁ MENOS" — diálogo + lightbox de la imagen
-   El bloque que antes era una tarjeta siempre expandida en la sección
-   Ofertas ahora es un trigger chico que abre esto como pop-up. La imagen,
-   adentro del pop-up, abre a su vez en un lightbox propio.
+   DETALLE DE LA PROMO WEB — diálogo
+   Lo abren el slide del carrusel, su botón, y el disparador chico que
+   aparece con el chip "Ofertas".
    ========================================================================== */
 const promoInfoDlg = $('#promoInfoDlg');
 $('#promoInfoOpen')?.addEventListener('click', () => {
@@ -900,12 +894,6 @@ $('#promoInfoOpen')?.addEventListener('click', () => {
 });
 wireDialog(promoInfoDlg, $('#promoInfoClose'));
 
-const promoImageDlg = $('#promoImageDlg');
-$('#promoImageOpen')?.addEventListener('click', () => {
-  promoImageDlg.showModal();
-  promoImageDlg.focus();
-});
-wireDialog(promoImageDlg, $('#promoImageClose'));
 
 /* ==========================================================================
    CARRUSEL DE ATENCIÓN (Ronda 1.1) — promos + canal de WhatsApp

@@ -1415,7 +1415,7 @@ dialog:focus-visible {
 }
 
 /* ==========================================================================
-   BLOQUE DE PROMOS POR MEDIO DE PAGO (chip "Ofertas")
+   BLOQUE DE LA PROMO WEB (chip "Ofertas")
    Ya no es una tarjeta grande siempre expandida — un trigger compacto que
    abre un diálogo (mismo patrón que .welcome: centrado, legible en
    cualquier tamaño, sin necesitar una versión mobile aparte). La imagen
@@ -1577,48 +1577,36 @@ dialog:focus-visible {
   width: 14px;
   height: 14px;
 }
-.promodlg__tiers {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.promodlg__tiers li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-radius: var(--r-md);
-  background: var(--fill);
-  font-variant-numeric: tabular-nums;
-}
-.promodlg__tiers strong {
-  color: var(--gold-text);
-  font-weight: 700;
-  font-size: 1.15rem;
-}
-.promodlg__tiers span {
-  color: var(--text-2);
-  font-size: 1rem;
-}
 .promodlg__note {
   font-size: 0.98rem;
   color: var(--text-2);
   margin-bottom: 10px;
 }
-.promodlg__chachos {
-  display: flex;
-  align-items: center;
-  font-size: 1rem;
-  font-weight: 560;
-  margin-bottom: 14px;
-}
-.promodlg__chachos svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 7px;
+.promodlg__big {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: var(--gold-text);
-  flex: none;
+  margin: 4px 0 10px;
+}
+.promodlg__lead {
+  font-size: 17px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.promodlg__steps {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.promodlg__steps strong {
+  color: var(--gold-text);
+  margin-right: 6px;
 }
 .promodlg__disclaimer {
   font-size: 0.84rem;

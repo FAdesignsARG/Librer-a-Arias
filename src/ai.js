@@ -12,6 +12,7 @@
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { webPromo } from './templates.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -108,17 +109,15 @@ function parseJson(text) {
    datos que ve el cliente salen después de products.json, no del texto.
    ========================================================================== */
 
-/** "Promos vigentes: 5% off desde $50.000, ... ; 10% adicional con CHACHOS."
-    Mismos datos reales que ya arma el pop-up "Llevá más, pagá menos"
-    (templates.js) — nada nuevo, sólo puesto en una línea para el prompt.
-    Devuelve '' si el catálogo no tiene promos configuradas (defensivo:
-    settings.promos podría faltar en algún deploy viejo). */
+/** "Promo vigente: 10% de descuento en todo el catálogo comprando por la
+    web, sobre el total del pedido. No acumulable." — el mismo dato que
+    muestra la página (webPromo en templates.js), en una línea para el
+    prompt. Devuelve '' si el admin apagó la promo. */
 function promosLine(s) {
-  const tiers = s?.promos?.tiers;
-  if (!Array.isArray(tiers) || !tiers.length) return '';
-  const rango = tiers.map((t) => `${t.percent}% off desde $${Number(t.minAmount).toLocaleString('es-AR')}`).join(', ');
-  const chachos = s.promos.chachosPercent ? ` ${s.promos.chachosPercent}% adicional pagando con CHACHOS.` : '';
-  return `Promos vigentes: ${rango} (${s.promos.paymentNote || 'efectivo/transferencia'}).${chachos}`;
+  const promo = webPromo(s);
+  if (!promo) return '';
+  const extra = promo.disclaimer ? ` ${promo.disclaimer}.` : '';
+  return `Promo vigente: ${promo.percent}% de descuento en todo el catálogo comprando por la web, sobre el total del pedido armado y mandado desde la página.${extra}`;
 }
 
 const SYSTEM_TIENDA = (s, modo) =>
@@ -130,11 +129,12 @@ REGLAS QUE NO PODÉS ROMPER:
 - Sólo podés hablar de los productos de la lista que te paso. No inventes productos, precios ni características.
 - Si algo no está en la lista, decí que no lo tenés en el catálogo y ofrecé consultarlo por WhatsApp.
 - Nunca inventes un precio. Si no figura, no lo menciones.
-- No prometas plazos de entrega, envíos ni descuentos que no estén en "Promos vigentes" más abajo: eso lo confirma
-  el local. Los tramos de "Promos vigentes" sí son reales y los podés repetir tal cual cuando pregunten por descuentos,
-  promociones o formas de pago — no es un precio de producto, es la política general de la tienda.
-- No repitas los precios de PRODUCTOS en tu texto, se muestran solos en las tarjetas. Las promos por monto de compra
-  sí las podés mencionar en texto.
+- No prometas plazos de entrega, envíos ni descuentos que no estén en "Promo vigente" más abajo: eso lo confirma
+  el local. La "Promo vigente" sí es real y la podés repetir tal cual cuando pregunten por descuentos, promociones
+  o formas de pago — no es un precio de producto, es la política general de la tienda. No existen descuentos por
+  medio de pago ni por monto de compra: si preguntan por eso, decí que el único descuento es el de comprar por la web.
+- No repitas los precios de PRODUCTOS en tu texto, se muestran solos en las tarjetas. La promo web sí la podés
+  mencionar en texto.
 ${
   modo === 'interno'
     ? '- Hablás con el equipo del local, podés ser más directo y técnico.'

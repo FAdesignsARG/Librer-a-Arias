@@ -270,3 +270,19 @@ la web: **¿Base44 puede exponer de vuelta los datos de vistas / agregados
 / pedidos, y de qué forma?** (API/webhook de lectura, export a un link
 fijo, o nada). Según la respuesta hay 3 caminos ya redactados en
 `docs/roadmap-mejoras.md` (sección 8.3).
+
+## Cambios del 17/9/2026 que los tocan
+
+- **El bloque de hero (título, subtítulo y botón) ya no se muestra en la
+  home.** Fran lo sacó: repetía lo que ya está en la sección de rubros y
+  en el pie, y "Ver productos" repetía a "Catálogo". La acción
+  `configuracion_pagina` sigue funcionando para todo lo demás (barra de
+  aviso, secciones, destacados, WhatsApp, mantenimiento).
+- **El aviso (`barra_aviso`) dejó de ser una banda fija arriba**: ahora es
+  un globito que aparece unos segundos, se va y vuelve cada tanto, con
+  cierre. El texto y el link siguen saliendo de su configuración.
+- **Promociones: la única real es 10% por comprar desde la web.** Si en
+  Base44 hay textos con "hasta 20%" o descuentos por medio de pago, hay
+  que sacarlos: no existen.
+- Para que el aviso se vea también en el link de revisión de diseño, hace
+  falta habilitar en CORS `https://diseno--libreria-arias.netlify.app`.

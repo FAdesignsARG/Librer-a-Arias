@@ -42,6 +42,17 @@ export const categorySlug = (cat) =>
 export const offerActive = (p) => !!p.offer?.until && new Date(p.offer.until).getTime() > Date.now();
 export const offerHasDiscount = (p) => offerActive(p) && Number(p.offer.price) > 0;
 
+/** La única promoción de la tienda (decisión de Fran, 17/9/2026): un
+    porcentaje de descuento sobre el total por comprar desde la web, no
+    acumulable con nada. Nada de tramos por monto ni de descuentos por medio
+    de pago: eso no existe. Devuelve null sólo si el admin lo puso en 0.
+    Si el dato falta (deploy viejo), vale el 10% que definió el negocio. */
+export const webPromo = (s) => {
+  const percent = Number(s?.promos?.webPercent ?? 10);
+  if (!(percent > 0)) return null;
+  return { percent, disclaimer: String(s?.promos?.disclaimer || '').trim() };
+};
+
 /** Días de calendario que quedan hasta que vence una oferta activa
     (Ronda 5: cuenta regresiva real en la ficha de producto). Por
     CALENDARIO, no por horas exactas: algo que vence a las 23:59 de hoy
@@ -636,9 +647,7 @@ export function renderHome({ products, settings: s }) {
   const scene = covers.slice(0,5);
   const discoverySlugs = ['cubo-de-actividades-de-madera', 'camara-digital-para-ninos-rosa', 'robot-proyector-de-galaxia', 'cafetera-moka-gris-premium', 'pizarra-magnetica-de-madera'];
   const discovery = covers.map(({category,product}) => ({category, product: products.find(p => p.category === category && p.inStock && p.images?.length && discoverySlugs.includes(p.slug)) || products.find(p => p.category === category && p.inStock && p.images?.length && p.slug !== product.slug) || product}));
-  // Ronda 1.1: badge de urgencia con el tramo más alto real — si cambia en
-  // Firestore, el número del carrusel cambia solo, nunca queda hardcodeado.
-  const maxPromoPercent = Math.max(...s.promos.tiers.map((t) => t.percent));
+  const promo = webPromo(s);
 
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
@@ -669,7 +678,6 @@ export function renderHome({ products, settings: s }) {
   const body = `
 <header class="hero home-hero" data-arias-section="hero">
   <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"><img class="brand-light" src="/assets/brand/wordmark-light-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"></h1>
-  <p class="home-tagline">${esc(s.tagline)}</p>
   <div id="homeSearchAnchor" class="home-search-anchor">
     <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
       <div class="search" id="searchWrap">
@@ -726,10 +734,10 @@ ${
              loading="lazy" alt="">
       </div>
       <div class="attn__content">
-        <span class="attn__badge">${ico.tag}Hasta ${maxPromoPercent}% OFF</span>
-        <h2 class="attn__title">Promos activas</h2>
-        <p class="attn__desc">Mirá cuánto ahorrás pagando en efectivo o transferencia</p>
-        <button type="button" class="attn__cta" id="promoBannerCta">Ver promociones</button>
+        <span class="attn__badge">${ico.tag}${promo ? `${promo.percent}% OFF` : 'Promo'}</span>
+        <h2 class="attn__title">Comprando por la web</h2>
+        <p class="attn__desc">${promo ? `Todo el catálogo con ${promo.percent}% de descuento pidiendo desde acá` : 'Pedí desde acá y te lo confirmamos por WhatsApp'}</p>
+        <button type="button" class="attn__cta" id="promoBannerCta">Cómo funciona</button>
       </div>
     </div>
     <a class="attn__slide attn__slide--wa" id="waBanner" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
@@ -743,7 +751,6 @@ ${
   </div>
 </section>
 
-<section class="home-message shell" aria-label="Sobre la tienda"><h2 class="hero__headline" data-arias-hero-title hidden></h2><p class="hero__sub" data-arias-hero-subtitle hidden></p><a class="btn btn--gold" data-arias-hero-cta hidden></a></section>
 <div class="controls" id="catalogo">
   <div class="shell">
     <div class="controls__row">
@@ -785,8 +792,8 @@ ${
     <button type="button" class="promoinfo__trigger" id="promoInfoOpen">
       <span class="promoinfo__trigger-ico">${ico.tag}</span>
       <span class="promoinfo__trigger-text">
-        <strong>Llevá más, pagá menos</strong>
-        <span>Hasta ${maxPromoPercent}% OFF pagando en efectivo o transferencia</span>
+        <strong>${promo ? `${promo.percent}% OFF comprando por la web` : 'Comprá por la web'}</strong>
+        <span>Sobre el total del pedido, pidiendo desde acá</span>
       </span>
       <span class="promoinfo__trigger-arrow">${ico.chevron}</span>
     </button>
@@ -795,31 +802,19 @@ ${
 
 <dialog class="promodlg" id="promoInfoDlg" aria-labelledby="promoInfoTitle" tabindex="-1">
   <div class="promodlg__head">
-    <h2 id="promoInfoTitle">Llevá más, pagá menos</h2>
+    <h2 id="promoInfoTitle">Comprando por la web</h2>
     <button type="button" class="sheet__close" id="promoInfoClose" aria-label="Cerrar">${ico.x}</button>
   </div>
   <div class="promodlg__body">
-    <button type="button" class="promodlg__imgbtn" id="promoImageOpen" aria-label="Ver la imagen completa">
-      <img class="promodlg__img" src="/assets/promos/promo-llevamas-pagamenos.webp"
-           width="1122" height="1402" loading="lazy"
-           alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
-      <span class="promodlg__zoom">${ico.search} Ver completa</span>
-    </button>
-    <ul class="promodlg__tiers">
-      ${s.promos.tiers
-        .map((t) => `<li><strong>${t.percent}% OFF</strong><span>desde ${money(t.minAmount)}</span></li>`)
-        .join('\n      ')}
+    <p class="promodlg__big">${promo ? `${promo.percent}% OFF` : 'Pedí desde acá'}</p>
+    <p class="promodlg__lead">${promo ? `Todo el catálogo tiene ${promo.percent}% de descuento sobre el total del pedido cuando lo armás y lo mandás desde esta página.` : 'Armá tu pedido acá y te lo confirmamos por WhatsApp.'}</p>
+    <ul class="promodlg__steps">
+      <li><strong>1.</strong> Agregá lo que quieras al pedido.</li>
+      <li><strong>2.</strong> Mandalo por WhatsApp desde el botón del pedido.</li>
+      <li><strong>3.</strong> El descuento ya va aplicado en el total que te llega.</li>
     </ul>
-    <p class="promodlg__note">${esc(s.promos.paymentNote)}</p>
-    <p class="promodlg__chachos">${ico.tag}Pagando con CHACHOS: <strong>${s.promos.chachosPercent}% adicional</strong></p>
-    <p class="promodlg__disclaimer">${esc(s.promos.disclaimer)}</p>
+    ${promo?.disclaimer ? `<p class="promodlg__disclaimer">${esc(promo.disclaimer)}</p>` : ''}
   </div>
-</dialog>
-
-<dialog class="promoimg" id="promoImageDlg" aria-label="Imagen ampliada de la promoción" tabindex="-1">
-  <button type="button" class="promoimg__close" id="promoImageClose" aria-label="Cerrar">${ico.x}</button>
-  <img class="promoimg__pic" src="/assets/promos/promo-llevamas-pagamenos.webp"
-       width="1122" height="1402" alt="Llevá más, pagá menos — descuentos escalonados por monto de compra">
 </dialog>
 
 <dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle" tabindex="-1">
