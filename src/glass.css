@@ -879,3 +879,38 @@ html[data-splash="running"] body.page-home:not(.page-catalog) > .home-hero {anim
   .splash--home[data-run="true"] .splash__word {animation:none;opacity:1;}
   .splash--home .splash__logo,.splash--home .splash__word {transition:none;}
 }
+
+
+/* ==========================================================================
+   Banners de la home · 18/09/2026 (Ronda 6, con los diseños de Fran)
+   Sólo la imagen: sin tarjeta, sin fondo, sin borde. Dos banners apilados en
+   el mismo lugar que se funden uno en otro cada 10 segundos. En celular se
+   usan las versiones verticales.
+   ========================================================================== */
+.page-home .attention-carousel.banners {display:grid;justify-items:center;gap:14px;margin:8px auto 0;padding:0 var(--gutter,16px);max-width:1240px;background:none;border:0;box-shadow:none;}
+.banners__stage {display:grid;width:min(100%,1000px);}
+.banners__slide {grid-area:1 / 1;display:block;padding:0;margin:0;border:0;background:none;border-radius:32px;cursor:pointer;
+  opacity:0;visibility:hidden;pointer-events:none;scale:1.04;filter:blur(14px);
+  transition:opacity .9s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),scale 1.1s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),filter .9s var(--ease-soft, ease),visibility 0s linear .9s;}
+.banners__slide.is-active {opacity:1;visibility:visible;pointer-events:auto;scale:1;filter:blur(0);transition-delay:0s;}
+.banners__slide picture,.banners__slide img {display:block;width:100%;height:auto;}
+.banners__slide img {filter:drop-shadow(0 22px 34px rgba(0,0,0,.45));transition:scale var(--dur) var(--ease-pop, ease),filter var(--dur) var(--ease-soft, ease);}
+:root[data-theme="light"] .banners__slide img {filter:drop-shadow(0 18px 28px rgba(0,0,0,.22));}
+@media (hover:hover) {.banners__slide.is-active:hover img {scale:1.015;}}
+.banners__slide:active img {scale:.985;}
+.banners__slide:focus-visible {outline:2px solid var(--text);outline-offset:6px;}
+.banners .attention-carousel__dots {display:flex;gap:4px;margin:0;}
+/* Puntitos con toque de 44px: el dibujo es chico, el área no. */
+.banners .attention-carousel__dot {position:relative;width:44px;height:44px;padding:0;background:none;border:0;}
+.banners .attention-carousel__dot::before {content:"";position:absolute;left:50%;top:50%;translate:-50% -50%;width:8px;height:8px;border-radius:999px;background:var(--text-2);opacity:.5;transition:width var(--dur) var(--ease-out, ease),background var(--dur-fast) var(--ease-soft, ease),opacity var(--dur-fast);}
+.banners .attention-carousel__dot[aria-current="true"]::before {width:28px;background:var(--gold);opacity:1;}
+.banners .attention-carousel__dot:focus-visible {outline:2px solid var(--text);outline-offset:-6px;border-radius:999px;}
+@media (max-width:720px) {
+  .page-home .attention-carousel.banners {margin-block:0 24px;gap:6px;}
+  .banners__stage {width:min(86vw,360px);}
+  .banners__slide {border-radius:28px;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .banners__slide {transition:opacity .2s linear,visibility 0s linear .2s;scale:1;filter:none;}
+  .banners__slide.is-active {transition-delay:0s;}
+}

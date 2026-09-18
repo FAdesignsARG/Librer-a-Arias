@@ -1011,6 +1011,56 @@ wireDialog(promoInfoDlg, $('#promoInfoClose'));
    arranca — el carrusel queda 100% a control manual (swipe o puntitos),
    nunca se pierde funcionalidad, sólo el movimiento automático.
    ========================================================================== */
+/* Banners de la home: dos imágenes apiladas que se funden una en otra cada
+   10 segundos. Se pausa con el mouse encima, con foco, con la pestaña oculta
+   y un rato después de tocar. Con movimiento reducido no avanza solo. */
+function wireHomeBanners() {
+  const el = $('#attentionCarousel.banners');
+  if (!el) return;
+  const slides = $$('.banners__slide', el);
+  const dots = $$('.attention-carousel__dot', el);
+  if (slides.length < 2) return;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const EVERY = 10000;
+  let index = 0;
+  let timer = null;
+  let resume = null;
+
+  const goTo = (i) => {
+    index = (i + slides.length) % slides.length;
+    slides.forEach((sl, n) => sl.classList.toggle('is-active', n === index));
+    dots.forEach((d, n) => d.setAttribute('aria-current', String(n === index)));
+  };
+  const stop = () => { clearInterval(timer); timer = null; };
+  const start = () => { if (reduceMotion || document.hidden) return; stop(); timer = setInterval(() => goTo(index + 1), EVERY); };
+  const pauseThenResume = () => { stop(); clearTimeout(resume); resume = setTimeout(start, 6000); };
+
+  dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); pauseThenResume(); }));
+  el.addEventListener('mouseenter', stop);
+  el.addEventListener('mouseleave', start);
+  el.addEventListener('focusin', stop);
+  el.addEventListener('focusout', start);
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+
+  // Deslizar con el dedo cambia de banner (y no cuenta como toque).
+  let downX = null;
+  el.addEventListener('pointerdown', (e) => { downX = e.clientX; });
+  el.addEventListener('pointerup', (e) => {
+    if (downX == null) return;
+    const dx = e.clientX - downX;
+    downX = null;
+    if (Math.abs(dx) < 40) return;
+    el.dataset.swiped = String(Date.now());
+    goTo(index + (dx < 0 ? 1 : -1));
+    pauseThenResume();
+  });
+  el.addEventListener('click', (e) => {
+    if (Date.now() - Number(el.dataset.swiped || 0) < 350) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  start();
+}
+wireHomeBanners();
 function wireAttentionCarousel() {
   if (document.body.classList.contains('page-home')) return;
   const el = $('#attentionCarousel');

@@ -396,3 +396,27 @@ Pedidos 15-20 del brief `home-v2-20260918`.
   guarda `arias.splash.visto`.
 - La calidad del movimiento no se puede juzgar en el panel de pruebas: mirarlo
   en el deploy (en una pestaña nueva o de incógnito, porque corre una vez por sesión).
+
+## Ronda 6 — banners como imagen sola (18/09/2026, con los diseños de Fran)
+Fran: "hay que quitar estas tarjetas horribles" y usar sólo la imagen, en buen
+tamaño, como en `main`, alternando cada 10 segundos con una animación suave.
+- `scripts/build_banners.cjs` (sharp): toma los PNG originales (4096x1562 y
+  3066x3164, 3-4 MB cada uno, en `Banners de Adolfito/` y `Banners Mobile/`,
+  **sin versionar**: pesan 14 MB), recorta el margen transparente con la misma
+  caja para los dos banners de cada par (misma proporción → se funden sin que
+  la página salte) y exporta WebP con transparencia: desktop 1600/1000px
+  (56-112 KB) y celular vertical 1000/640px (84-149 KB) en `assets/promos/`.
+- La sección `promos` (mismo `data-arias-section`, mismo id `attentionCarousel`)
+  pasa a ser `.banners`: dos `<picture>` apilados en la misma celda; el activo
+  está nítido y el otro desenfocado, agrandado y transparente; el cambio es un
+  fundido de 0,9s. `<source media="(max-width:720px)">` sirve los verticales.
+  Sin tarjeta, fondo, borde ni glow.
+- `wireHomeBanners()` en `src/app.js`: cambia cada 10s; se pausa con el mouse
+  encima, con foco, con la pestaña oculta y 6s después de tocar un puntito o
+  deslizar; con movimiento reducido no avanza solo. Puntitos con toque de 44px.
+- El banner de la promo (`#promoBanner`, ahora un `<button>`) abre "Comprando
+  por la web" (el detalle de la promo); el del canal (`#waBanner`) va al canal
+  de WhatsApp. Verificado: clic, puntitos, rotación real a los 10s, 1280 y 375.
+- El slot `debajo_buscador` de Base44 en la home volvió junto a los productos:
+  pegado al hero (como quedó en la C2) empujaba el banner fuera de la primera pantalla.
+- Queda sin uso el CSS viejo de `.attn__*` y `assets/brand/banner-canal.webp`.

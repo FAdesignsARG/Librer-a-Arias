@@ -300,9 +300,13 @@ funcionando igual. Lo que cambia es del lado de la página:
   Esa página no es una sección: aunque se oculte `productos` en la home, el
   catálogo sigue disponible.
 - Los cuatro slots siguen existiendo (`superior`, `debajo_buscador`,
-  `antes_productos`, `pie`). En la home, `debajo_buscador` queda literalmente
-  debajo del buscador. En `/catalogo/` ese mismo bloque se muestra **después de
-  los resultados**, para no tapar lo que la persona buscó.
+  `antes_productos`, `pie`). En la home, `debajo_buscador` sigue junto a los
+  productos (justo antes de `antes_productos`), igual que antes. En `/catalogo/`
+  ese mismo bloque se muestra **después de los resultados**, para no tapar lo
+  que la persona buscó.
+- La sección `promos` ahora es un carrusel de dos banners-imagen (promo de la
+  web y canal de WhatsApp) que se alternan cada 10 segundos. Se sigue pudiendo
+  ordenar y ocultar con el mismo nombre.
 - Productos destacados (`productIds`): ordenan los 50 de la home, entran en la
   fila "Elegidos para vos" (que ahora rota cada 5 minutos, hasta dos destacados
   por tramo) y ordenan `/catalogo/` cuando no hay una búsqueda escrita.

@@ -760,30 +760,24 @@ export function renderHome({ products, settings: s, mode = 'home' }) {
   </nav><!--/home-only-->
   <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/catalogo/?cat=${encodeURIComponent(c)}" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
 </header>
-<!--home-only--><div data-arias-slot="debajo_buscador"></div>
-<section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
-  <div class="attention-carousel__track">
-    <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
-         aria-label="Ver el detalle de las promociones vigentes">
-      <div class="attn__media">
-        <img class="attn__mascot" src="/assets/promos/adolfito-cupon-descuento.webp" width="500" height="625"
-             loading="lazy" alt="">
-      </div>
-      <div class="attn__content">
-        <span class="attn__badge">${ico.tag}${promo ? `${promo.percent}% OFF` : 'Promo'}</span>
-        <h2 class="attn__title">Comprando por la web</h2>
-        <p class="attn__desc">${promo ? `Todo el catálogo con ${promo.percent}% de descuento pidiendo desde acá` : 'Pedí desde acá y te lo confirmamos por WhatsApp'}</p>
-        <button type="button" class="attn__cta" id="promoBannerCta">Cómo funciona</button>
-      </div>
-    </div>
-    <a class="attn__slide attn__slide--wa" id="waBanner" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener">
-      <img class="attn__full-img" src="/assets/brand/banner-canal.webp" width="1400" height="534" loading="lazy"
-           alt="Sumate a nuestro canal de WhatsApp para ver las novedades">
+<!--home-only--><section class="attention-carousel banners" id="attentionCarousel" data-arias-section="promos" aria-roledescription="carrusel" aria-label="Promos y novedades">
+  <div class="banners__stage">
+    <button type="button" class="banners__slide is-active" id="promoBanner" data-banner="0" aria-label="${promo ? `Comprando por la web: todo el catálogo con ${promo.percent}% de descuento pidiendo desde acá. Ver cómo funciona` : 'Comprando por la web. Ver cómo funciona'}">
+      <picture>
+        <source media="(max-width:720px)" srcset="/assets/promos/banner-promos-mobile-640.webp 640w, /assets/promos/banner-promos-mobile-1000.webp 1000w" sizes="min(86vw, 360px)" width="1000" height="1341">
+        <img src="/assets/promos/banner-promos-desktop-1000.webp" srcset="/assets/promos/banner-promos-desktop-1000.webp 1000w, /assets/promos/banner-promos-desktop-1600.webp 1600w" sizes="(max-width:1100px) 92vw, 1000px" width="1600" height="597" alt="" decoding="async" fetchpriority="high">
+      </picture>
+    </button>
+    <a class="banners__slide" id="waBanner" data-banner="1" href="${esc(s.social.whatsappChannel)}" target="_blank" rel="noopener" aria-label="Sumate a nuestro canal de WhatsApp: no te pierdas las novedades de todos los días">
+      <picture>
+        <source media="(max-width:720px)" srcset="/assets/promos/banner-canal-mobile-640.webp 640w, /assets/promos/banner-canal-mobile-1000.webp 1000w" sizes="min(86vw, 360px)" width="1000" height="1341">
+        <img src="/assets/promos/banner-canal-desktop-1000.webp" srcset="/assets/promos/banner-canal-desktop-1000.webp 1000w, /assets/promos/banner-canal-desktop-1600.webp 1600w" sizes="(max-width:1100px) 92vw, 1000px" width="1600" height="597" alt="" decoding="async" fetchpriority="low">
+      </picture>
     </a>
   </div>
   <div class="attention-carousel__dots">
-    <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ir a promociones"></button>
-    <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ir al canal de WhatsApp"></button>
+    <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ver la promo de la web"></button>
+    <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ver el canal de WhatsApp"></button>
   </div>
 </section>
 <section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/catalogo/?cat=${encodeURIComponent(category)}" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
@@ -915,6 +909,7 @@ ${
   </div>
 </dialog>
 
+<!--home-only--><div data-arias-slot="debajo_buscador"></div><!--/home-only-->
 <div data-arias-slot="antes_productos"></div>
 
 <main class="shell" id="productos"${isCatalog ? '' : ' data-arias-section="productos"'}>

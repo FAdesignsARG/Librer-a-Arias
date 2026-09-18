@@ -39,7 +39,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | 4 | Isla que respira con el scroll | Hecha — **falta probar en teléfono real** |
 | 5 / 7 | Comparación directa con shop.app | Hecha (las tarjetas flotantes del hero se sacaron en la Ronda A) |
 | Críticos v8–v10 | Última medición completa (v9): calidad PASS 9/9, objetivo FAIL, sistema FAIL. Sobre la v10 sólo llegó calidad: PASS 8/9; objetivo y sistema murieron por límite de uso | Corregido lo señalado; la vara cambia con el brief nuevo |
-| 6 | Banners como imagen sola (1400x534, fondo transparente) | Bloqueada: faltan los diseños de Fran |
+| 6 | Banners como imagen sola, alternando cada 10 s; verticales en celular | **Hecha** (`scripts/build_banners.cjs`; los PNG originales no se versionan) |
 
 ## Pendientes concretos
 1. Seguir con la Ronda D del brief nuevo (barra lateral en desktop / isla en mobile). Antes de volver a lanzar críticos,
