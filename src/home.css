@@ -468,3 +468,114 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
  .home-search.is-docked .search,.home-search.is-docked .search input,.home-search.is-docked .island__actions {transition:none;}
  .home-search.is-docked .search:focus-within {scale:1;}
 }
+
+/* ==========================================================================
+   Comparación directa con shop.app · 17/09/2026 (skill design-mobile-arias)
+   Mecanismos tomados de la referencia (D:/Descargas/Shop Web - Example):
+   1. La acción del buscador es un círculo del color de acento, SIEMPRE
+      visible, con sombra teñida del mismo color (shop: violeta 48px con
+      0 4px 24px rgba(69,36,219,.34)). Acá: la lupa, en amarillo.
+   2. Los accesos son pastillas en una sola fila: ícono en círculo + texto
+      de 16px, borde fino, sombra suave (shop: 6px de padding, 9999 radio).
+   3. Las tarjetas de imagen: radio 28, la foto define la forma, sin borde,
+      sombra doble suave, y el rótulo como chip translúcido abajo a la
+      izquierda (shop: "Product Image Tile").
+   4. Títulos de sección en 20-22px semibold con tracking apretado, nunca
+      700 (shop: "no bold, hierarchy by tracking").
+   5. Aire entre secciones: 48px en celular, 64px en desktop (shop: 64-80).
+   ========================================================================== */
+
+/* 1 · Círculo de acción, siempre visible */
+.home-search__go {
+  position: absolute; left: 10px; top: 50%; translate: 0 -50%;
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--gold); color: var(--gold-ink);
+  box-shadow: 0 4px 24px rgba(254, 206, 1, .35);
+  transition: scale var(--dur-fast) var(--ease-pop), box-shadow var(--dur) var(--ease-soft);
+}
+.home-search__go svg {position:static;translate:none;left:auto;top:auto;width:20px;height:20px;color:inherit;pointer-events:none;}
+.home-search__go:active {scale:.92;}
+.home-search .search input {padding-left:64px;}
+.home-search:not(.is-searching) .home-search__go,.home-search.is-searching .home-search__go {opacity:1;visibility:visible;pointer-events:auto;}
+@media(max-width:720px){
+ .home-search .search input {padding-left:62px;}
+ .home-search .search__clear {right:8px;}
+ .home-search.is-searching .search input {padding-right:56px;}
+ /* El pedido queda como ícono + cantidad hasta 420px: el campo gana
+    56px de ancho para escribir y la cantidad sigue siempre a la vista. */
+}
+@media(max-width:420px){
+ .island__orderLabel {display:none;}
+ .home-search .search input {padding-right:124px;}
+}
+:root[data-theme='light'] .home-search__go {box-shadow:0 4px 24px rgba(203,156,0,.32);}
+
+/* 2 · Accesos como pastillas en una sola fila */
+.home-quick,.home-quick:has(>[hidden]) {
+  display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:none;
+  margin:var(--s-4) calc(-1 * var(--gutter,16px)) 0;padding:4px var(--gutter,16px) 8px;
+  scroll-snap-type:x proximity;grid-template-columns:none;
+}
+.home-quick::-webkit-scrollbar {display:none;}
+.home-quick>*,.home-quick:has(>[hidden])>* {
+  flex:0 0 auto;display:inline-flex;flex-direction:row;align-items:center;gap:10px;
+  min-height:48px;padding:5px 16px 5px 5px;border-radius:var(--r-pill);
+  background:var(--surface);border:1px solid var(--line);
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  font-size:16px;font-weight:500;letter-spacing:-.01em;color:var(--text);text-align:left;
+  scroll-snap-align:start;animation:none;
+}
+.home-quick>*:active {scale:.96;}
+.home-quick__ico,.home-quick:has(>[hidden]) .home-quick__ico {
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:var(--gold-wash);color:var(--gold-text);
+}
+.home-quick__ico svg,.home-quick:has(>[hidden]) .home-quick__ico svg {width:18px;height:18px;}
+@media(min-width:721px){
+ .home-quick,.home-quick:has(>[hidden]) {justify-content:center;overflow:visible;margin-inline:auto;width:min(760px,100%);padding-inline:0;}
+}
+
+/* 3 · Tarjetas de imagen: la foto define la forma */
+.home-discover__card {position:relative;display:block;}
+.home-discover__image {
+  aspect-ratio:1/1.15;border-radius:28px;background:#fff;border:0;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+}
+.home-discover__image img {padding:0;border-radius:28px;object-fit:cover;}
+.home-discover__card>span:last-child {
+  position:absolute;left:12px;bottom:12px;margin:0;min-height:0;
+  padding:8px 12px;border-radius:12px;gap:6px;
+  background:var(--glass-bg-strong,rgba(255,255,255,.88));color:var(--text);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);
+  font-size:16px;font-weight:600;letter-spacing:-.02em;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+.home-discover__card svg {width:16px;height:16px;}
+.page-home .picks__item .card {border-radius:28px;border:0;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);}
+.page-home .picks__item .card__media {margin:6px;border-radius:22px;overflow:hidden;}
+
+/* 4 · Títulos: semibold con tracking apretado, no 700 */
+.home-section-head h2,.picks__title,.attn__title {font-weight:600;letter-spacing:-.04em;}
+
+/* 5 · Aire entre secciones */
+@media(max-width:720px){
+ .home-discover {padding-block:32px 48px;}
+ .page-home .picks {padding-block:48px 24px;}
+ .page-home .attention-carousel {margin-block:48px;}
+ .home-section-head {margin-bottom:16px;}
+}
+@media(min-width:721px){
+ .home-discover {padding-block:48px 64px;}
+ .page-home .picks {padding-block:64px 32px;}
+ .page-home .attention-carousel {margin-block:64px;}
+}
+/* La fila de pastillas se alinea al padding real del hero en celular (16px);
+   con --gutter (18px) sobresalía 2px de cada lado. */
+@media(max-width:720px){.home-quick,.home-quick:has(>[hidden]) {margin-inline:-16px;padding-inline:16px;}}
+/* Tarjetas de la escena (desktop): nombre en una línea con puntos
+   suspensivos y precio debajo, como la "brand spotlight card" de shop.app —
+   antes el nombre largo se partía y el precio se montaba encima. */
+.home-scene__card {grid-template-columns:1fr;gap:4px;border:0;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);border-radius:28px;}
+.home-scene__card img {border-radius:20px;}
+.home-scene__card span {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:600;letter-spacing:-.02em;color:var(--text);}
+.home-scene__card strong {font-size:14px;font-weight:500;color:var(--text-2);}

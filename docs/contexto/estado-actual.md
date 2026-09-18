@@ -123,3 +123,26 @@ Fuente: `docs/setup-estado-pc.md`, comprobación fechada 10/09/2026.
   no genera cuadros y en Chrome los eventos de scroll van atados a ellos.
   **Probar en teléfono real**: bajar rápido por el catálogo (se recoge),
   frenar (se ofrece), subir un poco (se ofrece), tocar (crece y brilla).
+
+## Comparación directa con shop.app (17/09/2026, skill design-mobile-arias)
+Referencia: `D:/Descargas/Shop Web - Example/DESIGN (2).md` + medición en vivo
+de shop.app a 375px. Medido en vivo, no de memoria:
+
+| Mecanismo | shop.app | Arias ahora |
+|---|---|---|
+| Píldora de búsqueda | 343x64, radio 32, y=104 | 343x70, radio 999, y=78 |
+| Círculo de acción | 40x40, siempre visible | 44x44 (la lupa), siempre visible, sombra teñida amarilla |
+| Chips/accesos | 44px de alto, 16px, radio 9999, una fila | 48px, 16px, radio 999, una fila desplazable |
+| Tarjetas de imagen | radio 28, sombra doble, sin borde, rótulo como chip | radio 28, sombra doble, sin borde, chip de vidrio abajo a la izquierda |
+| Tamaños de texto sobre el pliegue | 3 (12/14/18) | 3 (14/17/22) |
+| Títulos | 20px semibold, tracking apretado | 22px 600, tracking -.04em |
+| Aire entre secciones | 64-80px | 48px celular / 64px desktop |
+| Pedido y menú dentro de la píldora | no | sí (decisión: isla única) |
+
+Cambios de esta pasada: la lupa pasa a ser el botón de buscar (círculo
+amarillo siempre visible, con lo que el envío ya no depende del botón
+oculto); el rótulo "Pedido" se oculta hasta 420px (queda ícono + cantidad,
+el campo gana 56px); accesos como pastillas en una fila; tarjetas de
+"Un mundo para descubrir" y "Elegidos" con radio 28, sombra doble y chip
+de vidrio; tarjetas de la escena con nombre en una línea y precio debajo.
+Verificado a 375 (oscuro y claro) y 1280: sin desborde, 3 tamaños de texto.

@@ -1397,7 +1397,7 @@ if ($('#homeSearch')) {
   // su forma normal antes de que el foco aterrice en Pedido. Sin inert: con
   // inert el foco pasaba de largo y con Tab no se llegaba nunca a Pedido,
   // Menú ni a los cuatro accesos.
-  const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__submit'));
+  const searchParts = el => !!el && (el === searchEl || !!el.closest?.('#homeSuggestions, .search__clear, .home-search__go'));
   const setSearching = on => form.classList.toggle('is-searching', on);
   // Las ideas fijas ("Regalos", "Auriculares", "Mochilas") sirven para
   // arrancar con el campo vacío; con texto escrito confundían, porque no
