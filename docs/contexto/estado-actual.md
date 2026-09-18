@@ -167,3 +167,36 @@ Pendiente, no resuelto: a 1280 el Tab hacia adelante salta los accesos
 (Catálogo/Preguntar/WhatsApp); la pastilla de WhatsApp sigue asomando
 cortada en celular (shop.app hace lo mismo con su fila); `#waBanner`
 todavía es tarjeta (Ronda 6, banners); falta re-correr los críticos.
+
+## Ronda de los tres críticos sobre la home v9 (18/09/2026)
+Medido sobre `90e3545`. Veredictos: calidad PASS (9/9 contra shop.app, eligió
+Arias), objetivo FAIL, sistema FAIL. Corregido en esta ronda (capa "v9" al
+final de `src/glass.css` + `src/app.js` + ideas en `src/templates.js`):
+- Tab hacia adelante a 1280 salteaba Catálogo/Preguntar/WhatsApp: los accesos
+  seguían `inert` hasta el `focusout`, y el navegador elige el destino antes.
+  Se les saca `inert` en el `keydown` de Tab de la última parte de la búsqueda.
+  Verificado con Tab real: Ver resultados → Catálogo → Preguntar → WhatsApp.
+- Ideas del buscador: "Regalos" devolvía los 551 productos (es ocasión de casi
+  todos los rubros) y "Mochilas" 1. Ahora Peluches (28), Lapiceras (16) y
+  Auriculares (4): una por rubro fuerte.
+- Promo: `home.css` dejaba todos los slides con `padding:0`; la tarjeta de
+  promo tiene borde y el contenido lo tocaba. 20px en celular, 32/40 desktop.
+- "Un mundo para descubrir" sangra hasta el borde (antes corte recto en x=359)
+  y las tarjetas pasan a 156px para que la tercera asome ~23px.
+- Pedido vacío: ícono amarillo en la isla; en desktop, contador con anillo.
+- Hoja del pedido: vacía tiene "Ver el catálogo" (cierra y baja a la grilla),
+  mensaje a contraste ≥4,5:1, tamaños 14/16/20, nombre del producto con toque ≥44.
+- `has-text` quedaba pegado tras Borrar o tocar una idea; `aria-expanded` del
+  Menú no volvía a `false`; el aviso de "agregado" ahora es `role="status"`.
+- Piso 14px y contraste en pie y estado de horarios; toques ≥44 en "Ver en el
+  mapa", teléfono, enlaces del pie y botones del chat.
+- 320px: el placeholder entra (99,7 de 110px) y la consulta escrita gana 70px útiles.
+Descartado por artefacto del entorno: el hueco Elegidos→catálogo "de 28px" era
+el `translate 14px` de las tarjetas sin revelar (sección + ítem); en layout
+hay 56px en celular y 64 en desktop. Tampoco es defecto que la isla acoplada
+no se achique sin scroll real (se recoge sólo al bajar rápido).
+Pendiente de decisión de Fran: lema bajo el wordmark; isla clara en tema claro
+(¿o siempre oscura?); cartel "CUPÓN DESCUENTO" de la mascota (no hay cupón);
+bloque "¿No encontraste…?" configurado desde Base44 que queda arriba de los
+resultados; tarjeta amarilla de horarios; dos barras flotantes a 1280;
+pastilla de WhatsApp cortada a 375.

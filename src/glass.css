@@ -315,5 +315,67 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
 .arias-pc-bar {font-size:14px;}
 .home-search .island__order:has(.island__count[data-empty='false']) {background:var(--gold-wash, rgba(254,206,1,.14));}
 .qty span {font-size:14px;}
-.line__name a {display:inline-block;padding-block:12px;margin-block:-12px;}
+/* (el toque del nombre del producto se resuelve en la capa v9) */
 @media (max-width:720px) {.home-discover {padding-bottom:32px;}}
+
+
+/* ==========================================================================
+   Ronda de los tres críticos v9 · 18/09/2026
+   Objetivo FAIL, sistema FAIL, calidad PASS (9/9 contra shop.app).
+   ========================================================================== */
+
+/* Promo: home.css deja todos los slides sin relleno (sirve para el banner que
+   es sólo imagen). La tarjeta de promo sí tiene borde: insignia, título y
+   botón quedaban a 1px del borde y el botón pisaba la esquina redondeada. */
+.page-home .attn__slide--promos {padding:20px;}
+.page-home .attn__slide--promos .attn__content {min-width:0;}
+@media (min-width:720px) {.page-home .attn__slide--promos {padding:32px 40px;}}
+
+/* "Un mundo para descubrir": la fila recortaba a 16px del borde con un corte
+   recto. Ahora sangra hasta el borde, como las pastillas de acceso, y la
+   tarjeta que asoma conserva sus esquinas. */
+@media (max-width:1000px) {
+  .home-discover__row {margin-inline:calc(var(--gutter,16px) * -1);padding-inline:var(--gutter,16px);scroll-padding-inline:var(--gutter,16px);}
+}
+/* Con la fila a sangre entraban dos tarjetas justas y la tercera quedaba a 1px
+   de asomar: a 156px asoma ~23px y se entiende que la fila sigue. */
+@media (max-width:720px) {.home-discover__row {grid-template-columns:repeat(5,156px);}}
+
+/* Aire Elegidos → catálogo: el crítico midió 28px, pero era el corrimiento de
+   las tarjetas sin revelar (translate 14px en la sección y en el ítem). En
+   layout hay 56px en celular y 64 en desktop: no se toca. */
+
+/* Pedido vacío: el ícono ya va en amarillo (indicador, sin relleno). Con
+   productos sigue el relleno con glow de la ronda anterior. */
+.island__order:has(.island__count[data-empty='true']) svg {color:var(--gold-text);}
+/* En desktop "Mi pedido" no tiene ícono: el acento va en el contador. */
+#homeOrder:has(#homeOrderCount[data-empty='true']) #homeOrderCount {color:var(--gold-text);box-shadow:inset 0 0 0 1px var(--gold-edge);}
+
+/* Hoja del pedido: mensaje vacío a 3,5:1 en oscuro, sin salida, y cinco
+   tamaños de texto. Queda en 14 / 16 / 20. */
+.sheet__empty {color:var(--text-2);}
+.sheet__empty p:first-of-type {color:var(--text);}
+.sheet__browse {margin-top:20px;min-height:48px;padding-inline:24px;font-size:16px;}
+.sheet__head h2,.sheet__total strong {font-size:20px;}
+.sheet .btn--block {font-size:16px;}
+.line__name {display:block;overflow:visible;-webkit-line-clamp:unset;line-clamp:unset;font-size:14px;padding-block:13px;margin-block:-13px;}
+.line__name span {display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* Piso de 14px y contraste ≥4,5:1 en el pie y en el estado de horarios. */
+.info-card__status {font-size:14px;}
+.footer h4,.footer__bottom {font-size:14px;color:var(--text-2);}
+
+/* Toque ≥44 fuera de la primera pantalla. */
+.info-card .btn--sm {min-height:44px;}
+.footer a {display:inline-flex;align-items:center;min-height:44px;}
+.chat__body button,.chat__form textarea {min-height:44px;}
+.chat__send,.pick__add {width:44px;height:44px;}
+
+@media (max-width:340px) {
+  /* A 320 al placeholder le faltaban 4,5px: se cortaba el "?". */
+  .home-search .search input {padding-left:56px;}
+  .home-search .search input::placeholder {font-size:15px;}
+  /* Con texto y sin foco quedaban 54px útiles ("mochila" mide 58). El texto
+     llega hasta el borde del toque de la ×, no hasta su dibujo: 70px. */
+  .home-search.has-text:not(.is-searching) .search input {padding-right:152px;text-overflow:ellipsis;}
+}

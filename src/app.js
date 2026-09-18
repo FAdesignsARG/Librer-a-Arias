@@ -321,6 +321,7 @@ function renderSheet() {
       ${ico.bag}
       <p>Todavía no agregaste nada.</p>
       <p class="t-small" style="margin-top:6px">Tocá el <strong>+</strong> en cualquier producto para sumarlo.</p>
+      <button type="button" class="btn btn--gold sheet__browse" data-sheet-browse>Ver el catálogo</button>
     </div>`;
     sheetFoot.hidden = true;
     return;
@@ -333,7 +334,7 @@ function renderSheet() {
       return `<div class="line" data-slug="${slug}">
       <img class="line__img" src="${thumbOf(p.images[0])}" alt="" width="58" height="58" loading="lazy">
       <div class="line__info">
-        <a class="line__name" href="/p/${p.slug}/">${p.name}</a>
+        <a class="line__name" href="/p/${p.slug}/"><span>${p.name}</span></a>
         <p class="line__price">${money(p.price)} c/u · <strong>${money(p.price * qty)}</strong></p>
         <div class="line__actions">
           <div class="qty">
@@ -538,6 +539,12 @@ $('#sheetCopy')?.addEventListener('click', async () => {
 });
 
 sheetBody?.addEventListener('click', (e) => {
+  // Hoja vacía: "Ver el catálogo" cierra y baja a la grilla.
+  if (e.target.closest('[data-sheet-browse]')) {
+    closeDialog(sheet);
+    $('#catalogo')?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    return;
+  }
   const line = e.target.closest('.line');
   if (!line) return;
   const slug = line.dataset.slug;
@@ -577,6 +584,7 @@ function toast(text, icon = '', duration = 2500) {
   if (!toastHost) return;
   const el = document.createElement('div');
   el.className = 'toast';
+  el.setAttribute('role', 'status');
   el.innerHTML = `${icon}<span></span>`;
   el.querySelector('span').textContent = text;
   el.style.animationDuration = `${duration / 1000}s`;
@@ -825,6 +833,8 @@ $('#searchClear')?.addEventListener('click', () => {
   searchEl.value = '';
   searchEl.focus();
   render();
+  // La isla sigue el texto del campo con has-text; asignar value no avisa.
+  $('#homeSearch')?.classList.remove('has-text');
 });
 
 /** Activa un rubro (o "Ofertas") por su data-cat, si existe un chip para
@@ -1065,6 +1075,8 @@ function openMenu(from) {
 menuBtn?.addEventListener('click', () => openMenu());
 $$('[data-open-menu]').forEach((btn) => btn.addEventListener('click', () => openMenu(btn)));
 wireDialog(menuSheet, $('#menuSheetClose'));
+$$('[data-open-menu]').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
+menuSheet?.addEventListener('close', () => $$('[data-open-menu]').forEach((btn) => btn.setAttribute('aria-expanded', 'false')));
 enableDragToClose(menuSheet, { header: $('.sortsheet__head', menuSheet), scrollEl: $('.menusheet__body', menuSheet) });
 
 // Los links (Catálogo/Horarios/Visitanos, rubros, WhatsApp) navegan solos
@@ -1426,6 +1438,16 @@ if ($('#homeSearch')) {
   // la isla no cambia de forma debajo del dedo (Safari no enfoca botones).
   form.addEventListener('mousedown', e => { if (form.classList.contains('is-searching') && searchParts(e.target) && e.target !== searchEl) e.preventDefault(); });
   form.addEventListener('keydown', e => { if(e.key === 'Escape') {closeSuggestions(); searchEl.focus({preventScroll:true});} });
+  // En desktop Pedido y Menú no están en la isla: después de la última parte
+  // de la búsqueda vienen los accesos, que siguen inertes hasta el focusout.
+  // El navegador elige el destino del Tab antes de ese focusout y los
+  // salteaba. Se les saca inert en el keydown, que corre antes.
+  form.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || e.shiftKey || !searchParts(e.target)) return;
+    const parts = $$('#search, .search__clear, .home-search__go, #homeSuggestions button', form)
+      .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+    if (e.target === parts[parts.length - 1]) quickAccess?.removeAttribute('inert');
+  });
   if (bellDot) {
     const mirror = () => $$('#islandDot, #islandPanelDot, #navMenuDot').forEach(d => { d.hidden = bellDot.hidden; });
     new MutationObserver(mirror).observe(bellDot, { attributes: true, attributeFilter: ['hidden'] });
@@ -1449,7 +1471,7 @@ if ($('#homeSearch')) {
     e.preventDefault();
     results();
   });
-  $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; searchEl.focus({preventScroll:true}); results(); }));
+  $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; syncHasText(); searchEl.focus({preventScroll:true}); results(); }));
   $$('[data-home-category]').forEach(link => link.addEventListener('click', e => {
     if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault(); selectCategory(link.dataset.homeCategory); results();
