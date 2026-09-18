@@ -30,7 +30,7 @@
 .home-search button {min-width:44px;min-height:44px;}
 .home-search .search__clear {right:62px;width:44px;height:44px;}
 .home-search .search__clear svg {left:12px;width:20px;height:20px;color:var(--text);}
-.home-search__submit {position:absolute;right:12px;top:50%;transform:translateY(-50%);border-radius:50%;background:var(--gold);color:#1a1200;transition:background 180ms,scale 180ms;}
+.home-search__submit {position:absolute;right:12px;top:50%;transform:translateY(-50%);display:grid;place-items:center;border-radius:50%;background:var(--gold);color:#1a1200;transition:background 180ms,scale 180ms;}
 .home-search__submit svg {position:static!important;translate:none!important;width:20px!important;height:20px!important;color:inherit!important;vertical-align:middle;}
 .home-search__submit:active {scale:.94;}
 .home-search.is-docked {position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));width:min(600px,calc(100% - 32px));transform:translateX(-50%);z-index:120;}

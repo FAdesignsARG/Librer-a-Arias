@@ -91,22 +91,23 @@ const fullSrc = (id) => cloudinaryUrl(id, { width: 1000 });
 /* ---------- iconos ---------- */
 
 const ico = {
-  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
-  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
-  minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5.5 5.5L20 7"/></svg>',
-  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13H4.8L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg>',
-  chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.75"/><path d="M15.4 15.4 20 20"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg>',
+  minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12h13"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.75 12.5 4.5 4.5 10-10"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.4 8.5h13.2l.9 10.15A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-2.35L5.4 8.5Z"/><path d="M8.75 8.5V7.25a3.25 3.25 0 0 1 6.5 0V8.5"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.25 5.75 6.25 6.25-6.25 6.25"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>',
   wa: '<svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.71 4.65 1.929 6.533L4 29l7.646-1.884A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.6c-1.79 0-3.46-.52-4.867-1.417l-.349-.22-4.14 1.02 1.04-4.03-.228-.36A9.55 9.55 0 0 1 6.4 15c0-5.294 4.307-9.6 9.601-9.6 5.293 0 9.6 4.306 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6zm5.27-7.18c-.288-.145-1.706-.842-1.97-.938-.264-.096-.457-.144-.65.145-.192.288-.745.937-.913 1.13-.168.192-.336.216-.624.072-.289-.145-1.219-.45-2.322-1.433-.858-.766-1.437-1.712-1.605-2-.168-.289-.018-.445.126-.589.13-.129.289-.336.433-.504.145-.168.193-.289.29-.481.096-.193.048-.361-.024-.505-.073-.145-.65-1.566-.89-2.144-.234-.563-.472-.487-.65-.496l-.553-.01a1.06 1.06 0 0 0-.77.361c-.264.289-1.01.987-1.01 2.408 0 1.42 1.034 2.792 1.178 2.985.145.192 2.036 3.11 4.933 4.36.69.298 1.228.476 1.648.61.692.22 1.322.189 1.82.115.555-.083 1.706-.698 1.947-1.372.24-.673.24-1.25.168-1.37-.072-.121-.264-.193-.553-.337z"/></svg>',
-  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.58 7-12a7 7 0 0 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
-  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.25S5.25 14.5 5.25 9.75a6.75 6.75 0 0 1 13.5 0c0 4.75-6.75 11.5-6.75 11.5Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.25 2"/></svg>',
   ig: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg>',
   fb: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 8.5h2.6V5.1h-2.6c-2.6 0-4.6 2-4.6 4.6v1.8H7.6v3.4h2.3V21h3.4v-6.1h2.6l.5-3.4h-3.1V9.7c0-.7.5-1.2 1.2-1.2z"/></svg>',
   tk: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.1 1.9 3.7 4 4v3c-1.4 0-2.7-.4-3.9-1.1v6.1c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-3 1.3-3 3s1.4 3 3 3 3-1.3 3-3V3h2.9z"/></svg>',
   mapPin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.58 7-12a7 7 0 0 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
-  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
-  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L3.4 12.6V4a.6.6 0 0 1 .6-.6h8.6z"/><circle cx="8" cy="8" r="1.4"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>',
+  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 4.75c0-.7.55-1.25 1.25-1.25h6.6c.5 0 .98.2 1.33.55l7.77 7.77a1.9 1.9 0 0 1 0 2.68l-5.85 5.85a1.9 1.9 0 0 1-2.68 0L4.15 12.6a1.9 1.9 0 0 1-.65-1.33Z"/><circle cx="8.25" cy="8.25" r="1.35"/></svg>',
   sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l1.8 5.7 5.7 1.8-5.7 1.8L12 17.5l-1.8-5.7-5.7-1.8 5.7-1.8L12 2.5z"/></svg>',
   fire: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 2c.3 2.6-.7 3.9-2 5.3C9 8.7 7.5 10.4 7.5 13a4.5 4.5 0 0 0 9 0c0-1.4-.5-2.3-1.1-3.2.9.4 2.1 1.6 2.1 4a5.5 5.5 0 0 1-11 0c0-4.5 3-6.3 4.5-8.3.9-1.2 1.3-2.1 1.5-3.5z"/></svg>',
 };
@@ -302,12 +303,12 @@ const crane = (cls, size) => {
 /* Mismo ícono que el botón "Preguntame" del dock — se reusa en el globo
    de invitación (ver orderSheet) para que se lea como la misma función. */
 const askIco =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5c-4.7 0-8.5 3.15-8.5 7.05 0 2.05 1.05 3.9 2.75 5.2L5.5 20.5l4.1-1.9c.75.15 1.55.25 2.4.25 4.7 0 8.5-3.15 8.5-7.05S16.7 4.5 12 4.5Z"/><path d="M9.9 9.9a2.2 2.2 0 1 1 3.1 2.05c-.65.3-1 .9-1 1.55"/><path d="M12 16.1h.01"/></svg>';
 
 const menuIco =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h16M4 12h16M4 16.5h16"/></svg>';
 const gridIco =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7.25" height="7.25" rx="2.25"/><rect x="13.25" y="3.5" width="7.25" height="7.25" rx="2.25"/><rect x="3.5" y="13.25" width="7.25" height="7.25" rx="2.25"/><rect x="13.25" y="13.25" width="7.25" height="7.25" rx="2.25"/></svg>';
 
 const navbar = (s, home = false) => `<nav class="nav" id="nav">
   <div class="nav__inner">
@@ -335,7 +336,7 @@ const navbar = (s, home = false) => `<nav class="nav" id="nav">
 </nav>`;
 
 const chatIco =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5c-4.7 0-8.5 3.15-8.5 7.05 0 2.05 1.05 3.9 2.75 5.2L5.5 20.5l4.1-1.9c.75.15 1.55.25 2.4.25 4.7 0 8.5-3.15 8.5-7.05S16.7 4.5 12 4.5Z"/><path d="M9.9 9.9a2.2 2.2 0 1 1 3.1 2.05c-.65.3-1 .9-1 1.55"/><path d="M12 16.1h.01"/></svg>';
 
 /**
  * Menú de mobile — el único lugar donde se puede llegar a Catálogo /
@@ -683,7 +684,7 @@ export function renderHome({ products, settings: s }) {
       <div class="search" id="searchWrap">
         ${ico.search}<input id="search" name="q" type="search" enterkeyhint="search" placeholder="¿Qué buscás?" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
         <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
-        <button class="home-search__submit" type="submit" aria-label="Buscar">${ico.chevron}</button>
+        <button class="home-search__submit" type="submit" aria-label="Buscar">${ico.arrow}</button>
       </div>
       <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p>${['Regalos','Auriculares','Mochilas'].map(q=>`<button type="button" data-search-idea="${q}">${ico.search}${q}${ico.chevron}</button>`).join('')}<button type="submit" class="home-search__results">Ver resultados ${ico.chevron}</button></div>
       <div class="island__actions">
