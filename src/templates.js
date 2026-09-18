@@ -513,8 +513,8 @@ const orderSheet = (s) => `
        aria-label="Escribinos por WhatsApp" title="Escribinos por WhatsApp">
       ${ico.wa}
     </a>
-    <button class="dockbtn dockbtn--ai" id="askBtn" aria-haspopup="dialog" aria-label="Preguntarle al asistente">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M9.2 10.2a2.8 2.8 0 0 1 5.4.9c0 1.9-2.7 2.4-2.7 2.4"/><path d="M12 17.2h.01"/></svg>
+    <button class="dockbtn dockbtn--ai" id="askBtn" aria-haspopup="dialog" aria-label="Preguntarle a Adolfito, el asistente">
+      <img class="dockbtn__face" src="/assets/brand/adolfito-cara@96.webp" srcset="/assets/brand/adolfito-cara@96.webp 1x, /assets/brand/adolfito-cara.webp 2x" width="56" height="56" alt="" decoding="async">
       <span>Preguntame</span>
     </button>
   </div>
