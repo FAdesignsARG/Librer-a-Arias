@@ -11,7 +11,7 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 ## LEER PRIMERO — 18/09/2026: YA ESTÁ EN PRODUCCIÓN (`main`)
 
 **Desde el 18/09/2026 esta versión está en `main` y publicada en
-`https://libreriaarias.com.ar`.** La integración sigue funcionando sin que
+`https://libreria-arias.netlify.app`.** La integración sigue funcionando sin que
 toquen nada, pero la página cambió mucho: revisen la lista A de abajo contra
 la web en vivo y ajusten de su lado lo que corresponda.
 
@@ -31,6 +31,12 @@ avisa acá. Ninguna de esas cambia el contrato con Base44.
 Dato para las métricas: `/catalogo/` ahora muestra los productos en tandas de 48
 con un botón "Ver más productos", así que las impresiones de tarjeta llegan de a
 tandas (antes se dibujaban los 551 de una).
+
+**OJO con el dominio:** la web real es `https://libreria-arias.netlify.app`. El dominio
+`libreriaarias.com.ar` que figura más abajo en este documento **no existe** (no
+resuelve). En CORS tiene que estar `https://libreria-arias.netlify.app`; si sólo
+está el `.com.ar`, ni las métricas ni la configuración de página funcionan en
+producción. Revisen también cualquier enlace o campaña que use el `.com.ar`.
 
 Para producción, lo urgente de la lista A es: **2** (texto del aviso en una
 línea), **3** (10 a 15 destacados), **5** (ningún texto con otra promo) y **7**
