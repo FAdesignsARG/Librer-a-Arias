@@ -8,12 +8,30 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
-## LEER PRIMERO — 18/09/2026: qué cambió en la web y qué necesitamos de ustedes
+## LEER PRIMERO — 18/09/2026: YA ESTÁ EN PRODUCCIÓN (`main`)
 
-Todo esto está en la rama `preview` y publicado para revisar en
-`https://diseno--libreria-arias.netlify.app`. **Todavía no está en
-producción.** La integración sigue funcionando sin que toquen nada; lo de
-abajo es para que quede prolija y aproveche lo nuevo.
+**Desde el 18/09/2026 esta versión está en `main` y publicada en
+`https://libreriaarias.com.ar`.** La integración sigue funcionando sin que
+toquen nada, pero la página cambió mucho: revisen la lista A de abajo contra
+la web en vivo y ajusten de su lado lo que corresponda.
+
+Qué entró a producción: primera pantalla con la marca al frente y splash de
+entrada; banners-imagen que se alternan cada 10 s; "Elegidos para vos" que rota
+cada 5 min; home con 50 destacados; catálogo en `/catalogo/` con filtros en
+pastillas (Categoría, Precio, Destacados, Ordenar); ficha de producto nueva
+(Agregar, Consultar por WhatsApp, IA, Compartir); compartir productos con vista
+previa; flotantes de WhatsApp y del asistente (Adolfito) en todas las páginas.
+
+Qué NO entró todavía (sigue en la rama `preview`, link de revisión
+`https://diseno--libreria-arias.netlify.app`): barra lateral de navegación en
+desktop, nueva transición del buscador, páginas de rubro `/c/<rubro>/`
+rediseñadas y flechas en el carrusel de banners. Cuando pasen a producción se
+avisa acá. Ninguna de esas cambia el contrato con Base44.
+
+Para producción, lo urgente de la lista A es: **2** (texto del aviso en una
+línea), **3** (10 a 15 destacados), **5** (ningún texto con otra promo) y **7**
+(tableros: `pagina` ahora trae `/catalogo/`). El punto 1 (CORS) sólo afecta al
+link de revisión; producción ya está habilitada.
 
 ### A. Lo que les pedimos que hagan (por prioridad)
 

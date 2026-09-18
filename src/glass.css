@@ -963,3 +963,58 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   .dock .dockbtn--ai,.dock .dockbtn__face {animation:none;}
   .dock .dockbtn {transition:none;}
 }
+
+
+/* ==========================================================================
+   Arreglos previos a producción · 18/09/2026
+   Defectos que encontraron los críticos y que también estaban en esta versión.
+   Sólo CSS, sin tocar comportamiento.
+   ========================================================================== */
+/* 1. Precio de las tarjetas: en la ficha ("También te podría gustar") quedaba
+      texto amarillo sobre pastilla amarilla (1:1). Mismo estilo en todo el sitio:
+      sin fondo, en el amarillo de texto del tema. */
+.card__price,.card:hover .card__price {background:transparent;padding:0;border-radius:0;box-shadow:none;color:var(--gold-text);font-weight:600;letter-spacing:-.02em;}
+.card--out .card__price,.card--out:hover .card__price {background:transparent;color:var(--text-2);}
+/* 2. Precio y stock siempre a la misma altura, tenga el nombre una o dos líneas. */
+.card__body {display:flex;flex-direction:column;}
+.card__stock {margin-top:auto;}
+/* 3. Ficha en celular: relacionados en dos columnas (eran 12 en una sola). */
+@media (max-width:720px) {
+  .page-product .related .grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;}
+}
+/* 4. Ficha a 320px: "Preguntarle a la IA" y "Compartir" desbordaban 30px. */
+@media (max-width:380px) {
+  .page-product .product__actions {grid-template-columns:minmax(0,1fr);}
+  .page-product .product__ask,.page-product .product__share {white-space:normal;}
+}
+/* 5. Ficha en celular: tamaños mínimos de toque y de texto. */
+@media (max-width:720px) {
+  .page-product .nav .bellbtn,.page-product .nav .themebtn,.page-product .nav .menubtn {width:44px;height:44px;}
+  .page-product .qtystepper__btn {width:44px;height:44px;}
+  .page-product .crumbs {font-size:14px;color:var(--text-2);}
+  .page-product .crumbs a {display:inline-flex;align-items:center;min-height:44px;}
+  .page-product .product__cat,.page-product .product__stock {font-size:14px;}
+}
+.card__cat,.card__stock {font-size:14px;}
+.page-product .related .card__add {width:44px;height:44px;}
+/* 6. Flotantes en la ficha en celular cuando además está el aviso: el aviso ya
+      está arriba de la barra de "Agregar", así que los flotantes suben más. */
+@media (max-width:640px) {
+  body.page-product:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)) + 80px);}
+}
+/* 7. El globito "¿Buscás algo puntual?" vive dentro del bloque de flotantes:
+      se ancla a él, así lo sigue cuando sube (antes quedaba fijo y lo pisaba). */
+.dock .ainudge {position:absolute;right:0 !important;bottom:100% !important;margin-bottom:14px;font-size:14px;}
+.dock .ainudge__close {width:44px;height:44px;top:0;right:0;}
+/* 8. Contraste de textos de condiciones y notas. */
+.chat .chat__note,.promodlg__disclaimer,.chat .chat__form textarea::placeholder {color:var(--text-2);}
+.promodlg__disclaimer {font-size:14px;}
+/* 9. Aire antes de "Destacados" (había 24px después del bloque de avisos). */
+.featured-head {padding-top:48px;}
+
+/* 10. Ficha a 320px: con los botones de la barra a 44px no entran todos; la campanita
+       se va (Novedades sigue en el menú), igual que en la home. */
+@media (max-width:380px) {
+  .page-product .nav .bellbtn {display:none;}
+  .page-product .nav__inner {gap:8px;}
+}
