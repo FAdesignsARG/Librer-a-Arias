@@ -346,3 +346,53 @@ Pedido de Fran (puntos 12-14 del brief `home-v2-20260918`).
   52px a 16px (evita el zoom de iOS), enviar de 52px; en celular ocupa 92dvh.
 - Tarjetas en celular: radio 26, nombre 16px, precio 20px en amarillo, "+" de
   48px amarillo siempre visible, compartir de 44px.
+
+## Tercera tanda del 18/09/2026: filtros, flotantes, ficha y splash
+Pedidos 15-20 del brief `home-v2-20260918`.
+**Filtros del catálogo (pedido "importantísimo")**
+- Pastillas con desplegable como las de shop.app: Categoría · Precio ·
+  Destacados (interruptor) · Ordenar, más "Limpiar filtros" cuando hay algo
+  aplicado. Cada pastilla muestra lo elegido y se invierte cuando filtra.
+- Los `<select>` nativos (`#sort`, `#priceFilter`) siguen guardando el estado
+  pero ya no se ven: el desplegable del sistema era lo que se veía mal. Los
+  rubros pasaron a la hoja de Categoría y siguen siendo `#chips .chip[data-cat]`
+  (las métricas de Base44 no cambian).
+- `openFilterSheet()`: en celular, hoja inferior con filas de 52px y tilde; en
+  desktop (≥721px), desplegable de vidrio anclado debajo de la pastilla, sin
+  oscurecer la página.
+- "Destacados" filtra `p.featured` + los `productIds` de Base44; se oculta si no hay.
+- **"Calificación" no se construyó**: no existen reseñas (Fran las pidió para
+  más adelante, con registro) y el proyecto prohíbe reseñas inventadas. Queda
+  el lugar previsto en la fila.
+- Probado: Precio → 91 productos; + Bazar → 32; + Destacados → 3; Limpiar → 551.
+**Flotantes**
+- WhatsApp vuelve a ser amarillo pleno (el sistema de vidrio lo había dejado
+  como un círculo oscuro con aro). El asistente lleva la cara de Adolfito
+  (`assets/brand/adolfito-cara.webp` y `@96`, recortadas con sharp de la
+  ilustración de la promo): asoma de una pastilla de vidrio "Preguntame" en
+  desktop y de un círculo con aro amarillo en celular; se inclina al pasar el mouse.
+**Ficha de producto (referencia: shop.app)**
+- Desktop: foto grande a la izquierda (radio 28, fondo blanco); si hay más de
+  una foto, miniaturas en columna y cambio con desenfoque + barrido de luz.
+  **Hoy los 551 productos tienen una sola foto**: la galería queda lista.
+- Columna de compra: precio grande, línea "Comprando por la web: $X · 10% OFF"
+  (la promo real, ya calculada), cantidad, Agregar al pedido, Consultar por
+  WhatsApp (con `data-arias-whatsapp-message`, así Base44 puede cambiar el
+  número sin perder el mensaje), Preguntarle a la IA y Compartir.
+- Desplegables con información real: Descripción (con "Leer más" si pasa de 320
+  caracteres), Cómo comprar, Retiro en el local y horarios.
+- "También te podría gustar": 12 relacionados (antes 4; completa con otros
+  rubros por precio parecido) en grilla de 6 columnas, y un buscador de vidrio
+  que flota abajo (en celular va fijo en su lugar, porque abajo está la barra
+  de Agregar) y lleva a `/catalogo/?q=`.
+**Splash de entrada**
+- El splash de siempre (logo redondo con rebote y anillo) vuelve a correr en
+  todas las páginas, una vez por sesión. En la home usa la variante
+  `splash--home`: logo y nombre apilados como en el hero; el nombre se descubre
+  de izquierda a derecha, de borroso a nítido; a los 1,5s los dos vuelan hasta
+  la posición exacta del logo y el nombre del hero (medida por layout) mientras
+  el fondo se desvanece. El último cuadro del splash es la home. Verificado a
+  375 y 1280: aterrizaje con ≤1px de diferencia; al terminar se oculta solo y
+  guarda `arias.splash.visto`.
+- La calidad del movimiento no se puede juzgar en el panel de pruebas: mirarlo
+  en el deploy (en una pestaña nueva o de incógnito, porque corre una vez por sesión).

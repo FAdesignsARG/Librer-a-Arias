@@ -27,7 +27,9 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
 | + | Compartir productos con vista previa (WhatsApp primero) y mobile más grande: flotantes, chat y tarjetas | **Hecha** — falta probar la vista previa real en WhatsApp con una URL pública |
-| — | Favoritos por sesión | Más adelante (Fran: "no ahora") |
+| + | Filtros en pastillas con desplegable, flotantes con Adolfito, ficha de producto estilo shop.app y splash que aterriza en la home | **Hecha** — mirar splash y animaciones en el deploy; "Calificación" espera a que existan reseñas |
+| — | Favoritos por sesión |
+| — | Reseñas con estrellas (requiere registro) | Más adelante (Fran) | Más adelante (Fran: "no ahora") |
 
 ## Rondas anteriores
 | Ronda | Tema | Estado |

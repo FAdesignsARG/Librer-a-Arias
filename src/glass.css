@@ -830,3 +830,52 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   .psearch {position:static;width:calc(100% - 32px);}
   .page-product .related {padding-bottom:96px;}
 }
+
+
+/* ==========================================================================
+   Splash de entrada en la home · 18/09/2026
+   Mismo estilo que el anterior (logo redondo que entra con rebote y anillo),
+   pero el nombre aparece debajo, como en el hero, y el último cuadro es la
+   home: logo y nombre vuelan hasta su lugar mientras el fondo se abre.
+   0.00-0.55  entra el logo, ping del anillo
+   0.45-1.15  el nombre se descubre de izquierda a derecha, de borroso a nítido
+   1.50-2.26  aterrizan en el hero y el fondo se desvanece
+   ========================================================================== */
+.splash--home .splash__brand {flex-direction:column;gap:14px;}
+.splash--home .splash__bar {display:none;}
+.splash--home .splash__logo {width:clamp(112px,16vw,168px);height:clamp(112px,16vw,168px);}
+.splash--home .splash__word,
+.splash--home .splash__word.brand-dark {display:block;width:min(78vw,520px);height:auto;margin:0;opacity:0;}
+.splash--home .splash__word.brand-light {display:none;}
+:root[data-theme="light"] .splash--home .splash__word.brand-dark {display:none;}
+:root[data-theme="light"] .splash--home .splash__word.brand-light {display:block;}
+
+.splash--home[data-run="true"] .splash__logo {animation:splash-pop var(--dur-slow) var(--ease-pop) forwards;}
+.splash--home[data-run="true"] .splash__word {animation:splash-word-reveal .7s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) .45s forwards;}
+/* Las cortinas no se corren: el fondo entero se desvanece al aterrizar. */
+.splash--home[data-run="true"] .splash__panel--top,
+.splash--home[data-run="true"] .splash__panel--bottom {animation:none;transition:opacity .7s var(--ease-soft);}
+.splash--home[data-landing="true"] .splash__panel--top,
+.splash--home[data-landing="true"] .splash__panel--bottom {opacity:0;}
+.splash--home[data-landing="true"] .splash__halo {opacity:0;}
+.splash--home .splash__logo,
+.splash--home .splash__word {transition:translate .72s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),scale .72s var(--ease-premium, cubic-bezier(.2,.8,.2,1));}
+
+@keyframes splash-word-reveal {
+  from {opacity:0;clip-path:inset(0 100% 0 0);filter:blur(10px);transform:translateX(-12px);}
+  60% {opacity:1;filter:blur(0);}
+  to {opacity:1;clip-path:inset(0 0 0 0);filter:blur(0);transform:none;}
+}
+
+/* Mientras corre, el logo y el nombre del hero no se ven: los reemplaza el
+   splash, que aterriza justo encima. Al terminar aparecen sin salto. */
+html[data-splash="running"] .page-home .home-mark,
+html[data-splash="running"] .page-home .home-wordmark {opacity:0;}
+html[data-splash="running"] body.page-home:not(.page-catalog) > *:not(.splash) {animation-delay:1.5s;}
+/* El hero no sube: es el destino del vuelo y tiene que estar quieto para que el logo caiga justo. */
+html[data-splash="running"] body.page-home:not(.page-catalog) > .home-hero {animation:none;}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash--home[data-run="true"] .splash__word {animation:none;opacity:1;}
+  .splash--home .splash__logo,.splash--home .splash__word {transition:none;}
+}

@@ -119,10 +119,10 @@ const themeBootScript = (home = false) => `<script>(function(){try{
 var t=localStorage.getItem('arias.tema');
 if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
 document.documentElement.dataset.theme=t;
-${home ? '' : "if(sessionStorage.getItem('arias.splash.visto')!=='1')document.documentElement.dataset.splash='running';"}
+if(sessionStorage.getItem('arias.splash.visto')!=='1')document.documentElement.dataset.splash='running';
 }catch(e){document.documentElement.dataset.theme='dark';}})();<\/script>`;
 
-const splashHtml = (s) => `<div class="splash" id="splash" aria-hidden="true">
+const splashHtml = (s, home = false) => `<div class="splash${home ? ' splash--home' : ''}" id="splash" aria-hidden="true">
   <div class="splash__panel splash__panel--top"></div>
   <div class="splash__panel splash__panel--bottom"></div>
   <div class="splash__stack">
@@ -275,7 +275,7 @@ ${themeBootScript(isHome)}
 <script type="application/ld+json">${head.jsonLd}</script>
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
-${isHome ? '' : splashHtml(s)}
+${splashHtml(s, isHome && !bodyClass.includes('page-catalog'))}
 ${navbar(s, isHome)}
 ${body}
 ${orderSheet(s)}

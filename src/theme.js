@@ -155,6 +155,40 @@ function runSplash() {
       }
     });
 
+    // Home: el logo y el nombre no se desvanecen, vuelan hasta el lugar exacto
+    // que ocupan en el hero mientras el fondo se abre. El último cuadro del
+    // splash ES la home.
+    if (splash.classList.contains('splash--home')) {
+      const shown = (sel, scope) => [...scope.querySelectorAll(sel)].find((el) => getComputedStyle(el).display !== 'none');
+      const land = () => {
+        if (bailed) return;
+        const pairs = [
+          [shown('.splash__logo', splash), shown('.home-mark__img', document)],
+          [shown('.splash__word', splash), shown('.home-wordmark img', document)],
+        ];
+        pairs.forEach(([from, to]) => {
+          if (!from || !to) return;
+          // Se mide por layout (offset*), no por getBoundingClientRect: el rect
+          // incluye la escala de la animación de entrada si todavía no terminó.
+          const stack = splash.querySelector('.splash__stack');
+          const origin = stack.getBoundingClientRect();
+          let x = 0, y = 0;
+          for (let el = from; el && el !== stack; el = el.offsetParent) { x += el.offsetLeft; y += el.offsetTop; }
+          const a = { left: origin.left + x, top: origin.top + y, width: from.offsetWidth, height: from.offsetHeight };
+          const b = to.getBoundingClientRect();
+          if (!a.width || !b.width) return;
+          from.style.transformOrigin = 'center center';
+          from.style.translate = `${b.left + b.width / 2 - (a.left + a.width / 2)}px ${b.top + b.height / 2 - (a.top + a.height / 2)}px`;
+          from.style.scale = String(b.width / a.width);
+        });
+        splash.dataset.landing = 'true';
+        setTimeout(done, 760);
+      };
+      setTimeout(land, 1500);
+      setTimeout(done, 3200);
+      return;
+    }
+
     const panel = splash.querySelector('.splash__panel--bottom');
     panel?.addEventListener('animationend', done, { once: true });
     setTimeout(done, 2200);
