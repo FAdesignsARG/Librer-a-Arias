@@ -336,7 +336,7 @@
 }
 .chat__title h2 {
   font-size: 1rem;
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 .chat__title p {
@@ -480,7 +480,7 @@
 }
 .pick__meta b {
   color: var(--text);
-  font-weight: 620;
+  font-weight: 600;
 }
 /* Mismo criterio que .card__price-old de la grilla (styles.css): precio
    tachado y apagado al lado del precio con descuento. */

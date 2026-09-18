@@ -276,19 +276,19 @@ dialog:focus-visible {
       lo que hace que una web se sienta web en vez de app. */
 .t-display {
   font-size: clamp(2.2rem, 6vw, 3.6rem);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1.04;
 }
 .t-h1 {
   font-size: clamp(1.85rem, 4vw, 2.5rem);
-  font-weight: 660;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.12;
 }
 .t-h2 {
   font-size: clamp(1.35rem, 2.4vw, 1.65rem);
-  font-weight: 640;
+  font-weight: 600;
   letter-spacing: -0.022em;
   line-height: 1.22;
 }
@@ -307,7 +307,7 @@ dialog:focus-visible {
   /* 14px: piso de DESIGN.md regla 4. Antes 0.72rem = 11,52px, y con
      --text-3 daba 3,6:1 en tema oscuro, abajo del 4,5:1 de 06-calidad. */
   font-size: 14px;
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-2);
@@ -351,7 +351,7 @@ dialog:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: -0.015em;
   transition: opacity var(--dur-fast) var(--ease-soft);
 }
@@ -490,7 +490,7 @@ dialog:focus-visible {
 .btn--gold {
   background: var(--gold);
   color: var(--gold-ink);
-  font-weight: 640;
+  font-weight: 600;
 }
 .btn--gold:hover {
   background: var(--gold-hi);
@@ -714,7 +714,7 @@ dialog:focus-visible {
   background: var(--gold);
   color: var(--gold-ink);
   font-size: 14px; /* piso de DESIGN.md regla 4; antes 0.84rem = 13,44px */
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 2px;
 }
 .attn__badge svg {
@@ -723,7 +723,7 @@ dialog:focus-visible {
 }
 .attn__title {
   font-size: clamp(1.5rem, 4.6vw, 1.85rem);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.12;
   color: var(--text);
@@ -746,7 +746,7 @@ dialog:focus-visible {
   background: var(--gold);
   color: var(--gold-ink);
   font-size: 0.92rem;
-  font-weight: 640;
+  font-weight: 600;
   transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast) var(--ease-soft);
 }
 .attn__cta:hover {
@@ -816,8 +816,7 @@ dialog:focus-visible {
 :root:not([data-theme='light']) .attn__slide--promos {
   box-shadow:
     0 0 0 1px rgba(254, 206, 1, 0.05),
-    0 0 30px -6px rgba(254, 206, 1, 0.3),
-    0 0 70px -14px rgba(254, 206, 1, 0.18);
+    0 0 18px -6px rgba(254, 206, 1, 0.3);
 }
 /* Claro: sombra premium estilo Apple — capas de negro muy tenues, sin
    ninguna sólida, que dan profundidad sin pesar sobre la página blanca. */
@@ -1169,7 +1168,7 @@ dialog:focus-visible {
 }
 .sortsheet__head h2 {
   font-size: 1.05rem;
-  font-weight: 640;
+  font-weight: 600;
   letter-spacing: -0.02em;
   margin-right: auto;
 }
@@ -1198,7 +1197,7 @@ dialog:focus-visible {
 }
 .sortopt[aria-current='true'] {
   color: var(--text);
-  font-weight: 620;
+  font-weight: 600;
   background: var(--gold-wash);
 }
 
@@ -1272,7 +1271,7 @@ dialog:focus-visible {
 }
 .menusheet__guideTitle {
   font-size: 0.72rem;
-  font-weight: 640;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -1291,7 +1290,7 @@ dialog:focus-visible {
 }
 .guidestep__n {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
 }
@@ -1370,7 +1369,7 @@ dialog:focus-visible {
 }
 .chip {
   flex: none;
-  min-height: 38px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   padding: 0 16px;
@@ -1471,7 +1470,7 @@ dialog:focus-visible {
 }
 .promoinfo__trigger-text strong {
   font-size: 0.98rem;
-  font-weight: 660;
+  font-weight: 600;
   letter-spacing: -0.015em;
 }
 .promoinfo__trigger-text span {
@@ -1524,7 +1523,7 @@ dialog:focus-visible {
 }
 .promodlg__head h2 {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
   margin-right: auto;
 }
@@ -1584,7 +1583,7 @@ dialog:focus-visible {
 }
 .promodlg__big {
   font-size: 44px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--gold-text);
@@ -1711,7 +1710,7 @@ dialog:focus-visible {
 }
 .promonudge__head h2 {
   font-size: 1.22rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
   margin-right: auto;
 }
@@ -1783,7 +1782,7 @@ dialog:focus-visible {
 }
 .promonudge__pick-price b {
   color: var(--text);
-  font-weight: 620;
+  font-weight: 600;
 }
 .promonudge__foot {
   flex: none;
@@ -1865,7 +1864,7 @@ dialog:focus-visible {
   padding: 4px 9px;
   border-radius: var(--r-pill);
   font-size: 14px; /* piso de DESIGN.md regla 4; antes 0.68rem = 10,88px */
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: 0.01em;
   backdrop-filter: blur(8px);
 }
@@ -2031,7 +2030,7 @@ dialog:focus-visible {
   background: var(--gold);
   color: var(--gold-ink);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.028em;
   font-variant-numeric: tabular-nums;
   transition: background var(--dur-fast) var(--ease-soft);
@@ -2249,7 +2248,7 @@ dialog:focus-visible {
 }
 .info-card--highlight .hours-list span:last-child {
   color: var(--gold-ink);
-  font-weight: 620;
+  font-weight: 600;
 }
 .info-card--highlight .hours-list div {
   border-bottom-color: rgba(26, 18, 0, 0.14);
@@ -2273,7 +2272,7 @@ dialog:focus-visible {
   background: var(--gold-ink);
   color: var(--gold);
   font-size: 0.72rem;
-  font-weight: 640;
+  font-weight: 600;
   white-space: nowrap;
 }
 .info-card__status[hidden] {
@@ -2333,7 +2332,7 @@ dialog:focus-visible {
 }
 .footer h4 {
   font-size: 0.76rem;
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-3);

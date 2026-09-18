@@ -130,7 +130,7 @@
 .fab,
 .dockbtn--wa,
 .island__count:not([data-empty='true']),
-#homeOrder:has(#homeOrderCount:not(:empty)) {
+#homeOrder:has(#homeOrderCount[data-empty='false']) {
   box-shadow: var(--glass-glow);
 }
 .fab {
@@ -232,3 +232,88 @@
 .home-search.is-docked .search {
   box-shadow: var(--glass-glow), var(--glass-shadow);
 }
+
+
+/* ==========================================================================
+   Ronda de los tres críticos · 18/09/2026
+   Objetivo FAIL, sistema FAIL, calidad PASS (7/9 contra shop.app).
+   ========================================================================== */
+
+/* Aviso flotante y aviso de "agregado": son pop-ups, van en vidrio. El aviso
+   amarillo sólido (343x76) era más grande que el buscador y le quitaba a la
+   lupa la exclusividad del acento; ahora el amarillo queda en un punto. */
+.arias-pc-bar,
+.toast {
+  background: var(--glass-bg-strong);
+  color: var(--text);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-edge-2);
+  box-shadow: var(--glass-shadow);
+}
+.arias-pc-bar {font-size:16px;font-weight:500;line-height:1.3;padding:2px 2px 2px 14px;min-height:48px;}
+.arias-pc-bar::before {content:'';flex:none;width:8px;height:8px;margin-right:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(254,206,1,.6);}
+.arias-pc-bar__close:hover {background:var(--fill-hi);}
+.arias-pc-bar__close:focus-visible {outline-color:var(--text);}
+.arias-pc-block__cta {min-height:44px;}
+.toast {font-size:14px;}
+
+/* El pedido con productos se pinta de amarillo, no sólo el numerito. */
+.island__order:has(.island__count[data-empty='false']) {background:var(--gold-wash);color:var(--gold-text);border-radius:var(--r-pill);}
+#homeOrder:has(#homeOrderCount[data-empty='false']) {background:var(--gold);color:var(--gold-ink);border-color:transparent;}
+#homeOrder:has(#homeOrderCount[data-empty='false']) #homeOrderCount {background:rgba(0,0,0,.14);color:inherit;}
+
+/* Foco visible: el buscador no tenía anillo (≈1,5:1) y la promo en claro usaba
+   amarillo sobre blanco (1,45:1). */
+.home-search .search:focus-within {outline:2px solid var(--text);outline-offset:2px;}
+.attn__slide:focus-visible,#promoBanner:focus-visible,.attn__slide--promos:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
+
+/* Fila de pastillas: el snap la dejaba arrancada 16px y pegaba la primera al borde. */
+.home-quick {scroll-padding-inline:16px;}
+
+/* Tarjetas de producto como las de shop.app: sin borde, separadas por el
+   salto de superficie y la sombra; la foto va enmarcada con radio propio,
+   así el fondo blanco de la foto no deja franjas contra la tarjeta oscura. */
+.card {border:0;border-radius:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);}
+:root:not([data-theme='light']) .card {background:var(--surface-2,#1c1c1e);box-shadow:0 10px 28px -12px rgba(0,0,0,.7);}
+.card__media {margin:6px 6px 0;border-radius:18px;overflow:hidden;background:#fff;}
+.card__name,.card__title {overflow-wrap:anywhere;}
+
+/* Hoja del pedido: toque ≥44, texto ≥14px y contraste ≥4,5:1 sobre vidrio. */
+.sheet__close {width:44px;height:44px;}
+.qty button {width:44px;height:44px;}
+.line__remove,.sheet__copy {min-height:44px;padding-inline:12px;font-size:14px;}
+.sheet__phone {min-height:44px;display:inline-flex;align-items:center;font-size:14px;}
+.sheet :is(.sheet__note,.sheet__fallback,.line__price,.line__remove,.sheet__phone,.sheet__copy,.t-small,small),
+.sheet__foot :is(span,p,small) {font-size:14px;color:var(--text-2);}
+.sheet .btn--block {min-height:48px;}
+
+@media (max-width:720px) {
+  /* La promo usa la misma grilla que el resto (16px) y el aire ya no se duplica. */
+  .page-home .attention-carousel {margin:0;padding-inline:0;}
+  .page-home .attention-carousel__track {padding:16px;}
+  /* Tres tamaños sobre el pliegue: 14 / 16 / 22. */
+  .home-search .search input {font-size:16px;}
+  /* Con texto escrito y sin foco, la × va a la izquierda de Pedido y Menú
+     (antes quedaba debajo del botón de menú). */
+  .home-search.has-text:not(.is-searching) .search__clear {right:172px;}
+  .home-search.has-text:not(.is-searching) .search input {padding-right:220px;}
+}
+@media (max-width:420px) {
+  .home-search.has-text:not(.is-searching) .search__clear {right:118px;}
+  .home-search.has-text:not(.is-searching) .search input {padding-right:166px;}
+}
+@media (max-width:340px) {
+  /* A 320 el placeholder no entraba (113px en 92). */
+  .home-search .search input {padding-left:58px;padding-right:112px;}
+  .island__order {padding:0 4px 0 6px;}
+}
+
+/* Ajustes tras medir la ronda (18/09) */
+strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
+/* El aviso en 14px entra en dos líneas: ~52px de alto, bien por debajo del buscador. */
+.arias-pc-bar {font-size:14px;}
+.home-search .island__order:has(.island__count[data-empty='false']) {background:var(--gold-wash, rgba(254,206,1,.14));}
+.qty span {font-size:14px;}
+.line__name a {display:inline-block;padding-block:12px;margin-block:-12px;}
+@media (max-width:720px) {.home-discover {padding-bottom:32px;}}

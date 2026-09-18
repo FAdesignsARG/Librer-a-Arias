@@ -321,7 +321,7 @@ html[data-splash='running'] body > *:not(.splash) {
 }
 .welcome__head h2 {
   font-size: 1.24rem;
-  font-weight: 660;
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.25;
 }

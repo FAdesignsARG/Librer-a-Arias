@@ -283,7 +283,7 @@ window.addEventListener(
 function syncCartUI() {
   const n = cartCount();
   const homeCount = $('#homeOrderCount');
-  if (homeCount) homeCount.textContent = String(n);
+  if (homeCount) { homeCount.textContent = String(n); homeCount.dataset.empty = String(n === 0); }
   // Contador de la isla flotante de la home: cambia al instante y late
   // (fab-bump) solo cuando sube, como confirmación de "agregado".
   $$('[data-order-count]').forEach((el) => {

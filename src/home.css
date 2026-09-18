@@ -176,7 +176,7 @@
  .menusheet--island[open] {display:flex;animation:none;}
  .menusheet--island[data-closing='true'] {animation:island-close var(--dur-quick) var(--ease-soft) forwards;}
  .menusheet--island .sortsheet__head {border-bottom:0;padding:var(--s-4) var(--s-4) var(--s-1);}
- .menusheet--island .sortsheet__head h2 {font-size:22px;font-weight:700;}
+ .menusheet--island .sortsheet__head h2 {font-size:22px;font-weight:600;}
  .menusheet--island .sheet__close {width:var(--tap);height:var(--tap);}
  .menusheet--island .menusheet__body {padding:0 var(--s-3) var(--s-4);overflow-y:auto;overscroll-behavior:contain;}
  .menusheet--island[open] .menusheet__body>* {animation:home-arrive var(--dur-moderate) var(--ease-out) backwards;animation-delay:calc(120ms + var(--i,0)*55ms);}
@@ -342,7 +342,7 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
  .menusheet--island[open] {display:flex;animation:island-arrive var(--dur-moderate) var(--ease-pop);}
  .menusheet--island[data-closing='true'] {animation:island-close var(--dur-quick) var(--ease-soft) forwards;}
  .menusheet--island .sortsheet__head {border-bottom:0;padding:var(--s-4) var(--s-4) var(--s-1);}
- .menusheet--island .sortsheet__head h2 {font-size:22px;font-weight:700;}
+ .menusheet--island .sortsheet__head h2 {font-size:22px;font-weight:600;}
  .menusheet--island .sheet__close {width:var(--tap);height:var(--tap);}
  .menusheet--island .menusheet__body {padding:0 var(--s-3) var(--s-4);overflow-y:auto;overscroll-behavior:contain;}
  .island-panel__label {margin:var(--s-4) var(--s-1) var(--s-2);font-size:14px;font-weight:600;color:var(--text-2);}

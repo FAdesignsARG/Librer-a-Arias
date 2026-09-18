@@ -146,3 +146,24 @@ el campo gana 56px); accesos como pastillas en una fila; tarjetas de
 "Un mundo para descubrir" y "Elegidos" con radio 28, sombra doble y chip
 de vidrio; tarjetas de la escena con nombre en una línea y precio debajo.
 Verificado a 375 (oscuro y claro) y 1280: sin desborde, 3 tamaños de texto.
+
+## Ronda de los tres críticos sobre la home v8 (18/09/2026)
+Veredictos: objetivo FAIL, sistema FAIL, calidad PASS (7/9 contra shop.app;
+eligió Arias). Corregido en esta ronda (capa al final de `src/glass.css`):
+- Aviso flotante y aviso de "agregado" pasan a vidrio; el aviso baja de
+  343x76 amarillo sólido a ~60px con un punto amarillo (ya no supera al
+  buscador ni compite con la lupa).
+- Sin bold: 42 pesos >600 bajados a 600 en todo el CSS, más `strong/b/h*`.
+- Halo de la promo acotado (se recortaba en rectángulo); promo alineada a
+  16px y hueco descubrir→promo de 118 a 48px.
+- Pedido con productos: fondo amarillo tenue en la isla; "Mi pedido"
+  amarillo pleno en desktop (`data-empty` en `#homeOrderCount`).
+- Tarjetas de producto sin borde, foto enmarcada con radio propio.
+- Hoja del pedido: toques ≥44, textos ≥14px, secundarios en `--text-2`.
+- Chips de filtros a 44px; × del buscador ya no queda bajo Menú; anillo de
+  foco del buscador y de la promo con `--text`; fila de pastillas arranca
+  en x=16; placeholder entra a 320; menú dice "Novedades".
+Pendiente, no resuelto: a 1280 el Tab hacia adelante salta los accesos
+(Catálogo/Preguntar/WhatsApp); la pastilla de WhatsApp sigue asomando
+cortada en celular (shop.app hace lo mismo con su fila); `#waBanner`
+todavía es tarjeta (Ronda 6, banners); falta re-correr los críticos.

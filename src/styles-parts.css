@@ -21,7 +21,7 @@
   border-radius: var(--r-pill);
   background: var(--gold);
   color: var(--gold-ink);
-  font-weight: 640;
+  font-weight: 600;
   font-size: 0.92rem;
   letter-spacing: -0.01em;
   box-shadow: 0 10px 30px -6px rgba(246, 190, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -53,7 +53,7 @@
    app de delivery real siempre muestra cuánto vas gastando. */
 .fab__total {
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 600;
 }
 .fab__count {
   min-width: 21px;
@@ -223,7 +223,7 @@
 }
 .sheet__head h2 {
   font-size: 1.08rem;
-  font-weight: 640;
+  font-weight: 600;
   letter-spacing: -0.02em;
   margin-right: auto;
 }
@@ -271,7 +271,7 @@
 }
 .sheet__total strong {
   font-size: 1.3rem;
-  font-weight: 680;
+  font-weight: 600;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
@@ -297,7 +297,7 @@
   border: 1px solid var(--gold-edge);
   color: var(--gold-text);
   font-size: 0.82rem;
-  font-weight: 620;
+  font-weight: 600;
   line-height: 1.35;
   /* Envuelve en vez de forzar una sola línea — a 375px el texto del
      tramo más alto no entra ancho, y es preferible que la píldora crezca
@@ -395,7 +395,7 @@
 }
 .sheet__sent h3 {
   font-size: 1.15rem;
-  font-weight: 660;
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 .sheet__sent p {
@@ -711,7 +711,7 @@
 }
 .product__price {
   font-size: clamp(1.9rem, 4vw, 2.5rem);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
 }
@@ -804,7 +804,7 @@
 .qtystepper__val {
   min-width: 26px;
   text-align: center;
-  font-weight: 640;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -853,7 +853,7 @@
 }
 .stickycta__price strong {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }

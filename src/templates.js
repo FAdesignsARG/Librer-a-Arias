@@ -421,7 +421,7 @@ const islandPanelHtml = (s) => `<dialog class="sortsheet menusheet menusheet--is
     <div class="island-panel__list" style="--i:3">
       <button type="button" data-guide="chat"><span class="island-panel__ico">${askIco}</span><span><strong>Preguntar al asistente</strong><small>Te ayuda a encontrar lo que buscás</small></span></button>
       <a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener"><span class="island-panel__ico">${ico.wa}</span><span><strong>Escribinos por WhatsApp</strong><small>Te respondemos desde el local</small></span></a>
-      <button type="button" data-guide="news"><span class="island-panel__ico">${ico.bell}<span class="island__dot" id="islandPanelDot" hidden></span></span><span><strong>Novedades y ofertas</strong><small>Lo nuevo y lo que tiene descuento</small></span></button>
+      <button type="button" data-guide="news"><span class="island-panel__ico">${ico.bell}<span class="island__dot" id="islandPanelDot" hidden></span></span><span><strong>Novedades</strong><small>Lo último que llegó</small></span></button>
     </div>
     <p class="island-panel__label" style="--i:4">El local</p>
     <div class="island-panel__list" style="--i:5">
