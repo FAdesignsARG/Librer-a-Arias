@@ -914,3 +914,14 @@ html[data-splash="running"] body.page-home:not(.page-catalog) > .home-hero {anim
   .banners__slide {transition:opacity .2s linear,visibility 0s linear .2s;scale:1;filter:none;}
   .banners__slide.is-active {transition-delay:0s;}
 }
+
+
+/* Ícono oficial de Adolfito para el asistente (18/09/2026): se muestra entero,
+   con su globito y su pulgar, sin recortarlo en círculo. */
+.dock .dockbtn--ai {padding-left:84px;}
+.dockbtn__face {left:4px;bottom:0;width:80px;height:80px;max-width:none;border-radius:0;object-fit:contain;}
+.chat .chat__head .chat__avatar {width:52px;height:52px;border-radius:0;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));}
+@media (max-width:520px) {
+  .dock .dockbtn--ai {padding:0;}
+  .dockbtn__face {left:50%;bottom:-2px;width:84px;height:84px;}
+}

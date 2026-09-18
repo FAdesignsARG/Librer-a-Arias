@@ -514,7 +514,7 @@ const orderSheet = (s) => `
       ${ico.wa}
     </a>
     <button class="dockbtn dockbtn--ai" id="askBtn" aria-haspopup="dialog" aria-label="Preguntarle a Adolfito, el asistente">
-      <img class="dockbtn__face" src="/assets/brand/adolfito-cara@96.webp" srcset="/assets/brand/adolfito-cara@96.webp 1x, /assets/brand/adolfito-cara.webp 2x" width="56" height="56" alt="" decoding="async">
+      <img class="dockbtn__face" src="/assets/brand/adolfito-chat@128.webp" srcset="/assets/brand/adolfito-chat@128.webp 1x, /assets/brand/adolfito-chat.webp 2x" width="72" height="72" alt="" decoding="async">
       <span>Preguntame</span>
     </button>
   </div>
@@ -529,8 +529,7 @@ const orderSheet = (s) => `
 
 <dialog class="chat" id="chat" aria-labelledby="chatTitle" tabindex="-1">
   <div class="chat__head">
-    <img class="brand-dark" src="/assets/brand/mark-dark.webp" width="34" height="34" alt="">
-    <img class="brand-light" src="/assets/brand/mark-light.webp" width="34" height="34" alt="">
+    <img class="chat__avatar" src="/assets/brand/adolfito-chat@128.webp" srcset="/assets/brand/adolfito-chat@128.webp 1x, /assets/brand/adolfito-chat.webp 2x" width="52" height="52" alt="">
     <div class="chat__title">
       <h2 id="chatTitle">Asistente de ${esc(s.storeName)}</h2>
       <p id="chatSub">Te ayudo a encontrar lo que buscás</p>

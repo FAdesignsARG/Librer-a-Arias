@@ -420,3 +420,12 @@ tamaño, como en `main`, alternando cada 10 segundos con una animación suave.
 - El slot `debajo_buscador` de Base44 en la home volvió junto a los productos:
   pegado al hero (como quedó en la C2) empujaba el banner fuera de la primera pantalla.
 - Queda sin uso el CSS viejo de `.attn__*` y `assets/brand/banner-canal.webp`.
+
+## Ícono oficial de Adolfito en el asistente (18/09/2026)
+Fran pasó el ícono oficial (Adolfito con auriculares, globito y pulgar arriba;
+`Iconito Chat/Iconito Chat oficial.png`, 2670x2560, sin versionar). Se recortó el
+margen, se dejó cuadrado y se exportó a `assets/brand/adolfito-chat.webp` (256px,
+24 KB) y `adolfito-chat@128.webp` (10 KB). Va entero, sin recortar en círculo, en el
+botón flotante del asistente (80px asomando de la pastilla en desktop, 84px sobre
+el círculo en celular) y como avatar de 52px en la cabecera del chat. Se borró el
+recorte provisorio `adolfito-cara*.webp`.
