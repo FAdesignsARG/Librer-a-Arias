@@ -880,6 +880,7 @@ function render() {
     );
   }
 
+  if (featuredOnly && !IS_HOME) list = list.filter(isFeaturedProduct);
   if (IS_HOME) list = list.slice(0, HOME_LIMIT);
   grid.innerHTML = list.map(cardHtml).join('');
 
@@ -916,6 +917,7 @@ function render() {
     if (activeCat !== 'Todos') here.searchParams.set('cat', activeCat); else here.searchParams.delete('cat');
   }
   history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '', here);
+  syncFilterPills();
   syncCartUI();
 }
 
@@ -1078,6 +1080,57 @@ function wireAttentionCarousel() {
 sortEl?.addEventListener('change', render);
 priceEl?.addEventListener('change', render);
 
+/* ---- Filtros en pastillas (catálogo): Categoría · Precio · Destacados · Ordenar ----
+   Cada pastilla muestra lo elegido y se pinta cuando filtra algo. En celular
+   abren como hoja inferior; en desktop, como desplegable debajo de la pastilla. */
+let featuredOnly = false;
+const isFeaturedProduct = (p) => !!p.featured || ariasFeaturedSlugs.includes(p.slug);
+const catBtn = $('#catBtn');
+const catSheet = $('#catSheet');
+const featuredBtn = $('#featuredBtn');
+const filtersClear = $('#filtersClear');
+
+/** Abre una hoja de filtros; en desktop la ancla debajo del botón que la abrió. */
+function openFilterSheet(dlg, btn) {
+  const popover = matchMedia('(min-width: 721px)').matches;
+  dlg.classList.toggle('is-popover', popover);
+  if (popover) {
+    const r = btn.getBoundingClientRect();
+    dlg.style.setProperty('--pop-x', `${Math.max(16, Math.min(r.left, innerWidth - 320))}px`);
+    dlg.style.setProperty('--pop-y', `${r.bottom + 8}px`);
+  }
+  dlg.showModal();
+  dlg.focus();
+}
+
+function syncFilterPills() {
+  if (!$('#filters')) return;
+  const set = (btn, labelEl, text, active) => { if (labelEl) labelEl.textContent = text; btn?.toggleAttribute('data-active', active); };
+  set(catBtn, $('#catBtnLabel'), activeCat === 'Todos' ? 'Categoría' : activeCat, activeCat !== 'Todos');
+  const priceText = priceEl?.value ? priceEl.selectedOptions[0].textContent : 'Precio';
+  set($('#priceBtn'), $('#priceBtnLabel'), priceText, !!priceEl?.value);
+  const sorted = sortEl && sortEl.value !== 'relevancia';
+  set($('#sortBtn'), $('#sortBtnLabel'), sorted ? sortEl.selectedOptions[0].textContent : 'Ordenar', !!sorted);
+  if (featuredBtn) {
+    featuredBtn.hidden = !PRODUCTS.some(isFeaturedProduct);
+    featuredBtn.setAttribute('aria-pressed', String(featuredOnly));
+  }
+  if (filtersClear) filtersClear.hidden = !(activeCat !== 'Todos' || priceEl?.value || sorted || featuredOnly);
+}
+
+catBtn?.addEventListener('click', () => openFilterSheet(catSheet, catBtn));
+wireDialog(catSheet, $('#catSheetClose'));
+if (catSheet) enableDragToClose(catSheet, { header: $('.sortsheet__head', catSheet) });
+// Elegir un rubro cierra la hoja (el filtrado lo hace el listener de #chips, más arriba).
+catSheet?.addEventListener('click', (e) => { if (e.target.closest('.chip')) closeDialog(catSheet); });
+featuredBtn?.addEventListener('click', () => { featuredOnly = !featuredOnly; render(); });
+filtersClear?.addEventListener('click', () => {
+  featuredOnly = false;
+  if (sortEl) sortEl.value = 'relevancia';
+  if (priceEl) priceEl.value = '';
+  if (!selectCategory('Todos')) render();
+});
+
 /* ---- Hojas de "Ordenar" y "Precio" para mobile (los <select> se
    esconden ahí) ---- #sortSheet/#priceSheet sólo existen en la portada
    (no en la ficha de producto), por eso todo acá abajo está encadenado
@@ -1092,8 +1145,7 @@ function syncSortOpts() {
 
 sortBtn?.addEventListener('click', () => {
   syncSortOpts();
-  sortSheet.showModal();
-  sortSheet.focus(); // ver comentario en openSheet()
+  openFilterSheet(sortSheet, sortBtn);
 });
 wireDialog(sortSheet, $('#sortSheetClose'));
 enableDragToClose(sortSheet, { header: $('.sortsheet__head', sortSheet) });
@@ -1116,8 +1168,7 @@ function syncPriceOpts() {
 
 priceBtn?.addEventListener('click', () => {
   syncPriceOpts();
-  priceSheet.showModal();
-  priceSheet.focus(); // ver comentario en openSheet()
+  openFilterSheet(priceSheet, priceBtn);
 });
 wireDialog(priceSheet, $('#priceSheetClose'));
 enableDragToClose(priceSheet, { header: $('.sortsheet__head', priceSheet) });

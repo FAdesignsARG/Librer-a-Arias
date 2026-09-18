@@ -94,3 +94,32 @@ OK explícito de Fran.
     asistente **bien construido como chat**, sobre todo en mobile: tipografía
     de buen tamaño, acciones rápidas más grandes y que destaquen, accesos más
     grandes para sumar al carrito o ir a las landings.
+
+## Agregado de Fran (18/09/2026, tercera tanda, con capturas)
+
+15. **Los filtros "Recomendados" y "Cualquier precio" están pésimamente
+    diseñados por dentro** (son `<select>` nativos: el desplegable del sistema
+    no se ve estético).
+16. **IMPORTANTÍSIMO — filtros del catálogo como los de shop.app**: los rubros
+    sueltos como pastillas "no tienen mucho sentido"; van dentro de un botón
+    **Categoría**. Filtros: **Categoría, Precio, Calificación, Destacados**,
+    "diseñados perfectos" (pastillas con flecha que despliegan).
+17. **Reseñas con estrellas** de usuarios: importantísimo, pero **más adelante**
+    (requiere registro).
+18. **Flotantes de WhatsApp y asistente: no se ven estéticos.** El del asistente
+    lleva la **imagen de Adolfito** (la mascota) en lugar del ícono, al tamaño
+    del ícono o un poco más, "para darle mucha personalidad".
+19. **Splash de entrada**: el logo de la home es el fotograma final de una
+    animación de intro que abre hacia la home. Reconstruirla "con el estilo de
+    la que teníamos antes": logo redondo y el nombre apareciendo de forma súper
+    estética, perfecta en PC y en mobile.
+20. **Landings de producto como las de shop.app**: más estéticas e
+    informativas. Leer más información, preguntarle a la IA, compartir,
+    consultar por WhatsApp, agregar al carrito. Fotos a la izquierda en desktop,
+    con cambio de foto animado "súper profesional" cuando hay más de una. Abajo,
+    "También te podría gustar" como en la captura, con el buscador flotando.
+
+Decisión de Claude sobre el punto 16: **"Calificación" no se construye todavía.**
+No hay reseñas (punto 17 es para más adelante) y un filtro por estrellas sin
+datos mostraría algo inventado o vacío; el proyecto prohíbe reseñas inventadas.
+Se deja el lugar previsto en la fila de filtros para sumarlo cuando existan.

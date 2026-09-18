@@ -648,3 +648,59 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   .card--out .card__add {background:var(--fill-hi);color:var(--text-2);box-shadow:none;}
   .picks__item {flex-basis:240px;}
 }
+
+
+/* ==========================================================================
+   Filtros del catálogo en pastillas con desplegable · 18/09/2026
+   Referencia: la fila de filtros de resultados de shop.app. Los <select>
+   nativos (cuyo desplegable dibuja el sistema y se veía mal) ya no se muestran:
+   guardan el estado y nada más.
+   ========================================================================== */
+#catalogo .controls__state {display:none;}
+#catalogo .filters {flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px;min-width:0;}
+.filterpill {display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:999px;font-size:16px;font-weight:500;letter-spacing:-.01em;color:var(--text);white-space:nowrap;
+  background:var(--glass-bg, rgba(255,255,255,.07));border:1px solid var(--glass-edge-2, rgba(255,255,255,.1));
+  -webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 16px -10px rgba(0,0,0,.35);
+  transition:background var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.filterpill svg {width:18px;height:18px;flex:none;}
+.filterpill__chev {width:16px;height:16px;opacity:.7;transition:rotate var(--dur-fast) var(--ease-soft);}
+.filterpill:hover {background:var(--fill-hi, rgba(255,255,255,.12));}
+.filterpill:active {scale:.97;}
+.filterpill:focus-visible {outline:2px solid var(--text);outline-offset:2px;}
+/* Con algo elegido la pastilla se invierte, como el chip activo de siempre. */
+.filterpill[data-active],
+.filterpill--toggle[aria-pressed='true'] {background:var(--text);color:var(--ink, #151515);border-color:transparent;}
+.filterpill--toggle[aria-pressed='true'] svg {color:var(--gold-ink, #1a1200);}
+.filterpill--toggle svg {color:var(--gold-text);}
+.filterpill--clear {background:transparent;border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--text-2);text-decoration:underline;text-underline-offset:4px;padding-inline:8px;}
+.filterpill[hidden] {display:none;}
+@media (max-width:720px) {
+  /* En celular, una fila que se desliza hasta el borde. */
+  #catalogo .filters {flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:calc(var(--gutter,16px) * -1);padding:2px var(--gutter,16px) 2px 2px;scroll-padding-inline:16px;}
+  #catalogo .filters::-webkit-scrollbar {display:none;}
+}
+
+/* Opciones dentro de las hojas: filas grandes con tilde en la elegida. */
+.sortsheet .sortopt,
+#catSheet .chip {display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:0 16px;border-radius:16px;font-size:16px;font-weight:500;color:var(--text);background:transparent;border:0;box-shadow:none;text-align:left;-webkit-backdrop-filter:none;backdrop-filter:none;}
+.sortsheet .sortopt:hover,#catSheet .chip:hover {background:var(--fill, rgba(255,255,255,.07));}
+.sortsheet .sortopt[aria-current='true'],
+#catSheet .chip[aria-pressed='true'] {background:var(--gold-wash);color:var(--text);}
+.sortsheet .sortopt[aria-current='true']::after,
+#catSheet .chip[aria-pressed='true']::after {content:'';width:18px;height:18px;flex:none;background:var(--gold-text);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;}
+#catSheet .chips {display:grid;gap:2px;margin:0;padding:0;overflow:visible;}
+#catSheet .chip svg {width:18px;height:18px;margin-right:8px;}
+#catSheet .chip[hidden] {display:none;}
+
+/* Desktop: desplegable anclado debajo de la pastilla, sin oscurecer la página. */
+.sortsheet.is-popover {inset:auto;top:var(--pop-y,120px);left:var(--pop-x,16px);margin:0;width:300px;max-width:300px;max-height:min(60vh,520px);overflow-y:auto;border-radius:22px;border:1px solid var(--glass-edge-2, var(--line));box-shadow:0 24px 60px -20px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.2);}
+.sortsheet.is-popover[open] {animation:filter-pop .22s var(--ease-premium, cubic-bezier(.2,.8,.2,1));}
+.sortsheet.is-popover::backdrop {background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;}
+.sortsheet.is-popover .sortsheet__head {display:none;}
+.sortsheet.is-popover .dialog__grabber {display:none;}
+.sortsheet.is-popover .sortsheet__body {padding:8px;}
+@keyframes filter-pop {from {opacity:0;translate:0 -6px;scale:.98;} to {opacity:1;translate:0 0;scale:1;}}
+@media (prefers-reduced-motion: reduce) {.sortsheet.is-popover[open] {animation:none;}}

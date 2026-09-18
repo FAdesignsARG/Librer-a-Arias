@@ -813,7 +813,14 @@ ${
 <!--catalog-only--><div class="controls" id="catalogo">
   <div class="shell">
     <div class="home-section-head catalog-head"><h1 id="catalogTitle">Catálogo</h1></div>
-    <div class="controls__row">
+    <div class="filters" id="filters" role="group" aria-label="Filtros del catálogo">
+      <button type="button" class="filterpill" id="catBtn" aria-haspopup="dialog" aria-controls="catSheet"><span id="catBtnLabel">Categoría</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="filterpill" id="priceBtn" aria-haspopup="dialog" aria-controls="priceSheet"><span id="priceBtnLabel">Precio</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="filterpill filterpill--toggle" id="featuredBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3.6 2.5 5.3 5.8.7-4.3 4 1.1 5.8-5.1-2.9-5.1 2.9 1.1-5.8-4.3-4 5.8-.7L12 3.6Z"/></svg><span>Destacados</span></button>
+      <button type="button" class="filterpill" id="sortBtn" aria-haspopup="dialog" aria-controls="sortSheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0 3 3m-3-3-3 3"/></svg><span id="sortBtnLabel">Ordenar</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="filterpill filterpill--clear" id="filtersClear" hidden>Limpiar filtros</button>
+    </div>
+    <div class="controls__state" hidden>
       <select class="sort" id="sort" aria-label="Ordenar">
         <option value="relevancia">Recomendados</option>
         <option value="destacados">Destacados primero</option>
@@ -821,9 +828,6 @@ ${
         <option value="precio-desc">Mayor precio</option>
         <option value="nombre">Nombre A-Z</option>
       </select>
-      <button type="button" class="sortbtn" id="sortBtn" aria-haspopup="dialog" aria-label="Ordenar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0 3 3m-3-3-3 3"/></svg>
-      </button>
       <select class="sort" id="priceFilter" aria-label="Filtrar por precio">
         <option value="">Cualquier precio</option>
         <option value="0-10000">Hasta $10.000</option>
@@ -831,17 +835,6 @@ ${
         <option value="30000-60000">$30.000 a $60.000</option>
         <option value="60000-">Más de $60.000</option>
       </select>
-      <button type="button" class="sortbtn" id="priceBtn" aria-haspopup="dialog" aria-label="Filtrar por precio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
-      </button>
-    </div>
-    <div class="chips" id="chips" role="group" aria-label="Filtrar por rubro">
-      ${cats
-        .map(
-          (c, i) =>
-            `<button class="chip${c === 'Ofertas' ? ' chip--ofertas' : ''}" data-cat="${esc(c)}" aria-pressed="${i === 0}">${c === 'Ofertas' ? ico.tag : ''}${esc(c)}</button>`
-        )
-        .join('\n      ')}
     </div>
   </div>
 </div>
@@ -876,6 +869,23 @@ ${
     ${promo?.disclaimer ? `<p class="promodlg__disclaimer">${esc(promo.disclaimer)}</p>` : ''}
   </div>
 </dialog>
+
+<!--catalog-only--><dialog class="sortsheet" id="catSheet" aria-labelledby="catSheetTitle" tabindex="-1">
+  <div class="sortsheet__head">
+    <h2 id="catSheetTitle">Categoría</h2>
+    <button type="button" class="sheet__close" id="catSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="sortsheet__body">
+  <div class="chips" id="chips" role="group" aria-label="Filtrar por rubro">
+    ${cats
+      .map(
+        (c, i) =>
+          `<button class="chip${c === 'Ofertas' ? ' chip--ofertas' : ''}" data-cat="${esc(c)}" aria-pressed="${i === 0}">${c === 'Ofertas' ? ico.tag : ''}${esc(c)}</button>`
+      )
+      .join('\n      ')}
+  </div>
+  </div>
+</dialog><!--/catalog-only-->
 
 <dialog class="sortsheet" id="sortSheet" aria-labelledby="sortSheetTitle" tabindex="-1">
   <div class="sortsheet__head">
