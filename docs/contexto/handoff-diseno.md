@@ -50,10 +50,8 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 2. ~~Ronda D~~ hecha el 18/09 (barra lateral en desktop).
 3. ~~Ronda E~~ hecha el 18/09 (el buscador viaja de arriba hacia abajo y vuelve).
 4. ~~Páginas `/c/<rubro>/`~~ hechas el 18/09 (mismo diseño que `/catalogo/`, productos en el HTML).
-5. **Actualizar la vara** (`work/design-loop/hero-20260915/bar.md`) al brief
-   nuevo y recién ahí correr `criticos-arias` sobre home, `/catalogo/` y ficha.
-   Nada de lo hecho el 18/09 pasó por críticos. Con la marca arriba el buscador
-   queda a ~40% de la altura en desktop: es decisión de Fran, no defecto.
+5. Vara v3 escrita: `work/design-loop/home-v2-20260918/bar.md` (home, catálogo, ficha y toda la app).
+   Falta **correr `criticos-arias`** contra ella: nada de lo hecho el 18/09 pasó por críticos.
 6. Limpieza: CSS muerto de `.attn__*`, `.home-scene`, `.sortbtn` y chips viejos;
    `assets/brand/banner-canal.webp`, `assets/promos/adolfito-cupon-descuento.webp`
    y `wordmark-*-logo.webp` sin uso; `glass.css` creció con una capa por ronda y
