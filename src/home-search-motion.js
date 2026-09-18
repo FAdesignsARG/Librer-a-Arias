@@ -1,4 +1,8 @@
-/** Bottom capsule motion on the same form: no clones or reparenting. */
+/** Bottom capsule motion on the same form: no clones or reparenting.
+    Ronda 4 (17/09/2026): acoplada abajo, la cápsula es una isla que respira
+    con el scroll — se achica al bajar (is-compact), se agranda al subir, al
+    quedarse quieta o al recibir foco — al estilo de shop.app e Instagram.
+    El estado se expone con clases; la forma la decide el CSS de home.css. */
 export function initHomeSearchMotion() {
   const anchor = document.getElementById('homeSearchAnchor');
   const form = document.getElementById('homeSearch');
@@ -12,7 +16,25 @@ export function initHomeSearchMotion() {
   const oldKeyboard = form.style.getPropertyValue('--search-keyboard-bottom');
   const oldDock = form.classList.contains('is-docked');
   let docked = oldDock, desired = oldDock, focusedDock = false, animation = null;
-  let frame = 0, disposed = false, keyboardBottom = 0;
+  let frame = 0, fallback = 0, disposed = false, keyboardBottom = 0;
+  // Respiración de la isla: dirección del scroll + reposo.
+  let lastY = window.scrollY, compact = false, idleTimer = 0;
+  const IDLE_MS = 900, DOWN_PX = 14;
+  function setCompact(next) {
+    if (compact === next) return;
+    compact = next;
+    form.classList.toggle('is-compact', compact);
+  }
+  function breathe() {
+    const y = window.scrollY, dy = y - lastY;
+    lastY = y;
+    const focused = form.contains(document.activeElement);
+    if (!docked || focused) { setCompact(false); return; }
+    if (dy > DOWN_PX) setCompact(true);      // bajando: se recoge
+    else if (dy < -4) setCompact(false);     // subiendo: se ofrece
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { if (!disposed) setCompact(false); }, IDLE_MS);
+  }
   function restore() {
     for (const [key, [value, priority]] of original) {
       if (value) form.style.setProperty(key, value, priority);
@@ -44,6 +66,7 @@ export function initHomeSearchMotion() {
     const wasDocked = docked;
     stop();
     desired = next;
+    setCompact(false);
     if (immediate || reduced.matches || !form.animate) {
       docked = next;
       form.classList.toggle('is-docked', docked);
@@ -67,10 +90,16 @@ export function initHomeSearchMotion() {
       height: `${last.height}px`, transform: 'none', transition: 'none',
       zIndex: '120', willChange: 'transform', boxSizing: 'border-box',
     });
-    play([
-      { transform: `translate(${startX}px, ${startY}px)`, opacity: wasDocked ? opacity : '1' },
-      { transform: `translate(0, ${next ? 0 : below}px)`, opacity: '1' },
-    ], next ? 360 : 160, () => {
+    play(next && !wasDocked
+      ? [
+          { transform: `translate(${startX}px, ${startY}px) scale(.96)`, opacity: '1', offset: 0 },
+          { transform: 'translate(0, -6px) scale(1.02)', opacity: '1', offset: .7 },
+          { transform: 'translate(0, 0) scale(1)', opacity: '1', offset: 1 },
+        ]
+      : [
+          { transform: `translate(${startX}px, ${startY}px)`, opacity: wasDocked ? opacity : '1' },
+          { transform: `translate(0, ${next ? 0 : below}px)`, opacity: '1' },
+        ], next ? 440 : 160, () => {
       if (next || desired) return;
       docked = false;
       form.classList.remove('is-docked');
@@ -81,8 +110,10 @@ export function initHomeSearchMotion() {
     });
   }
   function update() {
-    frame = 0;
+    cancelAnimationFrame(frame); clearTimeout(fallback);
+    frame = 0; fallback = 0;
     if (disposed) return;
+    breathe();
     const focused = form.contains(document.activeElement);
     // Include browser panning; do not interpret pinch zoom as a keyboard.
     const inset = viewport && focused && viewport.scale <= 1.05 ? Math.max(0, window.innerHeight-viewport.height-viewport.offsetTop) : 0;
@@ -94,7 +125,13 @@ export function initHomeSearchMotion() {
     const next = (focusedDock && focused) || rect.bottom < navBottom + 16;
     if (next !== desired || keyboardChanged) move(next, keyboardChanged && focused);
   }
-  function schedule() { if (!frame && !disposed) frame = requestAnimationFrame(update); }
+  // rAF y un respaldo por tiempo: algunos WebViews lo frenan durante el
+  // scroll con inercia, y la isla no puede quedarse en un estado viejo.
+  function schedule() {
+    if (disposed || frame) return;
+    frame = requestAnimationFrame(update);
+    if (!fallback) fallback = setTimeout(update, 120);
+  }
   function focusIn() {
     // Prevent mobile focus auto-scroll from sending a docked input back up.
     // This focus lock ends on blur; the original selection is untouched.
@@ -114,10 +151,11 @@ export function initHomeSearchMotion() {
   move(anchor.getBoundingClientRect().bottom < (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0) + 16, true);
   schedule();
   function cleanup() {
-    disposed = true; cancelAnimationFrame(frame); stop();
+    disposed = true; cancelAnimationFrame(frame); clearTimeout(fallback); stop();
     docked = oldDock; form.classList.toggle('is-docked', oldDock);
     for (const [key, [value, priority]] of original) { if (value) form.style.setProperty(key, value, priority); else form.style.removeProperty(key); }
     if (oldKeyboard) form.style.setProperty('--search-keyboard-bottom', oldKeyboard); else form.style.removeProperty('--search-keyboard-bottom');
+    clearTimeout(idleTimer); form.classList.remove('is-compact');
     window.removeEventListener('scroll', schedule); window.removeEventListener('resize', resize);
     viewport?.removeEventListener('resize', resize); viewport?.removeEventListener('scroll', schedule);
     form.removeEventListener('focusin', focusIn); form.removeEventListener('focusout', focusOut);

@@ -225,3 +225,10 @@
     backdrop-filter: none;
   }
 }
+
+/* ---------- Isla acoplada: glow siempre, no sólo con foco ---------- */
+/* Va al final porque el grupo de superficies flotantes de arriba le ponía
+   la sombra genérica con la misma especificidad. */
+.home-search.is-docked .search {
+  box-shadow: var(--glass-glow), var(--glass-shadow);
+}

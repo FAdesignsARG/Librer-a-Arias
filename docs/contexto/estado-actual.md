@@ -105,3 +105,21 @@ Fuente: `docs/setup-estado-pc.md`, comprobación fechada 10/09/2026.
 - Verificado a 375 (oscuro y claro) y 1280 (claro): valores computados
   correctos en isla, chips, hoja del pedido, menú y nav; fondo detrás de
   los modales desenfocado.
+
+## Isla que respira (17/09/2026, Ronda 4, rama `preview`)
+- `src/home-search-motion.js`: acoplada abajo, la cápsula pasa a `is-compact`
+  al bajar más de 14px entre lecturas, y vuelve a ofrecerse al subir, al
+  quedarse quieta 900ms o al recibir foco. El vuelo de acople entra con un
+  leve rebote de escala (.96 → 1.02 → 1, 440ms). `schedule()` suma un
+  respaldo por `setTimeout(120)` porque algunos WebViews frenan rAF con
+  scroll de inercia.
+- `src/home.css`: ofrecida 64px (60 en desktop), recogida 52px (48) sin el
+  rótulo "Pedido" (queda ícono + cantidad); con foco crece a 1.02 y sube el
+  glow. `src/glass.css`: glow amarillo permanente mientras está acoplada.
+- Verificado por clases a 375: ofrecida 72/64, recogida 60/52 sin rótulo,
+  foco con glow. Con scroll real: una corrida completa correcta (recogida
+  al bajar, ofrecida al quedarse quieta y al enfocar, suelta al volver al
+  hero); las siguientes no son concluyentes porque el panel del navegador
+  no genera cuadros y en Chrome los eventos de scroll van atados a ellos.
+  **Probar en teléfono real**: bajar rápido por el catálogo (se recoge),
+  frenar (se ofrece), subir un poco (se ofrece), tocar (crece y brilla).

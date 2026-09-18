@@ -424,3 +424,47 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
 
 /* Mismo riel de 16px que el hero. */
 @media(max-width:720px){.home-discover {--gutter:16px;}}
+
+/* ==========================================================================
+   Isla flotante · Ronda 4 (17/09/2026)
+   Acoplada abajo, la cápsula respira con el scroll: al bajar se recoge
+   (is-compact: más baja, sin el rótulo "Pedido"), al subir, al quedarse
+   quieta o al tocarla se ofrece entera. Siempre con vidrio oscuro y glow.
+   El estado lo pone home-search-motion.js; acá vive la forma.
+   ========================================================================== */
+.home-search.is-docked .search {
+  --isla-alto: 64px;
+  box-shadow: var(--glass-glow), var(--glass-shadow);
+  transition: box-shadow var(--dur) var(--ease-soft), scale var(--dur-moderate) var(--ease-pop);
+}
+.home-search.is-docked .search input {
+  height: var(--isla-alto);
+  transition: height var(--dur-moderate) var(--ease-pop), padding var(--dur-moderate) var(--ease-pop);
+}
+.home-search.is-docked .island__actions {transition:opacity var(--dur) var(--ease-out),scale var(--dur-moderate) var(--ease-pop);}
+
+/* Recogida: más baja, y el pedido queda como ícono + cantidad. */
+.home-search.is-docked.is-compact .search {--isla-alto:52px;}
+.home-search.is-docked.is-compact .island__orderLabel {display:none;}
+.home-search.is-docked.is-compact .search input {padding-right:120px;}
+.home-search.is-docked.is-compact .island__actions button {min-height:40px;}
+
+/* Ofrecida por foco: crece apenas y el glow sube. */
+.home-search.is-docked .search:focus-within {
+  scale: 1.02;
+  box-shadow: 0 0 0 1px rgba(254, 206, 1, .35), 0 12px 48px -6px rgba(254, 206, 1, .55), var(--glass-shadow);
+}
+:root[data-theme='light'] .home-search.is-docked .search:focus-within {
+  box-shadow: 0 0 0 1px rgba(203, 156, 0, .4), 0 12px 44px -6px rgba(254, 206, 1, .6), var(--glass-shadow);
+}
+
+/* Desktop: la isla acoplada también respira, un poco más contenida. */
+@media(min-width:721px){
+ .home-search.is-docked .search {--isla-alto:60px;}
+ .home-search.is-docked.is-compact .search {--isla-alto:48px;}
+ .home-search.is-docked .search input {height:var(--isla-alto);}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-search.is-docked .search,.home-search.is-docked .search input,.home-search.is-docked .island__actions {transition:none;}
+ .home-search.is-docked .search:focus-within {scale:1;}
+}
