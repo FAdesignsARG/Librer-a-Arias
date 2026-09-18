@@ -1062,3 +1062,21 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
    cuando "Instagram y más" no está (navegadores sin menú de compartir). */
 .sharesheet__grid {display:flex;flex-wrap:wrap;}
 .sharesheet__grid .shareopt {flex:1 1 calc(33.333% - 10px);min-width:96px;}
+
+
+/* ==========================================================================
+   Filtros del catálogo en celular: grilla de 2x2 · 18/09/2026
+   La fila deslizable cortaba "Destacados" por la mitad y dejaba "Ordenar"
+   fuera de la pantalla: se leía como roto (Fran). Ahora los cuatro filtros
+   están siempre a la vista, del mismo tamaño, con la flecha a la derecha.
+   ========================================================================== */
+@media (max-width:720px) {
+  #catalogo .filters {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;overflow:visible;margin-right:0;padding:0;-webkit-mask-image:none;mask-image:none;}
+  #catalogo .filters .filterpill {width:100%;min-width:0;min-height:52px;padding:0 16px;justify-content:flex-start;gap:8px;}
+  #catalogo .filters .filterpill > span {flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;}
+  #catalogo .filters .filterpill__chev {margin-left:auto;}
+  /* Sin destacados cargados ese botón no está: Ordenar ocupa la fila entera. */
+  #catalogo .filters #featuredBtn[hidden] + #sortBtn {grid-column:1 / -1;}
+  #catalogo .filters .filterpill--clear {order:9;grid-column:1 / -1;min-height:44px;justify-content:center;background:transparent;text-decoration:underline;text-underline-offset:4px;color:var(--text-2);}
+  #catalogo .filters .filterpill--clear > span {flex:none;}
+}
