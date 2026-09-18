@@ -26,6 +26,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | C | Filtros en una fila de pastillas (C1); catálogo en /catalogo/ y home con 50 destacados, sin tocar el contrato de Base44 (C2) | **Hecha** — queda rediseñar las páginas SEO /c/<rubro>/ |
 | D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
+| + | Compartir productos con vista previa (WhatsApp primero) y mobile más grande: flotantes, chat y tarjetas | **Hecha** — falta probar la vista previa real en WhatsApp con una URL pública |
 | — | Favoritos por sesión | Más adelante (Fran: "no ahora") |
 
 ## Rondas anteriores
