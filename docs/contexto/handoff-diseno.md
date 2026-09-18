@@ -24,7 +24,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | A | Marca al frente (logo + wordmark con lema), fuera tarjetas flotantes, banner pegado al hero, vuelven los flotantes de WhatsApp e IA | **Hecha** — falta pasarla por críticos |
 | B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | **Hecha** — mirar la animación en el deploy (el panel de pruebas no genera cuadros) |
 | C | Filtros en una fila de pastillas (C1); catálogo en /catalogo/ y home con 50 destacados, sin tocar el contrato de Base44 (C2) | **Hecha** — queda rediseñar las páginas SEO /c/<rubro>/ |
-| D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
+| D | Barra lateral en desktop / isla en mobile (shop.app) | **Hecha** (sin ícono de favoritos hasta que exista la función) |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
 | + | Compartir productos con vista previa (WhatsApp primero) y mobile más grande: flotantes, chat y tarjetas | **Hecha** — falta probar la vista previa real en WhatsApp con una URL pública |
 | + | Filtros en pastillas con desplegable, flotantes con Adolfito, ficha de producto estilo shop.app y splash que aterriza en la home | **Hecha** — mirar splash y animaciones en el deploy; "Calificación" espera a que existan reseñas |
@@ -47,9 +47,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
    rotación de "Elegidos para vos" (cada 5 min), fundido de los banners (10 s),
    vuelo de la isla del buscador al hacer scroll, y **la vista previa real al
    compartir un producto por WhatsApp** (mandarse un enlace de `diseno--…`).
-2. **Ronda D** del brief: barra lateral en desktop (logo arriba; inicio,
-   categorías, pedido, ofertas, favoritos, tema; menú abajo) que en mobile es
-   la isla flotante. Resuelve también las "dos barras" a 1280.
+2. ~~Ronda D~~ hecha el 18/09 (barra lateral en desktop).
 3. **Ronda E**: transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio.
 4. Rediseñar las páginas SEO `/c/<rubro>/` con el mismo lenguaje que `/catalogo/`
    (hoy tienen el diseño viejo y nada de la home enlaza a ellas).

@@ -448,3 +448,24 @@ pidió que "Preguntame" destaque mucho más y que no se superpongan con nada.
   `.dock` tiene `padding-top` para que el globito de ayuda se ubique arriba de la cabeza
   de Adolfito y no encima.
 - Con movimiento reducido no hay respiración ni vaivén.
+
+## Ronda D — barra lateral de navegación en desktop (18/09/2026)
+Pedido 9 del brief: panel lateral como el de shop.app; en mobile la navegación
+sigue siendo la isla flotante.
+- `railHtml()` en `src/templates.js`, en todas las páginas: logo arriba (con un
+  punto verde/rojo de abierto/cerrado y el detalle en el título), Inicio,
+  Catálogo, Mi pedido (contador; amarillo con glow cuando hay productos),
+  Ofertas (se oculta sola si no hay ofertas activas), Novedades (con el punto
+  de la campanita), tema claro/oscuro, y abajo el Menú. Etiqueta al costado al
+  pasar el mouse o con foco. Marca la página actual con `aria-current`.
+- No trae lógica nueva: usa `data-open-order`, `data-open-menu` y `data-guide`
+  (news / theme), que ya existían. `#themeBtn` y `#bellBtn` siguen en la barra
+  de arriba, que en desktop queda oculta pero sigue en el DOM.
+- Desde 1024px: `body` con 80px de margen izquierdo, `.nav` oculta (ya no
+  conviven la barra de arriba y la isla de abajo: era un pendiente de los
+  críticos), la isla acoplada y el aviso se centran respecto del contenido, y
+  el hero arranca más arriba (el buscador pasó de 40% a 35% de la altura).
+- Favoritos no tiene ícono todavía: Fran lo pidió para más adelante y un botón
+  que no hace nada sería peor que no tenerlo.
+- Verificado a 1280 en home, catálogo y ficha (todos los botones, página actual,
+  sin desborde) y a 375 (la barra no existe, la de arriba sigue, sin cambios).

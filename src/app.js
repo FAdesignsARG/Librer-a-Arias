@@ -129,6 +129,13 @@ function renderStatusBadge() {
     el.title = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
   }
 
+  const railStatus = $('#railStatus');
+  if (railStatus) {
+    railStatus.hidden = false;
+    railStatus.dataset.open = String(status.open);
+    railStatus.title = status.open ? 'Abierto ahora' : `Cerrado — abre ${status.next ?? 'pronto'}`;
+  }
+
   // Mismo estado, repetido dentro de la tarjeta de horarios — a donde
   // lleva la píldora de arriba, así lo que dice una cosa coincide con
   // lo que confirma la otra apenas se llega.
@@ -1318,6 +1325,25 @@ menuSheet?.addEventListener('click', (e) => {
 // Accesos rápidos de la home que no son links (ej. "Preguntar").
 $$('.home-quick [data-guide]').forEach((btn) => btn.addEventListener('click', () => runGuide(btn.dataset.guide)));
 
+/* Barra lateral de desktop: usa los mismos disparadores que el resto. */
+const rail = $('#rail');
+if (rail) {
+  $$('[data-guide]', rail).forEach((btn) => btn.addEventListener('click', () => {
+    if (btn.dataset.guide === 'theme') $('#themeBtn')?.click(); else runGuide(btn.dataset.guide);
+  }));
+  // Dónde estoy: marca el ítem de la página actual.
+  const here = location.pathname === '/' ? 'home'
+    : location.pathname.startsWith('/catalogo') ? (new URLSearchParams(location.search).get('cat') === 'Ofertas' ? 'offers' : 'catalog') : '';
+  $$('[data-rail]', rail).forEach((a) => { if (a.dataset.rail === here) a.setAttribute('aria-current', 'page'); });
+  // El punto de novedades copia al de la campanita.
+  const railDot = $('#railDot');
+  if (bellDot && railDot) {
+    const mirrorRail = () => { railDot.hidden = bellDot.hidden; };
+    new MutationObserver(mirrorRail).observe(bellDot, { attributes: true, attributeFilter: ['hidden'] });
+    mirrorRail();
+  }
+}
+
 /* ---- Atajo de teclado: "/" salta al buscador (sólo desktop tiene
    sentido, pero no hace daño dejarlo activo en todos lados) ---- */
 addEventListener('keydown', (e) => {
@@ -1585,6 +1611,7 @@ if (lightboxDlg && $('#stage')) {
 
 await loadData();
 rotatePicks({ animate: false });
+if (!PRODUCTS.some(offerActive)) $$('#rail [data-rail="offers"]').forEach((el) => { el.hidden = true; });
 loadCart();
 syncCartUI();
 observeReveals();

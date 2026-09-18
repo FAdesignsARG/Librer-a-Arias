@@ -963,3 +963,65 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   .dock .dockbtn--ai,.dock .dockbtn__face {animation:none;}
   .dock .dockbtn {transition:none;}
 }
+
+
+/* ==========================================================================
+   Ronda D · barra lateral de navegación en desktop · 18/09/2026
+   Referencia: el riel de shop.app. Desde 1024px reemplaza a la barra de
+   arriba (con lo que ya no conviven dos barras). Logo arriba; inicio,
+   catálogo, pedido, ofertas, novedades y tema; el menú abajo. WhatsApp y el
+   asistente siguen flotando del otro lado. En celular no existe: ahí la
+   navegación es la isla flotante.
+   ========================================================================== */
+.rail {display:none;}
+@media (min-width:1024px) {
+  :root {--rail-w:80px;}
+  body {padding-left:var(--rail-w);}
+  .nav {display:none;}
+  .rail {position:fixed;inset:0 auto 0 0;z-index:140;width:var(--rail-w);display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 0 20px;
+    background:var(--glass-bg-strong, rgba(24,24,26,.86));border-right:1px solid var(--glass-edge-2, rgba(255,255,255,.08));
+    -webkit-backdrop-filter:blur(var(--glass-blur,24px)) saturate(var(--glass-sat,160%));backdrop-filter:blur(var(--glass-blur,24px)) saturate(var(--glass-sat,160%));}
+  .rail__brand {position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;margin-bottom:18px;transition:scale var(--dur) var(--ease-pop);}
+  .rail__brand:hover {scale:1.06;}
+  .rail__crane {width:44px;height:44px;border-radius:50%;}
+  /* Abierto / cerrado: un punto sobre el logo, con el detalle en el título. */
+  .rail__status {position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--ink, #151515);background:#ff5a52;}
+  .rail__status[data-open="true"] {background:#30d158;}
+  .rail__status[hidden] {display:none;}
+  .rail__nav {display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;justify-content:center;}
+  .rail__item {position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:18px;color:var(--text-2);background:transparent;border:0;text-decoration:none;
+    transition:background var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+  .rail__item > svg {width:24px;height:24px;}
+  .rail__item:hover {background:var(--fill, rgba(255,255,255,.08));color:var(--text);}
+  .rail__item:active {scale:.92;}
+  .rail__item[aria-current="page"] {background:var(--fill-hi, rgba(255,255,255,.12));color:var(--gold-text);}
+  .rail__item:focus-visible,.rail__brand:focus-visible {outline:2px solid var(--text);outline-offset:2px;}
+  .rail__item[hidden] {display:none;}
+  .rail__menu {margin-top:auto;}
+  /* El sol o la luna, según el tema (mismas clases que el botón de tema). */
+  .rail__item .ico-sun {display:none;}
+  :root[data-theme="light"] .rail__item .ico-sun {display:block;}
+  :root[data-theme="light"] .rail__item .ico-moon {display:none;}
+  /* Pedido: contador chico arriba a la derecha; amarillo con glow cuando hay productos. */
+  .rail__count {position:absolute;top:4px;right:2px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:grid;place-items:center;font-size:12px;font-weight:600;line-height:1;
+    background:var(--fill-hi, rgba(255,255,255,.14));color:var(--text-2);}
+  .rail__count[data-empty="false"] {background:var(--gold);color:var(--gold-ink);box-shadow:0 0 0 2px var(--ink, #151515),0 6px 16px -4px rgba(254,206,1,.7);}
+  .rail__item:has(.rail__count[data-empty="false"]) {color:var(--gold-text);}
+  .rail__dot {position:absolute;top:10px;right:11px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--ink, #151515);}
+  .rail__dot[hidden] {display:none;}
+  /* Etiqueta que aparece al costado: los íconos solos no alcanzan para todos. */
+  .rail__tip {position:absolute;left:calc(100% + 12px);top:50%;translate:-6px -50%;padding:8px 12px;border-radius:12px;white-space:nowrap;font-size:14px;font-weight:500;color:var(--text);pointer-events:none;opacity:0;
+    background:var(--glass-bg-strong, rgba(24,24,26,.92));border:1px solid var(--glass-edge-2, rgba(255,255,255,.12));box-shadow:0 12px 30px -12px rgba(0,0,0,.6);
+    transition:opacity var(--dur-fast) var(--ease-soft),translate var(--dur-fast) var(--ease-out);}
+  .rail__item:hover .rail__tip,.rail__item:focus-visible .rail__tip {opacity:1;translate:0 -50%;}
+
+  /* Lo que estaba centrado respecto de la ventana se centra respecto del contenido. */
+  .home-search.is-docked {left:calc(50% + var(--rail-w) / 2);}
+  .arias-pc-bar {margin-left:calc(var(--rail-w) / 2);}
+  /* La home ya no tiene barra arriba: el hero arranca con menos aire. */
+  .page-home .home-hero {padding-top:40px;}
+  .page-catalog .home-hero {padding-top:28px;}
+}
+@media (min-width:1024px) and (prefers-reduced-motion: reduce) {
+  .rail__item,.rail__brand,.rail__tip {transition:none;}
+}

@@ -277,6 +277,7 @@ ${themeBootScript(isHome)}
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
 ${splashHtml(s, isHome && !bodyClass.includes('page-catalog'))}
 ${navbar(s, isHome)}
+${railHtml(s)}
 ${body}
 ${orderSheet(s)}
 ${notifyPanel()}
@@ -389,6 +390,30 @@ const navbar = (s, home = false) => `<nav class="nav" id="nav">
   </div>
 </nav>`;
 
+/**
+ * Barra lateral de desktop (≥1024px). Reemplaza a la barra de arriba: logo,
+ * inicio, catálogo, pedido, ofertas, novedades, tema y, abajo, el menú.
+ * No trae lógica propia: cada botón usa un disparador que ya existía
+ * (data-open-order, data-open-menu, data-guide). En celular no se muestra:
+ * ahí la navegación es la isla flotante.
+ */
+const railHtml = (s) => {
+  const homeIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.2 12 4.5l8 6.7V19a1.5 1.5 0 0 1-1.5 1.5h-3.7v-5.5H9.2v5.5H5.5A1.5 1.5 0 0 1 4 19v-7.8Z"/></svg>';
+  const item = (tag, attrs, icon, label, extra = '', cls = '') =>
+    `<${tag} class="rail__item${cls}" ${attrs} aria-label="${label}">${icon}${extra}<span class="rail__tip" aria-hidden="true">${label}</span></${tag}>`;
+  return `<aside class="rail" id="rail" aria-label="Navegación principal">
+  <a class="rail__brand" href="/" aria-label="${esc(s.storeName)} — inicio">${crane('rail__crane', 44)}<span class="rail__status" id="railStatus" hidden></span></a>
+  <nav class="rail__nav" aria-label="Secciones">
+    ${item('a', 'href="/" data-rail="home"', homeIco, 'Inicio')}
+    ${item('a', 'href="/catalogo/" data-rail="catalog"', gridIco, 'Catálogo')}
+    ${item('button', 'type="button" data-open-order aria-haspopup="dialog"', ico.bag, 'Mi pedido', '<span class="rail__count" data-order-count data-empty="true">0</span>')}
+    ${item('a', 'href="/catalogo/?cat=Ofertas" data-home-category="Ofertas" data-rail="offers"', ico.tag, 'Ofertas')}
+    ${item('button', 'type="button" data-guide="news" aria-haspopup="dialog"', ico.bell, 'Novedades', '<span class="rail__dot" id="railDot" hidden></span>')}
+    ${item('button', 'type="button" data-guide="theme"', themeIcons, 'Modo claro u oscuro')}
+  </nav>
+  ${item('button', 'type="button" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet"', menuIco, 'Menú', '', ' rail__menu')}
+</aside>`;
+};
 const chatIco =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5c-4.7 0-8.5 3.15-8.5 7.05 0 2.05 1.05 3.9 2.75 5.2L5.5 20.5l4.1-1.9c.75.15 1.55.25 2.4.25 4.7 0 8.5-3.15 8.5-7.05S16.7 4.5 12 4.5Z"/><path d="M9.9 9.9a2.2 2.2 0 1 1 3.1 2.05c-.65.3-1 .9-1 1.55"/><path d="M12 16.1h.01"/></svg>';
 
