@@ -28,6 +28,10 @@ desktop, nueva transición del buscador, páginas de rubro `/c/<rubro>/`
 rediseñadas y flechas en el carrusel de banners. Cuando pasen a producción se
 avisa acá. Ninguna de esas cambia el contrato con Base44.
 
+Dato para las métricas: `/catalogo/` ahora muestra los productos en tandas de 48
+con un botón "Ver más productos", así que las impresiones de tarjeta llegan de a
+tandas (antes se dibujaban los 551 de una).
+
 Para producción, lo urgente de la lista A es: **2** (texto del aviso en una
 línea), **3** (10 a 15 destacados), **5** (ningún texto con otra promo) y **7**
 (tableros: `pagina` ahora trae `/catalogo/`). El punto 1 (CORS) sólo afecta al

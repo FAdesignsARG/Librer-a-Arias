@@ -46,6 +46,9 @@ const ico = {
 const IS_CATALOG = document.body.classList.contains('page-catalog');
 const IS_HOME = document.body.classList.contains('page-home') && !IS_CATALOG;
 const HOME_LIMIT = 50;
+const PAGE_SIZE = 48; // tarjetas por tanda en el catálogo
+let catalogLimit = PAGE_SIZE;
+let catalogKey = '';
 if (IS_HOME) {
   const old = new URLSearchParams(location.search);
   if (old.has('cat') || old.has('q') || location.hash === '#catalogo') {
@@ -882,6 +885,18 @@ function render() {
 
   if (featuredOnly && !IS_HOME) list = list.filter(isFeaturedProduct);
   if (IS_HOME) list = list.slice(0, HOME_LIMIT);
+  const total = list.length;
+  if (IS_CATALOG) {
+    // Cualquier cambio de búsqueda o filtro vuelve a la primera tanda.
+    const key = [query, activeCat, priceEl?.value, sortEl?.value, featuredOnly].join('|');
+    if (key !== catalogKey) { catalogKey = key; catalogLimit = PAGE_SIZE; }
+    list = list.slice(0, catalogLimit);
+    const more = $('#catalogMore');
+    if (more) {
+      more.hidden = total <= catalogLimit;
+      $('#loadMore').textContent = `Ver más productos (quedan ${total - catalogLimit})`;
+    }
+  }
   grid.innerHTML = list.map(cardHtml).join('');
 
   if (promoInfo) promoInfo.hidden = activeCat !== 'Ofertas';
@@ -905,8 +920,8 @@ function render() {
     catalogTitle.textContent = q ? `Resultados para “${q}”` : activeCat === 'Todos' ? 'Catálogo' : activeCat;
   }
   resultsLine.hidden = IS_HOME;
-  resultsLine.textContent = list.length
-    ? `${list.length} ${list.length === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}`
+  resultsLine.textContent = total
+    ? `${total} ${total === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}`
     : '';
 
   searchWrap.dataset.filled = String(searchEl.value.length > 0);
@@ -917,6 +932,8 @@ function render() {
     if (activeCat !== 'Todos') here.searchParams.set('cat', activeCat); else here.searchParams.delete('cat');
   }
   history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '', here);
+  const emptyClearWrap = $('#emptyClearWrap');
+  if (emptyClearWrap) emptyClearWrap.hidden = !(activeCat !== 'Todos' || priceEl?.value || featuredOnly);
   syncFilterPills();
   syncCartUI();
 }
@@ -1032,10 +1049,19 @@ function wireHomeBanners() {
     dots.forEach((d, n) => d.setAttribute('aria-current', String(n === index)));
   };
   const stop = () => { clearInterval(timer); timer = null; };
-  const start = () => { if (reduceMotion || document.hidden) return; stop(); timer = setInterval(() => goTo(index + 1), EVERY); };
+  const start = () => { if (reduceMotion || document.hidden || held) return; stop(); timer = setInterval(() => goTo(index + 1), EVERY); };
   const pauseThenResume = () => { stop(); clearTimeout(resume); resume = setTimeout(start, 6000); };
 
   dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); pauseThenResume(); }));
+  const pauseBtn = $('#bannersPause', el);
+  let held = false;
+  pauseBtn?.addEventListener('click', () => {
+    held = !held;
+    pauseBtn.setAttribute('aria-pressed', String(held));
+    pauseBtn.setAttribute('aria-label', held ? 'Reanudar el cambio automático de banners' : 'Pausar el cambio automático de banners');
+    clearTimeout(resume);
+    if (held) stop(); else start();
+  });
   el.addEventListener('mouseenter', stop);
   el.addEventListener('mouseleave', start);
   el.addEventListener('focusin', stop);
@@ -1174,6 +1200,15 @@ if (catSheet) enableDragToClose(catSheet, { header: $('.sortsheet__head', catShe
 // Elegir un rubro cierra la hoja (el filtrado lo hace el listener de #chips, más arriba).
 catSheet?.addEventListener('click', (e) => { if (e.target.closest('.chip')) closeDialog(catSheet); });
 featuredBtn?.addEventListener('click', () => { featuredOnly = !featuredOnly; render(); });
+$('#loadMore')?.addEventListener('click', () => { catalogLimit += PAGE_SIZE; render(); });
+$('#emptyClear')?.addEventListener('click', () => filtersClear?.click());
+// aria-expanded de cada pastilla sigue al atributo open de su hoja (el evento close no es confiable).
+[[catBtn, catSheet], [$('#priceBtn'), $('#priceSheet')], [$('#sortBtn'), $('#sortSheet')]].forEach(([btn, dlg]) => {
+  if (!btn || !dlg) return;
+  const sync = () => btn.setAttribute('aria-expanded', String(dlg.open));
+  new MutationObserver(sync).observe(dlg, { attributes: true, attributeFilter: ['open'] });
+  sync();
+});
 filtersClear?.addEventListener('click', () => {
   featuredOnly = false;
   if (sortEl) sortEl.value = 'relevancia';
@@ -1659,7 +1694,7 @@ if ($('#homeSearch')) {
     if (e.key !== 'Tab' || e.shiftKey || !searchParts(e.target)) return;
     const parts = $$('#search, .search__clear, .home-search__go, #homeSuggestions button', form)
       .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
-    if (e.target === parts[parts.length - 1]) { quickAccess?.removeAttribute('inert'); quickAccess?.classList.remove('is-covered'); }
+    if (e.target === parts[parts.length - 1]) { quickAccess?.removeAttribute('inert'); quickAccess?.classList.remove('is-covered'); setSearching(false); }
   });
   if (bellDot) {
     const mirror = () => $$('#islandDot, #islandPanelDot, #navMenuDot').forEach(d => { d.hidden = bellDot.hidden; });

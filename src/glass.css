@@ -1018,3 +1018,47 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   .page-product .nav .bellbtn {display:none;}
   .page-product .nav__inner {gap:8px;}
 }
+
+
+/* ==========================================================================
+   Cierre de la ronda de críticos sobre producción · 18/09/2026
+   ========================================================================== */
+/* Catálogo en tandas: botón "Ver más productos". */
+.catalog-more {display:flex;justify-content:center;margin:32px 0 0;}
+.catalog-more[hidden] {display:none;}
+.catalog-more .btn {min-height:52px;padding-inline:28px;font-size:16px;border-radius:999px;}
+/* Estado vacío con filtros puestos: salida para limpiarlos. */
+#emptyClearWrap {margin-top:12px;}
+#emptyClearWrap[hidden] {display:none;}
+#emptyClearWrap .btn {min-height:48px;padding-inline:24px;border-radius:999px;}
+
+/* Filtros en celular: "Limpiar filtros" va primero (antes quedaba a dos
+   pantallas de scroll) y la fila se desvanece a la derecha para avisar que sigue. */
+@media (max-width:720px) {
+  #catalogo .filters .filterpill--clear {order:-1;color:var(--text);background:var(--fill-hi, rgba(255,255,255,.12));text-decoration:none;padding-inline:16px;}
+  #catalogo .filters {-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);}
+}
+
+/* Tarjetas de la grilla con el mismo radio en desktop que el resto (era 20). */
+@media (min-width:721px) {.page-home #grid .card,.related .card {border-radius:24px;}}
+
+/* Foco visible sobre cualquier foto: anillo oscuro con halo claro (el anillo
+   claro solo daba 1,09:1 sobre fotos de fondo blanco). */
+.card__share:focus-visible,.card__add:focus-visible {outline:2px solid #151515;outline-offset:2px;box-shadow:0 0 0 5px #fff;}
+
+/* Carrusel de banners: puntitos con contraste suficiente en los dos temas y
+   botón de pausa (todo lo que se mueve solo se tiene que poder frenar). */
+.banners .attention-carousel__dots {align-items:center;}
+.banners .attention-carousel__dot::before {background:var(--text);opacity:.55;}
+.banners .attention-carousel__dot[aria-current="true"]::before {background:var(--gold-text);opacity:1;}
+.banners__pause {width:44px;height:44px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--text-2);transition:background var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft);}
+.banners__pause:hover {background:var(--fill, rgba(255,255,255,.08));color:var(--text);}
+.banners__pause:focus-visible {outline:2px solid var(--text);outline-offset:-4px;}
+.banners__pause svg {width:18px;height:18px;}
+.banners__pause .ico-play,.banners__pause[aria-pressed="true"] .ico-pause {display:none;}
+.banners__pause[aria-pressed="true"] .ico-play {display:block;}
+
+/* Hoja de compartir: los accesos se reparten el ancho, sin dejar un hueco
+   cuando "Instagram y más" no está (navegadores sin menú de compartir). */
+.sharesheet__grid {display:flex;flex-wrap:wrap;}
+.sharesheet__grid .shareopt {flex:1 1 calc(33.333% - 10px);min-width:96px;}
