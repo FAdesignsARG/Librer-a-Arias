@@ -26,7 +26,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | 8 | Grilla: hoy dibuja los 523 productos de una (≈97.000px de alto) | Pendiente |
 
 ## Pendientes concretos
-1. Re-correr los tres críticos sobre `90e3545` (vara: `work/design-loop/hero-20260915/bar.md`, v2).
+1. Re-correr los tres críticos con la skill `criticos-arias` sobre `90e3545` (vara: `work/design-loop/hero-20260915/bar.md`, v2).
 2. A 1280, el Tab hacia adelante saltea Catálogo/Preguntar/WhatsApp (sólo se llega con Shift+Tab).
 3. Pastilla de WhatsApp asoma cortada a 375 (shop.app hace lo mismo). Decisión de Fran: ¿scroll, sin ícono, o tres tarjetas chicas?
 4. `#waBanner` sigue siendo tarjeta con fondo y borde → Ronda 6.
