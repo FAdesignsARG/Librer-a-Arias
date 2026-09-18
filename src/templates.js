@@ -218,6 +218,7 @@ const welcomeHtml = (s) => `<dialog class="welcome" id="welcome" aria-labelledby
  * bloque de datos estructurados ya serializado.
  */
 function layout({ head, body, settings, bodyClass = '' }) {
+  const isHome = bodyClass.split(' ').includes('page-home');
   const s = settings;
   const url = head.canonical;
   // Para compartir conviene el círculo: las tarjetas de WhatsApp y Facebook
@@ -256,23 +257,23 @@ function layout({ head, body, settings, bodyClass = '' }) {
 <link rel="stylesheet" href="/src/styles.css">
 <link rel="stylesheet" href="/src/styles-parts.css">
 <link rel="stylesheet" href="/src/theme.css">
-${bodyClass === 'page-home' ? '<link rel="stylesheet" href="/src/home.css">' : ''}
+${isHome ? '<link rel="stylesheet" href="/src/home.css">' : ''}
 <link rel="stylesheet" href="/src/assistant.css">
 <link rel="stylesheet" href="/src/notify.css">
 <link rel="stylesheet" href="/src/page-control.css">
 <link rel="stylesheet" href="/src/glass.css">
 ${head.preload || ''}
-${themeBootScript(bodyClass === 'page-home')}
+${themeBootScript(isHome)}
 <script type="application/ld+json">${head.jsonLd}</script>
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
-${bodyClass === 'page-home' ? '' : splashHtml(s)}
-${navbar(s, bodyClass === 'page-home')}
+${isHome ? '' : splashHtml(s)}
+${navbar(s, isHome)}
 ${body}
 ${orderSheet(s)}
 ${notifyPanel()}
-${menuSheetHtml(bodyClass === 'page-home' ? s : null)}
-${bodyClass === 'page-home' ? '' : welcomeHtml(s)}
+${menuSheetHtml(isHome ? s : null)}
+${isHome ? '' : welcomeHtml(s)}
 <script type="module" src="/src/theme.js"></script>
 <script type="module" src="/src/app.js"></script>
 <script type="module" src="/src/assistant.js"></script>
@@ -319,7 +320,7 @@ const navbar = (s, home = false) => `<nav class="nav" id="nav">
     </a>
     <a class="statusbadge" id="statusBadge" href="/#horarios" hidden></a>
     <div class="nav__links">
-      <a class="nav__link" href="/#catalogo">Catálogo</a>
+      <a class="nav__link" href="/catalogo/">Catálogo</a>
       <a class="nav__link" href="/#visitanos">Visitanos</a>
     </div>
     <button class="bellbtn" id="bellBtn" aria-haspopup="dialog" aria-label="Novedades y ofertas">
@@ -353,7 +354,7 @@ const menuSheetHtml = (home) => home ? islandPanelHtml(home) : `<dialog class="s
   </div>
   <div class="menusheet__body">
     <nav class="menusheet__links" id="menusheetLinks">
-      <a href="/#catalogo">Catálogo</a>
+      <a href="/catalogo/">Catálogo</a>
       <a href="/#horarios">Horarios</a>
       <a href="/#visitanos">Visitanos</a>
     </nav>
@@ -415,7 +416,7 @@ const islandPanelHtml = (s) => `<dialog class="sortsheet menusheet menusheet--is
   <div class="menusheet__body">
     <p class="island-panel__label" style="--i:0">Rubros</p>
     <nav class="island-panel__cats" id="menusheetLinks" aria-label="Rubros" style="--i:1">
-      ${['Todos', 'Ofertas', ...s.categories].map((c) => `<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c === 'Todos' ? 'Ver todo' : esc(c)}</a>`).join('')}
+      ${['Todos', 'Ofertas', ...s.categories].map((c) => `<a href="/catalogo/?cat=${encodeURIComponent(c)}" data-home-category="${esc(c)}">${c === 'Todos' ? 'Ver todo' : esc(c)}</a>`).join('')}
     </nav>
     <p class="island-panel__label" style="--i:2">Te ayudamos</p>
     <div class="island-panel__list" style="--i:3">
@@ -641,7 +642,12 @@ const productLd = (s, p) => ({
    PORTADA
    ========================================================================== */
 
-export function renderHome({ products, settings: s }) {
+export function renderHome({ products, settings: s, mode = 'home' }) {
+  const isCatalog = mode === 'catalog';
+  // Un solo cuerpo para las dos páginas: los bloques marcados se quedan o se van.
+  const only = (html) => html
+    .replace(isCatalog ? /<!--home-only-->[\s\S]*?<!--\/home-only-->/g : /<!--catalog-only-->[\s\S]*?<!--\/catalog-only-->/g, '')
+    .replace(/<!--\/?(?:home|catalog)-only-->/g, '');
   const cats = ['Todos', 'Ofertas', ...s.categories];
   const picks = dailyPicks(products, { count: 5 });
   const favorites = ['pizarra-lcd-de-12-pulgadas', 'auriculares-gamer-g007', 'velador-patito', 'tumbler-vaso-termico-caka-coffee-club-rosa', 'puzzle-capybara'];
@@ -678,9 +684,10 @@ export function renderHome({ products, settings: s }) {
   });
 
   const body = `
-<header class="hero home-hero" data-arias-section="hero">
-  <div class="home-mark" aria-hidden="true">${crane('home-mark__img', 132)}</div>
-  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"></h1>
+<header class="hero home-hero"${isCatalog ? '' : ' data-arias-section="hero"'}>
+  <!--catalog-only--><a class="catalog-brand" href="/" aria-label="Volver al inicio de ${esc(s.storeName)}"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt=""><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt=""></a><!--/catalog-only-->
+  <!--home-only--><div class="home-mark" aria-hidden="true">${crane('home-mark__img', 132)}</div>
+  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"></h1><!--/home-only-->
   <div id="homeSearchAnchor" class="home-search-anchor">
     <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
       <div class="search" id="searchWrap">
@@ -694,13 +701,14 @@ export function renderHome({ products, settings: s }) {
       </div>
     </form>
   </div>
-  <nav class="home-quick" aria-label="Accesos rápidos">
-    <a href="/?cat=Todos#catalogo" data-home-category="Todos" style="--i:0"><span class="home-quick__ico">${gridIco}</span>Catálogo</a>
-    <a href="/?cat=Ofertas#catalogo" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
+  <!--home-only--><nav class="home-quick" aria-label="Accesos rápidos">
+    <a href="/catalogo/" data-home-category="Todos" style="--i:0"><span class="home-quick__ico">${gridIco}</span>Catálogo</a>
+    <a href="/catalogo/?cat=Ofertas" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
     <button type="button" data-guide="news" style="--i:2"><span class="home-quick__ico">${ico.bell}</span>Novedades</button>
-  </nav>
-  <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
+  </nav><!--/home-only-->
+  <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/catalogo/?cat=${encodeURIComponent(c)}" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
 </header>
+<!--home-only--><div data-arias-slot="debajo_buscador"></div>
 <section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
   <div class="attention-carousel__track">
     <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
@@ -726,7 +734,7 @@ export function renderHome({ products, settings: s }) {
     <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ir al canal de WhatsApp"></button>
   </div>
 </section>
-<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/?cat=${encodeURIComponent(category)}#catalogo" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
+<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/catalogo/?cat=${encodeURIComponent(category)}" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
 
 <div data-arias-slot="superior"></div>
 
@@ -748,12 +756,11 @@ ${
 </section>`
     : ''
 }
+<!--/home-only-->
 
-
-
-<div class="controls" id="catalogo">
+<!--catalog-only--><div class="controls" id="catalogo">
   <div class="shell">
-    <div class="home-section-head catalog-head"><h2 id="catalogTitle">Catálogo</h2></div>
+    <div class="home-section-head catalog-head"><h1 id="catalogTitle">Catálogo</h1></div>
     <div class="controls__row">
       <select class="sort" id="sort" aria-label="Ordenar">
         <option value="relevancia">Recomendados</option>
@@ -784,7 +791,6 @@ ${
         )
         .join('\n      ')}
     </div>
-    <div data-arias-slot="debajo_buscador"></div>
   </div>
 </div>
 
@@ -801,6 +807,7 @@ ${
   </div>
 </div>
 
+<!--/catalog-only-->
 <dialog class="promodlg" id="promoInfoDlg" aria-labelledby="promoInfoTitle" tabindex="-1">
   <div class="promodlg__head">
     <h2 id="promoInfoTitle">Comprando por la web</h2>
@@ -848,7 +855,8 @@ ${
 
 <div data-arias-slot="antes_productos"></div>
 
-<main class="shell" id="productos" data-arias-section="productos">
+<main class="shell" id="productos"${isCatalog ? '' : ' data-arias-section="productos"'}>
+  <!--home-only--><div class="home-section-head featured-head"><h2 id="featuredTitle">Destacados</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><!--/home-only-->
   <p class="results-line" id="resultsLine"></p>
   <div class="grid" id="grid">${skeletonCards(10)}</div>
   <div class="empty" id="empty" hidden>
@@ -858,9 +866,11 @@ ${
       <a class="btn btn--gold" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} Consultar por WhatsApp</a>
     </p>
   </div>
+  <!--catalog-only--><div class="catalog-after" data-arias-slot="debajo_buscador"></div><!--/catalog-only-->
+  <!--home-only--><p class="featured-more"><a class="btn btn--gold" href="/catalogo/">Ver todo el catálogo ${ico.chevron}</a></p><!--/home-only-->
 </main>
 
-<section class="section" id="visitanos" data-arias-section="visitanos">
+<!--home-only--><section class="section" id="visitanos" data-arias-section="visitanos">
   <div class="shell">
     <div class="section__head" data-reveal>
       <h2 class="t-h1">Visitanos</h2>
@@ -893,7 +903,7 @@ ${
       </div>
     </div>
   </div>
-</section>
+</section><!--/home-only-->
 
 <div data-arias-slot="pie"></div>
 
@@ -906,12 +916,12 @@ ${footer(s)}`;
         `Catálogo online de ${s.storeName}: juguetes, librería, bazar, regalería, electrónica y tecnología en La Rioja. ${products.length} productos con precio. Consultá y pedí por WhatsApp.`,
         158
       ),
-      canonical: `${s.siteUrl}/`,
+      canonical: isCatalog ? `${s.siteUrl}/catalogo/` : `${s.siteUrl}/`,
       jsonLd,
-
+      ...(isCatalog ? { title: `Catálogo — ${s.storeName} | Buscá entre ${products.length} productos` } : {}),
     },
-    body,
-    bodyClass: 'page-home',
+    body: only(body),
+    bodyClass: isCatalog ? 'page-home page-catalog' : 'page-home',
     settings: s,
   });
 }
@@ -1024,7 +1034,7 @@ export function renderProduct({ product: p, related, settings: s }) {
 <div class="shell">
   <nav class="crumbs" aria-label="Migas de pan">
     <a href="/">Inicio</a>${ico.chevron}
-    <a href="/?cat=${encodeURIComponent(p.category)}#catalogo">${esc(p.category)}</a>${ico.chevron}
+    <a href="/catalogo/?cat=${encodeURIComponent(p.category)}">${esc(p.category)}</a>${ico.chevron}
     <span>${esc(p.name)}</span>
   </nav>
 

@@ -14,6 +14,7 @@ export function buildSitemap(products, s) {
 
   const urls = [
     entry(`${s.siteUrl}/`, '1.0'),
+    entry(`${s.siteUrl}/catalogo/`, '0.9'),
     ...categoriesWithProducts.map((cat) => entry(`${s.siteUrl}/c/${categorySlug(cat)}/`, '0.9')),
     ...products.map((p) =>
       entry(`${s.siteUrl}/p/${p.slug}/`, '0.8', (p.updatedAt || p.createdAt || '').slice(0, 10) || today)

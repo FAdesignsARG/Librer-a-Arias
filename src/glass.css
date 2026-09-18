@@ -512,3 +512,35 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   #catalogo .controls__row {order:1;margin:0;}
   #catalogo .chips {order:2;margin-right:calc(var(--gutter,16px) * -1);padding-right:var(--gutter,16px);}
 }
+
+
+/* ==========================================================================
+   Home v2 · Ronda C2 · catálogo como página aparte (/catalogo/)
+   Una sola atención: el buscador, los filtros y lo que se encontró
+   (referencia: la página de resultados de shop.app). La home queda liviana:
+   50 destacados y "Ver todo el catálogo".
+   ========================================================================== */
+/* Cabecera compacta: la marca chica vuelve al inicio, el buscador manda. */
+.page-catalog .home-hero {padding-block:20px 8px;min-height:0;}
+.catalog-brand {display:block;width:min(220px,52vw);margin:0 auto 16px;border-radius:12px;}
+.catalog-brand img {width:100%;height:auto;}
+.catalog-brand:focus-visible {outline:2px solid var(--text);outline-offset:4px;}
+.page-catalog .home-categories {display:none;}
+@media (max-width:720px) {
+  .page-catalog .home-hero {padding-block:14px 4px;}
+  .catalog-brand {width:170px;margin-bottom:12px;}
+}
+
+/* Título de la página: el rubro o lo que se buscó. */
+.page-catalog #catalogo {padding-top:20px;}
+.page-catalog #catalogTitle {margin:0;font-size:clamp(26px,3.4vw,38px);font-weight:600;letter-spacing:-.04em;line-height:1.1;overflow-wrap:anywhere;}
+.page-catalog .results-line {margin-top:4px;}
+
+/* Home: la sección productos es "Destacados" + salida al catálogo. */
+.featured-head {padding-top:8px;}
+.featured-more {display:flex;justify-content:center;margin:32px 0 8px;}
+.featured-more .btn {min-height:52px;padding-inline:28px;font-size:16px;}
+.featured-more .btn svg {width:18px;height:18px;}
+
+.catalog-after {margin-top:40px;}
+.catalog-after:empty {display:none;}

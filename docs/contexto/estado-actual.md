@@ -281,3 +281,32 @@ las pastillas a la izquierda y orden/precio a la derecha. Sin desborde a 375
 ni a 1280. Falta el resto de la Ronda C (catálogo como página aparte y home con
 50 destacados), que espera el OK de Fran porque saca de la home la sección
 `productos` que Rodri ordena desde Base44.
+
+## Home v2 — Ronda C2: catálogo como página aparte, sin afectar a Base44 (18/09/2026)
+Condición de Fran: "que no afecte a Rodri". Contrato relevado en
+`src/page-control.js` y `src/analytics.js`: cinco secciones, cuatro slots,
+`productIds` destacados, aviso, WhatsApp, mantenimiento; las métricas leen
+`#search`, `#grid` y `#chips .chip[aria-pressed]`.
+- `renderHome({ mode })` arma las dos páginas con un solo cuerpo: los bloques
+  van marcados `<!--home-only-->` / `<!--catalog-only-->` y `only()` deja los
+  que corresponden. `scripts/build.js` escribe `catalogo/index.html`; entra al sitemap.
+- Home: mismas 5 secciones y 4 slots. `productos` = "Destacados" (50, los
+  `featured` y los `productIds` de Base44 primero) + "Ver todo el catálogo".
+  La página pasó de ~97.000px a ~12.500px de alto a 375. Sin filtros en la home.
+- `/catalogo/` (`body.page-home.page-catalog`, así reutiliza todo el CSS y el JS
+  de la isla): marca chica que vuelve al inicio, buscador, `h1` que dice
+  "Catálogo", el rubro o `Resultados para "x"`, filtros en una fila, grilla.
+  Sin `data-arias-section` (ocultar `productos` en la home no la vacía). La URL
+  refleja búsqueda y rubro (`?q=`, `?cat=`) con `replaceState`.
+- Buscar desde la home, las pastillas, "Un mundo para descubrir", el menú y la
+  ficha de producto llevan a `/catalogo/…`. Los enlaces viejos (`/?cat=`,
+  `/?q=`, `/#catalogo`) redirigen con `location.replace`.
+- El slot `debajo_buscador` en el catálogo va después de la grilla (el bloque
+  "¿No encontraste…?" tapaba los resultados; lo habían marcado dos críticos).
+- Verificado a 375 y 1280: home con 50 tarjetas; `/catalogo/?q=termos` → 7
+  termos; `/?cat=Bazar#catalogo` → `/catalogo/?cat=Bazar` con 127 productos y
+  la primera tarjeta en y=332; tocar un rubro actualiza título y URL; buscar
+  desde la home navega; sin desborde. Nota para Rodri en
+  `docs/base44-integracion/RESUMEN-PARA-RODRI.md`.
+- Pendiente de la ronda C: las páginas estáticas `/c/<rubro>/` (SEO) siguen con
+  el diseño viejo y sin buscador; hoy nada de la home enlaza a ellas.

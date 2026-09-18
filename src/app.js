@@ -40,6 +40,21 @@ const ico = {
    Un único fetch de products.json + settings.json, cacheado en el módulo.
    ========================================================================== */
 
+/* Home v2: la home muestra 50 destacados; buscar y filtrar vive en /catalogo/.
+   Los enlaces viejos a la home con ?cat=, ?q= o #catalogo (campañas, bloques
+   cargados en Base44, mensajes ya compartidos) se redirigen solos. */
+const IS_CATALOG = document.body.classList.contains('page-catalog');
+const IS_HOME = document.body.classList.contains('page-home') && !IS_CATALOG;
+const HOME_LIMIT = 50;
+if (IS_HOME) {
+  const old = new URLSearchParams(location.search);
+  if (old.has('cat') || old.has('q') || location.hash === '#catalogo') {
+    const keep = new URLSearchParams();
+    ['cat', 'q'].forEach((k) => { if (old.get(k)) keep.set(k, old.get(k)); });
+    location.replace('/catalogo/' + (keep.toString() ? `?${keep}` : ''));
+  }
+}
+
 let PRODUCTS = [];
 let SETTINGS = {};
 let bySlug = new Map();
@@ -543,6 +558,7 @@ sheetBody?.addEventListener('click', (e) => {
   // Hoja vacía: "Ver el catálogo" cierra y baja a la grilla.
   if (e.target.closest('[data-sheet-browse]')) {
     closeDialog(sheet);
+    if (!$('#catalogo')) { location.href = '/catalogo/'; return; }
     $('#catalogo')?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     return;
   }
@@ -853,16 +869,18 @@ function render() {
       : activeCat === 'Ofertas'
         ? getIndex().filter((e) => offerActive(e.p))
         : getIndex().filter((e) => e.p.category === activeCat);
-  const found = filterByPrice(searchProducts(searchEl.value, pool), priceEl?.value);
-  let list = sortList(found, sortEl?.value || 'relevancia');
+  const query = IS_HOME ? '' : searchEl.value;
+  const found = filterByPrice(searchProducts(query, pool), priceEl?.value);
+  let list = sortList(found, IS_HOME ? 'destacados' : sortEl?.value || 'relevancia');
 
-  if (ariasFeaturedSlugs.length && !searchEl.value.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
+  if (ariasFeaturedSlugs.length && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
     const rank = new Map(ariasFeaturedSlugs.map((slug, i) => [slug, i]));
     list = [...list].sort(
       (a, b) => (rank.has(a.slug) ? rank.get(a.slug) : Infinity) - (rank.has(b.slug) ? rank.get(b.slug) : Infinity)
     );
   }
 
+  if (IS_HOME) list = list.slice(0, HOME_LIMIT);
   grid.innerHTML = list.map(cardHtml).join('');
 
   if (promoInfo) promoInfo.hidden = activeCat !== 'Ofertas';
@@ -880,13 +898,24 @@ function render() {
       body.textContent = 'Probá con otras palabras, o escribinos y lo buscamos por vos.';
     }
   }
+  const catalogTitle = $('#catalogTitle');
+  if (catalogTitle && IS_CATALOG) {
+    const q = query.trim();
+    catalogTitle.textContent = q ? `Resultados para “${q}”` : activeCat === 'Todos' ? 'Catálogo' : activeCat;
+  }
+  resultsLine.hidden = IS_HOME;
   resultsLine.textContent = list.length
     ? `${list.length} ${list.length === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}`
     : '';
 
   searchWrap.dataset.filled = String(searchEl.value.length > 0);
   // Keep this history entry's filters when returning from a product page.
-  history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '');
+  const here = new URL(location.href);
+  if (IS_CATALOG) {
+    if (query.trim()) here.searchParams.set('q', query.trim()); else here.searchParams.delete('q');
+    if (activeCat !== 'Todos') here.searchParams.set('cat', activeCat); else here.searchParams.delete('cat');
+  }
+  history.replaceState({...history.state, ariasCatalog: {q:searchEl.value, category:activeCat, sort:sortEl?.value, price:priceEl?.value}}, '', here);
   syncCartUI();
 }
 
@@ -1163,12 +1192,12 @@ function runGuide(action) {
     $('#askBtn')?.click();
   } else if (action === 'news') {
     $('#bellBtn')?.click();
-  } else if (action === 'catalog' && grid) {
+  } else if (action === 'catalog' && grid && !IS_HOME) {
     grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } else if (action === 'cart') {
     openSheet();
   } else {
-    location.href = '/#catalogo';
+    location.href = '/catalogo/';
   }
 }
 
@@ -1465,6 +1494,8 @@ if (grid) {
     if (sortEl && saved.sort) sortEl.value = saved.sort;
     if (priceEl) priceEl.value = saved.price || '';
   }
+  const urlQuery = new URLSearchParams(location.search).get('q');
+  if (IS_CATALOG && urlQuery != null) searchEl.value = urlQuery;
   const wanted = new URLSearchParams(location.search).get('cat') || saved?.category;
   if (!wanted || !selectCategory(wanted)) render();
 }
@@ -1528,6 +1559,11 @@ if ($('#homeSearch')) {
     mirror();
   }
   const results = () => {
+    if (IS_HOME) {
+      const q = searchEl.value.trim();
+      location.href = '/catalogo/' + (q ? `?q=${encodeURIComponent(q)}` : '');
+      return;
+    }
     clearTimeout(searchTimer); render(); closeSuggestions();
     // En el celular el teclado taparía los resultados.
     if (matchMedia('(pointer: coarse)').matches) searchEl.blur();
@@ -1547,7 +1583,7 @@ if ($('#homeSearch')) {
   });
   $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; syncHasText(); searchEl.focus({preventScroll:true}); results(); }));
   $$('[data-home-category]').forEach(link => link.addEventListener('click', e => {
-    if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if(IS_HOME || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault(); selectCategory(link.dataset.homeCategory); results();
   }));
 }

@@ -69,6 +69,10 @@ const write = async (rel, content) => {
 const homeBytes = await write('index.html', renderHome({ products: visible, settings }));
 console.log(`index.html                    ${kb(homeBytes)}`);
 
+// Home v2: el catálogo completo (buscador + filtros + grilla) vive en su página.
+const catalogBytes = await write(path.join('catalogo', 'index.html'), renderHome({ products: visible, settings, mode: 'catalog' }));
+console.log(`catalogo/index.html           ${kb(catalogBytes)}`);
+
 let productBytes = 0;
 for (const product of visible) {
   productBytes += await write(

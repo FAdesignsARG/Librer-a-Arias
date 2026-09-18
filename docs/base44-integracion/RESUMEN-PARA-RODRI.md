@@ -286,3 +286,30 @@ fijo, o nada). Según la respuesta hay 3 caminos ya redactados en
   que sacarlos: no existen.
 - Para que el aviso se vea también en el link de revisión de diseño, hace
   falta habilitar en CORS `https://diseno--libreria-arias.netlify.app`.
+
+## Cambio del 18/09/2026 (rama `preview`, todavía no en producción): catálogo en página aparte
+
+**No hay que tocar nada en Base44.** La configuración que ya existe sigue
+funcionando igual. Lo que cambia es del lado de la página:
+
+- La home conserva las cinco secciones con los mismos nombres (`hero`,
+  `promos`, `destacados`, `productos`, `visitanos`): ordenarlas y ocultarlas
+  funciona como siempre. La sección `productos` de la home ahora muestra 50
+  destacados y un botón "Ver todo el catálogo", en vez de los 551 productos.
+- El catálogo completo (buscador, rubros, orden, precio) vive en `/catalogo/`.
+  Esa página no es una sección: aunque se oculte `productos` en la home, el
+  catálogo sigue disponible.
+- Los cuatro slots siguen existiendo (`superior`, `debajo_buscador`,
+  `antes_productos`, `pie`). En la home, `debajo_buscador` queda literalmente
+  debajo del buscador. En `/catalogo/` ese mismo bloque se muestra **después de
+  los resultados**, para no tapar lo que la persona buscó.
+- Productos destacados (`productIds`): ordenan los 50 de la home, entran en la
+  fila "Elegidos para vos" (que ahora rota cada 5 minutos, hasta dos destacados
+  por tramo) y ordenan `/catalogo/` cuando no hay una búsqueda escrita.
+- Enlaces viejos: `/?cat=Ofertas`, `/?cat=Bazar`, `/?q=algo` y `/#catalogo`
+  redirigen solos a `/catalogo/…`. Los bloques o campañas que ya los usen no se rompen.
+- Métricas: los eventos de búsqueda, rubro y producto siguen saliendo con los
+  mismos nombres. Lo único nuevo es que el campo `pagina` va a traer
+  `/catalogo/` además de `/`.
+- Aviso flotante, número de WhatsApp y modo mantenimiento aplican en todas las
+  páginas, igual que antes.
