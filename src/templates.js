@@ -3,7 +3,7 @@
  * vuelo) como scripts/build.js (escribe el sitio estático), así que lo que
  * se ve en local es exactamente lo que se publica.
  */
-import { cloudinaryUrl } from './cloudinary-config.js';
+import { cloudinaryUrl, shareCardUrl } from './cloudinary-config.js';
 import { dailyPicks } from './recommend.js';
 
 /* ---------- helpers ---------- */
@@ -243,6 +243,14 @@ function layout({ head, body, settings, bodyClass = '' }) {
 <meta property="og:description" content="${esc(head.description)}">
 <meta property="og:url" content="${esc(url)}">
 <meta property="og:image" content="${esc(img)}">
+${head.imageWidth ? `<meta property="og:image:secure_url" content="${esc(img)}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="${head.imageWidth}">
+<meta property="og:image:height" content="${head.imageHeight}">
+<meta property="og:image:alt" content="${esc(head.imageAlt || head.title)}">` : ''}
+${head.price ? `<meta property="product:price:amount" content="${head.price}">
+<meta property="product:price:currency" content="ARS">
+<meta property="og:availability" content="${head.inStock ? 'instock' : 'oos'}">` : ''}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(head.ogTitle || head.title)}">
 <meta name="twitter:description" content="${esc(head.description)}">
@@ -272,11 +280,13 @@ ${navbar(s, isHome)}
 ${body}
 ${orderSheet(s)}
 ${notifyPanel()}
+${shareSheetHtml(s)}
 ${menuSheetHtml(isHome ? s : null)}
 ${isHome ? '' : welcomeHtml(s)}
 <script type="module" src="/src/theme.js"></script>
 <script type="module" src="/src/app.js"></script>
 <script type="module" src="/src/assistant.js"></script>
+<script type="module" src="/src/share.js"></script>
 <script type="module" src="/src/analytics.js"></script>
 <!-- Control remoto de página desde Base44 (marketing). Para desactivarlo
      por completo: poner enabled:false acá, o borrar estas dos líneas. -->
@@ -304,6 +314,48 @@ const crane = (cls, size) => {
 
 /* Mismo ícono que el botón "Preguntame" del dock — se reusa en el globo
    de invitación (ver orderSheet) para que se lea como la misma función. */
+const shareIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5m0 0L8 7.5m4-4 4 4"/><path d="M8 10.5H6.5A1.5 1.5 0 0 0 5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg>';
+
+/** Precio que realmente paga la persona, ya formateado. */
+const paidPrice = (p) => money(offerHasDiscount(p) ? p.offer.price : p.price);
+
+/** Atributos que lee src/share.js: viajan en el botón para no depender de products.json. */
+const shareAttrs = (p) =>
+  `data-share="${esc(p.slug)}" data-share-name="${esc(p.name)}" data-share-price="${esc(paidPrice(p))}" data-share-img="${esc(p.images[0])}"`;
+
+/** Hoja de compartir: una sola para toda la página. WhatsApp primero y más grande. */
+const shareSheetHtml = (s) => {
+  const promo = webPromo(s);
+  const opt = (id, via, icon, label, extra = '') =>
+    `<${extra.includes('href') ? 'a' : 'button type="button"'} class="shareopt" id="${id}" data-share-via="${via}" ${extra}><span class="shareopt__ico">${icon}</span><span class="shareopt__label">${label}</span></${extra.includes('href') ? 'a' : 'button'}>`;
+  const fbIco = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.6-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8v3h2.700V21h2.800Z"/></svg>';
+  const mailIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 8 8 5.5L20 8"/></svg>';
+  const linkIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
+  const downIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M5 19.5h14"/></svg>';
+  return `<dialog class="sortsheet sharesheet" id="shareSheet" aria-labelledby="shareSheetTitle" tabindex="-1" data-promo="${promo ? esc(`${promo.percent}% OFF comprando por la web`) : ''}">
+  <div class="sortsheet__head">
+    <h2 id="shareSheetTitle">Compartir</h2>
+    <button type="button" class="sheet__close" id="shareSheetClose" aria-label="Cerrar">${ico.x}</button>
+  </div>
+  <div class="sharesheet__body">
+    <figure class="sharecard">
+      <img id="sharePreviewImg" width="1200" height="630" alt="" decoding="async">
+      <figcaption><strong id="shareName"></strong><span id="sharePrice"></span><small id="shareUrl"></small></figcaption>
+    </figure>
+    <a class="btn btn--gold btn--block sharesheet__wa" id="shareWa" data-share-via="whatsapp" target="_blank" rel="noopener">${ico.wa} Enviar por WhatsApp</a>
+    <div class="sharesheet__grid">
+      ${opt('shareNative', 'sistema', shareIco, 'Instagram y más')}
+      ${opt('shareFb', 'facebook', fbIco, 'Facebook', 'href="#" target="_blank" rel="noopener"')}
+      ${opt('shareMail', 'mail', mailIco, 'Mail', 'href="#"')}
+      ${opt('shareCopy', 'enlace', linkIco, 'Copiar enlace')}
+      ${opt('shareMailCopy', 'mail-diseno', mailIco, 'Copiar diseño para mail')}
+      ${opt('shareDownload', 'imagen', downIco, 'Bajar imagen', 'href="#" target="_blank" rel="noopener"')}
+    </div>
+    <p class="sharesheet__note">Al enviarlo se ve la foto, el nombre y el precio. La imagen sirve para historias y publicaciones de Instagram.</p>
+  </div>
+</dialog>`;
+};
+
 const askIco =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5c-4.7 0-8.5 3.15-8.5 7.05 0 2.05 1.05 3.9 2.75 5.2L5.5 20.5l4.1-1.9c.75.15 1.55.25 2.4.25 4.7 0 8.5-3.15 8.5-7.05S16.7 4.5 12 4.5Z"/><path d="M9.9 9.9a2.2 2.2 0 1 1 3.1 2.05c-.65.3-1 .9-1 1.55"/><path d="M12 16.1h.01"/></svg>';
 
@@ -1096,6 +1148,7 @@ export function renderProduct({ product: p, related, settings: s }) {
                 data-ask="${esc(`Quiero consultar por: ${p.name} (${money(p.price)})`)}">
           ${askIco} Preguntarle a la IA
         </button>
+        <button type="button" class="btn btn--ghost product__share" ${shareAttrs(p)}>${shareIco} Compartir</button>
       </div>
     </div>
   </article>
@@ -1157,7 +1210,12 @@ ${footer(s)}`;
       ogTitle: `${p.name} — ${displayPrice}${offerActive(p) ? ' (Oferta)' : ''}`,
       description: clamp(`${p.description} ${p.category} en ${s.storeName}, La Rioja. Consultá por WhatsApp.`, 158),
       canonical: url,
-      image: fullSrc(main),
+      image: shareCardUrl({ imageId: main, name: p.name, priceText: displayPrice, note: webPromo(s) ? `${webPromo(s).percent}% OFF comprando por la web` : '' }),
+      imageWidth: 1200,
+      imageHeight: 630,
+      imageAlt: `${p.name} — ${displayPrice} en ${s.storeName}`,
+      price: offerHasDiscount(p) ? p.offer.price : p.price,
+      inStock: p.inStock,
       ogType: 'product',
       jsonLd,
       preload: `<link rel="preload" as="image" href="${esc(fullSrc(main))}" fetchpriority="high">`,
@@ -1212,6 +1270,7 @@ export function cardHtml(p) {
   <div class="card__media">
     <div class="card__flags">${flags}</div>
     <img src="${esc(thumbSrc(main))}" width="400" height="400" loading="lazy" decoding="async" alt="${esc(p.name)}">
+    <button type="button" class="card__share" ${shareAttrs(p)} aria-label="Compartir ${esc(p.name)}">${shareIco}</button>
     <button class="card__add" data-add="${esc(p.slug)}" aria-label="Agregar ${esc(p.name)} al pedido">${ico.plus}</button>
   </div>
   <div class="card__body">

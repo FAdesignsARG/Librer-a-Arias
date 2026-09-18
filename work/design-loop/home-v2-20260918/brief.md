@@ -79,3 +79,18 @@ Se conservan los IDs y atributos que consume Base44 (`data-arias-section`,
 `data-arias-hero-*`, `data-arias-whatsapp`, `#homeSearch`, `#search`,
 `data-open-order`, `data-open-menu`). Promo única 10% web. Nada a `main` sin
 OK explícito de Fran.
+
+## Agregado de Fran (18/09/2026, más tarde)
+
+12. **Mobile: todo más grande y más estético**, fácil de pulsar, con tarjetas
+    más lindas. "Hay que mejorar la web a nivel de diseño para desktop, pero
+    sobre todo para mobile."
+13. **Compartir (importantísimo, foco en WhatsApp).** Cualquier producto se
+    tiene que poder compartir con su landing, principalmente por WhatsApp, y
+    Adolfo tiene que poder compartirlos por la comunidad. Al compartir se tiene
+    que ver **muy estético, con vista previa**. También Instagram, Facebook y
+    cualquier red, y usarlo como **plantilla de mail** con preview.
+14. **Flotantes de WhatsApp y del asistente un poco más grandes**, y el
+    asistente **bien construido como chat**, sobre todo en mobile: tipografía
+    de buen tamaño, acciones rápidas más grandes y que destaquen, accesos más
+    grandes para sumar al carrito o ir a las landings.

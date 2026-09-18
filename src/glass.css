@@ -544,3 +544,107 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
 
 .catalog-after {margin-top:40px;}
 .catalog-after:empty {display:none;}
+
+
+/* ==========================================================================
+   Compartir productos · 18/09/2026 (foco: WhatsApp)
+   Una hoja de vidrio con la vista previa tal como va a llegar, WhatsApp como
+   acción principal y el resto en una grilla de accesos grandes.
+   ========================================================================== */
+.sharesheet {max-height:min(88vh,760px);overflow:hidden;display:none;flex-direction:column;}
+.sharesheet[open] {display:flex;}
+.sharesheet__body {padding:16px 18px max(20px, env(safe-area-inset-bottom));overflow-y:auto;display:flex;flex-direction:column;gap:16px;}
+.sharesheet__body > * {flex:none;}
+.sharecard {margin:0;border-radius:20px;overflow:hidden;background:var(--fill, rgba(255,255,255,.06));box-shadow:0 10px 30px -14px rgba(0,0,0,.6);}
+.sharecard img {display:block;width:100%;height:auto;aspect-ratio:1200/630;background:#151515;}
+.sharecard figcaption {position:relative;padding:10px 16px 12px;}
+/* Nombre y precio ya van dentro de la imagen: acá sólo el enlace. */
+.sharecard strong,.sharecard span {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+.sharecard small {font-size:14px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sharesheet__wa {min-height:56px;font-size:17px;gap:10px;box-shadow:var(--glass-glow);}
+.sharesheet__wa svg {width:24px;height:24px;}
+.sharesheet__grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.shareopt {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:88px;padding:12px 8px;border-radius:20px;background:var(--fill, rgba(255,255,255,.07));color:var(--text);font-size:14px;line-height:1.25;text-align:center;text-decoration:none;transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.shareopt:hover {background:var(--fill-hi, rgba(255,255,255,.12));}
+.shareopt:active {scale:.96;}
+.shareopt:focus-visible {outline:2px solid var(--text);outline-offset:2px;}
+.shareopt[hidden] {display:none;}
+.shareopt__ico {display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--gold-wash);color:var(--gold-text);}
+.shareopt__ico svg {width:22px;height:22px;}
+.sharesheet__note {margin:0;font-size:14px;color:var(--text-2);text-align:center;}
+@media (min-width:721px) {
+  /* En desktop es un diálogo centrado, no una hoja a todo el ancho. */
+  .sharesheet {inset:0;margin:auto;width:min(480px,calc(100% - 48px));max-width:480px;height:fit-content;border-radius:28px;border:1px solid var(--glass-edge-2, var(--line));}
+}
+
+/* Botón de compartir en cada tarjeta: arriba a la derecha, siempre a la vista,
+   con toque de 44px (el dibujo es más chico que el área). */
+.card__share {position:absolute;top:8px;right:8px;z-index:2;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:var(--text);background:var(--glass-bg-strong, rgba(24,24,26,.72));-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);border:1px solid var(--glass-edge-2, rgba(255,255,255,.12));transition:scale var(--dur-fast) var(--ease-pop),background var(--dur-fast) var(--ease-soft);}
+.card__share svg {width:20px;height:20px;}
+.card__share:active {scale:.92;}
+.card__share:focus-visible {outline:2px solid var(--text);outline-offset:2px;}
+.product__share svg {width:20px;height:20px;}
+
+
+/* ==========================================================================
+   Mobile más grande y más fácil de tocar · 18/09/2026 (pedido de Fran)
+   Flotantes, chat del asistente y tarjetas de producto.
+   ========================================================================== */
+
+/* ---- Flotantes de WhatsApp y del asistente: 60px (antes 52) ---- */
+.dockbtn {height:60px;width:60px;}
+.dockbtn svg {width:28px;height:28px;}
+.dockbtn--ai {width:auto;padding:0 22px 0 18px;font-size:16px;font-weight:600;}
+.dock__row {gap:12px;}
+@media (max-width:520px) {
+  .dockbtn--ai {width:60px;padding:0;}
+}
+
+/* ---- Chat del asistente ---- */
+.chat .chat__title h2 {font-size:18px;line-height:1.25;}
+.chat .chat__title p {font-size:14px;color:var(--text-2);}
+.chat .msg {font-size:16px;line-height:1.45;padding:14px 16px;border-radius:22px;max-width:88%;}
+/* Accesos rápidos: grandes, con acento, para que se vea que se tocan. */
+.chat .seeds {gap:10px;}
+.chat .seed {min-height:52px;padding:0 18px;border-radius:999px;font-size:16px;font-weight:500;color:var(--text);background:var(--gold-wash);border:1px solid var(--gold-edge);}
+.chat .seed:active {scale:.97;}
+/* Productos recomendados: foto de 72px, nombre y precio legibles, "+" de 52px. */
+.chat .pick {min-height:100px;padding:12px;border-radius:22px;gap:10px;}
+.chat .pick__link {gap:14px;min-height:76px;}
+.chat .pick img {width:76px;height:76px;border-radius:16px;}
+.chat .pick__name {font-size:16px;line-height:1.3;font-weight:560;}
+.chat .pick__meta {font-size:14px;margin-top:4px;}
+.chat .pick__meta b {font-size:17px;color:var(--gold-text);}
+.chat .pick__go svg {width:20px;height:20px;}
+.chat .pick__add {width:52px;height:52px;}
+.chat .pick__add svg {width:24px;height:24px;}
+/* Escribir: 16px evita el zoom automático de iOS; enviar de 52px. */
+.chat .chat__form {gap:10px;}
+.chat .chat__form textarea {min-height:52px;padding:14px 18px;font-size:16px;border-radius:26px;}
+.chat .chat__send {width:52px;height:52px;}
+.chat .chat__send svg {width:24px;height:24px;}
+.chat .chat__note {font-size:14px;}
+@media (max-width:560px) {
+  /* Casi toda la pantalla: es una conversación, no un cartel. */
+  .chat {height:92dvh;max-height:92dvh;}
+  .chat .chat__body {padding-inline:16px;}
+}
+
+/* ---- Tarjetas de producto en celular ---- */
+@media (max-width:720px) {
+  .grid {gap:14px 12px;}
+  .card {border-radius:26px;}
+  .card__media {margin:6px 6px 0;border-radius:20px;}
+  .card__body {padding:12px 14px 16px;gap:6px;}
+  .card__cat,.card__stock {font-size:14px;}
+  .card__name,.page-home #grid .card__name {font-size:16px;line-height:1.3;}
+  /* El precio es lo que más se mira: 20px y en el amarillo de la marca (texto, no relleno). */
+  .card__price,.page-home #grid .card__price,.page-home .card__price {font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--gold-text);}
+  .card--out .card__price,.page-home .card--out .card__price {color:var(--text-2);}
+  .card__price-old {font-size:14px;}
+  /* Agregar: siempre a la vista, 48px y en amarillo — es la acción de la tarjeta. */
+  .card__add,.page-home #grid .card__add,.page-home .card__add {width:48px;height:48px;right:8px;bottom:8px;opacity:1;translate:none;background:var(--gold);color:var(--gold-ink);box-shadow:0 6px 18px -6px rgba(254,206,1,.55);}
+  .card__add svg {width:24px;height:24px;}
+  .card--out .card__add {background:var(--fill-hi);color:var(--text-2);box-shadow:none;}
+  .picks__item {flex-basis:240px;}
+}

@@ -310,3 +310,39 @@ Condición de Fran: "que no afecte a Rodri". Contrato relevado en
   `docs/base44-integracion/RESUMEN-PARA-RODRI.md`.
 - Pendiente de la ronda C: las páginas estáticas `/c/<rubro>/` (SEO) siguen con
   el diseño viejo y sin buscador; hoy nada de la home enlaza a ellas.
+
+## Compartir productos + mobile más grande (18/09/2026)
+Pedido de Fran (puntos 12-14 del brief `home-v2-20260918`).
+**Compartir**
+- `shareCardUrl()` en `src/cloudinary-config.js`: tarjeta 1200x630 en JPG armada
+  por Cloudinary en la URL (foto a la derecha; marca, nombre, precio y "10% OFF
+  comprando por la web" a la izquierda, colores de Arias). No se genera ni se
+  guarda ninguna imagen. Antes el `og:image` era la foto cuadrada con `f_auto`
+  (el robot de WhatsApp podía recibir AVIF/WebP) y sin medidas declaradas.
+- Fichas `/p/<slug>/`: `og:image` = esa tarjeta, más `og:image:width/height/type/alt`,
+  `product:price:amount/currency` y `og:availability`.
+- `src/share.js` (módulo propio, en todas las páginas; hubo que sumarlo a la
+  lista de copias de `scripts/build.js`): cualquier `[data-share]` abre una hoja
+  de vidrio con la vista previa real, "Enviar por WhatsApp" como acción
+  principal (`wa.me/?text=` con nombre en negrita, precio, promo y el enlace al
+  final, que es lo que WhatsApp usa para la vista previa), "Instagram y más"
+  (menú de compartir del teléfono; sólo aparece si existe `navigator.share`),
+  Facebook, Mail (`mailto:`), Copiar enlace, "Copiar diseño para mail" (bloque
+  HTML con imagen, nombre, precio y botón, al portapapeles) y "Bajar imagen"
+  (`fl_attachment`, para historias y publicaciones de Instagram).
+- Botón "Compartir" en la ficha y botón redondo de 44px arriba a la derecha en
+  cada tarjeta (los datos viajan en `data-share-*`, no depende de products.json).
+- Emite `arias:share-open` y `arias:share` (con `via`) en `window`. **No** se
+  mandan a las métricas de Base44 todavía: sumar un evento nuevo hay que
+  coordinarlo con Rodri.
+- Probado en local: la hoja abre con la imagen 1200x630 cargada y los enlaces
+  bien armados. **Falta probar la vista previa real en WhatsApp**, que sólo se
+  puede con una URL pública: hoy las fichas de `diseno--…netlify.app` ya la
+  tienen; en `libreriaarias.com.ar` recién cuando esto pase a producción.
+**Mobile más grande**
+- Flotantes de WhatsApp y asistente: 60px (antes 52), íconos de 28px.
+- Chat: mensajes 16px, accesos rápidos de 52px con acento amarillo, productos
+  con foto de 76px, nombre 16px, precio 17px en amarillo y "+" de 52px; campo de
+  52px a 16px (evita el zoom de iOS), enviar de 52px; en celular ocupa 92dvh.
+- Tarjetas en celular: radio 26, nombre 16px, precio 20px en amarillo, "+" de
+  48px amarillo siempre visible, compartir de 44px.
