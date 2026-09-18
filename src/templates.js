@@ -679,7 +679,8 @@ export function renderHome({ products, settings: s }) {
 
   const body = `
 <header class="hero home-hero" data-arias-section="hero">
-  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"><img class="brand-light" src="/assets/brand/wordmark-light-logo.webp" width="780" height="211" alt="${esc(s.storeName)}"></h1>
+  <div class="home-mark" aria-hidden="true">${crane('home-mark__img', 132)}</div>
+  <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"></h1>
   <div id="homeSearchAnchor" class="home-search-anchor">
     <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
       <div class="search" id="searchWrap">
@@ -696,36 +697,10 @@ export function renderHome({ products, settings: s }) {
   <nav class="home-quick" aria-label="Accesos rápidos">
     <a href="/?cat=Todos#catalogo" data-home-category="Todos" style="--i:0"><span class="home-quick__ico">${gridIco}</span>Catálogo</a>
     <a href="/?cat=Ofertas#catalogo" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
-    <button type="button" data-guide="chat" style="--i:2"><span class="home-quick__ico">${askIco}</span>Preguntar</button>
-    <a data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener" style="--i:3"><span class="home-quick__ico">${ico.wa}</span>WhatsApp</a>
+    <button type="button" data-guide="news" style="--i:2"><span class="home-quick__ico">${ico.bell}</span>Novedades</button>
   </nav>
-  <div class="home-scene" aria-label="Ideas para descubrir">
-    ${scene.map(({product:p},i)=>`<a class="home-scene__card" style="--i:${i}" href="/p/${esc(p.slug)}/"><img src="${esc(thumbSrc(p.images[0]))}" width="300" height="300" alt="${esc(p.name)}" fetchpriority="auto"><span>${esc(p.name)}</span><strong>${money(offerHasDiscount(p)?p.offer.price:p.price)}</strong></a>`).join('')}
-  </div>
   <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/?cat=${encodeURIComponent(c)}#catalogo" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
 </header>
-<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/?cat=${encodeURIComponent(category)}#catalogo" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
-
-<div data-arias-slot="superior"></div>
-
-
-
-${
-  picks.length
-    ? `<section class="picks" data-arias-section="destacados" data-reveal>
-  <div class="shell">
-    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
-    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
-  </div>
-  <div class="picks__row">
-    ${picks
-      .map((p, i) => `<div class="picks__item" data-reveal style="transition-delay:${i * 70}ms">${cardHtml(p)}</div>`)
-      .join('\n    ')}
-  </div>
-</section>`
-    : ''
-}
-
 <section class="attention-carousel" id="attentionCarousel" data-arias-section="promos" data-reveal>
   <div class="attention-carousel__track">
     <div class="attn__slide attn__slide--promos" id="promoBanner" role="button" tabindex="0"
@@ -751,6 +726,29 @@ ${
     <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ir al canal de WhatsApp"></button>
   </div>
 </section>
+<section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="#catalogo">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/?cat=${encodeURIComponent(category)}#catalogo" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
+
+<div data-arias-slot="superior"></div>
+
+
+
+${
+  picks.length
+    ? `<section class="picks" data-arias-section="destacados" data-reveal>
+  <div class="shell">
+    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
+    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
+  </div>
+  <div class="picks__row">
+    ${picks
+      .map((p, i) => `<div class="picks__item" data-reveal style="transition-delay:${i * 70}ms">${cardHtml(p)}</div>`)
+      .join('\n    ')}
+  </div>
+</section>`
+    : ''
+}
+
+
 
 <div class="controls" id="catalogo">
   <div class="shell">

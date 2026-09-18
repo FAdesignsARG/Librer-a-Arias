@@ -5,8 +5,12 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 "Decisiones del 17/09/2026", que manda sobre las reglas viejas).
 
 ## Dónde estamos
-- Rama `preview`, última ronda de diseño: "v9" (ver `git log`). Publicado en
-  https://diseno--libreria-arias.netlify.app (alias `diseno`, NO producción).
+- **El objetivo cambió el 18/09/2026.** Fran comparó `main` con `preview` y dio
+  una dirección nueva: leer `work/design-loop/home-v2-20260918/brief.md`
+  (pedidos textuales, decisiones delegadas y rondas A–E). Manda sobre el brief
+  del hero del 15/09.
+- Rama `preview`. Publicado en https://diseno--libreria-arias.netlify.app
+  (alias `diseno`, NO producción).
 - Deploy: `npm run build` y luego
   `TEMP="D:\tmp" TMP="D:\tmp" netlify deploy --no-build --dir=dist --alias=diseno`
   (el TEMP en D: es porque C: se queda sin espacio).
@@ -14,32 +18,46 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
   deployar; si cambió `templates.js`, hay que reconstruir.
 - Servidor local de `dist/` en http://localhost:4322/.
 
-## Rondas
+## Rondas de la home v2 (brief del 18/09)
+| Ronda | Tema | Estado |
+|---|---|---|
+| A | Marca al frente (logo + wordmark con lema), fuera tarjetas flotantes, banner pegado al hero, vuelven los flotantes de WhatsApp e IA | **Hecha** — falta pasarla por críticos |
+| B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | Pendiente |
+| C | Home liviana (50 destacados + "Ver más"), página `/catalogo/` y rubros `/c/<rubro>/` como páginas aparte, filtros en pastillas a una altura | Pendiente |
+| D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
+| E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
+| — | Favoritos por sesión | Más adelante (Fran: "no ahora") |
+
+## Rondas anteriores
 | Ronda | Tema | Estado |
 |---|---|---|
 | 1-2 | Promo única 10%, íconos SF, limpieza | Hecha |
 | 3 | Sistema de vidrio (`src/glass.css`) | Hecha |
 | 4 | Isla que respira con el scroll | Hecha — **falta probar en teléfono real** |
-| 5 / 7 | Comparación directa con shop.app, tarjetas flotantes | Hecha |
-| Críticos v8 | objetivo FAIL, sistema FAIL, calidad PASS 7/9 | Corregido |
-| Críticos v9 | objetivo FAIL, sistema FAIL, calidad PASS 9/9 | Corregido |
-| Críticos v10 | sobre la v9: objetivo FAIL, sistema FAIL, calidad PASS 9/9 | Correcciones aplicadas — **falta re-correr los tres** |
+| 5 / 7 | Comparación directa con shop.app | Hecha (las tarjetas flotantes del hero se sacaron en la Ronda A) |
+| Críticos v8–v10 | Última medición completa (v9): calidad PASS 9/9, objetivo FAIL, sistema FAIL. Sobre la v10 sólo llegó calidad: PASS 8/9; objetivo y sistema murieron por límite de uso | Corregido lo señalado; la vara cambia con el brief nuevo |
 | 6 | Banners como imagen sola (1400x534, fondo transparente) | Bloqueada: faltan los diseños de Fran |
-| 8 | Grilla: hoy dibuja los 523 productos de una (≈97.000px de alto) | Pendiente |
 
 ## Pendientes concretos
-1. Re-correr los tres críticos con la skill `criticos-arias` sobre la v10 (vara: `work/design-loop/hero-20260915/bar.md`, v2). Las ideas del buscador se comprueban con el buscador real (correr `src/search-engine.js` en Node), no por cantidad de resultados.
-2. Decisiones de Fran que dejaron abiertas los críticos (no resolver solo):
-   - ¿Va el lema bajo el wordmark en la primera pantalla? (DESIGN.md dice "wordmark y su lema"; hoy no está.)
-   - Isla en tema claro: ¿vidrio claro (como está) o siempre oscuro?
-   - La mascota de la promo sostiene un cartel "CUPÓN DESCUENTO" y no existe cupón: ¿nuevo dibujo?
-   - El bloque "¿No encontraste lo que buscabas?" (lo configura Rodri desde Base44) queda arriba de los resultados de búsqueda: ¿se baja debajo de la grilla?
-   - Tarjeta de horarios en amarillo pleno; a 1280 conviven la barra de arriba y la isla de abajo.
-   - Pastilla de WhatsApp cortada a 375: ¿scroll, sin ícono, o tres tarjetas chicas?
-3. `#waBanner` y la tarjeta de promo (radio 20 + borde) siguen fuera del sistema de tarjetas de 28px → Ronda 6.
-4. Mensaje de WhatsApp del pedido dice "No acumulable con otras promociones" (a propósito, `src/app.js`). Decisión de Fran si se acorta.
-5. Prueba en teléfono real: isla (bajar rápido → se recoge; frenar → se ofrece; tocar → crece; volver arriba → se suelta) y Enter/lupa del teclado → baja a resultados.
-6. Nada de esto está en `main`. Pasar a producción requiere OK explícito de Fran.
+1. Seguir con la Ronda B del brief nuevo. Antes de volver a lanzar críticos,
+   **actualizar la vara** (`work/design-loop/hero-20260915/bar.md`): con la
+   marca arriba, el buscador queda a ~40% de la altura en desktop (mecanismo 3
+   pedía primer tercio) y eso es decisión de Fran, no defecto.
+2. Resuelto por el feedback del 18/09: el lema vuelve (wordmark con "El Temu
+   2.0 riojano"); la pastilla de WhatsApp cortada ya no existe (WhatsApp e IA
+   son flotantes; las pastillas son Catálogo · Ofertas · Novedades).
+3. Siguen abiertas para Fran: isla en tema claro (¿vidrio claro o siempre
+   oscura?); cartel "CUPÓN DESCUENTO" de la mascota (no hay cupón); tarjeta de
+   horarios en amarillo pleno. El bloque "¿No encontraste…?" de Base44 arriba
+   de los resultados y las dos barras a 1280 se resuelven en las rondas C y D.
+4. Aviso flotante: su enlace mide 258x55 (59% del buscador) y tapa el "10% OFF";
+   el crítico de calidad propone una sola línea y ~48px de alto. El texto lo
+   carga Rodri en Base44.
+5. Las ideas del buscador se comprueban con el buscador real (correr
+   `src/search-engine.js` en Node sobre `products.json`), no por cantidad.
+6. `#waBanner` y la tarjeta de promo (radio 20 + borde) siguen fuera del sistema de 28px → Ronda 6.
+7. Prueba en teléfono real: isla (bajar rápido → se recoge; frenar → se ofrece; tocar → crece; volver arriba → se suelta), Enter/lupa del teclado → baja a resultados, y que los flotantes suban cuando la isla se acopla.
+8. Nada de esto está en `main`. Pasar a producción requiere OK explícito de Fran.
 
 ## Trampas del entorno de pruebas (no son defectos del sitio)
 - El panel del navegador puede no generar cuadros: `requestAnimationFrame`

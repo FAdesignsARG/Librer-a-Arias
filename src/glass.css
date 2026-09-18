@@ -411,3 +411,35 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
 .arias-pc-block__title {font-size:17px;}
 .arias-pc-block__text {font-size:16px;}
 .arias-pc-block__cta {font-size:14px;}
+
+
+/* ==========================================================================
+   Home v2 · Ronda A · 18/09/2026 (brief: work/design-loop/home-v2-20260918)
+   La marca vuelve al frente, salen las tarjetas flotantes del hero, y vuelven
+   los flotantes de WhatsApp y de la IA ("la esencia y el alma", Fran).
+   ========================================================================== */
+
+/* Logo al centro, arriba del wordmark con el lema, como en main. */
+.home-mark {display:flex;justify-content:center;margin:0 auto 12px;}
+.home-mark__img {width:112px;height:112px;filter:drop-shadow(0 10px 30px rgba(0,0,0,.35));}
+.page-home .home-wordmark {max-width:420px;margin-bottom:20px;}
+@media (max-width:720px) {
+  .home-mark {margin-bottom:8px;}
+  .home-mark__img {width:72px;height:72px;}
+  .page-home .home-wordmark {max-width:250px;margin-bottom:14px;}
+}
+
+/* El banner sube: va pegado al hero para que se vea en la primera pantalla. */
+.page-home .attention-carousel {margin-top:8px;}
+@media (max-width:720px) {.page-home .attention-carousel {margin-block:0 32px;}}
+
+/* Flotantes de WhatsApp e IA otra vez en la home. "Mi pedido" no se duplica:
+   en la home ya vive en la isla (celular) y en la barra (desktop). */
+.page-home .dock {display:flex;transition:bottom var(--dur) var(--ease-out);}
+.page-home .dock .fab {display:none;}
+/* Cuando la isla está acoplada abajo, o está el aviso, los flotantes suben
+   para no pisarse (la isla centrada mide hasta 600px: choca hasta ~1040). */
+@media (max-width:1040px) {
+  body:has(.home-search.is-docked) .dock,
+  body:has(.arias-pc-bar[data-visible='true']) .dock {bottom:calc(max(16px, env(safe-area-inset-bottom)) + 88px);}
+}

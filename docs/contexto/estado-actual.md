@@ -225,3 +225,27 @@ Decisión de diseño registrada (no es defecto): en celular el Tab recorre
 campo → × → ideas → Ver resultados y recién después Pedido y Menú. Mientras se
 busca, Pedido y Menú están ocultos; si fueran antes en el orden, enfocarlos
 cerraría el panel y las ideas quedarían inalcanzables con teclado.
+
+## Home v2 — cambio de objetivo y Ronda A (18/09/2026)
+Fran comparó `main` con `preview` y cambió la dirección: brief textual en
+`work/design-loop/home-v2-20260918/brief.md` (rondas A–E). Sobre la v10 sólo
+llegó el crítico de calidad (PASS 8/9; brecha: el aviso flotante de Base44
+mide 59% del buscador); objetivo y sistema murieron por límite de uso y no se
+relanzaron porque el objetivo cambió.
+Ronda A, hecha:
+- Logo (grulla) al centro y wordmark **con el lema** "El Temu 2.0 riojano"
+  (`wordmark-dark/light.webp`, los mismos de `main`; los `*-logo.webp` sin lema
+  quedan sin uso y nunca estuvieron en git).
+- Fuera las tarjetas flotantes del hero (`.home-scene`). Queda el carrusel
+  "Elegidos para vos hoy" porque es la sección `destacados` que Rodri controla
+  desde Base44.
+- El carrusel de banners (`promos`) sube: va pegado al hero y asoma en la
+  primera pantalla a 375 y a 1280.
+- Vuelven los flotantes de WhatsApp y de la IA en la home (`.dock`); "Mi
+  pedido" no se duplica. Suben 88px cuando la isla está acoplada o está el
+  aviso (hasta 1040px de ancho).
+- Pastillas: Catálogo · Ofertas (si hay) · Novedades. Preguntar y WhatsApp
+  salieron de ahí para no duplicar los flotantes.
+Medido a 375 y 1280: sin desborde. A 1280 el buscador queda en y=342 (40% de
+la altura): la marca arriba es pedido de Fran; hay que actualizar la vara
+antes de los próximos críticos.
