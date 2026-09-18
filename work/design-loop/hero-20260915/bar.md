@@ -141,3 +141,43 @@ del comercio, no como fuga."
 **Por qué:** WhatsApp es uno de los cuatro accesos elegidos por Fran y el
 destino del aviso de la tienda. La regla nació para que la primera
 pantalla no derive a Instagram, Facebook y TikTok — eso sigue en pie.
+
+---
+
+# Vara v2 — 17/09/2026, home mobile contra shop.app
+
+Cambió el objetivo (17/9: vidrio, isla que respira, accesos como pastillas,
+tarjetas shop.app, una sola promo). Fran pidió comparar directamente con
+shop.app. Referencia: `D:/Descargas/Shop Web - Example/DESIGN (2).md` y
+medición en vivo de shop.app a 375px. Los M1-M7 anteriores siguen vigentes
+con las correcciones ya registradas; se suman:
+
+## S1 · El botón de acción del buscador está siempre visible
+shop.app: círculo violeta de 40px dentro de la píldora, en reposo.
+Se comprueba: hay un control circular ≥40px dentro de la píldora sin
+tocarla, y es el único con relleno del color de acento en la primera
+pantalla.
+
+## S2 · Chips en una sola fila, pastilla completa, 16px
+shop.app: 44px de alto, radio 9999, ícono + texto de 16px, borde fino y
+sombra suave. Se comprueba: todos los accesos comparten alto (±2px),
+radio de pastilla y tamaño de texto; van después del buscador.
+
+## S3 · Las tarjetas de imagen no tienen borde: radio 28 y sombra doble
+shop.app: la foto define la forma; el rótulo va como chip translúcido sobre
+la foto. Se comprueba: `border-width` 0, radio ≥ 24px, dos capas de sombra,
+rótulo posicionado dentro de la foto.
+
+## S4 · Sin bold
+shop.app: jerarquía por tamaño y tracking, peso ≤ 600 en títulos.
+Se comprueba: ningún título de sección con `font-weight` ≥ 700.
+
+## S5 · Aire entre secciones ≥ 48px en celular
+shop.app: 64-80px. Se comprueba: distancia entre el final de una sección y
+el título de la siguiente ≥ 48px.
+
+## S6 · Vidrio en lo que se superpone, plano en el contenido
+Decisión de Fran (17/9), registrada en DESIGN.md. Se comprueba: hojas,
+modales, isla acoplada, chips y dock con `backdrop-filter`; tarjetas de
+producto y hero sin él. OJO: con `prefers-reduced-transparency: reduce`
+el sistema vuelve todo sólido a propósito.
