@@ -249,3 +249,23 @@ Ronda A, hecha:
 Medido a 375 y 1280: sin desborde. A 1280 el buscador queda en y=342 (40% de
 la altura): la marca arriba es pedido de Fran; hay que actualizar la vara
 antes de los próximos críticos.
+
+## Home v2 — Ronda B: "Elegidos para vos" rota cada 5 minutos (18/09/2026)
+- `src/recommend.js`: `rotatingPicks()` baraja el catálogo elegible una vez por
+  ciclo y cada tramo de 5 minutos (`rotationSlot()` = hora / 5 min) toma su
+  porción de 5: todos ven lo mismo a la misma hora, sin guardar nada, y nada se
+  repite hasta dar la vuelta al catálogo (comprobado en Node: 50 tramos
+  seguidos, 0 repetidos). Los destacados que Rodri carga en Base44
+  (`arias:featured-products`) entran hasta dos por tramo. `dailyPicks()` sigue
+  existiendo para el build y para quien lo use.
+- `src/app.js`: al cargar los datos pinta el tramo vigente sin animar; en cada
+  cambio de tramo cambia tarjeta por tarjeta con 110ms de escalón
+  (`is-leaving` 420ms → `is-entering`). Con pestaña oculta o movimiento
+  reducido cambia sin animación; al volver a la pestaña se pone al día.
+- `src/glass.css`: la tarjeta que sale se empaña y se achica; la que entra
+  aparece detrás de un barrido de vidrio (`backdrop-filter` + franja de luz).
+  Barrita de tiempo bajo el título que se llena en 5 minutos.
+- Verificado en el navegador esperando el cambio real de tramo: secuencia de
+  clases correcta en las 5 tarjetas y 5 productos nuevos. La calidad visual de
+  la animación no se puede juzgar en el panel (no genera cuadros): **mirarla en
+  el deploy**.

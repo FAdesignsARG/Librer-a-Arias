@@ -736,8 +736,9 @@ ${
   picks.length
     ? `<section class="picks" data-arias-section="destacados" data-reveal>
   <div class="shell">
-    <p class="t-eyebrow picks__eyebrow">Cada día algo distinto</p>
-    <h2 class="t-h2 picks__title">Elegidos para vos hoy</h2>
+    <p class="t-eyebrow picks__eyebrow">Cambian cada 5 minutos</p>
+    <h2 class="t-h2 picks__title">Elegidos para vos</h2>
+    <div class="picks__timer" aria-hidden="true"><span id="picksTimer"></span></div>
   </div>
   <div class="picks__row">
     ${picks

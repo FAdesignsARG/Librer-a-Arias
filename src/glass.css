@@ -443,3 +443,48 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
   body:has(.home-search.is-docked) .dock,
   body:has(.arias-pc-bar[data-visible='true']) .dock {bottom:calc(max(16px, env(safe-area-inset-bottom)) + 88px);}
 }
+
+
+/* ==========================================================================
+   Home v2 · Ronda B · "Elegidos para vos" rota cada 5 minutos
+   La tarjeta que sale se empaña y se hunde; la que entra aparece nítida
+   detrás de un barrido de luz, como un vidrio que pasa por delante.
+   ========================================================================== */
+.picks__timer {width:64px;height:3px;margin-top:12px;border-radius:999px;background:var(--fill-hi, rgba(255,255,255,.12));overflow:hidden;}
+.picks__timer span {display:block;width:100%;height:100%;border-radius:inherit;background:var(--gold);transform:scaleX(0);transform-origin:left center;}
+
+.picks__item {position:relative;border-radius:28px;}
+.picks__item.is-leaving > .card {animation:picks-leave .42s var(--ease-soft, ease) both;}
+.picks__item.is-entering > .card {animation:picks-enter .62s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;}
+/* El barrido: una franja de vidrio que cruza la tarjeta mientras cambia. */
+.picks__item.is-leaving::after,
+.picks__item.is-entering::after {
+  content:'';position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.28) 46%,rgba(254,206,1,.22) 52%,transparent 68%);
+  background-size:260% 100%;
+  -webkit-backdrop-filter:blur(10px) saturate(160%);
+  backdrop-filter:blur(10px) saturate(160%);
+}
+.picks__item.is-leaving::after {animation:picks-sheen-in .42s var(--ease-soft, ease) both;}
+.picks__item.is-entering::after {animation:picks-sheen-out .8s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;}
+
+@keyframes picks-leave {
+  to {opacity:0;scale:.96;filter:blur(10px);}
+}
+@keyframes picks-enter {
+  from {opacity:0;scale:1.03;filter:blur(12px);}
+  to {opacity:1;scale:1;filter:blur(0);}
+}
+@keyframes picks-sheen-in {
+  from {opacity:0;background-position:120% 0;}
+  to {opacity:1;background-position:50% 0;}
+}
+@keyframes picks-sheen-out {
+  from {opacity:1;background-position:50% 0;}
+  to {opacity:0;background-position:-40% 0;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .picks__item.is-leaving > .card,.picks__item.is-entering > .card,
+  .picks__item.is-leaving::after,.picks__item.is-entering::after {animation:none;}
+  .picks__timer span {transition:none !important;}
+}

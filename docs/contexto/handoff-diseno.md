@@ -22,7 +22,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | Ronda | Tema | Estado |
 |---|---|---|
 | A | Marca al frente (logo + wordmark con lema), fuera tarjetas flotantes, banner pegado al hero, vuelven los flotantes de WhatsApp e IA | **Hecha** — falta pasarla por críticos |
-| B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | Pendiente |
+| B | Carrusel "Elegidos" que rota cada 5 min con transición de vidrio | **Hecha** — mirar la animación en el deploy (el panel de pruebas no genera cuadros) |
 | C | Home liviana (50 destacados + "Ver más"), página `/catalogo/` y rubros `/c/<rubro>/` como páginas aparte, filtros en pastillas a una altura | Pendiente |
 | D | Barra lateral en desktop / isla en mobile (shop.app) | Pendiente |
 | E | Transición del buscador tipo Airbnb, de arriba hacia abajo en vidrio | Pendiente |
@@ -39,7 +39,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | 6 | Banners como imagen sola (1400x534, fondo transparente) | Bloqueada: faltan los diseños de Fran |
 
 ## Pendientes concretos
-1. Seguir con la Ronda B del brief nuevo. Antes de volver a lanzar críticos,
+1. Seguir con la Ronda C del brief nuevo. Antes de volver a lanzar críticos,
    **actualizar la vara** (`work/design-loop/hero-20260915/bar.md`): con la
    marca arriba, el buscador queda a ~40% de la altura en desktop (mecanismo 3
    pedía primer tercio) y eso es decisión de Fran, no defecto.

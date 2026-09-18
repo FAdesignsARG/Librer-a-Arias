@@ -6,6 +6,7 @@ import { initHomeSearchMotion } from './home-search-motion.js';
  * bloque se activa sólo si encuentra los elementos que necesita.
  */
 import { buildIndex, getIndex, searchProducts } from './search-engine.js';
+import { rotatingPicks, rotationSlot, ROTATION_MS } from './recommend.js';
 import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // cardHtml es la MISMA función que arma las tarjetas en el servidor: antes
 // existían dos copias (una acá, otra en templates.js) que había que
@@ -754,7 +755,74 @@ let ariasFeaturedSlugs = [];
 window.addEventListener('arias:featured-products', (e) => {
   ariasFeaturedSlugs = Array.isArray(e.detail?.productIds) ? e.detail.productIds : [];
   if (grid) render();
+  rotatePicks({ animate: false });
 });
+
+/* ==========================================================================
+   "ELEGIDOS PARA VOS" — rota cada 5 minutos, en tiempo real
+   La selección sale del número de tramo (hora / 5 min), así que todos ven lo
+   mismo a la misma hora sin guardar nada. El cambio es tarjeta por tarjeta:
+   la que sale se empaña y se va, la que entra aparece detrás de un barrido
+   de vidrio. Con movimiento reducido, sólo un fundido.
+   ========================================================================== */
+const picksRow = $('.picks__row');
+const picksTimer = $('#picksTimer');
+let picksSlot = null;
+
+function picksHtml(list) {
+  return list.map((p) => `<div class="picks__item">${cardHtml(p)}</div>`).join('');
+}
+
+function restartPicksTimer() {
+  if (!picksTimer) return;
+  const left = ROTATION_MS - (Date.now() % ROTATION_MS);
+  picksTimer.style.transition = 'none';
+  picksTimer.style.transform = `scaleX(${1 - left / ROTATION_MS})`;
+  void picksTimer.offsetWidth; // fija el punto de partida antes de animar
+  picksTimer.style.transition = `transform ${left}ms linear`;
+  picksTimer.style.transform = 'scaleX(1)';
+}
+
+function rotatePicks({ animate = true } = {}) {
+  if (!picksRow || !PRODUCTS.length) return;
+  const slot = rotationSlot();
+  const next = rotatingPicks(PRODUCTS, { count: 5, slot, preferred: ariasFeaturedSlugs });
+  if (!next.length) return;
+  const same = picksSlot === slot && !ariasFeaturedSlugs.length;
+  picksSlot = slot;
+  restartPicksTimer();
+  if (same) return;
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const items = $$('.picks__item', picksRow);
+  if (!animate || reduced || document.hidden || items.length !== next.length) {
+    picksRow.innerHTML = picksHtml(next);
+    syncCartUI();
+    return;
+  }
+  // Tarjeta por tarjeta, con 110ms de escalón: se lee como una ola, no como un parpadeo.
+  items.forEach((item, i) => {
+    setTimeout(() => {
+      item.classList.add('is-leaving');
+      setTimeout(() => {
+        item.innerHTML = cardHtml(next[i]);
+        item.classList.remove('is-leaving');
+        item.classList.add('is-entering');
+        syncCartUI();
+        setTimeout(() => item.classList.remove('is-entering'), 900);
+      }, 420);
+    }, i * 110);
+  });
+}
+
+if (picksRow) {
+  const armNextRotation = () => {
+    setTimeout(() => { rotatePicks(); armNextRotation(); }, ROTATION_MS - (Date.now() % ROTATION_MS) + 50);
+  };
+  armNextRotation();
+  // Al volver a la pestaña después de un rato, se pone al día sin show.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && picksSlot !== rotationSlot()) rotatePicks({ animate: false }); });
+}
 
 function sortList(list, mode) {
   const out = [...list];
@@ -1379,6 +1447,7 @@ if (lightboxDlg && $('#stage')) {
    ========================================================================== */
 
 await loadData();
+rotatePicks({ animate: false });
 loadCart();
 syncCartUI();
 observeReveals();

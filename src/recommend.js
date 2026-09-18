@@ -57,3 +57,43 @@ export function dailyPicks(products, { count = 5, date = new Date() } = {}) {
   }
   return shuffled.slice(0, count);
 }
+
+/** Cada cuánto cambia la selección de la home. */
+export const ROTATION_MS = 5 * 60 * 1000;
+
+/** Número de tramo de 5 minutos: el mismo para todo el mundo a la misma hora. */
+export const rotationSlot = (now = Date.now()) => Math.floor(now / ROTATION_MS);
+
+const shuffleWith = (list, rand) => {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+/**
+ * Selección que rota, determinística por tramo (no por día). El catálogo
+ * elegible se baraja una vez por ciclo y cada tramo toma su porción: nada se
+ * repite hasta que pasó todo el catálogo (con ~500 productos, más de 8 horas).
+ * `preferred` son los slugs destacados que marketing carga en Base44: entran
+ * hasta dos por tramo, así la fila igual cambia aunque haya pocos destacados.
+ */
+export function rotatingPicks(products, { count = 5, slot = rotationSlot(), preferred = [] } = {}) {
+  const eligible = products.filter((p) => p.visible !== false && p.inStock);
+  if (eligible.length <= count) return eligible;
+
+  const perCycle = Math.floor(eligible.length / count);
+  const cycle = Math.floor(slot / perCycle);
+  const index = slot % perCycle;
+  const deck = shuffleWith(eligible, mulberry32(hashSeed(`cycle:${cycle}`)));
+  const chunk = deck.slice(index * count, index * count + count);
+
+  const wanted = new Set(preferred);
+  if (!wanted.size) return chunk;
+  const rand = mulberry32(hashSeed(`slot:${slot}`));
+  const inChunk = new Set(chunk.map((p) => p.slug));
+  const fromPreferred = shuffleWith(eligible.filter((p) => wanted.has(p.slug) && !inChunk.has(p.slug)), rand).slice(0, 2);
+  return shuffleWith([...fromPreferred, ...chunk.slice(0, count - fromPreferred.length)], rand);
+}
