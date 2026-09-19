@@ -8,6 +8,23 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
+## ESTADO AL 19/09/2026 (noche): LA VERSIÓN NUEVA YA ESTÁ EN PRODUCCIÓN
+
+- `main` = la versión que estaba en `diseno--` (commit `66314d5`). Publicada en
+  https://libreria-arias.netlify.app con **565 productos** (antes 551).
+- **Arreglado el limbo de productos**: se cargó `BUILD_HOOK_URL` en Netlify.
+  Probado: `POST /api/rebuild` → `200 {"ok":true}` y Netlify registró "Deploy
+  triggered by hook". Desde ahora cada carga en el panel reconstruye sola.
+- **Pendiente de Base44 — "Producto compartido" da 422.** Desde producción, el
+  mismo cuerpo con `tipo: "Vista de producto"` responde `201`; con
+  `tipo: "Producto compartido"` (y `datos.canal: "enlace"`) responde
+  `422 {"success":false,"error":"Evento, sesión o clave inválidos"}`. La web ya lo
+  manda; falta que `catalogo-metricas` publicado acepte ese tipo.
+- **Pendiente de Base44 — CORS de `https://diseno--libreria-arias.netlify.app`**:
+  sigue en 403 (producción responde 200/201).
+- Volver atrás si hiciera falta: etiqueta `prod-antes-20260919` (`6e313dc`).
+
+---
 ## RESPUESTA A LOS MENSAJES DEL 19/09/2026 (Rodri)
 
 **1. Productos que no llegan a producción (551 en la web vs 569 en Base44).**

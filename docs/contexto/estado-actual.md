@@ -658,3 +658,18 @@ panel de pruebas el ResizeObserver no dispara; se reproduce despachando
 - CORS de `diseno--`: medido, sigue en 403 (producción responde 200/201).
 - Respuesta completa para Rodri: arriba de todo en
   `docs/base44-integracion/RESUMEN-PARA-RODRI.md`.
+
+## Pase a producción del 19/09/2026 (noche)
+Con el OK de Fran ("promoverla a producción en el main"): `origin/main` avanzó de
+`6e313dc` a `66314d5` (avance directo, sin forzar: `main` ya era ancestro de
+`preview`). Netlify construyó solo desde GitHub. Respaldo: etiqueta
+`prod-antes-20260919`. Verificado en https://libreria-arias.netlify.app: 565
+productos, home/catálogo/rubro/fichas 200, barra lateral, flechas, `#cartFloat`,
+isla y `#islandBuy` en la ficha, `og:url` correcto, las 5 `data-arias-section`.
+- Se cargó `BUILD_HOOK_URL` (contexto production). `POST /api/rebuild` → 200 y
+  build "triggered by hook": el panel de administración vuelve a publicar solo.
+- Base44 desde producción: config 200, Visita/Vista 201, aviso corto visible
+  ("¿No lo encontrás? Escribinos"). **"Producto compartido" → 422** (Base44 todavía
+  no acepta el tipo; el mismo cuerpo con "Vista de producto" da 201).
+- Desde ahora `preview` y `main` están en el mismo commit: lo nuevo se trabaja en
+  `preview` y se promueve con `git push origin preview:main` (siempre con OK).

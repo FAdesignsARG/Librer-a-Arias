@@ -65,6 +65,13 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 - Limpieza pendiente: CSS muerto de `.stickycta`, `.psearch` y de la barra de
   arriba de la ficha (`.page-product .nav …`).
 
+## 19/09/2026 (noche) — EN PRODUCCIÓN
+- `main` = `preview` = `66314d5`+; producción tiene todo lo del 18–19/09. Etiqueta de
+  respaldo: `prod-antes-20260919`. `BUILD_HOOK_URL` cargada (el panel reconstruye solo).
+- Esperan a Rodri: aceptar el tipo "Producto compartido" (hoy 422) y el CORS de
+  `diseno--` (hoy 403). Después, prueba punta a punta.
+- Siguen abiertos: filtros del catálogo en celular, ronda 3 de críticos, limpieza de CSS muerto.
+
 ## Rondas anteriores
 | Ronda | Tema | Estado |
 |---|---|---|
