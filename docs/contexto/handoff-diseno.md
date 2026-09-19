@@ -41,8 +41,11 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
   abierta/cerrada en el teléfono, flechas y arrastre de banners.
 - Pendiente de la revisión de Fran: "la vista previa al compartir habría que
   mejorarla un poco" (no dijo qué: preguntar o proponer).
-- Críticos: relanzar los tres contra la vara v3 sobre esta versión (el de calidad
-  A/B depende de que shop.app no devuelva 504).
+- Críticos ronda 2 (19/09): los tres FAIL, corregidos 15 puntos; ver
+  `work/design-loop/home-v2-20260918/criticos-ronda2.md`. Falta la ronda 3 sobre
+  la versión corregida y **la decisión de Fran sobre los filtros en celular**
+  (de a uno por fila vs 2x2: hoy no entra ningún producto entero en la primera
+  pantalla del catálogo a 375).
 
 ## Rondas anteriores
 | Ronda | Tema | Estado |

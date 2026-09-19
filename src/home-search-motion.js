@@ -124,9 +124,12 @@ export function initHomeSearchMotion() {
     // During the short exit, keep this original form docked. Only after it
     // clears the lower edge do we restore its normal flow and fade it in.
     docked = true;
-    form.classList.add('is-docked');
+    form.classList.add('is-docked', 'is-measuring');
     restore();
+    // is-measuring apaga las transiciones de tamaño: si no, el destino se medía
+    // a mitad de camino (60px de alto) y el vuelo aterrizaba 8px corto.
     const last = form.getBoundingClientRect();
+    form.classList.remove('is-measuring');
     const edge = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
     const below = Math.max(last.height + 16, edge - last.top + 16);
     Object.assign(form.style, {

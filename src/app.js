@@ -295,7 +295,10 @@ function bumpFab() {
 let fabScrollReady = false;
 function updateFabVisibility() {
   if (!fab) return;
-  fab.hidden = cartCount() === 0 || !fabScrollReady;
+  // En la ficha aparece apenas hay productos: después de "Agregar" tiene que
+  // haber una forma visible de abrir el pedido sin tener que bajar.
+  const always = document.body.classList.contains('page-product');
+  fab.hidden = cartCount() === 0 || !(fabScrollReady || always);
 }
 window.addEventListener(
   'scroll',
@@ -1219,7 +1222,11 @@ function syncFilterPills() {
     featuredBtn.hidden = !PRODUCTS.some(isFeaturedProduct);
     featuredBtn.setAttribute('aria-pressed', String(featuredOnly));
   }
-  if (filtersClear) filtersClear.hidden = !(activeCat !== 'Todos' || priceEl?.value || sorted || featuredOnly);
+  const catFiltered = activeCat !== (PAGE_CAT || 'Todos');
+  if (filtersClear) filtersClear.hidden = !(catFiltered || priceEl?.value || sorted || featuredOnly);
+  // Búsqueda sin resultados y sin filtros puestos: los filtros no ayudan, se van.
+  const filtersRow = $('#filters');
+  if (filtersRow && IS_CATALOG) filtersRow.hidden = !grid.children.length && !(catFiltered || priceEl?.value || featuredOnly);
 }
 
 catBtn?.addEventListener('click', () => openFilterSheet(catSheet, catBtn));

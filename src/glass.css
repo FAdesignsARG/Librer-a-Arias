@@ -1407,8 +1407,8 @@ body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bo
   .menusheet--island[open] {animation:isla-menu .4s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;}
 }
 @media (max-width:420px) {
-  .home-search .search input {padding-right:136px;}
-  .home-search:has(.island__count[data-empty='true']) .search input {padding-right:116px;}
+  .home-search:not(.is-searching) .search input {padding-right:136px;}
+  .home-search:not(.is-searching):has(.island__count[data-empty='true']) .search input {padding-right:116px;}
 }
 @keyframes isla-menu {
   from {clip-path:inset(calc(100% - 76px) 4px 0 4px round 38px);opacity:.5;}
@@ -1433,4 +1433,74 @@ body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bo
   .home-search__go {width:44px;height:44px;}
   .home-search__go svg {width:20px;height:20px;}
   .home-search .search input {padding-left:60px;}
+}
+
+
+/* ==========================================================================
+   Ronda 2 de críticos sobre la vara v3 · 19/09/2026
+   ========================================================================== */
+/* 1. Con el buscador abierto los flotantes se retiran: acoplada abajo, el panel
+      quedaba debajo de WhatsApp y Adolfito (tapaban "Ver resultados"). */
+body:has(.home-search.is-searching) .dock {opacity:0;pointer-events:none;transition:opacity var(--dur-fast) var(--ease-soft);}
+body:has(.home-search.is-searching) .dock > * {pointer-events:none;}
+/* 2. El destino del vuelo se mide sin transiciones de tamaño. */
+.home-search.is-measuring .search,.home-search.is-measuring .search input {transition:none !important;}
+/* 3. La lista de productos del chat usa .picks y heredaba el aire de la sección
+      "Elegidos para vos" (76px vacíos antes del primer producto). */
+body dialog.chat .picks {padding-block:0;}
+/* 4. Cartelito de "agregado": ancho según su texto (se encogía a media pantalla
+      y se partía en 3-4 líneas). */
+.toast {width:max-content;max-width:min(340px, calc(100vw - 32px));}
+/* 5. Con texto escrito, Pedido y Menú ya están ocultos: el campo usa ese lugar. */
+@media (max-width:720px) {
+  .home-search.is-searching .search input {padding-right:60px;}
+  .home-search .search input {text-overflow:ellipsis;}
+}
+/* 6. Ficha en celular: el aviso de Base44 va arriba, debajo de la barra. Abajo
+      tapaba parte del precio y empujaba los flotantes sobre el título. */
+@media (max-width:640px) {
+  body.page-product .arias-pc-bar {top:calc(66px + env(safe-area-inset-top));bottom:auto;}
+  body.page-product:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)));}
+}
+/* 7. Barra lateral: el pedido con productos se enciende, como en celular. */
+@media (min-width:1024px) {
+  .rail__item:has(.rail__count[data-empty="false"]) {background:var(--gold-wash);box-shadow:inset 0 0 0 1px var(--gold-edge);}
+}
+/* 8. Hoja del pedido: manda el total que se paga. Con descuento, el estimado
+      queda tachado y chico, y "Total con descuento" pasa a ser el número grande. */
+.sheet__total:has(+ .sheet__promo:not([hidden])) strong {font-size:16px;font-weight:500;color:var(--text-2);text-decoration:line-through;}
+.sheet__promo .sheet__promo-chip--sub {padding:2px 0 0;font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--text);}
+/* 9. Catálogo en desktop ancho: 5 columnas (entraban 4 productos por pantalla). */
+@media (min-width:1200px) {
+  .page-catalog #grid {grid-template-columns:repeat(5,minmax(0,1fr));gap:20px 18px;}
+}
+
+/* --- Crítico de sistema, ronda 2 --- */
+/* H8: el bloque de Base44 quedaba a 8px de "Elegidos para vos". */
+body.page-home:not(.page-catalog) [data-arias-slot="debajo_buscador"]:not(:empty) {margin-top:48px;}
+/* Ficha: piso de 14px y contraste ≥4,5:1 en migas, rubro y stock (también en desktop). */
+.page-product .crumbs {font-size:14px;color:var(--text-2);}
+.page-product .crumbs a {display:inline-flex;align-items:center;min-width:44px;min-height:44px;}
+.page-product .product__cat,.page-product .product__stock {font-size:14px;}
+.related .card__cat {color:var(--text-2);font-size:14px;}
+.related .card__stock {font-size:14px;}
+.page-product .qtystepper__btn {min-width:44px;min-height:44px;}
+.rail__count {font-size:14px;}
+/* Menú de la ficha (hoja clásica): enlaces y botones de la guía a 44px, textos a 14px legibles. */
+.menusheet__links a {min-height:44px;display:inline-flex;align-items:center;}
+.menusheet .guidestep__btn {min-height:44px;min-width:44px;padding-inline:14px;font-size:14px;}
+.menusheet .menusheet__guideTitle,.menusheet .guidestep__n,.menusheet .guidestep__info span {font-size:14px;color:var(--text-2);}
+/* El botón de Menú de la ficha no es una acción principal: deja el amarillo para "Agregar". */
+.page-product .nav .menubtn {background:var(--fill-hi, rgba(255,255,255,.1));color:var(--text);box-shadow:none;}
+/* Foco sobre fotos blancas en tema oscuro: anillo oscuro pegado al botón y halo claro por fuera. */
+.card__share:focus-visible,.card__add:focus-visible {outline:2px solid #101012;outline-offset:2px;box-shadow:0 0 0 5px #fff;}
+/* Cerrar del chat a 320px. */
+.chat .sheet__close {min-width:44px;min-height:44px;}
+@media (max-width:380px) {
+  /* Con la insignia a 14px, "Librería" la pisaba 9px: queda el logo solo. */
+  .page-product .nav__brand > span {display:none;}
+}
+@media (max-width:340px) {
+  .home-quick {gap:6px;}
+  .home-quick > * {padding-inline:10px 12px;gap:8px;}
 }

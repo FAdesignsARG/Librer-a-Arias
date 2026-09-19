@@ -553,3 +553,13 @@ muy suave), pero en Arias de arriba hacia abajo y en vidrio.
   isla abierta 12,206–363,553 envolviendo la píldora 20,214–355,284.
   **La suavidad del vuelo, el despliegue de la isla y el arrastre hay que
   mirarlos en el deploy / teléfono** (el panel de pruebas no genera cuadros).
+
+## Ronda 2 de críticos sobre la vara v3 (19/09/2026)
+Veredictos y detalle en `work/design-loop/home-v2-20260918/criticos-ronda2.md`.
+Los tres dieron FAIL, con los pedidos de Fran cumplidos; se corrigieron 15 puntos
+(flotantes vs panel del buscador, acceso al pedido en la ficha, aire en el chat,
+aterrizaje del vuelo, cartelito, campo al escribir, aviso en la ficha, 5 columnas,
+"Limpiar" en rubros, pedido en la barra lateral, total con descuento, piso de
+tamaños y contraste en la ficha, foco sobre fotos, H8, 320px). Quedan como
+decisión de Fran: filtros de a uno por fila en celular (densidad), buscador
+flotante en la ficha en celular, e isla en la ficha.
