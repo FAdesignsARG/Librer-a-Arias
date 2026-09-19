@@ -521,7 +521,10 @@ const islandPanelHtml = (s) => `<dialog class="sortsheet menusheet menusheet--is
  */
 const notifyPanel = () => `<dialog class="notify" id="notify" aria-labelledby="notifyTitle" tabindex="-1">
   <div class="notify__head">
-    <h2 id="notifyTitle">Novedades</h2>
+    <div class="sheet__heading">
+      <h2 id="notifyTitle">Novedades</h2>
+      <p class="sheet__sub">Ofertas, lo nuevo y lo más pedido</p>
+    </div>
     <button class="sheet__close" id="notifyClose" aria-label="Cerrar">${ico.x}</button>
   </div>
   <div class="notify__body" id="notifyBody"></div>
@@ -529,6 +532,11 @@ const notifyPanel = () => `<dialog class="notify" id="notify" aria-labelledby="n
 
 /** Panel lateral del pedido. El contenido lo llena app.js. */
 const orderSheet = (s) => `
+<button type="button" class="cartfloat" id="cartFloat" data-open-order aria-haspopup="dialog" aria-label="Mi pedido" hidden>
+  <span class="cartfloat__ico">${ico.bag}<span class="cartfloat__count" data-order-count data-empty="true">0</span></span>
+  <span class="cartfloat__text"><span class="cartfloat__label">Mi pedido</span><strong class="cartfloat__total" id="cartFloatTotal">$0</strong></span>
+  <span class="cartfloat__plus" id="cartFloatPlus" aria-hidden="true">+1</span>
+</button>
 <div class="dock">
   <button class="fab" id="fab" hidden aria-haspopup="dialog">
     ${ico.bag}
@@ -578,23 +586,37 @@ const orderSheet = (s) => `
 
 <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle" tabindex="-1">
   <div class="sheet__head">
-    <h2 id="sheetTitle">Mi pedido</h2>
+    <div class="sheet__heading">
+      <h2 id="sheetTitle">Mi pedido</h2>
+      <p class="sheet__sub" id="sheetSub">Todavía vacío</p>
+    </div>
     <button class="sheet__close" id="sheetClose" aria-label="Cerrar">${ico.x}</button>
   </div>
   <div class="sheet__body" id="sheetBody"></div>
   <div class="sheet__foot" id="sheetFoot" hidden>
-    <div class="sheet__total"><span class="t-small">Total estimado</span><strong id="sheetTotal">$0</strong></div>
-    <a class="btn btn--gold btn--block" id="sheetSend" href="#" target="_blank" rel="noopener">
-      ${ico.wa} Enviar pedido por WhatsApp
+    <div class="sheet__total"><span>Total</span><strong id="sheetTotal">$0</strong></div>
+    <a class="btn btn--gold btn--block sheet__send" id="sheetSend" href="#" target="_blank" rel="noopener">
+      ${ico.wa} <span>Enviar pedido por WhatsApp</span>
     </a>
-    <p class="sheet__note">Te abrimos WhatsApp con el pedido escrito. Confirmamos stock y forma de pago por ahí.</p>
     <div class="sheet__fallback">
-      <span>¿No se abrió WhatsApp?</span>
       <button type="button" class="sheet__copy" id="sheetCopy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
         Copiar pedido
       </button>
-      <a class="sheet__phone" href="tel:+${esc(s.whatsapp)}">o llamanos al ${esc(s.phoneDisplay)}</a>
+      <a class="sheet__phone" href="tel:+${esc(s.whatsapp)}" aria-label="Llamar al ${esc(s.phoneDisplay)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h3.2l1.5 4-2 1.4a12 12 0 0 0 6.4 6.4l1.4-2 4 1.5V19a1.5 1.5 0 0 1-1.6 1.5C10.6 20 4 13.4 3.5 6.1A1.5 1.5 0 0 1 5 4.5Z"/></svg>
+        Llamar
+      </a>
+    </div>
+  </div>
+  <div class="cconfirm" id="cartConfirm" role="alertdialog" aria-modal="true" aria-labelledby="cartConfirmTitle" hidden>
+    <div class="cconfirm__box">
+      <h3 id="cartConfirmTitle">¿Vaciar el pedido?</h3>
+      <p>Se quitan todos los productos. Esto no se puede deshacer.</p>
+      <div class="cconfirm__actions">
+        <button type="button" class="btn btn--ghost" id="cartConfirmNo">No, dejarlo</button>
+        <button type="button" class="btn cconfirm__yes" id="cartConfirmYes">Sí, vaciar</button>
+      </div>
     </div>
   </div>
   <div class="sheet__sent" id="sheetSent" hidden>

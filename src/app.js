@@ -311,6 +311,24 @@ window.addEventListener(
   { passive: true }
 );
 
+/* Botón flotante de pedido, arriba a la derecha en desktop: aparece con el
+   primer producto y avisa cada suma con un latido, un aro y un "+N". */
+const cartFloat = $('#cartFloat');
+let cartFloatPrev = null;
+function syncCartFloat(n) {
+  if (!cartFloat) return;
+  const d = webDiscount(cartTotal());
+  $('#cartFloatTotal').textContent = money(d ? d.totalConDescuento : cartTotal());
+  cartFloat.hidden = n === 0;
+  if (cartFloatPrev !== null && n > cartFloatPrev) {
+    const plus = $('#cartFloatPlus');
+    if (plus) plus.textContent = `+${n - cartFloatPrev}`;
+    delete cartFloat.dataset.pulse; void cartFloat.offsetWidth; cartFloat.dataset.pulse = 'true';
+    setTimeout(() => delete cartFloat.dataset.pulse, 1300);
+  }
+  cartFloatPrev = n;
+}
+
 function syncCartUI() {
   const n = cartCount();
   const homeCount = $('#homeOrderCount');
@@ -333,6 +351,7 @@ function syncCartUI() {
     fabCount.textContent = String(n);
     fabTotal.textContent = money(cartTotal());
   }
+  syncCartFloat(n);
   // Marca los botones "+" de los productos que ya están en el pedido
   $$('[data-add]').forEach((btn) => {
     const inCart = cart.has(btn.dataset.add);
@@ -344,47 +363,123 @@ function syncCartUI() {
   if (sheet?.open) renderSheet();
 }
 
+/* ==========================================================================
+   MI PEDIDO · v2 (19/09/2026, pedido de Fran: "reconstruir el carrito… en el
+   estilo de shop.app, con tarjetas, botones y modales")
+   El cuerpo tiene cuatro bloques: la promo, los productos (una tarjeta cada
+   uno), "Sumá algo más" y el resumen. Cambiar una cantidad NO redibuja todo:
+   se actualizan los números en su lugar (si no, las animaciones de entrada se
+   repetían con cada toque). Sólo se redibuja cuando cambia qué productos hay.
+   ========================================================================== */
+const cartIco = {
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7m3 0-.7 11.1a2 2 0 0 1-2 1.9H9.2a2 2 0 0 1-2-1.9L6.5 7M10 11v5m4-5v5"/></svg>',
+  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.2V5.5a2 2 0 0 1 2-2h6.7a2 2 0 0 1 1.4.6l6.8 6.8a2 2 0 0 1 0 2.8l-6.7 6.7a2 2 0 0 1-2.8 0L4.1 13.6a2 2 0 0 1-.6-1.4Z"/><circle cx="8.2" cy="8.2" r="1.3" fill="currentColor" stroke="none"/></svg>',
+};
+let sheetKey = '';
+const cartSuggestions = () =>
+  rotatingPicks(PRODUCTS.filter((p) => p.inStock && !cart.has(p.slug)), { count: 8 });
+
+function cartLineHtml(slug, qty, i) {
+  const p = bySlug.get(slug);
+  if (!p) return '';
+  return `<article class="cline" data-slug="${slug}" style="--i:${i}">
+    <a class="cline__media" href="/p/${p.slug}/" tabindex="-1" aria-hidden="true"><img src="${thumbOf(p.images[0])}" alt="" width="96" height="96" loading="lazy"></a>
+    <div class="cline__info">
+      <a class="cline__name" href="/p/${p.slug}/">${p.name}</a>
+      <p class="cline__unit">${money(p.price)} c/u</p>
+      <div class="cline__row">
+        <div class="cqty" role="group" aria-label="Cantidad de ${p.name}">
+          <button type="button" data-qty="-1" aria-label="Quitar uno">${ico.minus}</button>
+          <span class="cqty__n" data-line-qty aria-live="polite">${qty}</span>
+          <button type="button" data-qty="1" aria-label="Agregar uno">${ico.plus}</button>
+        </div>
+        <strong class="cline__total" data-line-total>${money(p.price * qty)}</strong>
+      </div>
+    </div>
+    <button type="button" class="cline__remove" data-remove aria-label="Quitar ${p.name} del pedido">${cartIco.trash}</button>
+  </article>`;
+}
+
+function cartSummaryHtml() {
+  const total = cartTotal();
+  const d = webDiscount(total);
+  const n = cartCount();
+  return `<section class="csum" aria-label="Resumen del pedido">
+    <div class="csum__row"><span>Subtotal · ${n} ${n === 1 ? 'producto' : 'productos'}</span><span data-sum-subtotal>${money(total)}</span></div>
+    ${d ? `<div class="csum__row csum__row--off"><span>${cartIco.tag} Descuento web ${d.percent}%</span><span data-sum-off>−${money(d.ahorro)}</span></div>` : ''}
+    <div class="csum__row csum__row--total"><span>Total</span><strong data-sum-total>${money(d ? d.totalConDescuento : total)}</strong></div>
+    <p class="csum__note">Es un total estimado: por WhatsApp confirmamos stock, forma de pago y entrega.${d?.disclaimer ? ` ${d.disclaimer}` : ''}</p>
+  </section>`;
+}
+
+function cartSuggestHtml(title) {
+  const picks = cartSuggestions();
+  if (!picks.length) return '';
+  return `<section class="csug" aria-label="${title}">
+    <h3 class="csug__title">${title}</h3>
+    <div class="csug__row">${picks.map((p) => `<article class="csug__item" data-slug="${p.slug}">
+      <a href="/p/${p.slug}/" class="csug__media"><img src="${thumbOf(p.images[0])}" alt="" width="120" height="120" loading="lazy"></a>
+      <a href="/p/${p.slug}/" class="csug__name">${p.name}</a>
+      <div class="csug__foot"><span class="csug__price">${money(p.price)}</span>
+        <button type="button" class="csug__add" data-add="${p.slug}" aria-label="Agregar ${p.name} al pedido">${ico.plus}</button></div>
+    </article>`).join('')}</div>
+  </section>`;
+}
+
+function syncSheetFoot() {
+  const total = cartTotal();
+  const d = webDiscount(total);
+  sheetFoot.hidden = cart.size === 0;
+  sheetTotal.textContent = money(d ? d.totalConDescuento : total);
+  const sub = $('#sheetSub');
+  if (sub) { const n = cartCount(); sub.textContent = n ? `${n} ${n === 1 ? 'producto' : 'productos'}` : 'Todavía vacío'; }
+  if (sheetPromoLine) sheetPromoLine.hidden = true; // el desglose vive en el resumen
+  sheetSend.href = buildOrderLink();
+}
+
 function renderSheet() {
   if (!sheetBody) return;
+  $('#cartConfirm')?.setAttribute('hidden', '');
 
   if (cart.size === 0) {
-    sheetBody.innerHTML = `<div class="sheet__empty">
-      ${ico.bag}
-      <p>Todavía no agregaste nada.</p>
-      <p class="t-small" style="margin-top:6px">Tocá el <strong>+</strong> en cualquier producto para sumarlo.</p>
-      <button type="button" class="btn btn--gold sheet__browse" data-sheet-browse>Ver el catálogo</button>
-    </div>`;
-    sheetFoot.hidden = true;
+    sheetKey = '';
+    sheetBody.innerHTML = `<div class="cempty">
+      <img class="cempty__face" src="/assets/brand/adolfito-chat.webp" width="120" height="120" alt="">
+      <h3>Tu pedido está vacío</h3>
+      <p>Tocá el <strong>+</strong> de cualquier producto y lo vas armando acá. Después lo mandás por WhatsApp.</p>
+      <button type="button" class="btn btn--gold cempty__btn" data-sheet-browse>Ver el catálogo</button>
+    </div>${cartSuggestHtml('Para empezar')}`;
+    syncSheetFoot();
     return;
   }
 
-  sheetBody.innerHTML = [...cart]
-    .map(([slug, qty]) => {
+  const key = [...cart.keys()].join('|');
+  if (key === sheetKey && $('.cline', sheetBody)) {
+    // Mismos productos: sólo cambian números (sin repetir la entrada).
+    for (const [slug, qty] of cart) {
+      const line = $(`.cline[data-slug="${CSS.escape(slug)}"]`, sheetBody);
       const p = bySlug.get(slug);
-      if (!p) return '';
-      return `<div class="line" data-slug="${slug}">
-      <img class="line__img" src="${thumbOf(p.images[0])}" alt="" width="58" height="58" loading="lazy">
-      <div class="line__info">
-        <a class="line__name" href="/p/${p.slug}/"><span>${p.name}</span></a>
-        <p class="line__price">${money(p.price)} c/u · <strong>${money(p.price * qty)}</strong></p>
-        <div class="line__actions">
-          <div class="qty">
-            <button data-qty="-1" aria-label="Quitar uno">${ico.minus}</button>
-            <span>${qty}</span>
-            <button data-qty="1" aria-label="Agregar uno">${ico.plus}</button>
-          </div>
-          <button class="line__remove" data-remove>Quitar</button>
-        </div>
-      </div>
-    </div>`;
-    })
-    .join('');
-
-  sheetFoot.hidden = false;
-  const total = cartTotal();
-  sheetTotal.textContent = money(total);
-  renderPromoLine(total);
-  sheetSend.href = buildOrderLink();
+      if (!line || !p) continue;
+      const qEl = $('[data-line-qty]', line);
+      if (qEl.textContent !== String(qty)) {
+        qEl.textContent = String(qty);
+        delete qEl.dataset.bump; void qEl.offsetWidth; qEl.dataset.bump = 'true';
+      }
+      $('[data-line-total]', line).textContent = money(p.price * qty);
+    }
+    $('.csum', sheetBody).outerHTML = cartSummaryHtml();
+    syncSheetFoot();
+    return;
+  }
+  const entering = sheetKey === '';
+  sheetKey = key;
+  const d = webDiscount(cartTotal());
+  sheetBody.innerHTML = `${d ? `<div class="cpromo">${cartIco.tag}<p><strong>${d.percent}% OFF por pedir desde la web</strong><span>Ya está aplicado en el total.</span></p></div>` : ''}
+    <div class="clines${entering ? ' is-entering' : ''}">${[...cart].map(([slug, qty], i) => cartLineHtml(slug, qty, i)).join('')}</div>
+    <button type="button" class="cclear" data-cart-clear>${cartIco.trash} Vaciar pedido</button>
+    ${cartSuggestHtml('Sumá algo más')}
+    ${cartSummaryHtml()}`;
+  syncSheetFoot();
 }
 
 /** Arma el mensaje del pedido en un solo texto — lo usan tanto el link
@@ -577,16 +672,48 @@ sheetBody?.addEventListener('click', (e) => {
     $('#catalogo')?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     return;
   }
-  const line = e.target.closest('.line');
+  if (e.target.closest('[data-cart-clear]')) { askClearCart(); return; }
+  const line = e.target.closest('.cline');
   if (!line) return;
   const slug = line.dataset.slug;
-
+  // Quitar: la tarjeta se pliega y recién después sale del pedido.
+  const leave = () => {
+    if (line.classList.contains('is-leaving')) return;
+    line.classList.add('is-leaving');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(() => setQty(slug, 0), reduce ? 0 : 280);
+  };
   const qtyBtn = e.target.closest('[data-qty]');
   if (qtyBtn) {
-    setQty(slug, (cart.get(slug) || 0) + Number(qtyBtn.dataset.qty));
+    const next = (cart.get(slug) || 0) + Number(qtyBtn.dataset.qty);
+    if (next <= 0) leave(); else setQty(slug, next);
     return;
   }
-  if (e.target.closest('[data-remove]')) setQty(slug, 0);
+  if (e.target.closest('[data-remove]')) leave();
+});
+
+/* Confirmación de "Vaciar pedido": un cartel de vidrio dentro de la misma hoja
+   (no otro <dialog>: así no pelea con el foco atrapado del pedido). */
+const cartConfirm = $('#cartConfirm');
+let cartConfirmFrom = null;
+function askClearCart() {
+  if (!cartConfirm) { cart.clear(); saveCart(); syncCartUI(); return; }
+  cartConfirmFrom = document.activeElement;
+  cartConfirm.hidden = false;
+  $('#cartConfirmNo')?.focus();
+}
+function closeClearCart() {
+  if (!cartConfirm) return;
+  cartConfirm.hidden = true;
+  (cartConfirmFrom?.isConnected ? cartConfirmFrom : sheet)?.focus?.();
+}
+$('#cartConfirmNo')?.addEventListener('click', closeClearCart);
+cartConfirm?.addEventListener('click', (e) => { if (e.target === cartConfirm) closeClearCart(); });
+cartConfirm?.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); closeClearCart(); } });
+$('#cartConfirmYes')?.addEventListener('click', () => {
+  cart.clear(); saveCart(); syncCartUI();
+  cartConfirm.hidden = true;
+  sheet?.focus();
 });
 
 /* Delegación global del botón "+": sirve para las tarjetas de la grilla
@@ -655,6 +782,7 @@ function buildFeed() {
   return { offers, news, popular };
 }
 
+let nitemIndex = 0;
 function nitemHtml(p, kind) {
   const meta =
     kind === 'offer'
@@ -664,14 +792,19 @@ function nitemHtml(p, kind) {
       : `De lo más pedido · ${money(p.price)}`;
   const icon = kind === 'offer' ? offerIco : kind === 'new' ? sparkIco : fireIco;
   const img = p.images?.[0];
-  return `<a class="nitem nitem--${kind}" href="/p/${p.slug}/">
-    ${img ? `<img class="nitem__ico" src="${thumbOf(img)}" alt="" width="36" height="36" loading="lazy">` : `<span class="nitem__ico">${icon}</span>`}
-    <span class="nitem__info">
-      <span class="nitem__title"></span>
-      <span class="nitem__meta">${meta}</span>
-    </span>
-    <span class="nitem__go">${arrowIco}</span>
-  </a>`;
+  const price = kind === 'offer' && p.offer?.price ? p.offer.price : p.price;
+  const why = kind === 'offer' ? `Oferta hasta el ${dateFmt(p.offer.until)}` : kind === 'new' ? 'Nuevo en el catálogo' : 'De lo más pedido';
+  return `<article class="nitem nitem--${kind}" style="--i:${Math.min(nitemIndex++, 12)}">
+    <a class="nitem__link" href="/p/${p.slug}/">
+      ${img ? `<img class="nitem__ico" src="${thumbOf(img)}" alt="" width="72" height="72" loading="lazy">` : `<span class="nitem__ico">${icon}</span>`}
+      <span class="nitem__info">
+        <span class="nitem__why">${icon}${why}</span>
+        <span class="nitem__title"></span>
+        <span class="nitem__meta">${money(price)}</span>
+      </span>
+    </a>
+    ${p.inStock ? `<button type="button" class="nitem__add" data-add="${p.slug}" aria-label="Agregar al pedido">${ico.plus}</button>` : `<span class="nitem__go">${arrowIco}</span>`}
+  </article>`;
 }
 
 function renderFeed() {
@@ -687,9 +820,10 @@ function renderFeed() {
     return;
   }
 
+  nitemIndex = 0;
   const section = (title, items, kind) =>
     items.length
-      ? `<div class="notify__group">${title}</div>${items.map((p) => nitemHtml(p, kind)).join('')}`
+      ? `<section class="notify__section"><h3 class="notify__group">${title}<span>${items.length}</span></h3><div class="notify__list">${items.map((p) => nitemHtml(p, kind)).join('')}</div></section>`
       : '';
 
   notifyBody.innerHTML =

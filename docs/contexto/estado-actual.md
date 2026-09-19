@@ -563,3 +563,39 @@ aterrizaje del vuelo, cartelito, campo al escribir, aviso en la ficha, 5 columna
 tamaños y contraste en la ficha, foco sobre fotos, H8, 320px). Quedan como
 decisión de Fran: filtros de a uno por fila en celular (densidad), buscador
 flotante en la ficha en celular, e isla en la ficha.
+
+## Vuelo de ida, Mi pedido v2, Novedades v2 y botón flotante de pedido (19/09/2026)
+Fran aprobó el vuelo de vuelta ("quedó hermosa") y pidió lo mismo hacia abajo,
+reconstruir el carrito y las notificaciones "en el estilo de shop.app" y un
+botón de pedido arriba a la derecha en desktop.
+- **Vuelo de ida** (`home-search-motion.js`): usa el mismo motor que la vuelta
+  (`track()`, ahora con `{ down, fade }`), espejado: misma curva, seguimiento del
+  hueco cuadro a cuadro. La píldora se despega de la página de a poco y baja a
+  acoplarse (620 ms). Sólo se funde si el origen quedó fuera de pantalla.
+- **Mi pedido v2** (`renderSheet()` en `app.js`, marcado en `templates.js`, capa
+  "MI PEDIDO v2" al final de `glass.css`): panel de vidrio flotante con margen en
+  desktop (480px, radio 32) y hoja alta en celular (hasta 94dvh). Cabecera con
+  título de 26px + cantidad. Bloques: promo aplicada, **una tarjeta por producto**
+  (foto 96px, nombre 17px, precio unitario, cantidad con botones de 44px, total de
+  línea 19px, quitar con tachito), "Vaciar pedido" con **confirmación en un cartel
+  de vidrio dentro de la hoja** (`#cartConfirm`, role alertdialog), **"Sumá algo
+  más"** (8 sugerencias deslizables con "+", salen de `rotatingPicks` sin lo que ya
+  está en el pedido) y **resumen** (subtotal, descuento web, total de 30px). Pie:
+  total a pagar (con descuento), "Enviar pedido por WhatsApp" de 60px, y "Copiar
+  pedido" / "Llamar" como botones de 48px. Vacío con Adolfito + sugerencias.
+  Cambiar una cantidad **no redibuja** la lista (actualiza números en su lugar y
+  late el número); quitar pliega la tarjeta (300 ms) antes de sacarla.
+  Se conservan `#sheet`, `#sheetBody`, `#sheetFoot`, `#sheetTotal`, `#sheetSend`,
+  `#sheetCopy`, `#sheetSent*` y el mensaje de WhatsApp (no cambió). `#sheetTotal`
+  ahora muestra el total CON descuento; el desglose vive en el resumen
+  (`#sheetPromo` queda siempre oculto).
+- **Novedades v2**: mismo cuerpo de panel. Cada novedad es una tarjeta con foto de
+  72px, motivo ("Nuevo en el catálogo", "Oferta hasta…"), nombre 16px, precio 17px
+  y **"+" de 48px para sumarla al pedido** sin salir (si no hay stock, flecha).
+  Secciones con título de 18px y contador.
+- **Botón flotante de pedido en desktop** (`#cartFloat`, ≥1024px, arriba a la
+  derecha): aparece con el primer producto (entrada con rebote), muestra cantidad
+  y total; al sumar late, suelta un aro dorado y sube un "+N". Abre el pedido. El
+  "Mi pedido" del bloque de flotantes se oculta en desktop (quedaban tres entradas).
+- Medido por DOM a 375 y 1280: sin desborde en las hojas, ningún texto <14px,
+  ningún toque <44px, el href de WhatsApp sigue llevando "Descuento web 10%".

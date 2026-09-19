@@ -47,6 +47,16 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
   (de a uno por fila vs 2x2: hoy no entra ningún producto entero en la primera
   pantalla del catálogo a 375).
 
+## 19/09/2026 (tarde) — vuelo de ida, carrito, novedades, botón de pedido
+- Hecho y publicado en `diseno`: vuelo del buscador hacia abajo (espejo de la
+  vuelta), Mi pedido v2, Novedades v2 y `#cartFloat` en desktop. Detalle en
+  `estado-actual.md`.
+- **Fran tiene que mirar**: el vuelo de ida, el carrito (agregar, cambiar
+  cantidades, quitar, vaciar, sugerencias) en teléfono y PC, novedades, y el
+  botón flotante de pedido al ir sumando productos.
+- Nada de esto pasó por críticos todavía (ronda 3 pendiente, junto con la
+  decisión de los filtros en celular).
+
 ## Rondas anteriores
 | Ronda | Tema | Estado |
 |---|---|---|

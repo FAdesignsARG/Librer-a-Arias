@@ -16,7 +16,7 @@ export function initHomeSearchMotion() {
   const nav = document.getElementById('nav');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const viewport = window.visualViewport;
-  const properties = ['position', 'left', 'top', 'right', 'bottom', 'width', 'height', 'transform', 'transform-origin', 'transition', 'z-index', 'will-change', 'box-sizing'];
+  const properties = ['position', 'left', 'top', 'right', 'bottom', 'width', 'height', 'transform', 'transform-origin', 'transition', 'z-index', 'will-change', 'box-sizing', 'opacity'];
   const original = new Map(properties.map(key => [key, [form.style.getPropertyValue(key), form.style.getPropertyPriority(key)]]));
   const oldKeyboard = form.style.getPropertyValue('--search-keyboard-bottom');
   const oldDock = form.classList.contains('is-docked');
@@ -73,17 +73,23 @@ export function initHomeSearchMotion() {
   // subiendo, así que cada cuadro se vuelve a leer dónde está. La píldora nunca
   // apunta a una posición vieja (antes se iba hacia arriba y después saltaba) y
   // aterriza exactamente sobre su lugar: se funde con él, sin corte.
-  function track(from, ms, finish) {
+  function track(from, ms, finish, { down = false, fade = false } = {}) {
     form.classList.add('is-flying');
     const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
     const started = performance.now();
     let raf = 0, timer = 0, done = false;
     const token = { onfinish: null, cancel() { done = true; cancelAnimationFrame(raf); clearTimeout(timer); } };
+    // f = cuánto del camino hacia el hueco del hero: la vuelta va de 0 a 1 y la
+    // ida (down) de 1 a 0, con la misma curva. En la ida el hueco sigue subiendo
+    // con la página: la píldora se despega de ella de a poco y recién después
+    // baja. Si el hueco quedó muy lejos, arranca apenas por encima del borde.
     const paint = p => {
-      const to = anchor.getBoundingClientRect(), k = ease(p);
-      form.style.transform = `translate(${(to.left - from.left) * k}px, ${(to.top - from.top) * k}px)`;
-      form.style.width = `${from.width + (to.width - from.width) * k}px`;
-      form.style.height = `${from.height + (to.height - from.height) * k}px`;
+      const to = anchor.getBoundingClientRect(), f = down ? 1 - ease(p) : ease(p);
+      const top = Math.max(to.top, -to.height - 24);
+      form.style.transform = `translate(${(to.left - from.left) * f}px, ${(top - from.top) * f}px)`;
+      form.style.width = `${from.width + (to.width - from.width) * f}px`;
+      form.style.height = `${from.height + (to.height - from.height) * f}px`;
+      if (fade) form.style.opacity = String(Math.min(1, p / .25));
     };
     const end = () => {
       if (done) return;
@@ -155,15 +161,11 @@ export function initHomeSearchMotion() {
     const docks = { transform: 'translate(0, 0)', width: `${last.width}px`, height: `${last.height}px` };
     if (next && !wasDocked) {
       // Ida: del hero hacia abajo, achicándose; llega con un rebote mínimo.
-      // Despega de donde está, a la vista: sólo se funde si el origen quedó
-      // fuera de pantalla (salto por un ancla).
+      // Ida: el mismo vuelo que la vuelta, espejado (misma curva, mismo
+      // seguimiento cuadro a cuadro). Despega de donde está, a la vista; sólo
+      // se funde si el origen quedó fuera de pantalla (salto por un ancla).
       const seen = first.bottom > 8 && first.top < edge - 8;
-      play([
-        { ...at(first), opacity: seen ? '1' : '0', offset: 0 },
-        { opacity: '1', offset: .22 },
-        { ...docks, transform: 'translate(0, 6px)', opacity: '1', offset: .82 },
-        { ...docks, opacity: '1', offset: 1 },
-      ], 680, null, { flying: true, easing: SOFT });
+      track(last, 620, null, { down: true, fade: !seen });
     } else if (next) {
       // Ya estaba abajo (cambio de tamaño o teclado): sólo se reacomoda.
       play([
