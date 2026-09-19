@@ -630,3 +630,18 @@ y Mercado Libre. Vale para las 565 fichas (salen todas de `renderProduct()`).
   "Agregar" y "WhatsApp" siguen entrando sin scroll a 1280x860 (y=649 y 717).
 - Medido por DOM a 320, 375 y 1280: sin desborde, ningún texto <14px, vuelo y
   aterrizaje exactos, fila de compra y menú funcionando. Sin errores de JS.
+
+## El "salto" del vuelo de ida (19/09/2026)
+Fran: "pega un salto y de golpe aparece abajo" (la vuelta sí se veía bien).
+Causa: al despegar, el formulario deja de ocupar `#homeSearchAnchor` y el hueco
+se achicaba de 82 a 80px (su `min-height`); el `ResizeObserver` llamaba a
+`resize()`, que ante cualquier animación en curso hacía `move(desired, true)`:
+acople inmediato. En la vuelta el hueco no cambia durante el vuelo. En celular lo
+mismo lo disparaba la barra del navegador al esconderse (`visualViewport.resize`).
+Arreglo en `home-search-motion.js`: (1) un vuelo "live" (`track()`) ya no se corta
+por un resize: se reprograma y listo; (2) el extremo acoplado se mide desde abajo y
+se relee en cada cuadro (acompaña a la ventana si cambia de alto); (3) el hueco
+conserva su alto (`min-height` en línea) mientras el formulario está afuera: la
+página no se mueve ni un píxel al despegar o aterrizar. **Ojo al probar:** en el
+panel de pruebas el ResizeObserver no dispara; se reproduce despachando
+`window.dispatchEvent(new Event('resize'))` en pleno vuelo.

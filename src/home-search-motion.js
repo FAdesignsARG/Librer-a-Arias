@@ -78,7 +78,10 @@ export function initHomeSearchMotion() {
     const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
     const started = performance.now();
     let raf = 0, timer = 0, done = false;
-    const token = { onfinish: null, cancel() { done = true; cancelAnimationFrame(raf); clearTimeout(timer); } };
+    const token = { live: true, onfinish: null, cancel() { done = true; cancelAnimationFrame(raf); clearTimeout(timer); } };
+    // Dónde queda acoplada, medido desde abajo: si la ventana cambia de alto en
+    // pleno vuelo (la barra del navegador del celular), el destino la acompaña.
+    const fromBottom = window.innerHeight - (from.top + from.height);
     // f = cuánto del camino hacia el hueco del hero: la vuelta va de 0 a 1 y la
     // ida (down) de 1 a 0, con la misma curva. En la ida el hueco sigue subiendo
     // con la página: la píldora se despega de ella de a poco y recién después
@@ -86,7 +89,9 @@ export function initHomeSearchMotion() {
     const paint = p => {
       const to = anchor.getBoundingClientRect(), f = down ? 1 - ease(p) : ease(p);
       const top = Math.max(to.top, -to.height - 24);
-      form.style.transform = `translate(${(to.left - from.left) * f}px, ${(top - from.top) * f}px)`;
+      const dockTop = window.innerHeight - fromBottom - from.height;
+      const y = dockTop + (top - dockTop) * f;
+      form.style.transform = `translate(${(to.left - from.left) * f}px, ${y - from.top}px)`;
       form.style.width = `${from.width + (to.width - from.width) * f}px`;
       form.style.height = `${from.height + (to.height - from.height) * f}px`;
       if (fade) form.style.opacity = String(Math.min(1, p / .25));
@@ -124,11 +129,13 @@ export function initHomeSearchMotion() {
       docked = next;
       form.classList.toggle('is-docked', docked);
       restore();
+      if (!docked) anchor.style.removeProperty('min-height');
       return;
     }
     if (!next && !wasDocked) return;
     // During the short exit, keep this original form docked. Only after it
     // clears the lower edge do we restore its normal flow and fade it in.
+    if (!wasDocked && first.height > 0) anchor.style.minHeight = `${first.height}px`;
     docked = true;
     form.classList.add('is-docked', 'is-measuring');
     restore();
@@ -181,6 +188,7 @@ export function initHomeSearchMotion() {
         docked = false;
         form.classList.remove('is-docked');
         restore();
+        anchor.style.removeProperty('min-height');
       };
       if (visible) track(last, 560, land);
       else play([
@@ -225,7 +233,18 @@ export function initHomeSearchMotion() {
     focusedDock = docked; schedule();
   }
   function focusOut() { queueMicrotask(() => { if (!form.contains(document.activeElement)) focusedDock = false; schedule(); }); }
-  function resize() { if (!disposed) { if (animation) move(desired, true); schedule(); } }
+  // Un cambio de tamaño en pleno vuelo NO lo corta. Antes sí: al despegar, el
+  // hueco del hero se achicaba 2px (el formulario deja de ocuparlo), el
+  // ResizeObserver avisaba y la isla aparecía acoplada de golpe (el "salto" de la
+  // ida; en la vuelta el hueco no cambia, por eso se veía bien). En el celular
+  // pasaba lo mismo cuando la barra del navegador se esconde al hacer scroll.
+  // El vuelo relee sus dos extremos en cada cuadro, así que sólo se reprograma.
+  function resize() {
+    if (disposed) return;
+    if (animation && !animation.live) move(desired, true);
+    if (docked && !animation) anchor.style.removeProperty('min-height');
+    schedule();
+  }
   function motionChange() { if (reduced.matches) move(desired, true); schedule(); }
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', resize, { passive: true });
@@ -247,6 +266,7 @@ export function initHomeSearchMotion() {
     viewport?.removeEventListener('resize', resize); viewport?.removeEventListener('scroll', schedule);
     form.removeEventListener('focusin', focusIn); form.removeEventListener('focusout', focusOut);
     reduced.removeEventListener('change', motionChange); observer?.disconnect();
+    anchor.style.removeProperty('min-height');
     delete form.__homeSearchMotionCleanup;
   }
   form.__homeSearchMotionCleanup = cleanup;
