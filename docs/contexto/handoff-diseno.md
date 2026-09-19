@@ -1,6 +1,6 @@
 # Handoff — rediseño de la home (rama `preview`)
 
-Actualizado: 18/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 19/09/2026. Leer esto primero al retomar en un chat nuevo;
 después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 "Decisiones del 17/09/2026", que manda sobre las reglas viejas).
 
@@ -30,6 +30,19 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 | + | Filtros en pastillas con desplegable, flotantes con Adolfito, ficha de producto estilo shop.app y splash que aterriza en la home | **Hecha** — mirar splash y animaciones en el deploy; "Calificación" espera a que existan reseñas |
 | — | Favoritos por sesión | Más adelante (Fran: "no ahora") |
 | — | Reseñas con estrellas (requiere registro) y filtro Calificación | Más adelante (Fran) |
+
+## 19/09/2026 — dónde quedó
+- `preview` ya contiene `main` (merge `a2a0831`): lo de producción del 18/09 está adentro.
+- Encima: arreglo del vuelo del buscador, cabecera de "Elegidos", flechas de
+  vidrio + arrastre en banners, isla como un solo componente (celular y desktop),
+  choques de la barra lateral, enlace compartido sin splash ni cartel de tema.
+  Detalle en `estado-actual.md` ("main dentro de preview…").
+- **Fran tiene que mirar en el deploy**: vuelo del buscador (ida y vuelta), isla
+  abierta/cerrada en el teléfono, flechas y arrastre de banners.
+- Pendiente de la revisión de Fran: "la vista previa al compartir habría que
+  mejorarla un poco" (no dijo qué: preguntar o proponer).
+- Críticos: relanzar los tres contra la vara v3 sobre esta versión (el de calidad
+  A/B depende de que shop.app no devuelva 504).
 
 ## Rondas anteriores
 | Ronda | Tema | Estado |

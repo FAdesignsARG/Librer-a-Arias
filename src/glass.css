@@ -1256,3 +1256,181 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   body.page-home .home-quick {gap:8px;}
   body.page-home .home-quick > * {font-size:16px;padding-inline:14px 18px;}
 }
+
+
+/* ==========================================================================
+   Revisión de Fran en el deploy · 18–19/09/2026
+   1. "Elegidos para vos": la barrita mide lo que mide el título y la
+      aclaración pasa a ser una línea chica, sin mayúsculas.
+   2. Banners: flechas circulares de vidrio en lugar de puntitos; en celular
+      también se arrastra y el banner acompaña al dedo. Abajo queda la pausa.
+   3. Barra lateral: lo que quedó corrido 40px no pisa a nadie.
+   ========================================================================== */
+/* .picks es una columna flex: con margin auto el .shell se encogía y quedaba
+   centrado (el título aparecía suelto, corrido respecto de los demás). */
+.picks > .shell {width:100%;}
+.picks__head {display:inline-grid;justify-items:stretch;max-width:100%;}
+body .picks__head .picks__eyebrow {margin:0 0 2px;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-2);}
+body .picks__head .picks__title {margin-bottom:0;}
+body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bottom:6px;}
+/* La primera tarjeta respeta el mismo margen que el resto de la página. */
+.picks__row {scroll-padding-inline:var(--gutter,18px);}
+
+.banners__stage {position:relative;touch-action:pan-y;}
+.banners__slide img {-webkit-user-drag:none;user-select:none;-webkit-user-select:none;}
+/* Al soltar sin llegar a cambiar, vuelve a su lugar con suavidad. */
+.banners__slide.is-active {translate:0 0;transition:opacity .9s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),scale 1.1s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),filter .9s var(--ease-soft, ease),translate .35s var(--ease-premium, cubic-bezier(.2,.8,.2,1)),visibility 0s;}
+.banners.is-dragging .banners__slide.is-active {translate:calc(var(--drag,0px) * .45) 0;transition:none;cursor:grabbing;}
+.banners__arrow {position:absolute;top:50%;z-index:2;width:52px;height:52px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;color:var(--text);cursor:pointer;
+  translate:0 -50%;background:var(--glass-bg);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 var(--glass-edge-2),0 14px 32px -12px rgba(0,0,0,.6);
+  transition:scale var(--dur-fast,.16s) var(--ease-pop,ease),background var(--dur-fast,.16s) var(--ease-soft,ease),box-shadow var(--dur,.28s) var(--ease-soft,ease);}
+.banners__arrow svg {width:22px;height:22px;}
+.banners__arrow--prev {left:-26px;}
+.banners__arrow--prev svg {rotate:180deg;}
+.banners__arrow--next {right:-26px;}
+@media (hover:hover) {.banners__arrow:hover {scale:1.06;background:var(--glass-bg-strong);box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 var(--glass-edge-2),0 0 0 1px rgba(254,206,1,.35),0 16px 36px -12px rgba(254,206,1,.4);}}
+.banners__arrow:active {scale:.92;}
+.banners__arrow:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
+/* Sin puntitos, abajo queda sólo la pausa, centrada. */
+.banners .banners__controls {justify-self:center;margin-left:0;}
+@media (max-width:1180px) {
+  /* Sin lugar a los costados: las flechas se meten adentro del banner. */
+  .banners__arrow--prev {left:10px;}
+  .banners__arrow--next {right:10px;}
+}
+@media (max-width:720px) {
+  .banners__arrow {width:44px;height:44px;}
+  .banners__arrow svg {width:20px;height:20px;}
+  .banners__arrow--prev {left:-20px;}
+  .banners__arrow--next {right:-20px;}
+}
+@media (prefers-reduced-transparency: reduce) {
+  .banners__arrow {background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .banners__arrow {transition:none;}
+  .banners__slide.is-active {transition:opacity .2s linear,visibility 0s;}
+}
+
+/* Barra lateral (desde 1024px): la isla acoplada se centra 40px a la derecha y
+   llegaba a pisar 38px el botón de WhatsApp hasta ~1376px de ancho. Los
+   flotantes suben por encima de la isla también en ese tramo. */
+@media (min-width:1041px) and (max-width:1400px) {
+  body:has(.home-search.is-docked) .dock {bottom:calc(max(20px, env(safe-area-inset-bottom)) + 100px);}
+}
+@media (min-width:1024px) {
+  /* El aviso de Base44 arranca después de la barra lateral (16px quedaban debajo). */
+  .arias-pc-bar {left:calc(var(--rail-w) + 24px);margin-left:0;}
+  /* Con la isla acoplada (o el buscador flotante de la ficha) el aviso y el
+     cartelito de "agregado" suben: nunca se apilan sobre el buscador. */
+  body:has(.home-search.is-docked) .arias-pc-bar,
+  body.page-product .arias-pc-bar {bottom:calc(112px + env(safe-area-inset-bottom));}
+  .toast {left:calc(50% + var(--rail-w) / 2);bottom:112px;}
+}
+@media (max-width:720px) {
+  /* En celular el cartelito de "agregado" sale arriba: abajo tapaba WhatsApp. */
+  .toast {top:calc(14px + env(safe-area-inset-top));bottom:auto;}
+}
+
+
+/* ==========================================================================
+   La isla es un solo componente · 19/09/2026 (pedido de Fran)
+   "Que se sienta todo un solo componente, que no se separe al abrirlo", en
+   celular y en desktop; íconos más grandes, más fácil de tocar y mejor vidrio.
+   Causa del corte: la regla genérica de superficies de vidrio le ponía
+   position:relative al panel de ideas; quedaba en el flujo, debajo de la
+   píldora y corrido. Ahora el panel ENVUELVE a la píldora: una sola superficie
+   de vidrio que se despliega desde ella (hacia abajo en el hero, hacia arriba
+   acoplada) y la píldora pasa a ser el campo de adentro.
+   ========================================================================== */
+.home-search {--pill-h:72px;--isla-pad:8px;}
+@media (min-width:721px) {.home-search {--pill-h:82px;}.home-search.is-docked {--pill-h:84px;}}
+.home-search .home-search__suggestions {position:absolute;z-index:0;top:calc(var(--isla-pad) * -1);bottom:auto;left:calc(var(--isla-pad) * -1);right:calc(var(--isla-pad) * -1);
+  max-height:none;overflow:visible;margin:0;padding:calc(var(--pill-h) + var(--isla-pad) + 10px) 10px 10px;border:0;border-radius:calc(var(--pill-h) / 2 + var(--isla-pad)) calc(var(--pill-h) / 2 + var(--isla-pad)) 30px 30px;
+  background:var(--isla-vidrio, rgba(38,38,42,.84));-webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
+  box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 var(--glass-edge-2),0 0 0 1px rgba(254,206,1,.42),0 28px 70px -20px rgba(0,0,0,.8),0 18px 60px -18px rgba(254,206,1,.35);
+  animation:isla-abre-abajo .36s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;}
+.home-search.is-docked .home-search__suggestions {top:auto;bottom:calc(var(--isla-pad) * -1);padding:10px 10px calc(var(--pill-h) + var(--isla-pad) + 10px);
+  border-radius:30px 30px calc(var(--pill-h) / 2 + var(--isla-pad)) calc(var(--pill-h) / 2 + var(--isla-pad));animation-name:isla-abre-arriba;}
+.home-search .home-search__suggestions::before {display:none;}
+@keyframes isla-abre-abajo {
+  from {clip-path:inset(0 0 calc(100% - var(--pill-h) - var(--isla-pad) * 2) 0 round 44px);opacity:.4;}
+  to {clip-path:inset(0 0 0 0 round 44px 44px 30px 30px);opacity:1;}
+}
+@keyframes isla-abre-arriba {
+  from {clip-path:inset(calc(100% - var(--pill-h) - var(--isla-pad) * 2) 0 0 0 round 44px);opacity:.4;}
+  to {clip-path:inset(0 0 0 0 round 30px 30px 44px 44px);opacity:1;}
+}
+/* Abierta: la píldora es el campo de adentro, sin vidrio ni sombra propios. */
+.home-search .search {z-index:1;}
+.home-search .island__actions {z-index:2;}
+.home-search:has(.home-search__suggestions:not([hidden])) .search,
+.home-search.is-docked:has(.home-search__suggestions:not([hidden])) .search,
+.home-search.is-docked:has(.home-search__suggestions:not([hidden])) .search:focus-within {
+  background:var(--fill-hi, rgba(255,255,255,.1));border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;scale:1;}
+.home-search:has(.home-search__suggestions:not([hidden])) .search::before {opacity:0;}
+/* Lo de adentro: filas grandes, fáciles de tocar, que entran apenas después. */
+.home-search .home-search__suggestions > * {animation:isla-fila .32s var(--ease-out, ease) .1s both;}
+@keyframes isla-fila {from {opacity:0;translate:0 6px;}}
+.home-search .home-search__suggestions p {padding:6px 14px 4px;font-size:14px;color:var(--text-2);}
+.home-search .home-search__suggestions button {min-height:52px;padding:8px 14px;border-radius:18px;font-size:17px;gap:14px;}
+.home-search .home-search__suggestions button svg {width:22px;height:22px;}
+.home-search .home-search__suggestions button:active {background:var(--fill-hi);}
+
+/* Vidrio de la isla acoplada: más luz que atraviesa, borde de luz arriba y
+   sombra de apoyo. El texto del campo sube a blanco para sostener el contraste
+   también sobre fotos claras. */
+:root:not([data-theme="light"]) .home-search.is-docked:not(:has(.home-search__suggestions:not([hidden]))) .search {background:rgba(22,22,24,.76);
+  -webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(255,255,255,.04),var(--glass-glow),var(--glass-shadow);}
+:root[data-theme="light"] .home-search {--isla-vidrio:rgba(255,255,255,.9);}
+:root:not([data-theme="light"]) .home-search.is-docked .search input::placeholder {color:rgba(255,255,255,.86);}
+
+@media (max-width:720px) {
+  /* Más grande y más fácil de tocar. */
+  .home-search.is-docked .search {--isla-alto:68px;}
+  .home-search.is-docked.is-compact .search {--isla-alto:56px;}
+  .home-search.is-docked {--pill-h:76px;}
+  .home-search__go {left:8px;width:52px;height:52px;}
+  .home-search__go svg {width:24px;height:24px;}
+  .home-search.is-docked.is-compact .home-search__go {width:44px;height:44px;}
+  .home-search .search input {padding-left:72px;}
+  .island__actions {right:8px;gap:6px;}
+  .island__actions button {min-width:48px;min-height:48px;}
+  .island__actions svg {width:24px;height:24px;}
+  .island__count {min-width:26px;height:26px;font-size:15px;}
+  /* Pedido vacío: sin el "0", el campo gana lugar para escribir. */
+  .island__count[data-empty='true'] {display:none;}
+  .island__order {padding:0 10px;}
+  /* El menú se despliega desde la forma de la isla: es la misma pieza que crece. */
+  .menusheet--island[open] {animation:isla-menu .4s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;}
+}
+@media (max-width:420px) {
+  .home-search .search input {padding-right:136px;}
+  .home-search:has(.island__count[data-empty='true']) .search input {padding-right:116px;}
+}
+@keyframes isla-menu {
+  from {clip-path:inset(calc(100% - 76px) 4px 0 4px round 38px);opacity:.5;}
+  to {clip-path:inset(0 0 0 0 round 28px);opacity:1;}
+}
+@media (min-width:1024px) {
+  /* El Menú se abre pegado a la barra lateral, al lado del botón que lo dispara
+     (antes aparecía del otro lado de la pantalla, a ~830px). */
+  .menusheet--island {inset:auto auto 20px calc(var(--rail-w) + 12px);transform-origin:0 100%;}
+}
+@media (prefers-reduced-transparency: reduce) {
+  .home-search .home-search__suggestions {background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;}
+}
+
+/* Ficha: la insignia de abierto/cerrado y la marca también cumplen el piso
+   (14px de texto, 44px de toque). */
+.page-product .nav .statusbadge {font-size:14px;min-height:44px;display:inline-flex;align-items:center;}
+.page-product .nav__brand {min-height:44px;display:inline-flex;align-items:center;}
+
+/* A 320px el círculo de buscar vuelve a 44px: el campo necesita ese lugar. */
+@media (max-width:340px) {
+  .home-search__go {width:44px;height:44px;}
+  .home-search__go svg {width:20px;height:20px;}
+  .home-search .search input {padding-left:60px;}
+}

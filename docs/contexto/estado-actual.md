@@ -510,3 +510,46 @@ muy suave), pero en Arias de arriba hacia abajo y en vidrio.
 - Las fichas pesan ~70 KB de HTML (12 relacionados, hoja de compartir, barra
   lateral); `dist/` pasó de 31 a 49 MB. Comprimido es poco, pero si molesta, el
   primer recorte es bajar los relacionados de 12 a 8.
+
+## `main` dentro de `preview` + revisión de Fran en el deploy (19/09/2026)
+- **Merge de `main` en `preview`** (`a2a0831`): `preview` ya trae lo que se pasó a
+  producción el 18/09 (precio legible en relacionados, relacionados en 2 columnas,
+  tamaños de la ficha, globito anclado al dock, tandas de 48 con "Ver más
+  productos", `aria-expanded` en las pastillas, pausa del carrusel, Tab a Pedido
+  y Menú, foco sobre fotos, hoja de compartir, filtros 2x2 en celular, "celular
+  más grande" y `siteUrl` real). Conflictos sólo en el final de `glass.css` (van
+  las capas de las dos ramas, primero las de `preview`) y en dos constantes de `app.js`.
+- **Bug del vuelo del buscador (Fran: "se va hacia arriba")**, `home-search-motion.js`:
+  en desktop la barra de arriba está oculta, así que la vuelta se disparaba con
+  el hueco apenas asomando; y el destino se calculaba una sola vez al despegar,
+  con la página todavía subiendo. Ahora: despega apenas la píldora toca el borde
+  de arriba (todavía a la vista, opacidad 1: no "aparece de la nada"), vuelve
+  sólo cuando su lugar está entero en pantalla (24px de histéresis), y el vuelo
+  de vuelta (`track()`) relee el hueco en cada cuadro: aterriza exacto y se funde.
+  Respaldos por tiempo en los dos sentidos (`is-flying` nunca queda puesto).
+- **"Elegidos para vos"**: `.picks__head` (grilla en línea): la barrita mide lo que
+  el título (4px de alto) y "Cambian cada 5 minutos" pasa a 14px sin mayúsculas.
+  De paso: `.picks > .shell` se encogía y centraba (título suelto) → `width:100%`.
+- **Banners**: puntitos → flechas circulares de vidrio (52px; 44px en celular, a
+  caballo del borde). En celular se arrastra y el banner acompaña al dedo
+  (`--drag`, `touch-action:pan-y`). Abajo queda sólo la pausa (la de `main`);
+  con la pausa puesta, una flecha no reanuda el avance solo.
+- **La isla es un solo componente** (Fran: "que no se separe al abrirlo"): la regla
+  genérica de vidrio le ponía `position:relative` al panel de ideas y quedaba en
+  el flujo, corrido. Ahora el panel **envuelve** a la píldora (8px alrededor) y se
+  despliega desde ella con `clip-path` (hacia abajo en el hero, hacia arriba
+  acoplada); la píldora pasa a ser el campo de adentro. En celular: círculo de
+  buscar 52px, íconos 24px, botones 48px, isla de 68px (56 recogida), el "0" del
+  pedido vacío se oculta (el campo gana ~20px). El menú en celular se despliega
+  desde la forma de la isla; en desktop abre pegado a la barra lateral.
+- **Barra lateral, lo que quedó corrido**: los flotantes suben sobre la isla
+  acoplada entre 1041 y 1400px (pisaba 38px a WhatsApp a 1280); el aviso de
+  Base44 arranca después de la barra (`left: rail + 24`) y sube cuando hay isla o
+  buscador de ficha; el cartelito de "agregado" sale arriba en celular.
+- **Enlace compartido**: en `/p/…` no corre el splash ni se abre el cartel de
+  elegir tema (queda para cuando pasen por la home).
+- Los rubros del menú van a `/c/<rubro>/` (`catHref`), igual que la home.
+- Medido por DOM a 320, 375 y 1280: sin desborde; vuelo con aterrizaje exacto;
+  isla abierta 12,206–363,553 envolviendo la píldora 20,214–355,284.
+  **La suavidad del vuelo, el despliegue de la isla y el arrastre hay que
+  mirarlos en el deploy / teléfono** (el panel de pruebas no genera cuadros).

@@ -56,13 +56,54 @@ export function initHomeSearchMotion() {
     form.classList.toggle('is-flying', flying);
     animation = form.animate(keyframes, { duration: ms, easing, fill: 'both' });
     const current = animation;
-    current.onfinish = () => {
+    let guard = 0;
+    const settle = () => {
+      clearTimeout(guard);
       if (animation !== current || disposed) return;
       form.classList.remove('is-flying');
       stop();
       finish?.();
       schedule();
     };
+    current.onfinish = settle;
+    // Si el navegador no avisa el fin (pestaña sin cuadros), igual se suelta.
+    guard = setTimeout(settle, ms + 250);
+  }
+  // Vuelta al hero con destino vivo: el hueco se mueve mientras la página sigue
+  // subiendo, así que cada cuadro se vuelve a leer dónde está. La píldora nunca
+  // apunta a una posición vieja (antes se iba hacia arriba y después saltaba) y
+  // aterriza exactamente sobre su lugar: se funde con él, sin corte.
+  function track(from, ms, finish) {
+    form.classList.add('is-flying');
+    const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    const started = performance.now();
+    let raf = 0, timer = 0, done = false;
+    const token = { onfinish: null, cancel() { done = true; cancelAnimationFrame(raf); clearTimeout(timer); } };
+    const paint = p => {
+      const to = anchor.getBoundingClientRect(), k = ease(p);
+      form.style.transform = `translate(${(to.left - from.left) * k}px, ${(to.top - from.top) * k}px)`;
+      form.style.width = `${from.width + (to.width - from.width) * k}px`;
+      form.style.height = `${from.height + (to.height - from.height) * k}px`;
+    };
+    const end = () => {
+      if (done) return;
+      token.cancel();
+      if (animation !== token || disposed) return;
+      stop();
+      finish?.();
+      schedule();
+    };
+    const step = now => {
+      if (done) return;
+      const p = Math.min(1, (now - started) / ms);
+      paint(p);
+      if (p < 1) raf = requestAnimationFrame(step); else end();
+    };
+    animation = token;
+    paint(0);
+    raf = requestAnimationFrame(step);
+    // Si el navegador frena los cuadros (pestaña en segundo plano), igual aterriza.
+    timer = setTimeout(end, ms + 240);
   }
   function move(next, immediate = false) {
     // Read the animated rect before cancellation: reversing the capsule uses
@@ -111,40 +152,44 @@ export function initHomeSearchMotion() {
     const docks = { transform: 'translate(0, 0)', width: `${last.width}px`, height: `${last.height}px` };
     if (next && !wasDocked) {
       // Ida: del hero hacia abajo, achicándose; llega con un rebote mínimo.
+      // Despega de donde está, a la vista: sólo se funde si el origen quedó
+      // fuera de pantalla (salto por un ancla).
+      const seen = first.bottom > 8 && first.top < edge - 8;
       play([
-        { ...at(first), opacity: '0', offset: 0 },
+        { ...at(first), opacity: seen ? '1' : '0', offset: 0 },
         { opacity: '1', offset: .22 },
         { ...docks, transform: 'translate(0, 6px)', opacity: '1', offset: .82 },
         { ...docks, opacity: '1', offset: 1 },
-      ], 640, null, { flying: true, easing: SOFT });
+      ], 680, null, { flying: true, easing: SOFT });
     } else if (next) {
       // Ya estaba abajo (cambio de tamaño o teclado): sólo se reacomoda.
       play([
-        { transform: `translate(${first.left - last.left}px, ${first.top - last.top}px)`, opacity },
-        { transform: 'translate(0, 0)', opacity: '1' },
-      ], 240);
+        { ...at(first), opacity },
+        { ...docks, opacity: '1' },
+      ], 280, null, { easing: SOFT });
     } else {
       // Vuelta: sube agrandándose hasta su lugar en el hero y ahí se suelta.
       const home = anchor.getBoundingClientRect();
       const visible = home.bottom > 0 && home.top < edge;
-      play(visible
-        ? [
-            { ...docks, opacity: '1', offset: 0 },
-            { ...at(home), opacity: '1', offset: 1 },
-          ]
-        : [
-            { transform: 'translate(0, 0)', opacity: '1' },
-            { transform: `translate(0, ${below}px)`, opacity: '1' },
-          ], visible ? 520 : 160, () => {
+      const land = () => {
         if (desired) return;
         docked = false;
         form.classList.remove('is-docked');
         restore();
-        // Aterriza sobre su lugar real; este fundido corto tapa cualquier
-        // diferencia si la página siguió moviéndose durante el vuelo.
-        play([{ opacity: .6 }, { opacity: 1 }], 140);
-      }, { flying: visible, easing: SOFT });
+      };
+      if (visible) track(last, 560, land);
+      else play([
+        { transform: 'translate(0, 0)', opacity: '1' },
+        { transform: `translate(0, ${below}px)`, opacity: '1' },
+      ], 160, land);
     }
+  }
+  // Baja apenas la píldora toca el borde de arriba (todavía se ve: el vuelo se
+  // lee entero) y vuelve sólo cuando su lugar está completo en pantalla, con
+  // 24px de histéresis para que no titubee en el límite.
+  function shouldDock(rect, navBottom) {
+    if (window.scrollY <= 1) return false;
+    return desired ? rect.top < navBottom + 28 : rect.top < navBottom + 4;
   }
   function update() {
     cancelAnimationFrame(frame); clearTimeout(fallback);
@@ -159,7 +204,7 @@ export function initHomeSearchMotion() {
     form.style.setProperty('--search-keyboard-bottom', `${bottom}px`);
     const rect = anchor.getBoundingClientRect();
     const navBottom = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
-    const next = (focusedDock && focused) || rect.bottom < navBottom + 16;
+    const next = (focusedDock && focused) || shouldDock(rect, navBottom);
     if (next !== desired || keyboardChanged) move(next, keyboardChanged && focused);
   }
   // rAF y un respaldo por tiempo: algunos WebViews lo frenan durante el
@@ -185,7 +230,7 @@ export function initHomeSearchMotion() {
   reduced.addEventListener('change', motionChange);
   const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
   observer?.observe(anchor); if (nav) observer?.observe(nav);
-  move(anchor.getBoundingClientRect().bottom < (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0) + 16, true);
+  move(shouldDock(anchor.getBoundingClientRect(), nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0), true);
   schedule();
   function cleanup() {
     disposed = true; cancelAnimationFrame(frame); clearTimeout(fallback); stop();

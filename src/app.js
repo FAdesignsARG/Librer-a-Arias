@@ -1061,9 +1061,15 @@ function wireHomeBanners() {
   };
   const stop = () => { clearInterval(timer); timer = null; };
   const start = () => { if (reduceMotion || document.hidden || held) return; stop(); timer = setInterval(() => goTo(index + 1), EVERY); };
-  const pauseThenResume = () => { stop(); clearTimeout(resume); resume = setTimeout(start, 6000); };
+  const pauseThenResume = () => { stop(); clearTimeout(resume); if (!held) resume = setTimeout(start, 6000); };
 
   dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); pauseThenResume(); }));
+  // Flechas de vidrio a los costados (reemplazan a los puntitos).
+  $$('[data-banner-step]', el).forEach((btn) => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    goTo(index + Number(btn.dataset.bannerStep || 1));
+    pauseThenResume();
+  }));
   const pauseBtn = $('#bannersPause', el);
   let held = false;
   pauseBtn?.addEventListener('click', () => {
@@ -1080,12 +1086,23 @@ function wireHomeBanners() {
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 
   // Deslizar con el dedo cambia de banner (y no cuenta como toque).
+  // Mientras se arrastra, el banner acompaña al dedo (--drag lo lee el CSS).
   let downX = null;
-  el.addEventListener('pointerdown', (e) => { downX = e.clientX; });
+  const release = () => { downX = null; el.classList.remove('is-dragging'); el.style.removeProperty('--drag'); };
+  el.addEventListener('pointerdown', (e) => { if (!e.target.closest('[data-banner-step], .banners__pause')) downX = e.clientX; });
+  el.addEventListener('pointermove', (e) => {
+    if (downX == null) return;
+    const dx = e.clientX - downX;
+    if (Math.abs(dx) < 6) return;
+    el.classList.add('is-dragging');
+    el.style.setProperty('--drag', `${Math.max(-160, Math.min(160, dx))}px`);
+  });
+  el.addEventListener('pointercancel', release);
+  el.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') release(); });
   el.addEventListener('pointerup', (e) => {
     if (downX == null) return;
     const dx = e.clientX - downX;
-    downX = null;
+    release();
     if (Math.abs(dx) < 40) return;
     el.dataset.swiped = String(Date.now());
     goTo(index + (dx < 0 ? 1 : -1));

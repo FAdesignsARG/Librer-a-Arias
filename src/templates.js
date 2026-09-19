@@ -119,8 +119,11 @@ const themeBootScript = (home = false) => `<script>(function(){try{
 var t=localStorage.getItem('arias.tema');
 if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
 document.documentElement.dataset.theme=t;
-if(sessionStorage.getItem('arias.splash.visto')!=='1')document.documentElement.dataset.splash='running';
+if(sessionStorage.getItem('arias.splash.visto')!=='1'&&location.pathname.indexOf('/p/')!==0)document.documentElement.dataset.splash='running';
 }catch(e){document.documentElement.dataset.theme='dark';}})();<\/script>`;
+
+/** Un rubro tiene un solo destino: su página. "Todos" y "Ofertas" son filtros del catálogo. */
+const catHref = (c) => c === 'Todos' ? '/catalogo/' : c === 'Ofertas' ? '/catalogo/?cat=Ofertas' : `/c/${categorySlug(c)}/`;
 
 const splashHtml = (s, home = false) => `<div class="splash${home ? ' splash--home' : ''}" id="splash" aria-hidden="true">
   <div class="splash__panel splash__panel--top"></div>
@@ -493,7 +496,7 @@ const islandPanelHtml = (s) => `<dialog class="sortsheet menusheet menusheet--is
   <div class="menusheet__body">
     <p class="island-panel__label" style="--i:0">Rubros</p>
     <nav class="island-panel__cats" id="menusheetLinks" aria-label="Rubros" style="--i:1">
-      ${['Todos', 'Ofertas', ...s.categories].map((c) => `<a href="/catalogo/?cat=${encodeURIComponent(c)}" data-home-category="${esc(c)}">${c === 'Todos' ? 'Ver todo' : esc(c)}</a>`).join('')}
+      ${['Todos', 'Ofertas', ...s.categories].map((c) => `<a href="${catHref(c)}" data-home-category="${esc(c)}">${c === 'Todos' ? 'Ver todo' : esc(c)}</a>`).join('')}
     </nav>
     <p class="island-panel__label" style="--i:2">Te ayudamos</p>
     <div class="island-panel__list" style="--i:3">
@@ -782,7 +785,7 @@ export function renderHome({ products, settings: s, mode = 'home', category = ''
     <a href="/catalogo/?cat=Ofertas" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
     <button type="button" data-guide="news" style="--i:2"><span class="home-quick__ico">${ico.bell}</span>Novedades</button>
   </nav><!--/home-only-->
-  <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="/catalogo/?cat=${encodeURIComponent(c)}" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
+  <div class="home-categories" aria-label="Explorar rubros">${cats.map(c=>`<a href="${catHref(c)}" data-home-category="${esc(c)}">${c==='Todos'?'Ver todo':esc(c)}</a>`).join('')}</div>
 </header>
 <!--home-only--><section class="attention-carousel banners" id="attentionCarousel" data-arias-section="promos" aria-roledescription="carrusel" aria-label="Promos y novedades">
   <div class="banners__stage">
@@ -798,10 +801,10 @@ export function renderHome({ products, settings: s, mode = 'home', category = ''
         <img src="/assets/promos/banner-canal-desktop-1000.webp" srcset="/assets/promos/banner-canal-desktop-1000.webp 1000w, /assets/promos/banner-canal-desktop-1600.webp 1600w" sizes="(max-width:1100px) 92vw, 1000px" width="1600" height="597" alt="" decoding="async" fetchpriority="low">
       </picture>
     </a>
+    <button type="button" class="banners__arrow banners__arrow--prev" data-banner-step="-1" aria-label="Banner anterior">${ico.chevron}</button>
+    <button type="button" class="banners__arrow banners__arrow--next" data-banner-step="1" aria-label="Banner siguiente">${ico.chevron}</button>
   </div>
-  <div class="attention-carousel__dots">
-    <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ver la promo de la web"></button>
-    <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ver el canal de WhatsApp"></button>
+  <div class="attention-carousel__dots banners__controls">
     <button type="button" class="banners__pause" id="bannersPause" aria-pressed="false" aria-label="Pausar el cambio automático de banners"><svg class="ico-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="6" width="3.6" height="12" rx="1.2"/><rect x="13.4" y="6" width="3.6" height="12" rx="1.2"/></svg><svg class="ico-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 6.2v11.6a.8.8 0 0 0 1.2.7l9-5.8a.8.8 0 0 0 0-1.4l-9-5.8a.8.8 0 0 0-1.2.7Z"/></svg></button>
   </div>
 </section>
@@ -815,9 +818,11 @@ ${
   picks.length
     ? `<section class="picks" data-arias-section="destacados" data-reveal>
   <div class="shell">
-    <p class="t-eyebrow picks__eyebrow">Cambian cada 5 minutos</p>
-    <h2 class="t-h2 picks__title">Elegidos para vos</h2>
-    <div class="picks__timer" aria-hidden="true"><span id="picksTimer"></span></div>
+    <div class="picks__head">
+      <p class="picks__eyebrow">Cambian cada 5 minutos</p>
+      <h2 class="t-h2 picks__title">Elegidos para vos</h2>
+      <div class="picks__timer" aria-hidden="true"><span id="picksTimer"></span></div>
+    </div>
   </div>
   <div class="picks__row">
     ${picks

@@ -204,6 +204,9 @@ function runSplash() {
 function askTheme() {
   const dlg = document.getElementById('welcome');
   if (!dlg) return;
+  // En una ficha no se pregunta nada: quien llega por un enlace compartido
+  // tiene que ver el producto. La pregunta queda para cuando pase por la home.
+  if (document.body.classList.contains('page-product')) return;
 
   let asked = false;
   try {
