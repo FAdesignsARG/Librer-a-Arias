@@ -160,6 +160,7 @@ function trackCatalogEvent(tipo, details = {}) {
           precio: safeText(details.precio, 40),
           cart_count: Number(details.cantidad || 0),
           cart_total: Number(details.total || 0),
+          canal: safeText(details.canal, 20),
           ...campaign,
         }),
         tracking_version: '2',
@@ -444,6 +445,26 @@ function trackProductPageView() {
   });
 }
 
+/** "Producto compartido" (acordado con Rodri el 19/09/2026). share.js avisa con
+    `arias:share` cada vez que se elige un canal de la hoja de compartir; acá se
+    traduce al evento de Base44. Canales: whatsapp, sistema, facebook, mail,
+    enlace, mail-diseno, imagen (los mismos `data-share-via` de la hoja). */
+const SHARE_CHANNELS = new Set(['whatsapp', 'sistema', 'facebook', 'mail', 'enlace', 'mail-diseno', 'imagen']);
+function wireShareEvents() {
+  window.addEventListener('arias:share', (event) => {
+    const { slug, via } = event.detail || {};
+    if (!slug || !SHARE_CHANNELS.has(via)) return;
+    const product = productsBySlug.get(slug);
+    trackCatalogEvent('Producto compartido', {
+      product_id: slug,
+      product_name: product?.name || document.querySelector('.product__info h1')?.textContent,
+      categoria: product?.category,
+      precio: product?.price,
+      canal: via,
+    });
+  });
+}
+
 async function loadProducts() {
   try {
     const products = await fetch('/data/products.json').then((response) => response.json());
@@ -462,6 +483,7 @@ async function init() {
 
   trackCatalogEvent('Visita');
   trackProductPageView();
+  wireShareEvents();
   wireHomeEvents();
   wireCartEvents();
   wireCardViews();

@@ -645,3 +645,16 @@ conserva su alto (`min-height` en línea) mientras el formulario está afuera: l
 página no se mueve ni un píxel al despegar o aterrizar. **Ojo al probar:** en el
 panel de pruebas el ResizeObserver no dispara; se reproduce despachando
 `window.dispatchEvent(new Event('resize'))` en pleno vuelo.
+
+## Mensajes de Rodri del 19/09 (Base44)
+- **"Producto compartido"** conectado en `analytics.js` (`wireShareEvents()`
+  escucha `arias:share` de `share.js`; `datos.canal`). Sólo en `preview`.
+- **Productos que no llegan a producción**: en Netlify falta `BUILD_HOOK_URL`
+  (sólo están `FIREBASE_SERVICE_ACCOUNT_JSON`, `GROQ_API_KEY`, `NODE_VERSION`,
+  `SECRETS_SCAN_OMIT_PATHS`); `/api/rebuild` responde 503 y el panel de
+  administración nunca dispara el build. Existe un build hook creado el 20/08.
+  Producción: 551 productos (último deploy 18/09 20:40); preview: 565.
+  **Pendiente del OK de Fran**: cargar la variable y reconstruir `main`.
+- CORS de `diseno--`: medido, sigue en 403 (producción responde 200/201).
+- Respuesta completa para Rodri: arriba de todo en
+  `docs/base44-integracion/RESUMEN-PARA-RODRI.md`.

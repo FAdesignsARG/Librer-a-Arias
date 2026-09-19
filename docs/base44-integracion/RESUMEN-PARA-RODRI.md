@@ -8,6 +8,53 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
+## RESPUESTA A LOS MENSAJES DEL 19/09/2026 (Rodri)
+
+**1. Productos que no llegan a producción (551 en la web vs 569 en Base44).**
+Causa encontrada: el catálogo público es estático y `data/products.json` se
+genera en cada build desde Firestore. El panel de administración pide un build
+nuevo después de cada carga (`POST /api/rebuild` → función `rebuild` → build hook
+de Netlify), pero **en Netlify falta la variable `BUILD_HOOK_URL`**: la función
+responde `503 SIN_HOOK` y no se dispara nada. Por eso producción sólo se
+actualizó cuando hubo un deploy de código (el último, 18/09 20:40: 551
+productos). No quedaron "en la rama preview": el preview muestra 565 sólo
+porque se reconstruyó hoy. Arreglo (pendiente del OK de Fran, es configuración
+de producción): cargar `BUILD_HOOK_URL` y reconstruir `main`.
+
+**2. Consumir `action: "productos"` desde Base44 con `products.json` de respaldo.**
+No lo recomendamos como fuente principal: cada producto tiene su página
+`/p/<slug>/` generada en el build (de ahí salen la vista previa de WhatsApp, el
+SEO y los datos estructurados). Un producto que apareciera en la grilla sin
+build llevaría a una página que todavía no existe (404), y compartirlo no
+tendría vista previa. La salida robusta es que el build se dispare solo:
+(a) arreglar el hook (punto 1) y (b) red de seguridad: **cuando la sincronización
+de Base44 detecte que la web tiene menos productos públicos que Base44, que
+haga `POST https://libreria-arias.netlify.app/api/rebuild`** (sin cuerpo; responde
+`{ok:true}`; el build tarda ~2 min). Con eso no hay más limbo.
+
+**3. CORS de `https://diseno--libreria-arias.netlify.app`: todavía devuelve 403.**
+Medido el 19/09: desde producción `catalogo-metricas` responde 200/201; desde
+`diseno--` las mismas llamadas dan **403** (config y eventos). Revisar que el
+origen esté cargado exacto, con `https://` y sin barra final.
+
+**4. "Producto compartido": implementado en la rama `preview`** (`analytics.js`,
+`wireShareEvents()`). Se manda como el resto de los eventos, con `product_id`,
+`product_name`, `categoria`, `sesion`, `pagina`, `dispositivo`, `origen`,
+`clave_evento` y `datos.canal` ∈ whatsapp · sistema · facebook · mail · enlace ·
+mail-diseno · imagen. Llega a producción con el próximo pase (o antes, si Fran
+lo pide como parche a `main`).
+
+**5–8.** Tomado: 12 destacados desde `config.productos_destacados` (la web ya lo
+lee), aviso de hasta 35 caracteres, enlaces internos a `/catalogo/…` y
+`/c/<rubro>/` (el menú de la versión nueva ya usa `/c/<rubro>/`), controles
+viejos del hero sin efecto, y `entre_productos` sin implementar.
+**Ojo con la versión nueva:** las fichas ahora llevan `<body class="page-home
+page-product">` (antes sólo `page-product`); si algo de Base44 distingue la home
+por `page-home`, tiene que excluir `page-product` y `page-catalog`.
+
+**9.** Prueba punta a punta: la hacemos apenas esté el pase a producción.
+
+---
 ## LEER PRIMERO — 18/09/2026: YA ESTÁ EN PRODUCCIÓN (`main`)
 
 **Desde el 18/09/2026 esta versión está en `main` y publicada en
