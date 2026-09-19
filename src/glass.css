@@ -1044,3 +1044,215 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
 @media (prefers-reduced-motion: reduce) {
   .home-search .search::after {display:none;}
 }
+
+
+/* ==========================================================================
+   Arreglos previos a producción · 18/09/2026
+   Defectos que encontraron los críticos y que también estaban en esta versión.
+   Sólo CSS, sin tocar comportamiento.
+   ========================================================================== */
+/* 1. Precio de las tarjetas: en la ficha ("También te podría gustar") quedaba
+      texto amarillo sobre pastilla amarilla (1:1). Mismo estilo en todo el sitio:
+      sin fondo, en el amarillo de texto del tema. */
+.card__price,.card:hover .card__price {background:transparent;padding:0;border-radius:0;box-shadow:none;color:var(--gold-text);font-weight:600;letter-spacing:-.02em;}
+.card--out .card__price,.card--out:hover .card__price {background:transparent;color:var(--text-2);}
+/* 2. Precio y stock siempre a la misma altura, tenga el nombre una o dos líneas. */
+.card__body {display:flex;flex-direction:column;}
+.card__stock {margin-top:auto;}
+/* 3. Ficha en celular: relacionados en dos columnas (eran 12 en una sola). */
+@media (max-width:720px) {
+  .page-product .related .grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;}
+}
+/* 4. Ficha a 320px: "Preguntarle a la IA" y "Compartir" desbordaban 30px. */
+@media (max-width:380px) {
+  .page-product .product__actions {grid-template-columns:minmax(0,1fr);}
+  .page-product .product__ask,.page-product .product__share {white-space:normal;}
+}
+/* 5. Ficha en celular: tamaños mínimos de toque y de texto. */
+@media (max-width:720px) {
+  .page-product .nav .bellbtn,.page-product .nav .themebtn,.page-product .nav .menubtn {width:44px;height:44px;}
+  .page-product .qtystepper__btn {width:44px;height:44px;}
+  .page-product .crumbs {font-size:14px;color:var(--text-2);}
+  .page-product .crumbs a {display:inline-flex;align-items:center;min-height:44px;}
+  .page-product .product__cat,.page-product .product__stock {font-size:14px;}
+}
+.card__cat,.card__stock {font-size:14px;}
+.page-product .related .card__add {width:44px;height:44px;}
+/* 6. Flotantes en la ficha en celular cuando además está el aviso: el aviso ya
+      está arriba de la barra de "Agregar", así que los flotantes suben más. */
+@media (max-width:640px) {
+  body.page-product:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)) + 80px);}
+}
+/* 7. El globito "¿Buscás algo puntual?" vive dentro del bloque de flotantes:
+      se ancla a él, así lo sigue cuando sube (antes quedaba fijo y lo pisaba). */
+.dock .ainudge {position:absolute;right:0 !important;bottom:100% !important;margin-bottom:14px;font-size:14px;}
+.dock .ainudge__close {width:44px;height:44px;top:0;right:0;}
+/* 8. Contraste de textos de condiciones y notas. */
+.chat .chat__note,.promodlg__disclaimer,.chat .chat__form textarea::placeholder {color:var(--text-2);}
+.promodlg__disclaimer {font-size:14px;}
+/* 9. Aire antes de "Destacados" (había 24px después del bloque de avisos). */
+.featured-head {padding-top:48px;}
+
+/* 10. Ficha a 320px: con los botones de la barra a 44px no entran todos; la campanita
+       se va (Novedades sigue en el menú), igual que en la home. */
+@media (max-width:380px) {
+  .page-product .nav .bellbtn {display:none;}
+  .page-product .nav__inner {gap:8px;}
+}
+
+
+/* ==========================================================================
+   Cierre de la ronda de críticos sobre producción · 18/09/2026
+   ========================================================================== */
+/* Catálogo en tandas: botón "Ver más productos". */
+.catalog-more {display:flex;justify-content:center;margin:32px 0 0;}
+.catalog-more[hidden] {display:none;}
+.catalog-more .btn {min-height:52px;padding-inline:28px;font-size:16px;border-radius:999px;}
+/* Estado vacío con filtros puestos: salida para limpiarlos. */
+#emptyClearWrap {margin-top:12px;}
+#emptyClearWrap[hidden] {display:none;}
+#emptyClearWrap .btn {min-height:48px;padding-inline:24px;border-radius:999px;}
+
+/* Filtros en celular: "Limpiar filtros" va primero (antes quedaba a dos
+   pantallas de scroll) y la fila se desvanece a la derecha para avisar que sigue. */
+@media (max-width:720px) {
+  #catalogo .filters .filterpill--clear {order:-1;color:var(--text);background:var(--fill-hi, rgba(255,255,255,.12));text-decoration:none;padding-inline:16px;}
+  #catalogo .filters {-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);}
+}
+
+/* Tarjetas de la grilla con el mismo radio en desktop que el resto (era 20). */
+@media (min-width:721px) {.page-home #grid .card,.related .card {border-radius:24px;}}
+
+/* Foco visible sobre cualquier foto: anillo oscuro con halo claro (el anillo
+   claro solo daba 1,09:1 sobre fotos de fondo blanco). */
+.card__share:focus-visible,.card__add:focus-visible {outline:2px solid #151515;outline-offset:2px;box-shadow:0 0 0 5px #fff;}
+
+/* Carrusel de banners: puntitos con contraste suficiente en los dos temas y
+   botón de pausa (todo lo que se mueve solo se tiene que poder frenar). */
+.banners .attention-carousel__dots {align-items:center;}
+.banners .attention-carousel__dot::before {background:var(--text);opacity:.55;}
+.banners .attention-carousel__dot[aria-current="true"]::before {background:var(--gold-text);opacity:1;}
+.banners__pause {width:44px;height:44px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--text-2);transition:background var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft);}
+.banners__pause:hover {background:var(--fill, rgba(255,255,255,.08));color:var(--text);}
+.banners__pause:focus-visible {outline:2px solid var(--text);outline-offset:-4px;}
+.banners__pause svg {width:18px;height:18px;}
+.banners__pause .ico-play,.banners__pause[aria-pressed="true"] .ico-pause {display:none;}
+.banners__pause[aria-pressed="true"] .ico-play {display:block;}
+
+/* Hoja de compartir: los accesos se reparten el ancho, sin dejar un hueco
+   cuando "Instagram y más" no está (navegadores sin menú de compartir). */
+.sharesheet__grid {display:flex;flex-wrap:wrap;}
+.sharesheet__grid .shareopt {flex:1 1 calc(33.333% - 10px);min-width:96px;}
+
+
+/* ==========================================================================
+   Filtros del catálogo en celular: grilla de 2x2 · 18/09/2026
+   La fila deslizable cortaba "Destacados" por la mitad y dejaba "Ordenar"
+   fuera de la pantalla: se leía como roto (Fran). Ahora los cuatro filtros
+   están siempre a la vista, del mismo tamaño, con la flecha a la derecha.
+   ========================================================================== */
+@media (max-width:720px) {
+  #catalogo .filters {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;overflow:visible;margin-right:0;padding:0;-webkit-mask-image:none;mask-image:none;}
+  #catalogo .filters .filterpill {width:100%;min-width:0;min-height:52px;padding:0 16px;justify-content:flex-start;gap:8px;}
+  #catalogo .filters .filterpill > span {flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;}
+  #catalogo .filters .filterpill__chev {margin-left:auto;}
+  /* Sin destacados cargados ese botón no está: Ordenar ocupa la fila entera. */
+  #catalogo .filters #featuredBtn[hidden] + #sortBtn {grid-column:1 / -1;}
+  #catalogo .filters .filterpill--clear {order:9;grid-column:1 / -1;min-height:44px;justify-content:center;background:transparent;text-decoration:underline;text-underline-offset:4px;color:var(--text-2);}
+  #catalogo .filters .filterpill--clear > span {flex:none;}
+}
+
+
+/* ==========================================================================
+   Celular más claro, más grande y con más aire · 18/09/2026 (pedido de Fran)
+   Antes: títulos de sección en tres tamaños (21,6 / 22 / 29,6px), márgenes
+   laterales de 16 o 18px según la sección, enlaces y textos secundarios a
+   14px. Ahora: un solo margen (20px), un solo título de sección (26px), 64px
+   entre secciones, textos de lectura a 16-17px y botones más altos.
+   ========================================================================== */
+@media (max-width:720px) {
+  :root {--gutter:20px;--m-gap:64px;}
+
+  /* Un solo margen lateral para toda la página. */
+  body.page-home .home-hero,
+  body.page-home .home-discover,
+  body.page-home #productos,
+  body.page-home .picks > .shell,
+  body.page-home #visitanos .shell,
+  body.page-home .footer .shell,
+  body.page-home #catalogo .shell {padding-inline:var(--gutter);}
+  body.page-home .home-quick {padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);margin-inline:calc(var(--gutter) * -1);}
+  body.page-home .picks__row {padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);gap:14px;}
+  body.page-home .attention-carousel.banners {padding-inline:var(--gutter);}
+
+  /* Un solo título de sección. */
+  body.page-home .home-section-head h2,
+  body.page-home .picks__title,
+  body.page-home #visitanos .section__head h2,
+  body.page-home #featuredTitle {font-size:26px;line-height:1.15;font-weight:600;letter-spacing:-.035em;margin:0;}
+  body.page-home .home-section-head {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+  body.page-home .home-section-head a {display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:16px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  body.page-home .home-section-head a svg {width:18px;height:18px;}
+  body.page-home .picks__eyebrow {font-size:15px;margin-bottom:6px;}
+  body.page-home .picks__title {margin-bottom:0;}
+  body.page-home .picks__timer {margin-top:12px;}
+
+  /* Mismo aire entre todas las secciones. */
+  body.page-home .home-hero {padding-top:28px;padding-bottom:8px;}
+  body.page-home:not(.page-catalog) .attention-carousel.banners {margin-block:12px 0;}
+  body.page-home .home-discover {padding-block:var(--m-gap) 0;}
+  body.page-home .picks {padding-block:var(--m-gap) 0;}
+  body.page-home .picks__row {padding-block:20px 8px;}
+  body.page-home:not(.page-catalog) #productos {padding-top:var(--m-gap);}
+  body.page-home .featured-head {padding-top:0;}
+  body.page-home #visitanos {padding-block:var(--m-gap) 56px;}
+
+  /* Primera pantalla: todo un poco más grande. */
+  body.page-home:not(.page-catalog) .home-mark__img {width:84px;height:84px;}
+  body.page-home:not(.page-catalog) .home-wordmark {max-width:280px;margin-bottom:18px;}
+  body.page-home .home-quick {gap:10px;margin-top:20px;}
+  body.page-home .home-quick > * {min-height:52px;padding-inline:18px 20px;font-size:17px;}
+
+  /* Rubros: tarjetas más grandes, con el nombre más legible. */
+  body.page-home .home-discover__row {grid-template-columns:repeat(5,178px);gap:14px;}
+  body.page-home .home-discover__card span {font-size:17px;}
+
+  /* Destacados: más separación entre tarjetas y salida bien visible. */
+  body.page-home #grid {gap:18px 14px;}
+  body.page-home .picks__item {flex-basis:250px;}
+  body.page-home .featured-more {margin:36px 0 0;}
+  body.page-home .featured-more .btn {width:100%;min-height:58px;font-size:17px;border-radius:999px;}
+
+  /* Visitanos: texto de lectura a 16-17px y tarjetas con aire. */
+  body.page-home #visitanos .section__head {margin-bottom:24px;}
+  body.page-home #visitanos .section__head .t-body {font-size:17px;line-height:1.55;margin-top:10px;}
+  body.page-home .info-grid {gap:16px;}
+  body.page-home .info-card {padding:24px;border-radius:26px;}
+  body.page-home .info-card h3 {font-size:19px;margin-bottom:8px;}
+  body.page-home .info-card p,
+  body.page-home .hours-list {font-size:16px;line-height:1.55;}
+  body.page-home .hours-list > div {padding-block:6px;}
+  body.page-home .info-card .btn--sm {min-height:50px;padding-inline:22px;font-size:16px;border-radius:999px;}
+
+  /* Pie: enlaces legibles y con toque cómodo. */
+  .footer {padding-top:48px;}
+  .footer h4 {font-size:15px;margin-bottom:6px;}
+  .footer a,.footer p,.footer li {font-size:16px;line-height:1.5;}
+  .footer__bottom {font-size:14px;margin-top:28px;}
+
+  /* Catálogo: un filtro por fila, grande y a todo el ancho. */
+  #catalogo .filters {grid-template-columns:minmax(0,1fr);gap:10px;}
+  #catalogo .filters .filterpill {min-height:56px;padding:0 20px;font-size:17px;}
+  #catalogo .filters #featuredBtn[hidden] + #sortBtn {grid-column:auto;}
+  body.page-catalog #catalogTitle {font-size:30px;}
+  body.page-catalog .results-line {font-size:16px;}
+}
+@media (max-width:720px) {
+  /* Ajustes tras medir: el título de "Elegidos" quedaba corrido (su contenedor se
+     encogía y se centraba) y la sección de rubros pisaba el margen con el suyo. */
+  body.page-home .picks > .shell {width:100%;max-width:none;margin-inline:0;}
+  body.page-home .home-discover {--gutter:20px;}
+  /* Las pastillas de acceso entran completas dentro del margen. */
+  body.page-home .home-quick {gap:8px;}
+  body.page-home .home-quick > * {font-size:16px;padding-inline:14px 18px;}
+}

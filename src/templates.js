@@ -349,7 +349,7 @@ const shareSheetHtml = (s) => {
       ${opt('shareFb', 'facebook', fbIco, 'Facebook', 'href="#" target="_blank" rel="noopener"')}
       ${opt('shareMail', 'mail', mailIco, 'Mail', 'href="#"')}
       ${opt('shareCopy', 'enlace', linkIco, 'Copiar enlace')}
-      ${opt('shareMailCopy', 'mail-diseno', mailIco, 'Copiar diseño para mail')}
+      ${opt('shareMailCopy', 'mail-diseno', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>', 'Copiar diseño para mail')}
       ${opt('shareDownload', 'imagen', downIco, 'Bajar imagen', 'href="#" target="_blank" rel="noopener"')}
     </div>
     <p class="sharesheet__note">Al enviarlo se ve la foto, el nombre y el precio. La imagen sirve para historias y publicaciones de Instagram.</p>
@@ -564,7 +564,7 @@ const orderSheet = (s) => `
   <div class="chat__body" id="chatBody"></div>
   <div class="chat__foot">
     <form class="chat__form" id="chatForm">
-      <textarea id="chatInput" rows="1" placeholder="¿Qué estás buscando?" enterkeyhint="send" autocomplete="off"></textarea>
+      <textarea id="chatInput" rows="1" aria-label="Escribile al asistente" placeholder="¿Qué estás buscando?" enterkeyhint="send" autocomplete="off"></textarea>
       <button class="chat__send" id="chatSend" type="submit" aria-label="Enviar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m0 0-6-6m6 6-6 6"/></svg>
       </button>
@@ -802,6 +802,7 @@ export function renderHome({ products, settings: s, mode = 'home', category = ''
   <div class="attention-carousel__dots">
     <button type="button" class="attention-carousel__dot" aria-current="true" aria-label="Ver la promo de la web"></button>
     <button type="button" class="attention-carousel__dot" aria-current="false" aria-label="Ver el canal de WhatsApp"></button>
+    <button type="button" class="banners__pause" id="bannersPause" aria-pressed="false" aria-label="Pausar el cambio automático de banners"><svg class="ico-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="6" width="3.6" height="12" rx="1.2"/><rect x="13.4" y="6" width="3.6" height="12" rx="1.2"/></svg><svg class="ico-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 6.2v11.6a.8.8 0 0 0 1.2.7l9-5.8a.8.8 0 0 0 0-1.4l-9-5.8a.8.8 0 0 0-1.2.7Z"/></svg></button>
   </div>
 </section>
 <section class="home-discover shell" aria-labelledby="discoverTitle"><div class="home-section-head"><h2 id="discoverTitle">Un mundo para descubrir</h2><a href="/catalogo/">Ver todo ${ico.chevron}</a></div><div class="home-discover__row">${discovery.map(({category,product:p})=>`<a class="home-discover__card" href="/c/${categorySlug(category)}/" data-home-category="${esc(category)}"><span class="home-discover__image"><img src="${esc(thumbSrc(p.images[0]))}" alt="" width="400" height="400" loading="lazy"></span><span>${esc(category)} ${ico.chevron}</span></a>`).join('')}</div></section>
@@ -943,11 +944,13 @@ ${
   <div class="empty" id="empty" hidden>
     <h3>No encontramos nada con esa búsqueda</h3>
     <p class="t-body">Probá con otras palabras, o escribinos y lo buscamos por vos.</p>
+    <p id="emptyClearWrap" hidden><button type="button" class="btn btn--ghost" id="emptyClear">Limpiar filtros</button></p>
     <p style="margin-top:18px">
       <a class="btn btn--gold" data-arias-whatsapp href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico.wa} Consultar por WhatsApp</a>
     </p>
   </div>
-  <!--catalog-only--><div class="catalog-after" data-arias-slot="debajo_buscador"></div><!--/catalog-only-->
+  <!--catalog-only--><p class="catalog-more" id="catalogMore" hidden><button type="button" class="btn btn--ghost" id="loadMore">Ver más productos</button></p>
+  <div class="catalog-after" data-arias-slot="debajo_buscador"></div><!--/catalog-only-->
   <!--home-only--><p class="featured-more"><a class="btn btn--gold" href="/catalogo/">Ver todo el catálogo ${ico.chevron}</a></p><!--/home-only-->
 </main>
 

@@ -80,3 +80,9 @@ regla se registra acá con fecha en vez de rechazarse.
   el wordmark y su lema ("El Temu 2.0 riojano"), no con una enumeración.
 - **Banners como imagen sola**, sin tarjeta ni fondo: 1400×534 px, WebP
   con fondo transparente, hasta 120 KB, contenido en el 80% central.
+
+## Decisiones del 18/09/2026 (Fran)
+
+- **El botón "Preguntame" lleva animación permanente**: glow amarillo que respira y un vaivén suave de Adolfito (3,6 s). Excepción pedida por Fran ("que destaque mucho más… con un borde y glow amarillo, o con una sombra, o utilizando una animación") a la regla de 05-movimiento de no dejar a la mascota en loop. Con movimiento reducido no corre.
+- **La marca va al frente en la primera pantalla** (logo, nombre con el lema) y el buscador queda debajo: puede pasar del primer tercio de la altura.
+- **Banners como imagen sola**, alternando cada 10 s, con pausa manual; en celular, versiones verticales.
