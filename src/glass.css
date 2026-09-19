@@ -944,7 +944,7 @@ html[data-splash="running"] body.page-home:not(.page-catalog) > .home-hero {anim
 }
 @media (max-width:640px) {
   /* Ficha: arriba de la barra fija de "Agregar". */
-  body.page-product .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)));}
+  /* (ficha v3: la barra fija de "Agregar" se integró a la isla; ya no hay corrimiento propio) */
 }
 @media (max-width:1100px) {
   /* Ficha en pantallas medianas: el buscador flotante dejaría de entrar al lado de los botones. */
@@ -1081,7 +1081,7 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
 /* 6. Flotantes en la ficha en celular cuando además está el aviso: el aviso ya
       está arriba de la barra de "Agregar", así que los flotantes suben más. */
 @media (max-width:640px) {
-  body.page-product:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)) + 80px);}
+  /* (ficha v3: usa la misma regla que home y catálogo) */
 }
 /* 7. El globito "¿Buscás algo puntual?" vive dentro del bloque de flotantes:
       se ancla a él, así lo sigue cuando sube (antes quedaba fijo y lo pisaba). */
@@ -1324,8 +1324,7 @@ body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bo
   .arias-pc-bar {left:calc(var(--rail-w) + 24px);margin-left:0;}
   /* Con la isla acoplada (o el buscador flotante de la ficha) el aviso y el
      cartelito de "agregado" suben: nunca se apilan sobre el buscador. */
-  body:has(.home-search.is-docked) .arias-pc-bar,
-  body.page-product .arias-pc-bar {bottom:calc(112px + env(safe-area-inset-bottom));}
+  body:has(.home-search.is-docked) .arias-pc-bar {bottom:calc(112px + env(safe-area-inset-bottom));}
   .toast {left:calc(50% + var(--rail-w) / 2);bottom:112px;}
 }
 @media (max-width:720px) {
@@ -1381,7 +1380,7 @@ body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bo
 /* Vidrio de la isla acoplada: más luz que atraviesa, borde de luz arriba y
    sombra de apoyo. El texto del campo sube a blanco para sostener el contraste
    también sobre fotos claras. */
-:root:not([data-theme="light"]) .home-search.is-docked:not(:has(.home-search__suggestions:not([hidden]))) .search {background:rgba(22,22,24,.76);
+:root:not([data-theme="light"]) .home-search.is-docked:not(.has-buy):not(:has(.home-search__suggestions:not([hidden]))) .search {background:rgba(22,22,24,.76);
   -webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(255,255,255,.04),var(--glass-glow),var(--glass-shadow);}
 :root[data-theme="light"] .home-search {--isla-vidrio:rgba(255,255,255,.9);}
@@ -1459,8 +1458,7 @@ body dialog.chat .picks {padding-block:0;}
 /* 6. Ficha en celular: el aviso de Base44 va arriba, debajo de la barra. Abajo
       tapaba parte del precio y empujaba los flotantes sobre el título. */
 @media (max-width:640px) {
-  body.page-product .arias-pc-bar {top:calc(66px + env(safe-area-inset-top));bottom:auto;}
-  body.page-product:has(.arias-pc-bar[data-visible="true"]) .dock {bottom:calc(74px + max(16px, env(safe-area-inset-bottom)));}
+  /* (ficha v3: el aviso se comporta como en la home: abajo, y se retira con la isla acoplada) */
 }
 /* 7. Barra lateral: el pedido con productos se enciende, como en celular. */
 @media (min-width:1024px) {
@@ -1719,3 +1717,105 @@ dialog.notify .notify__empty svg {width:44px;height:44px;opacity:.7;color:var(--
 @media (prefers-reduced-motion: reduce) {
   .clines.is-entering .cline,.cline.is-leaving,dialog.notify .nitem,.cartfloat,.cartfloat[data-pulse='true'],.cartfloat[data-pulse='true']::after,.cartfloat[data-pulse='true'] .cartfloat__plus,.cempty__face,.cconfirm__box {animation:none;}
 }
+
+
+/* ==========================================================================
+   FICHA DE PRODUCTO v3 · 19/09/2026 (pedido de Fran)
+   "Quedaron con el diseño viejo de la nav arriba y no tienen el buscador de
+   isla flotante": ahora la ficha usa la misma base que home y catálogo (isla
+   que vuela y se acopla, menú de la isla, barra lateral en desktop). Arriba
+   queda una barra mínima: volver al rubro, marca y compartir. La barra fija de
+   "Agregar" se integra a la isla como una fila más de la misma superficie.
+   Referencias: ficha de shop.app y "lo que tenés que saber" de Mercado Libre.
+   ========================================================================== */
+.page-product .home-hero.product-hero {min-height:0;padding-block:14px 6px;}
+.product-hero__bar {display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;width:min(760px,100%);margin:0 auto 14px;}
+.product-hero__back {justify-self:start;display:inline-flex;align-items:center;gap:2px;max-width:100%;min-height:44px;padding:0 16px 0 8px;border-radius:999px;background:var(--fill-hi, rgba(255,255,255,.1));
+  font-size:15px;font-weight:500;color:var(--text);text-decoration:none;transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.product-hero__back svg {width:20px;height:20px;flex:none;rotate:180deg;}
+.product-hero__back span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.product-hero__back:active,.product-hero__share:active {scale:.94;}
+.page-product .catalog-brand {width:150px;margin:0;}
+.product-hero__share {justify-self:end;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--fill-hi, rgba(255,255,255,.1));color:var(--text);transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.product-hero__share svg {width:20px;height:20px;}
+@media (hover:hover) {.product-hero__back:hover,.product-hero__share:hover {background:var(--fill-hi-2, rgba(255,255,255,.16));}}
+.product-hero__back:focus-visible,.product-hero__share:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
+@media (min-width:721px) {
+  .page-product .home-hero.product-hero {padding-block:24px 8px;}
+  .page-product .catalog-brand {width:190px;}
+}
+@media (max-width:720px) {
+  /* Arriba ya está "volver al rubro": las migas quedan para pantallas anchas. */
+  .page-product .crumbs {display:none;}
+  .page-product .product {margin-top:10px;}
+}
+
+/* Galería fija mientras se lee la columna de compra (desktop). */
+@media (min-width:860px) {
+  .page-product .product {align-items:start;}
+  .page-product .product__gallery {position:sticky;top:24px;}
+}
+
+/* Lo que tenés que saber */
+.pfacts {list-style:none;margin:22px 0 0;padding:0;border-radius:22px;background:var(--fill, rgba(255,255,255,.06));box-shadow:inset 0 0 0 1px var(--glass-edge-2, rgba(255,255,255,.04));}
+.pfacts li {display:flex;align-items:flex-start;gap:14px;padding:14px 16px;}
+.pfacts li + li {border-top:1px solid var(--line);}
+.pfacts li > svg {width:22px;height:22px;flex:none;margin-top:1px;color:var(--gold-text);}
+.pfacts li > span {display:grid;gap:2px;min-width:0;}
+.pfacts strong {font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--text);}
+.pfacts strong[hidden] {display:none;}
+.pfacts strong[data-open='true'] {color:#30d158;}
+:root[data-theme="light"] .pfacts strong[data-open='true'] {color:#167a36;}
+.pfacts li > span > span {font-size:14px;line-height:1.45;color:var(--text-2);}
+
+/* También te podría gustar: cabecera con salida al rubro y atajos "más como este". */
+.related__head {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.page-product .related .related__head .t-h2 {margin:0;}
+.related__all {display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:16px;font-weight:500;color:var(--text);text-decoration:none;white-space:nowrap;}
+.related__all svg {width:16px;height:16px;}
+.related__tags {display:flex;gap:8px;margin:0 calc(var(--gutter, 20px) * -1) 18px;padding:2px var(--gutter, 20px);overflow-x:auto;scrollbar-width:none;}
+.related__tags::-webkit-scrollbar {display:none;}
+.related__tags a {flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--fill-hi, rgba(255,255,255,.1));font-size:15px;color:var(--text);text-decoration:none;text-transform:capitalize;transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.related__tags a svg {width:16px;height:16px;color:var(--text-2);}
+.related__tags a:active {scale:.96;}
+.page-product .related {padding-bottom:120px;}
+@media (max-width:720px) {.related__all {font-size:15px;}}
+
+/* Fila de compra dentro de la isla: misma superficie de vidrio, una fila más.
+   Aparece (la pone app.js) cuando "Agregar al pedido" ya quedó arriba. */
+.island__buy {position:absolute;z-index:0;left:calc(var(--isla-pad) * -1);right:calc(var(--isla-pad) * -1);bottom:calc(var(--isla-pad) * -1);display:flex;align-items:center;gap:12px;
+  padding:10px 10px calc(var(--pill-h) + var(--isla-pad) + 10px) 12px;border-radius:30px 30px calc(var(--pill-h) / 2 + var(--isla-pad)) calc(var(--pill-h) / 2 + var(--isla-pad));
+  background:var(--isla-vidrio, rgba(38,38,42,.84));-webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
+  box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 var(--glass-edge-2),0 0 0 1px rgba(254,206,1,.42),0 28px 70px -20px rgba(0,0,0,.8),0 18px 60px -18px rgba(254,206,1,.35);
+  animation:isla-abre-arriba .4s var(--ease-premium, cubic-bezier(.2,.8,.2,1)) both;transition:padding-bottom var(--dur-moderate, .32s) var(--ease-pop, ease);}
+.island__buy[hidden],.home-search:not(.is-docked) .island__buy,.home-search.is-flying .island__buy,
+.home-search:has(.home-search__suggestions:not([hidden])) .island__buy {display:none;}
+.island__buyImg {width:48px;height:48px;flex:none;border-radius:14px;background:#fff;object-fit:contain;}
+.island__buyInfo {flex:1;min-width:0;display:grid;line-height:1.2;}
+.island__buyInfo strong {font-size:18px;font-weight:600;letter-spacing:-.025em;color:var(--text);font-variant-numeric:tabular-nums;}
+.island__buyInfo span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;color:var(--text-2);}
+.home-search .island__buyAdd {flex:none;display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 20px 0 16px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font-size:16px;font-weight:600;
+  box-shadow:0 10px 26px -10px rgba(254,206,1,.6);transition:scale var(--dur-fast) var(--ease-pop),background var(--dur-fast) var(--ease-soft);}
+.island__buyAdd svg {width:18px;height:18px;}
+.island__buyAdd:hover {background:var(--gold-hi, #ffd92e);}
+.island__buyAdd:active {scale:.95;}
+.island__buyAdd[data-in-cart='true'] {background:var(--fill-hi, rgba(255,255,255,.14));color:var(--text);box-shadow:none;}
+/* Con la fila de compra, la píldora es el campo de adentro (igual que con el panel abierto). */
+.home-search.is-docked.has-buy .search,
+.home-search.is-docked.has-buy .search:focus-within {background:var(--fill-hi, rgba(255,255,255,.1));border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;scale:1;}
+.home-search.is-docked.has-buy .search::before {opacity:0;}
+/* La superficie sigue a la isla cuando se recoge con el scroll. */
+.home-search.is-docked.is-compact {--pill-h:72px;}
+@media (max-width:720px) {.home-search.is-docked.is-compact {--pill-h:64px;}}
+/* Los flotantes suben por encima de la fila de compra. */
+@media (max-width:1400px) {
+  body:has(.home-search.is-docked.has-buy) .dock {bottom:calc(max(16px, env(safe-area-inset-bottom)) + 168px);}
+}
+@media (prefers-reduced-motion: reduce) {.island__buy {animation:none;transition:none;}}
+
+@media (max-width:360px) {
+  .page-product .catalog-brand {width:118px;}
+  .product-hero__back {padding-right:12px;font-size:14px;}
+}
+/* Migas compactas en desktop: la cabecera nueva ya ocupa su lugar. */
+@media (min-width:721px) {.page-product .crumbs {padding-block:6px 0;}}

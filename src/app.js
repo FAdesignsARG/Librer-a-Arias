@@ -44,7 +44,9 @@ const ico = {
    Los enlaces viejos a la home con ?cat=, ?q= o #catalogo (campañas, bloques
    cargados en Base44, mensajes ya compartidos) se redirigen solos. */
 const IS_CATALOG = document.body.classList.contains('page-catalog');
-const IS_HOME = document.body.classList.contains('page-home') && !IS_CATALOG;
+// La ficha comparte la base visual de la home (isla, menú) pero no es la home.
+const IS_PRODUCT = document.body.classList.contains('page-product');
+const IS_HOME = document.body.classList.contains('page-home') && !IS_CATALOG && !IS_PRODUCT;
 const HOME_LIMIT = 50;
 // Página de rubro (/c/<rubro>/): es el catálogo abierto en un rubro.
 const PAGE_CAT = document.getElementById('catalogo')?.dataset.initialCat || '';
@@ -729,7 +731,7 @@ document.addEventListener('click', (e) => {
   if (!btn) return;
   e.preventDefault();
   const qtyEl = document.getElementById('productQtyVal');
-  const isProductPageAdd = qtyEl && (btn.closest('.product__actions') || btn.classList.contains('stickycta__add'));
+  const isProductPageAdd = qtyEl && (btn.closest('.product__actions') || btn.classList.contains('stickycta__add') || btn.classList.contains('island__buyAdd'));
   const qty = isProductPageAdd ? Number(qtyEl.textContent) || 1 : 1;
   addToCart(btn.dataset.add, { qty });
   if (isProductPageAdd) qtyEl.textContent = '1';
@@ -1840,6 +1842,23 @@ if (grid) {
 // One search field, shared by the hero and the floating capsule.
 if ($('#homeSearch')) {
   initHomeSearchMotion();
+  const islandBuy = $('#islandBuy');
+  const mainAdd = $('.product__add');
+  if (islandBuy && mainAdd) {
+    // Aparece cuando "Agregar al pedido" ya quedó arriba de la pantalla. Se
+    // calcula en el scroll (barato: un rect) en vez de con IntersectionObserver,
+    // que en algunos WebViews no avisa durante el scroll con inercia.
+    const formEl = $('#homeSearch');
+    const syncBuy = () => {
+      const passed = mainAdd.getBoundingClientRect().bottom < 72;
+      if (passed === !islandBuy.hidden) return;
+      islandBuy.hidden = !passed;
+      formEl.classList.toggle('has-buy', passed);
+    };
+    window.addEventListener('scroll', syncBuy, { passive: true });
+    window.addEventListener('resize', syncBuy, { passive: true });
+    syncBuy();
+  }
   const form = $('#homeSearch');
   const suggestions = $('#homeSuggestions');
   const closeSuggestions = () => setSuggestions(false);
@@ -1896,7 +1915,7 @@ if ($('#homeSearch')) {
     mirror();
   }
   const results = () => {
-    if (IS_HOME) {
+    if (IS_HOME || !$('#catalogo')) {
       const q = searchEl.value.trim();
       location.href = '/catalogo/' + (q ? `?q=${encodeURIComponent(q)}` : '');
       return;
@@ -1920,7 +1939,7 @@ if ($('#homeSearch')) {
   });
   $$('[data-search-idea]').forEach(btn => btn.addEventListener('click', () => { searchEl.value=btn.dataset.searchIdea; syncHasText(); searchEl.focus({preventScroll:true}); results(); }));
   $$('[data-home-category]').forEach(link => link.addEventListener('click', e => {
-    if(IS_HOME || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if(IS_HOME || !$('#catalogo') || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault(); selectCategory(link.dataset.homeCategory); results();
   }));
 }

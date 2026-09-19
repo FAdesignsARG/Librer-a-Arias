@@ -599,3 +599,34 @@ botón de pedido arriba a la derecha en desktop.
   "Mi pedido" del bloque de flotantes se oculta en desktop (quedaban tres entradas).
 - Medido por DOM a 375 y 1280: sin desborde en las hojas, ningún texto <14px,
   ningún toque <44px, el href de WhatsApp sigue llevando "Descuento web 10%".
+
+## Ficha de producto v3: con la isla y sin la barra vieja (19/09/2026)
+Pedido de Fran: las fichas "quedaron con el diseño viejo de la nav arriba y no
+tienen el buscador de isla flotante ni nada de lo nuevo". Referencias: shop.app
+y Mercado Libre. Vale para las 565 fichas (salen todas de `renderProduct()`).
+- **Misma base que home y catálogo**: el `<body>` de la ficha es ahora
+  `page-home page-product` (carga `home.css`, usa el menú de la isla y la barra
+  lateral). En `app.js`, `IS_PRODUCT` excluye a la ficha de `IS_HOME`; buscar desde
+  la ficha lleva a `/catalogo/?q=` y los rubros del menú navegan por su `href`.
+- **La isla es una pieza reutilizable**: `searchIslandHtml(buy)` en `templates.js`
+  (la usan home, catálogo y ficha; mismos IDs: `#homeSearchAnchor`, `#homeSearch`,
+  `#search`, `data-open-order`, `data-open-menu`). En la ficha vuela y se acopla
+  igual que en la home.
+- **Cabecera mínima** (`.product-hero__bar`): volver al rubro, marca (lleva al
+  inicio) y compartir; debajo, el buscador. Se fue la barra de arriba vieja (en
+  celular ya no se ve `#nav`; en desktop está la barra lateral). Las migas quedan
+  sólo en pantallas anchas.
+- **La barra fija de "Agregar" se integró a la isla**: `#islandBuy` (foto, precio,
+  nombre y "Agregar") aparece como una fila más de la MISMA superficie de vidrio
+  cuando el botón "Agregar al pedido" ya quedó arriba de la pantalla (clase
+  `has-buy`; se calcula en el scroll). Respeta la cantidad elegida. Se eliminaron
+  `.stickycta` y `.psearch` del HTML. Los flotantes suben por encima.
+- **Más información para decidir**: bloque "lo que tenés que saber" (`.pfacts`):
+  retiro en el local con la dirección, abierto/cerrado en vivo (`#hoursCardStatus`)
+  y "confirmamos por WhatsApp". Todo sale de `settings`: nada inventado.
+- **Relacionados**: cabecera con "Ver todo <rubro>" y atajos "más como este"
+  (las palabras de `tags` del producto → `/catalogo/?q=`).
+- Desktop: la galería queda fija (sticky) mientras se lee la columna de compra;
+  "Agregar" y "WhatsApp" siguen entrando sin scroll a 1280x860 (y=649 y 717).
+- Medido por DOM a 320, 375 y 1280: sin desborde, ningún texto <14px, vuelo y
+  aterrizaje exactos, fila de compra y menú funcionando. Sin errores de JS.

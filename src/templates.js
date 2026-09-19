@@ -125,6 +125,23 @@ if(sessionStorage.getItem('arias.splash.visto')!=='1'&&location.pathname.indexOf
 /** Un rubro tiene un solo destino: su página. "Todos" y "Ofertas" son filtros del catálogo. */
 const catHref = (c) => c === 'Todos' ? '/catalogo/' : c === 'Ofertas' ? '/catalogo/?cat=Ofertas' : `/c/${categorySlug(c)}/`;
 
+/** La isla del buscador: la misma pieza en home, catálogo y ficha. En la ficha
+    lleva además una fila de compra (`buy`) que aparece, dentro de la misma
+    superficie, cuando el botón "Agregar al pedido" sale de la pantalla. */
+const searchIslandHtml = (buy = '') => `<div id="homeSearchAnchor" class="home-search-anchor">
+    <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
+      <div class="search" id="searchWrap">
+        <button class="home-search__go" type="submit" aria-label="Buscar">${ico.search}</button><input id="search" name="q" type="search" enterkeyhint="search" placeholder="¿Qué buscás?" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
+        <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
+      </div>
+      <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p>${['Termos','Relojes','Auriculares'].map(q=>`<button type="button" data-search-idea="${q}">${ico.search}${q}${ico.chevron}</button>`).join('')}<button type="submit" class="home-search__results">Ver resultados ${ico.chevron}</button></div>
+${buy}      <div class="island__actions">
+        <button type="button" class="island__order" data-open-order aria-haspopup="dialog">${ico.bag}<span class="island__orderLabel">Pedido</span><span class="island__count" data-order-count>0</span></button>
+        <button type="button" class="island__menu" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet" aria-label="Menú">${menuIco}<span class="island__dot" id="islandDot" hidden></span></button>
+      </div>
+    </form>
+  </div>`;
+
 const splashHtml = (s, home = false) => `<div class="splash${home ? ' splash--home' : ''}" id="splash" aria-hidden="true">
   <div class="splash__panel splash__panel--top"></div>
   <div class="splash__panel splash__panel--bottom"></div>
@@ -278,7 +295,7 @@ ${themeBootScript(isHome)}
 <script type="application/ld+json">${head.jsonLd}</script>
 </head>
 <body${bodyClass ? ` class="${bodyClass}"` : ''}>
-${splashHtml(s, isHome && !bodyClass.includes('page-catalog'))}
+${splashHtml(s, isHome && !bodyClass.includes('page-catalog') && !bodyClass.includes('page-product'))}
 ${navbar(s, isHome)}
 ${railHtml(s)}
 ${body}
@@ -789,19 +806,7 @@ export function renderHome({ products, settings: s, mode = 'home', category = ''
   <!--catalog-only--><a class="catalog-brand" href="/" aria-label="Volver al inicio de ${esc(s.storeName)}"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt=""><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt=""></a><!--/catalog-only-->
   <!--home-only--><div class="home-mark" aria-hidden="true">${crane('home-mark__img', 132)}</div>
   <h1 class="home-wordmark"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt="${esc(s.storeName)} — El Temu 2.0 riojano"></h1><!--/home-only-->
-  <div id="homeSearchAnchor" class="home-search-anchor">
-    <form class="home-search" id="homeSearch" role="search" action="/" autocomplete="off">
-      <div class="search" id="searchWrap">
-        <button class="home-search__go" type="submit" aria-label="Buscar">${ico.search}</button><input id="search" name="q" type="search" enterkeyhint="search" placeholder="¿Qué buscás?" aria-label="Buscar productos" aria-controls="grid" autocomplete="off">
-        <button type="button" class="search__clear" id="searchClear" aria-label="Borrar búsqueda">${ico.x}</button>
-      </div>
-      <div class="home-search__suggestions" id="homeSuggestions" hidden><p>Un buen lugar para empezar</p>${['Termos','Relojes','Auriculares'].map(q=>`<button type="button" data-search-idea="${q}">${ico.search}${q}${ico.chevron}</button>`).join('')}<button type="submit" class="home-search__results">Ver resultados ${ico.chevron}</button></div>
-      <div class="island__actions">
-        <button type="button" class="island__order" data-open-order aria-haspopup="dialog">${ico.bag}<span class="island__orderLabel">Pedido</span><span class="island__count" data-order-count>0</span></button>
-        <button type="button" class="island__menu" data-open-menu aria-haspopup="dialog" aria-controls="menuSheet" aria-label="Menú">${menuIco}<span class="island__dot" id="islandDot" hidden></span></button>
-      </div>
-    </form>
-  </div>
+  ${searchIslandHtml()}
   <!--home-only--><nav class="home-quick" aria-label="Accesos rápidos">
     <a href="/catalogo/" data-home-category="Todos" style="--i:0"><span class="home-quick__ico">${gridIco}</span>Catálogo</a>
     <a href="/catalogo/?cat=Ofertas" data-home-category="Ofertas" style="--i:1"><span class="home-quick__ico">${ico.tag}</span>Ofertas</a>
@@ -1125,7 +1130,27 @@ export function renderProduct({ product: p, related, settings: s }) {
     ],
   });
 
+  const shown = offerHasDiscount(p) ? p.offer.price : p.price;
+  const buyRow = p.inStock
+    ? `      <div class="island__buy" id="islandBuy" hidden>
+        <img class="island__buyImg" src="${esc(thumbSrc(main))}" width="48" height="48" alt="">
+        <span class="island__buyInfo"><strong>${money(shown)}</strong><span>${esc(p.name)}</span></span>
+        <button type="button" class="island__buyAdd" data-add="${esc(p.slug)}">${ico.plus}<span>Agregar</span></button>
+      </div>
+`
+    : '';
+  // "Más como este": las palabras con las que se carga el producto sirven de atajo al catálogo.
+  const similar = [...new Set(String(p.tags || '').toLowerCase().split(/[\s,;]+/).filter((t) => t.length >= 4))].slice(0, 5);
+
   const body = `
+<header class="hero home-hero product-hero">
+  <div class="product-hero__bar">
+    <a class="product-hero__back" href="/c/${categorySlug(p.category)}/" aria-label="Volver a ${esc(p.category)}">${ico.chevron}<span>${esc(p.category)}</span></a>
+    <a class="catalog-brand" href="/" aria-label="Ir al inicio de ${esc(s.storeName)}"><img class="brand-dark" src="/assets/brand/wordmark-dark.webp" width="780" height="211" alt=""><img class="brand-light" src="/assets/brand/wordmark-light.webp" width="780" height="211" alt=""></a>
+    <button type="button" class="product-hero__share" ${shareAttrs(p)} aria-label="Compartir ${esc(p.name)}">${shareIco}</button>
+  </div>
+  ${searchIslandHtml(buyRow)}
+</header>
 <div class="shell">
   <nav class="crumbs" aria-label="Migas de pan">
     <a href="/">Inicio</a>${ico.chevron}
@@ -1194,6 +1219,11 @@ export function renderProduct({ product: p, related, settings: s }) {
         </button>
         <button type="button" class="btn btn--ghost product__share" ${shareAttrs(p)}>${shareIco} Compartir</button>
       </div>
+      <ul class="pfacts" aria-label="Lo que tenés que saber">
+        <li>${ico.pin}<span><strong>Retirás en el local</strong><span>${esc(s.address)}</span></span></li>
+        <li>${ico.clock}<span><strong id="hoursCardStatus" hidden></strong><span>Los horarios están más abajo, en "Retiro en el local y horarios".</span></span></li>
+        <li>${ico.wa}<span><strong>Confirmamos por WhatsApp</strong><span>Stock, forma de pago y entrega, antes de que vengas.</span></span></li>
+      </ul>
       <div class="product__more">
         <details class="pacc" open>
           <summary>Descripción ${ico.chevron}</summary>
@@ -1232,31 +1262,19 @@ export function renderProduct({ product: p, related, settings: s }) {
   }
 </dialog>
 
-<!-- En mobile duplica el CTA de arriba, fijo abajo: el precio y el botón
-     de agregar quedan siempre al alcance del pulgar sin importar cuánto
-     se scrolleó la descripción. Mismo data-add, participa del mismo
-     estado (ícono a check) que el resto de los botones de agregar. -->
-<div class="stickycta">
-  <div class="stickycta__price">
-    ${offerHasDiscount(p) ? `<span class="stickycta__old">${money(p.price)}</span>` : ''}
-    <strong>${money(offerHasDiscount(p) ? p.offer.price : p.price)}</strong>
-  </div>
-  <button class="btn btn--gold stickycta__add" data-add="${esc(p.slug)}">${ico.plus} Agregar</button>
-</div>
-
 ${
   related.length
     ? `<section class="related">
   <div class="shell">
-    <h2 class="t-h2">También te podría gustar</h2>
+    <div class="related__head">
+      <h2 class="t-h2">También te podría gustar</h2>
+      <a class="related__all" href="/c/${categorySlug(p.category)}/">Ver todo ${esc(p.category)} ${ico.chevron}</a>
+    </div>
+    ${similar.length ? `<div class="related__tags" aria-label="Más como este">${similar.map((t) => `<a href="/catalogo/?q=${encodeURIComponent(t)}">${ico.search}${esc(t)}</a>`).join('')}</div>` : ''}
     <div class="grid">
       ${related.map((r) => cardHtml(r)).join('\n      ')}
     </div>
   </div>
-  <form class="psearch" action="/catalogo/" method="get" role="search">
-    <input type="search" name="q" placeholder="¿Qué buscás?" aria-label="Buscar en el catálogo" enterkeyhint="search" autocomplete="off">
-    <button type="submit" aria-label="Buscar">${ico.search}</button>
-  </form>
 </section>`
     : ''
 }
@@ -1284,7 +1302,7 @@ ${footer(s)}`;
     },
     body,
     settings: s,
-    bodyClass: 'page-product',
+    bodyClass: 'page-home page-product',
   });
 }
 

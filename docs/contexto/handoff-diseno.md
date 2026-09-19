@@ -57,6 +57,14 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 - Nada de esto pasó por críticos todavía (ronda 3 pendiente, junto con la
   decisión de los filtros en celular).
 
+## 19/09/2026 (noche) — ficha v3
+- Las fichas usan la isla, el menú nuevo y la barra lateral; la barra fija de
+  "Agregar" vive dentro de la isla (`#islandBuy`). Detalle en `estado-actual.md`.
+- **Fran tiene que mirar** una ficha en teléfono y PC: cabecera, vuelo de la
+  isla, fila de compra al bajar, "lo que tenés que saber", atajos de relacionados.
+- Limpieza pendiente: CSS muerto de `.stickycta`, `.psearch` y de la barra de
+  arriba de la ficha (`.page-product .nav …`).
+
 ## Rondas anteriores
 | Ronda | Tema | Estado |
 |---|---|---|
