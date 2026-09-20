@@ -3170,3 +3170,13 @@ body.admin .sheet__close {flex:none;min-width:44px;min-height:44px;}
   body.admin .tutorial__nav {flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   body.admin .tutorial__nav .btn {justify-content:center;}
 }
+
+/* Entrada: el campo ES la superficie (el contenedor sólo ubica el ícono). La regla
+   general de campos le había pisado el margen izquierdo: el texto quedaba debajo del
+   ícono, y contenedor + campo sumaban dos fondos (gris doble en tema claro). */
+body.admin .logininput,body.admin .logininput:focus-within {min-height:0;border:0;border-radius:0;background:none;box-shadow:none;}
+/* !important: la regla general de campos encadena varios :not() y gana por especificidad. */
+body.admin .logincard .field .logininput input {width:100%;min-height:56px !important;padding:0 18px 0 52px !important;border-radius:18px !important;font-size:17px;}
+body.admin .logininput svg {left:18px;width:20px;height:20px;color:var(--text-2);z-index:1;}
+body.admin .logininput:focus-within svg {color:var(--gold-text);}
+body.admin .logincard .field label {font-size:15px;}

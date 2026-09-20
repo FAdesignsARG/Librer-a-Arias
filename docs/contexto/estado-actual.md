@@ -716,3 +716,12 @@ perfectamente diseñado con el nuevo estilo."
   0 toques <44px, 0 desbordes. Tema claro: opción 19:1. Falta verlo con datos
   reales (Fran tiene que iniciar sesión) y el selector nativo de fecha/hora de
   "Válida hasta" (queda el del navegador, en oscuro).
+
+## Panel v2: íconos del login superpuestos (20/09/2026)
+Captura de Fran: en la entrada el ícono quedaba encima del texto del campo y en tema
+claro el campo se veía con gris doble. Causa: la regla general de campos de la fase 2
+(`.field input:not(...)` con cinco `:not()`) ganaba por especificidad y le pisaba el
+`padding-left` al login, y contenedor + campo tenían fondo los dos. Arreglo: el campo
+es la superficie (contenedor transparente), texto a 52px, ícono de 20px a 18px,
+dorado con foco. Medido en claro y oscuro (14px entre ícono y texto, ícono centrado)
+y revisado que no pase en Configuración, Promociones ni el editor.
