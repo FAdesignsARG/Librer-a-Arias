@@ -3011,3 +3011,162 @@ body.admin .adminfab {min-height:60px;border-radius:999px;font-size:16px;font-we
   body.admin .logincard,body.admin .selbar {animation:none;}
   body.admin .item:hover {translate:none;}
 }
+
+
+/* ==========================================================================
+   PANEL v2 · desplegables propios y controles nativos · 20/09/2026
+   Fran: "esto quedó roto y mal diseñado" (la lista nativa del <select> salía
+   blanca con texto claro). Ningún control del sistema queda a la vista:
+   los <select> se reemplazan por select.js (pastilla + lista de vidrio) y las
+   casillas se dibujan acá. El nativo queda sólo como respaldo, legible.
+   ========================================================================== */
+/* Respaldo (navegador sin API Popover): la lista del sistema, al menos, se lee. */
+body.admin {color-scheme:dark;}
+:root[data-theme='light'] body.admin {color-scheme:light;}
+body.admin select option {background:#1c1c1e;color:#f5f5f7;}
+:root[data-theme='light'] body.admin select option {background:#fff;color:#101012;}
+
+/* El <select> original sigue en el DOM (admin.js lo lee y lo escribe) pero no se ve. */
+body.admin select.aselect__native {position:absolute !important;width:1px !important;height:1px !important;min-height:0 !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip-path:inset(50%) !important;opacity:0 !important;pointer-events:none !important;display:block !important;}
+
+.aselect {position:relative;display:inline-flex;min-width:0;vertical-align:middle;}
+.field .aselect,.editor .aselect {display:flex;width:100%;}
+.aselect__btn {display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0;min-height:54px;padding:0 14px 0 16px;border:0;border-radius:16px;background:var(--fill-hi);color:var(--text);
+  font:inherit;font-size:17px;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px var(--glass-edge-2);
+  transition:box-shadow var(--dur-fast) var(--ease-soft),background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+.aselect__btn:hover {background:var(--glass-edge);}
+.aselect__btn:active {scale:.985;}
+.aselect__btn:focus-visible,.aselect[data-open] .aselect__btn {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+.aselect__btn:disabled {opacity:.5;cursor:not-allowed;}
+.aselect__label {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.aselect__chev {width:18px;height:18px;flex:none;color:var(--text-2);transition:rotate var(--dur) var(--ease-soft);}
+.aselect[data-open] .aselect__chev {rotate:180deg;}
+/* Filtros de la lista: pastilla grande, como los del catálogo. */
+.aselect--pill {flex:1 1 200px;}
+.aselect--pill .aselect__btn {min-height:60px;padding:0 18px 0 22px;border-radius:999px;font-size:16px;font-weight:500;}
+.aselect--pill[data-active] .aselect__btn {background:var(--gold-wash);box-shadow:inset 0 0 0 1.5px var(--gold-edge);}
+.aselect--compact .aselect__btn {min-height:44px;padding:0 10px 0 12px;border-radius:12px;font-size:15px;}
+
+/* La lista: vidrio en la capa superior, crece desde su pastilla. */
+.aselect__pop {position:fixed;inset:auto;margin:0;padding:8px;border:0;border-radius:24px;overflow-y:auto;overscroll-behavior:contain;color:var(--text);
+  background:var(--glass-bg-strong);-webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
+  box-shadow:inset 0 1px 0 var(--glass-edge),0 0 0 1px rgba(254,206,1,.28),var(--glass-shadow);scrollbar-width:thin;}
+.aselect__pop:popover-open {display:grid;gap:2px;animation:aselect-abre .26s var(--ease-premium, ease) both;transform-origin:50% 0;}
+.aselect__pop[data-up='true']:popover-open {transform-origin:50% 100%;animation-name:aselect-abre-arriba;}
+@keyframes aselect-abre {from {opacity:0;scale:.96 .7;translate:0 -6px;}}
+@keyframes aselect-abre-arriba {from {opacity:0;scale:.96 .7;translate:0 6px;}}
+.aselect__opt {display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:0 14px;border:0;border-radius:16px;background:transparent;color:var(--text);
+  font:inherit;font-size:16px;font-weight:500;text-align:left;cursor:pointer;transition:background var(--dur-fast) var(--ease-soft);}
+.aselect__opt:hover,.aselect__opt:focus-visible {outline:0;background:var(--fill-hi);}
+.aselect__opt svg {width:18px;height:18px;flex:none;color:var(--gold-text);opacity:0;}
+.aselect__opt[aria-selected='true'] {background:var(--gold-wash);}
+.aselect__opt[aria-selected='true'] svg {opacity:1;}
+.aselect__opt:disabled {opacity:.45;cursor:not-allowed;}
+/* En celular la lista es una hoja abajo, donde está el pulgar. */
+.aselect__pop.is-sheet {left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));top:auto;width:auto;max-height:70dvh;border-radius:28px;padding:10px;}
+.aselect__pop.is-sheet:popover-open {animation:aselect-hoja .32s var(--ease-premium, ease) both;}
+@keyframes aselect-hoja {from {opacity:0;translate:0 24px;}}
+.aselect__pop.is-sheet .aselect__opt {min-height:56px;font-size:17px;}
+.aselect__pop::backdrop {background:transparent;}
+
+/* ---------- Casillas: dibujadas, grandes, con el amarillo de la acción ---------- */
+body.admin .item__check,body.admin .checkall {cursor:pointer;}
+body.admin .item__check {display:grid;place-items:center;min-width:44px;min-height:44px;margin:-8px;}
+body.admin input[type='checkbox'][data-select],body.admin #selectAll {appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;flex:none;border-radius:8px;background:var(--fill-hi);
+  box-shadow:inset 0 0 0 1.5px var(--line-strong, rgba(255,255,255,.22));cursor:pointer;display:inline-grid;place-items:center;transition:background var(--dur-fast) var(--ease-soft),box-shadow var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+body.admin input[type='checkbox'][data-select]::after,body.admin #selectAll::after {content:'';width:12px;height:7px;margin-top:-3px;border-left:2.5px solid var(--gold-ink);border-bottom:2.5px solid var(--gold-ink);rotate:-45deg;scale:0;transition:scale var(--dur-fast) var(--ease-pop);}
+body.admin input[type='checkbox'][data-select]:checked,body.admin #selectAll:checked {background:var(--gold);box-shadow:none;}
+body.admin input[type='checkbox'][data-select]:checked::after,body.admin #selectAll:checked::after {scale:1;}
+body.admin input[type='checkbox'][data-select]:active,body.admin #selectAll:active {scale:.9;}
+body.admin input[type='checkbox'][data-select]:focus-visible,body.admin #selectAll:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
+/* El dibujo viejo de "seleccionar todo" (un <span> vacío al lado) ya no hace falta. */
+body.admin .checkall > span:empty {display:none;}
+body.admin .checkall {display:inline-flex;align-items:center;gap:12px;min-height:44px;}
+
+/* Barras de desplazamiento discretas dentro de los paneles. */
+body.admin dialog *,body.admin .aselect__pop {scrollbar-width:thin;scrollbar-color:var(--glass-edge) transparent;}
+
+@media (prefers-reduced-transparency: reduce) {
+  .aselect__pop {background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .aselect__pop:popover-open,.aselect__pop.is-sheet:popover-open {animation:none;}
+}
+
+/* Campos con prefijo ($ y %): el contenedor es el campo; el input va transparente adentro. */
+body.admin .money,body.admin .percent {min-height:54px;border:0;border-radius:16px;background:var(--fill-hi);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:box-shadow var(--dur-fast) var(--ease-soft);}
+body.admin .money:focus-within,body.admin .percent:focus-within {box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+body.admin .money span,body.admin .percent span {padding-inline:16px 0;font-size:17px;color:var(--text-2);}
+body.admin .field .money input,body.admin .field .percent input,body.admin .money input,body.admin .percent input {min-height:54px;background:transparent;box-shadow:none;border-radius:0;}
+body.admin .field .money input:focus,body.admin .field .percent input:focus {box-shadow:none;}
+
+
+/* ==========================================================================
+   PANEL v2 · repaso pantalla por pantalla · 20/09/2026
+   Auditoría por DOM de cada diálogo: nada bajo 14px, ningún toque bajo 44px,
+   ningún peso sobre 600, texto secundario con contraste.
+   ========================================================================== */
+body.admin :is(strong, b, h1, h2, h3, h4, th) {font-weight:600;}
+
+/* Editor */
+body.admin .drop__hint {font-size:14px;color:var(--text-2);}
+body.admin .editor__preview-label {font-size:14px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-2);}
+body.admin .drop {border:1.5px dashed var(--line-strong, rgba(255,255,255,.2));background:var(--fill);transition:background var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft);}
+body.admin .drop:hover {background:var(--fill-hi);border-color:var(--gold-edge);}
+body.admin .editor__preview {border-radius:24px;}
+
+/* Carga masiva */
+body.admin .bulk code {font-size:14px;padding:2px 6px;border-radius:8px;background:var(--fill-hi);}
+body.admin .btable th {font-size:14px;color:var(--text-2);}
+body.admin .btable td input {min-height:44px;border-radius:12px;font-size:15px;}
+body.admin .bulk__count {font-size:15px;color:var(--text-2);}
+
+/* Asistente de stock: mismo chat que el del catálogo */
+body.admin .stockchat__notice {font-size:14px;line-height:1.45;color:var(--text-2);border-radius:18px;}
+body.admin .stockchat__msg {max-width:86%;padding:12px 16px;border-radius:22px;font-size:16px;line-height:1.5;}
+body.admin .stockchat__msg--bot {background:var(--fill-hi);border:0;border-bottom-left-radius:8px;}
+body.admin .stockchat__msg--user {background:var(--gold);color:var(--gold-ink);border:0;border-bottom-right-radius:8px;}
+body.admin .stockchat__chip {min-height:48px;padding:0 18px;border:0;border-radius:999px;background:var(--fill-hi);font-size:15px;font-weight:500;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+body.admin .stockchat__chip:hover {background:var(--glass-edge);}
+body.admin .stockchat__chip:active {scale:.96;}
+body.admin .stockchat__composer {gap:10px;padding:12px 16px max(14px, env(safe-area-inset-bottom));border-top:0;box-shadow:0 -1px 0 var(--line);}
+body.admin .stockchat__composer textarea {min-height:54px;padding:15px 18px;border:0;border-radius:27px;background:var(--fill-hi);font-size:17px;line-height:1.4;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
+body.admin .stockchat__composer textarea:focus {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+body.admin .stockchat__send {width:54px;height:54px;flex:none;border-radius:50%;background:var(--gold);color:var(--gold-ink);box-shadow:0 10px 26px -10px rgba(254,206,1,.6);}
+body.admin .stockchat__send svg {width:22px;height:22px;}
+body.admin .stockchat__send:active {scale:.92;}
+
+/* Reportes */
+body.admin .reportstabs {align-self:flex-start;width:max-content;max-width:calc(100% - 40px);gap:4px;margin:4px 20px 8px;padding:4px;border-bottom:0;border-radius:999px;background:var(--fill);}
+body.admin .reportstab {min-height:44px;padding:0 18px;border:0;border-radius:999px;font-size:15px;font-weight:500;color:var(--text-2);background:transparent;}
+body.admin .reportstab[aria-current='true'] {background:var(--fill-hi);color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
+body.admin .reportnav__arrow {width:44px;height:44px;border-radius:50%;background:var(--fill-hi);}
+body.admin .reports__foot .btn {min-height:48px;border-radius:999px;font-size:16px;}
+
+/* Tutorial */
+body.admin .tutorial__eyebrow {font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-2);}
+body.admin .tutorial__body {font-size:17px;line-height:1.55;}
+body.admin .tutorial__nav .btn {min-height:48px;padding-inline:22px;border-radius:999px;font-size:16px;font-weight:600;}
+/* Puntitos: el dibujo es chico, el área de toque no (44px). */
+body.admin .tutorial__dots {gap:0;}
+body.admin .tutorial__dots button {position:relative;width:28px;height:44px;padding:0;border:0;background:none;}
+body.admin .tutorial__dots button::before {content:'';position:absolute;left:50%;top:50%;translate:-50% -50%;width:8px;height:8px;border-radius:999px;background:var(--text-2);opacity:.55;transition:width var(--dur) var(--ease-out),background var(--dur-fast) var(--ease-soft),opacity var(--dur-fast);}
+body.admin .tutorial__dots button[aria-current='true']::before {width:22px;background:var(--gold);opacity:1;}
+
+/* Botones chicos del panel: mismo piso que el resto. */
+body.admin .btn--sm {min-height:44px;}
+body.admin .tutorial__dots button,body.admin .tutorial__dots button[aria-current='true'] {width:28px;height:44px;border-radius:0;background:none;}
+body.admin .reportstab,body.admin .reportstab + .reportstab {margin:0;border-bottom:0;}
+
+/* Últimos ajustes de la auditoría (375px). */
+/* La regla original lleva !important: se iguala para poder subirla al piso de 14px. */
+body.admin .drop .drop__hint {font-size:14px !important;}
+body.admin .abar__brand {min-width:44px;min-height:44px;}
+body.admin .sheet__close {flex:none;min-width:44px;min-height:44px;}
+@media (max-width:560px) {
+  /* Tutorial: los puntitos en su renglón y las dos acciones repartidas abajo. */
+  body.admin .tutorial__foot {flex-wrap:wrap;gap:6px 10px;}
+  body.admin .tutorial__dots {flex:1 1 100%;justify-content:center;margin:0;flex-wrap:wrap;}
+  body.admin .tutorial__nav {flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  body.admin .tutorial__nav .btn {justify-content:center;}
+}

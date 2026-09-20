@@ -688,3 +688,31 @@ isla y `#islandBuy` en la ficha, `og:url` correcto, las 5 `data-arias-section`.
   de publicación visible ("publicando… / publicado hace X"), acceso a ver y compartir
   la ficha desde cada fila, y revisar editor de fotos, carga masiva, asistente de
   stock, reportes y tutorial pantalla por pantalla.
+
+## Panel v2, fase 2: desplegables propios y repaso pantalla por pantalla (20/09/2026)
+Fran mandó captura del filtro "Todos los estados": la lista nativa del `<select>`
+salía blanca con texto claro (la fase 1 le había puesto texto claro al select y la
+lista la dibuja el sistema). "Asegurate de que dentro de admin todo quede
+perfectamente diseñado con el nuevo estilo."
+- **`src/admin/select.js`** (nuevo; sumado a `scripts/build.js` y a `admin.html`):
+  cada `<select>` del panel se reemplaza a la vista por una pastilla que abre una
+  lista de vidrio (API Popover, capa superior: no la recorta ningún diálogo). El
+  `<select>` original sigue en el DOM como fuente de verdad; al elegir se le asigna
+  el valor y se disparan `input` y `change`; se intercepta `value`/`selectedIndex`
+  para que la pastilla acompañe cuando admin.js asigna por código; un
+  MutationObserver toma los `<select>` de la carga masiva. Dentro de un diálogo
+  modal la lista se cuelga DEL diálogo (lo de afuera queda inerte). En celular es
+  una hoja abajo. Teclado: flechas, Inicio/Fin, letra, Escape, Tab. Sin API
+  Popover queda el nativo, legible (`color-scheme` + colores de `option`).
+  **admin.js no se tocó.**
+- De paso: en celular el panel no mostraba los filtros de rubro y estado (una regla
+  del catálogo ocultaba `.sort`): con las pastillas nuevas vuelven a estar.
+- Casillas dibujadas (24px, amarillo al marcar, toque de 44px), campos con prefijo
+  (`$`, `%`) unificados, zona de fotos, chat del asistente de stock (burbujas,
+  accesos de 48px, campo en pastilla, enviar de 54px), reportes (pestañas como
+  control segmentado, flechas de 44px), tutorial (puntitos con toque de 44px,
+  acciones de 48px; en celular, en dos renglones), pesos ≤600.
+- Auditoría por DOM de los 8 diálogos y la página, a 375 y 1100: 0 textos <14px,
+  0 toques <44px, 0 desbordes. Tema claro: opción 19:1. Falta verlo con datos
+  reales (Fran tiene que iniciar sesión) y el selector nativo de fecha/hora de
+  "Válida hasta" (queda el del navegador, en oscuro).

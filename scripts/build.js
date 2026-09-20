@@ -154,6 +154,7 @@ const copies = [
   ['src/firebase-client.js', 'src/firebase-client.js'],
   ['src/firebase-config.js', 'src/firebase-config.js'],
   ['src/admin/admin.js', 'src/admin/admin.js'],
+  ['src/admin/select.js', 'src/admin/select.js'],
   ['src/admin/admin.css', 'src/admin/admin.css'],
   // admin.html va a admin/index.html para que /admin resuelva como URL
   // limpia, igual que /p/slug/ con las landings de producto.
