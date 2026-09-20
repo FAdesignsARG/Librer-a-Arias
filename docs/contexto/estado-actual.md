@@ -736,3 +736,9 @@ repo. Verificado en https://libreria-arias.netlify.app/admin/: 200, capa PANEL v
 vista, consola sin errores; catálogo público intacto (565 productos, home/catálogo/
 ficha 200). Falta que Fran/Adolfo lo prueben con sesión iniciada (no se puede
 verificar con datos reales sin escribir contraseñas).
+
+## Verificación de los ajustes de Base44 (20/09/2026)
+Rodri avisó bridge `2026-09-19.2`. Medido: `bridge_version` sigue en `2026-09-15.2`;
+"Producto compartido" 422; CORS de `diseno--` 403; además "Impresión de tarjeta" y
+"Consulta por WhatsApp" dan 422 en la prueba directa (a revisar por Rodri). Sin cambios
+de código del lado de la web. Detalle y mensaje en `RESUMEN-PARA-RODRI.md`.

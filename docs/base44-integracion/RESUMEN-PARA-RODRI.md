@@ -8,6 +8,25 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
+## VERIFICACIÓN DEL 20/09/2026 — el bridge publicado sigue siendo el viejo
+
+Rodri avisó que publicó el bridge `2026-09-19.2` (dominio principal corregido, CORS de
+`diseno--`, "Producto compartido" y la red de seguridad de `/api/rebuild`). Medido
+desde la web el 20/09, con tráfico marcado `es_prueba`:
+- `action: "configuracion_pagina"` responde **`bridge_version: "2026-09-15.2"`** → la
+  función publicada NO es la nueva.
+- Desde `https://libreria-arias.netlify.app`, mismo cuerpo y misma sesión cambiando sólo
+  `tipo`: Visita **201**, Búsqueda **200**, Búsqueda sin resultados **200**, Vista de
+  producto **201**, Agregado a pedido **201**; **Producto compartido 422**, y también
+  **Impresión de tarjeta 422** y **Consulta por WhatsApp 422**
+  (`{"success":false,"error":"Evento, sesión o clave inválidos"}`). Los dos últimos son
+  eventos viejos de la web: conviene revisar en Base44 si el tráfico real de esos dos
+  tipos está entrando (desde acá no se puede confirmar: en el navegador de pruebas el
+  observador de tarjetas no dispara).
+- Desde `https://diseno--libreria-arias.netlify.app`: `catalogo-metricas` sigue en **403**.
+- Del lado de la web no hay nada pendiente: no se cambió código por estos mensajes.
+
+---
 ## ESTADO AL 19/09/2026 (noche): LA VERSIÓN NUEVA YA ESTÁ EN PRODUCCIÓN
 
 - `main` = la versión que estaba en `diseno--` (commit `66314d5`). Publicada en
