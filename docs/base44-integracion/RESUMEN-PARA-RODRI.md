@@ -8,6 +8,17 @@ Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
 
 ---
 
+## VERIFICACIÓN DEL 20/09/2026 (tarde) — TODO OK con el bridge `2026-09-20.1`
+
+Medido desde el navegador con el SDK (`catalogo-metricas`), tráfico marcado `es_prueba: true`,
+`product_name: "PRUEBA Claude"`, sesiones `prueba-claude-*`:
+- `configuracion_pagina` → **200**, `bridge_version: "2026-09-20.1"` (más nuevo que el `2026-09-19.2` anunciado).
+- Desde `https://libreria-arias.netlify.app`: Vista de producto **201**, **Producto compartido 201**,
+  **Impresión de tarjeta 201**, **Consulta por WhatsApp 201** (todos `success:true, duplicate:false`).
+- Desde `https://diseno--libreria-arias.netlify.app`: `configuracion_pagina` **200** y Producto compartido **201** → CORS resuelto.
+- Falta sólo la prueba punta a punta del pedido (web → eventos → Base44 → pedido → WhatsApp), que necesita a una persona enviando un pedido real de prueba.
+
+---
 ## VERIFICACIÓN DEL 20/09/2026 — el bridge publicado sigue siendo el viejo
 
 Rodri avisó que publicó el bridge `2026-09-19.2` (dominio principal corregido, CORS de
