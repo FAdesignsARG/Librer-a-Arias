@@ -673,3 +673,18 @@ isla y `#islandBuy` en la ficha, `og:url` correcto, las 5 `data-arias-section`.
   no acepta el tipo; el mismo cuerpo con "Vista de producto" da 201).
 - Desde ahora `preview` y `main` están en el mismo commit: lo nuevo se trabaja en
   `preview` y se promueve con `git push origin preview:main` (siempre con OK).
+
+## Skill "Librería Arias - Control" y Panel v2, fase 1 (19/09/2026)
+- Fran aprobó todo lo de la sesión y pidió guardarlo como skill:
+  `.claude/skills/libreria-arias-control/` (principios, tokens, patrones, movimiento,
+  referencias y flujo de trabajo). Cargarla en todo trabajo de Arias.
+- **Panel de administración, fase 1 (sólo CSS)**: capa "PANEL v2" al final de
+  `src/admin/admin.css`. Entrada, barra de arriba en vidrio, buscador y filtros en
+  pastilla, lista como tarjetas, barra de selección como isla, diálogos como paneles
+  de vidrio, campos grandes con foco dorado. **No se tocó `admin.js` ni ningún id.**
+  Verificado a 375 y 1280 con filas de muestra (sin sesión no hay datos): sin
+  desborde, toques ≥44. Falta verlo con datos reales (Fran inicia sesión) y la fase 2.
+- Fase 2 propuesta: desplegables propios en lugar de los `<select>` nativos, estado
+  de publicación visible ("publicando… / publicado hace X"), acceso a ver y compartir
+  la ficha desde cada fila, y revisar editor de fotos, carga masiva, asistente de
+  stock, reportes y tutorial pantalla por pantalla.

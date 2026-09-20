@@ -2838,3 +2838,176 @@
   flex-wrap: wrap;
   row-gap: 8px;
 }
+
+
+/* ==========================================================================
+   PANEL v2 · capa de diseño · 19/09/2026 (pedido de Fran)
+   "Que a nivel de diseño se sienta igual de premium, con el mismo estilo."
+   Mismo lenguaje que el catálogo (skill libreria-arias-control): vidrio en lo
+   que flota, tarjetas planas para el contenido, amarillo sólo en la acción,
+   todo grande y fácil de tocar. SÓLO CSS: no cambia ningún id, atributo ni
+   comportamiento de admin.js (es la herramienta diaria de Adolfo).
+   El panel no carga glass.css: los tokens de vidrio se declaran acá.
+   ========================================================================== */
+body.admin {
+  --glass-bg: rgba(28, 28, 30, .72);
+  --glass-bg-strong: rgba(24, 24, 26, .86);
+  --glass-blur: 28px;
+  --glass-sat: 180%;
+  --glass-edge: rgba(255, 255, 255, .16);
+  --glass-edge-2: rgba(255, 255, 255, .04);
+  --glass-shadow: 0 24px 60px -18px rgba(0, 0, 0, .75), 0 0 0 .5px rgba(255, 255, 255, .05);
+  --glass-glow: 0 0 0 1px rgba(254, 206, 1, .18), 0 10px 40px -8px rgba(254, 206, 1, .45);
+  --ease-premium: cubic-bezier(.22, 1, .36, 1);
+}
+:root[data-theme='light'] body.admin {
+  --glass-bg: rgba(255, 255, 255, .72);
+  --glass-bg-strong: rgba(255, 255, 255, .9);
+  --glass-blur: 24px;
+  --glass-sat: 160%;
+  --glass-edge: rgba(255, 255, 255, .95);
+  --glass-edge-2: rgba(0, 0, 0, .06);
+  --glass-shadow: 0 18px 48px -18px rgba(0, 0, 0, .28), 0 0 0 .5px rgba(0, 0, 0, .06);
+  --glass-glow: 0 0 0 1px rgba(203, 156, 0, .25), 0 10px 36px -8px rgba(254, 206, 1, .5);
+}
+
+/* ---------- Entrada ---------- */
+body.admin .logincard {width:min(420px, calc(100% - 32px));padding:36px 28px 28px;border:0;border-radius:32px;
+  background:var(--glass-bg-strong);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-glow),var(--glass-shadow);animation:panel-entra .6s var(--ease-premium) both;}
+@keyframes panel-entra {from {opacity:0;translate:0 18px;scale:.97;}}
+body.admin .logincard__mark img {width:72px;height:72px;}
+body.admin .logincard h1 {font-size:26px;font-weight:600;letter-spacing:-.035em;}
+body.admin .logincard > p {font-size:16px;color:var(--text-2);}
+body.admin .logininput {min-height:56px;border-radius:18px;border:0;background:var(--fill-hi);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:box-shadow var(--dur-fast) var(--ease-soft);}
+body.admin .logininput:focus-within {box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+body.admin .logininput input {font-size:17px;}
+body.admin .logincard .btn--block {min-height:56px;border-radius:999px;font-size:17px;font-weight:600;box-shadow:0 14px 34px -12px rgba(254,206,1,.55);}
+body.admin .loginerror {font-size:15px;}
+
+/* ---------- Barra de arriba: flota, en vidrio ---------- */
+body.admin .abar {position:sticky;top:0;z-index:60;padding:12px 12px 0;border:0;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;}
+body.admin .abar__inner {min-height:64px;padding:8px 10px 8px 18px;border-radius:999px;
+  background:var(--glass-bg-strong);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shadow);}
+body.admin .abar__brand {gap:10px;font-size:17px;font-weight:600;letter-spacing:-.02em;}
+body.admin .abar__brand img {width:34px;height:34px;}
+body.admin .abar__stats {font-size:14px;color:var(--text-2);}
+body.admin .abar .themebtn {width:44px;height:44px;border:0;background:var(--fill-hi);color:var(--text);}
+body.admin .abar .themebtn svg {width:20px;height:20px;}
+body.admin .abar .btn--sm,body.admin .adminmenubtn {min-height:48px;padding-inline:20px;border-radius:999px;font-size:16px;font-weight:600;}
+body.admin .adminmenubtn {border:0;background:var(--fill-hi);color:var(--text);}
+body.admin .abar .btn--gold {box-shadow:0 10px 26px -10px rgba(254,206,1,.6);}
+
+/* ---------- Herramientas: buscador en pastilla y filtros ---------- */
+body.admin .ashell {padding-top:22px;}
+body.admin .atools {gap:10px;}
+/* El campo ES la pastilla (el contenedor sólo ubica la lupa). */
+body.admin .atools {flex-wrap:wrap;}
+body.admin .atools .search {flex:1 1 320px;min-height:0;padding:0;border:0;background:none;box-shadow:none;}
+body.admin .atools .search svg {left:20px;width:22px;height:22px;color:var(--gold-text);}
+body.admin .atools .search input {width:100%;height:60px;padding-left:56px;border:0;border-radius:999px;background:var(--fill-hi);font-size:17px;box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:box-shadow var(--dur-fast) var(--ease-soft);}
+body.admin .atools .search input:focus {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+body.admin .atools .sort {flex:1 1 180px;}
+body.admin .atools .sort {min-height:60px;padding-inline:20px 40px;border:0;border-radius:999px;background-color:var(--fill-hi);font-size:16px;font-weight:500;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
+body.admin .arow {margin-block:16px 10px;}
+body.admin .checkall,body.admin .ahint {font-size:15px;color:var(--text-2);}
+
+/* ---------- Lista: una tarjeta por producto ---------- */
+body.admin .alist {gap:10px;}
+body.admin .item {grid-template-columns:28px 22px 72px minmax(0,1fr) auto;gap:14px;padding:10px 12px 10px 8px;border:0;border-radius:24px;background:var(--fill);
+  box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
+@media (hover:hover) {body.admin .item:hover {background:var(--fill-hi);translate:0 -1px;box-shadow:inset 0 0 0 1px var(--glass-edge-2),0 14px 30px -18px rgba(0,0,0,.6);}}
+body.admin .item[data-selected='true'] {background:var(--gold-wash);box-shadow:inset 0 0 0 1.5px var(--gold-edge);}
+body.admin .item__img {width:72px;height:72px;border-radius:18px;background:#fff;object-fit:contain;}
+body.admin .item__img--none {display:grid;place-items:center;background:var(--fill-hi);font-size:14px;line-height:1.15;color:var(--text-2);text-align:center;}
+body.admin .item__name {font-size:17px;font-weight:560;letter-spacing:-.015em;line-height:1.28;}
+body.admin .item__meta {gap:6px 10px;margin-top:4px;font-size:15px;color:var(--text-2);}
+body.admin .item__price {font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--gold-text);font-variant-numeric:tabular-nums;}
+body.admin .tag {padding:3px 10px;border-radius:999px;font-size:14px;font-weight:500;}
+body.admin .item__actions {gap:6px;}
+body.admin .iconbtn {width:44px;height:44px;border:0;border-radius:50%;background:var(--fill-hi);color:var(--text);transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+body.admin .iconbtn:hover {background:var(--glass-edge);}
+body.admin .iconbtn:active {scale:.9;}
+body.admin .iconbtn svg {width:20px;height:20px;}
+body.admin .item--hidden {opacity:.62;}
+body.admin .aempty {padding:56px 20px;font-size:17px;color:var(--text-2);}
+
+/* ---------- Barra de selección: isla de vidrio abajo ---------- */
+body.admin .selbar {border:0;border-radius:999px;padding:8px 8px 8px 22px;background:var(--glass-bg-strong);
+  -webkit-backdrop-filter:blur(36px) saturate(190%);backdrop-filter:blur(36px) saturate(190%);
+  box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-glow),var(--glass-shadow);animation:panel-entra .4s var(--ease-premium) both;}
+body.admin .selbar[hidden] {display:none;}
+body.admin .selbar__count {font-size:16px;font-weight:600;}
+body.admin .selbar__actions button {min-height:44px;padding-inline:14px;border:0;border-radius:999px;background:var(--fill-hi);font-size:15px;font-weight:500;color:var(--text);}
+body.admin .selbar__actions button:hover {background:var(--glass-edge);}
+body.admin .selbar__actions button svg {width:18px;height:18px;}
+body.admin .selbar__actions .selbar__danger {color:#ff6961;}
+:root[data-theme='light'] body.admin .selbar__actions .selbar__danger {color:#c4271b;}
+body.admin .selbar__cancel {width:44px;height:44px;border-radius:50%;background:var(--fill-hi);}
+
+/* ---------- Diálogos: paneles flotantes de vidrio ---------- */
+body.admin dialog.editor,body.admin dialog.adminmenu,body.admin dialog.reportsdlg,body.admin dialog.tutorial {border:0;border-radius:32px;
+  background:var(--glass-bg-strong);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-edge),var(--glass-shadow);}
+body.admin dialog::backdrop {background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
+body.admin .editor__head,body.admin .adminmenu__head {padding:22px 20px 12px 24px;border-bottom:0;background:transparent;}
+body.admin .editor__head h2,body.admin .adminmenu__head h2,body.admin .tutorial__head h2 {font-size:24px;font-weight:600;letter-spacing:-.035em;}
+body.admin .sheet__close {width:44px;height:44px;background:var(--fill-hi);color:var(--text);}
+body.admin .sheet__close svg {width:20px;height:20px;}
+body.admin .editor__body {padding:6px 20px 22px;}
+body.admin .editor__foot {padding:14px 20px max(16px, env(safe-area-inset-bottom));border-top:0;background:transparent;box-shadow:0 -1px 0 var(--line);}
+body.admin .editor__foot .btn,body.admin .bulk__actions .btn {min-height:52px;padding-inline:24px;border-radius:999px;font-size:16px;font-weight:600;}
+body.admin .editor__foot .btn--gold {box-shadow:0 12px 30px -12px rgba(254,206,1,.55);}
+
+/* Campos */
+body.admin .field label {font-size:15px;font-weight:500;color:var(--text-2);}
+body.admin .field__hint {font-size:14px;line-height:1.45;color:var(--text-2);}
+body.admin .field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+body.admin .field textarea,body.admin .field select {min-height:54px;padding-inline:16px;border:0;border-radius:16px;background:var(--fill-hi);font-size:17px;color:var(--text);
+  box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:box-shadow var(--dur-fast) var(--ease-soft);}
+body.admin .field textarea {padding-block:14px;line-height:1.5;}
+body.admin .field input:focus,body.admin .field textarea:focus,body.admin .field select:focus {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
+body.admin .switch {min-height:44px;font-size:16px;}
+body.admin .offerbox,body.admin .drop {border-radius:22px;}
+
+/* Tarjetas de configuración */
+body.admin .settingscard {border:0;border-radius:26px;background:var(--fill);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
+body.admin .settingscard__head h3 {font-size:18px;font-weight:600;letter-spacing:-.025em;}
+body.admin .settingscard__head p {font-size:14px;color:var(--text-2);}
+body.admin .settingscard__ico {width:44px;height:44px;border-radius:50%;background:var(--gold-wash);color:var(--gold-text);}
+
+/* Menú del panel */
+body.admin .adminmenu__label {font-size:14px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-2);}
+body.admin .adminmenu__item {min-height:60px;padding:10px 12px;border-radius:18px;font-size:17px;}
+body.admin .adminmenu__item:hover {background:var(--fill-hi);}
+body.admin .adminmenu__email {font-size:14px;color:var(--text-2);}
+
+/* Botones flotantes: mismo bloque que los del catálogo */
+body.admin .adminfab {min-height:60px;border-radius:999px;font-size:16px;font-weight:600;}
+
+/* ---------- Celular ---------- */
+@media (max-width:720px) {
+  body.admin .abar {padding:8px 8px 0;}
+  /* En celular la barra son dos renglones prolijos: marca + accesos, y las dos acciones. */
+  body.admin .abar__inner {flex-wrap:wrap;min-height:0;padding:8px;gap:8px;border-radius:30px;}
+  body.admin .abar__brand {margin-right:auto;padding-left:6px;}
+  body.admin .abar .btn--sm,body.admin .adminmenubtn {flex:1 1 0;justify-content:center;}
+  body.admin .abar__brand span,body.admin .abar__stats {display:none;}
+  body.admin .abar .btn--sm,body.admin .adminmenubtn {padding-inline:16px;}
+  body.admin .atools .search input {height:56px;}
+  body.admin .atools .sort {min-height:56px;}
+  body.admin .item {grid-template-columns:28px 64px minmax(0,1fr);gap:12px;padding:10px;}
+  body.admin .item__grip {display:none;}
+  body.admin .item__img {width:64px;height:64px;border-radius:16px;}
+  body.admin .item__actions {grid-column:1 / -1;justify-content:flex-end;}
+  body.admin dialog.editor,body.admin dialog.reportsdlg,body.admin dialog.tutorial {border-radius:32px 32px 0 0;}
+  body.admin .selbar {border-radius:28px;padding:10px;}
+}
+@media (prefers-reduced-transparency: reduce) {
+  body.admin .logincard,body.admin .abar__inner,body.admin .selbar,body.admin dialog.editor,body.admin dialog.adminmenu,body.admin dialog.reportsdlg,body.admin dialog.tutorial {background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;}
+}
+@media (prefers-reduced-motion: reduce) {
+  body.admin .logincard,body.admin .selbar {animation:none;}
+  body.admin .item:hover {translate:none;}
+}

@@ -72,6 +72,12 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
   `diseno--` (hoy 403). Después, prueba punta a punta.
 - Siguen abiertos: filtros del catálogo en celular, ronda 3 de críticos, limpieza de CSS muerto.
 
+## Panel de administración v2
+- Fase 1 (sólo CSS) hecha en `preview` y publicada en `diseno--`; NO está en producción.
+- Para seguir: que Fran inicie sesión en el panel del navegador (no escribir
+  contraseñas) y revisar pantalla por pantalla con datos reales. Skill:
+  `libreria-arias-control` (patrón 13).
+
 ## Rondas anteriores
 | Ronda | Tema | Estado |
 |---|---|---|
