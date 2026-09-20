@@ -73,7 +73,7 @@ después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 - Siguen abiertos: filtros del catálogo en celular, ronda 3 de críticos, limpieza de CSS muerto.
 
 ## Panel de administración v2
-- Fase 1 (sólo CSS) hecha en `preview` y publicada en `diseno--`; NO está en producción.
+- **En producción desde el 20/09/2026** (`dd87859`; respaldo `prod-antes-20260920`): fases 1 y 2 (capa de diseño + `select.js`) y arreglo del login.
 - Para seguir: que Fran inicie sesión en el panel del navegador (no escribir
   contraseñas) y revisar pantalla por pantalla con datos reales. Skill:
   `libreria-arias-control` (patrón 13).

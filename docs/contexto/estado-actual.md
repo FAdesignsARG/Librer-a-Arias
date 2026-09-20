@@ -725,3 +725,14 @@ claro el campo se veía con gris doble. Causa: la regla general de campos de la 
 es la superficie (contenedor transparente), texto a 52px, ícono de 20px a 18px,
 dorado con foco. Medido en claro y oscuro (14px entre ícono y texto, ícono centrado)
 y revisado que no pase en Configuración, Promociones ni el editor.
+
+## Panel v2 en producción (20/09/2026)
+Con el OK de Fran ("pasá este nuevo diseño de admin al main en producción"):
+`origin/main` avanzó de `dad2207` a `dd87859` (avance directo). Respaldo: etiqueta
+`prod-antes-20260920`. Entraron sólo 4 archivos (`admin.css`, `select.js`, una línea de
+`admin.html` y una de `scripts/build.js`); `admin.js` en producción es idéntico al del
+repo. Verificado en https://libreria-arias.netlify.app/admin/: 200, capa PANEL v2,
+`select.js` servido, login con 14px entre ícono y texto, 0 `<select>` nativos a la
+vista, consola sin errores; catálogo público intacto (565 productos, home/catálogo/
+ficha 200). Falta que Fran/Adolfo lo prueben con sesión iniciada (no se puede
+verificar con datos reales sin escribir contraseñas).
