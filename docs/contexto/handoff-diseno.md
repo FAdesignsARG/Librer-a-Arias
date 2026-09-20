@@ -1,6 +1,61 @@
-# Handoff — rediseño de la home (rama `preview`)
+# Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 19/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 20/09/2026. Leer esto primero al retomar en un chat nuevo;
+
+## ESTADO AL 20/09/2026 — EMPEZAR POR ACÁ
+**Antes de nada, cargar la skill `libreria-arias-control`** (`.claude/skills/`): tiene el
+criterio de diseño, movimiento, marca, referencias y flujo de trabajo que Fran aprobó.
+
+**Qué hay en producción** (https://libreria-arias.netlify.app, `origin/main` = `dd87859`):
+home v2 con barra lateral, isla del buscador que vuela en los dos sentidos (aprobada:
+"AHORA SI! PERFECTO!!"), banners con flechas de vidrio, "Elegidos" rotando, catálogo y
+rubros aparte en tandas de 48, Mi pedido v2, Novedades v2, botón flotante de pedido,
+ficha v3 (con la isla y la compra integrada), evento "Producto compartido", y el
+**panel de administración v2** (capa de diseño + desplegables propios `select.js`).
+565 productos. `BUILD_HOOK_URL` cargada: el panel vuelve a publicar solo.
+Respaldo para volver atrás: etiquetas `prod-antes-20260919` y `prod-antes-20260920`.
+`preview` va 2 commits adelante de `main`, sólo de documentación.
+
+**Cómo se trabaja**: todo en `preview` → `npm run build` → deploy al alias `diseno`
+(https://diseno--libreria-arias.netlify.app) → Fran mira → con su OK explícito,
+`git tag` de respaldo + `git push origin preview:main` (Netlify construye solo).
+
+**Pendientes, en orden sugerido**
+1. **Panel v2 con datos reales**: nadie lo vio con sesión iniciada (no se pueden escribir
+   contraseñas). Pedirle a Fran/Adolfo que entren y manden capturas de lo raro: lista,
+   filtros (también en celular), editor con el desplegable de rubro, guardar un cambio y
+   ver que publica, carga masiva, asistente de stock, reportes, tutorial.
+   Queda nativo el selector de fecha/hora de "Válida hasta" (decidir si se arma uno propio).
+   Fran pidió que el panel quede "perfectamente conectado": falta definir qué es (propuesta:
+   estado de publicación visible, ver/compartir la ficha desde cada fila).
+2. **Base44 (Rodri)**: medido el 20/09, el bridge publicado sigue siendo `2026-09-15.2`
+   (él dice haber publicado `2026-09-19.2`): "Producto compartido" → 422, CORS de
+   `diseno--` → 403, y también "Impresión de tarjeta" y "Consulta por WhatsApp" → 422 en la
+   prueba directa. La web no tiene nada pendiente. Cuando Rodri avise, repetir la medición
+   (está el procedimiento y el mensaje en `docs/base44-integracion/RESUMEN-PARA-RODRI.md`,
+   arriba de todo) y después la prueba punta a punta web → eventos → Base44 → pedido → WhatsApp.
+3. **Decisiones abiertas de Fran**: filtros del catálogo en celular (hoy de a uno por fila:
+   no entra ningún producto entero en la primera pantalla; recomendación: grilla 2x2 de 48px);
+   qué mejorar de la vista previa al compartir; tarjeta de horarios en amarillo pleno; isla en
+   tema claro; si los flotantes esperan al scroll en la ficha en celular (tapan el precio web al entrar).
+4. **Ronda 3 de críticos** (`criticos-arias`) sobre lo que nunca pasó por críticos: Mi pedido v2,
+   Novedades v2, botón de pedido, ficha v3 y panel. Rondas 1 y 2 en
+   `work/design-loop/home-v2-20260918/`.
+5. **Limpieza técnica**: CSS muerto (`.stickycta`, `.psearch`, barra vieja de la ficha,
+   `.attn__*`, `.home-scene`, `.sortbtn`, puntitos del banner) y consolidar `glass.css`
+   (una capa por ronda) y `admin.css`. Sin cambios a la vista.
+6. Más adelante (pedido de Fran): favoritos por sesión, reseñas con estrellas, más fotos por producto.
+
+**Trampas que ya costaron caro** (detalle en la skill, `references/movimiento.md` y
+`flujo-de-trabajo.md`): el panel de pruebas no genera cuadros ni dispara scroll /
+ResizeObserver / IntersectionObserver (medir por DOM, despachar eventos a mano y decirle a
+Fran qué mirar en el deploy); cargar la página DESPUÉS de fijar el tamaño; los heredocs de
+bash se rompen con backticks (escribir los parches de Node con la herramienta de archivos);
+una regla general con varios `:not()` gana por especificidad (ya pisó el login del panel).
+
+---
+## Historia (rondas del 15 al 19/09)
+
 después `estado-actual.md` (bitácora completa) y `DESIGN.md` (sección
 "Decisiones del 17/09/2026", que manda sobre las reglas viejas).
 
