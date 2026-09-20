@@ -227,6 +227,7 @@ listEl.addEventListener('click', async (e) => {
       p.inStock = next;
       render();
       toast(next ? 'Marcado con stock' : 'Marcado sin stock');
+      logActivity('stock_toggled', `Marcó ${next ? 'con' : 'sin'} stock "${p.name}"`, p.slug);
     } catch (err) {
       toast(err.message);
     }
@@ -240,6 +241,7 @@ listEl.addEventListener('click', async (e) => {
       p.visible = next;
       render();
       toast(next ? 'Producto visible en el catálogo' : 'Producto oculto');
+      logActivity('visibility_toggled', `${next ? 'Mostró' : 'Ocultó'} "${p.name}"`, p.slug);
     } catch (err) {
       toast(err.message);
     }
@@ -293,10 +295,17 @@ listEl.addEventListener('drop', async (e) => {
   products.forEach((p, i) => (p.order = i));
   render();
 
-  const batch = writeBatch(db);
-  products.forEach((p) => batch.update(productRef(p.slug), { order: p.order }));
-  await batch.commit();
   dragSlug = null;
+  try {
+    for (let i = 0; i < products.length; i += 400) {
+      const batch = writeBatch(db);
+      products.slice(i, i + 400).forEach((p) => batch.update(productRef(p.slug), { order: p.order }));
+      await batch.commit();
+    }
+    logActivity('products_reordered', `Movió "${moved.name}" en la lista`, moved.slug);
+  } catch (err) {
+    toast(`No se pudo guardar el orden: ${err.message}`);
+  }
 });
 
 /* ==========================================================================
@@ -792,7 +801,8 @@ menuPop.addEventListener('click', (e) => e.stopPropagation());
 $('#btnRebuild').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
   if (btn.disabled) return;
-  clearTimeout(rebuildTimer); // el click manual reemplaza cualquier build ya programado
+  clearTimeout(rebuildTimer);
+  rebuildTimer = null; // el click manual reemplaza cualquier build ya programado
   btn.disabled = true;
   const label = $('span', btn);
   const original = label.textContent;
@@ -2035,8 +2045,19 @@ async function triggerRebuild() {
 }
 function scheduleRebuild() {
   clearTimeout(rebuildTimer);
-  rebuildTimer = setTimeout(triggerRebuild, 20000);
+  rebuildTimer = setTimeout(() => {
+    rebuildTimer = null;
+    triggerRebuild();
+  }, 20000);
 }
+// Cerrar o cambiar de pestaña con una publicación pendiente: sale ya, sin
+// esperar la demora (sendBeacon es un POST que sobrevive al cierre).
+window.addEventListener('pagehide', () => {
+  if (!rebuildTimer) return;
+  clearTimeout(rebuildTimer);
+  rebuildTimer = null;
+  navigator.sendBeacon('/api/rebuild');
+});
 
 function logActivity(action, summary, target = null) {
   const user = auth.currentUser;

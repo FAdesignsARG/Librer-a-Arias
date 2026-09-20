@@ -218,6 +218,24 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, renderHome({ products: visible, settings }));
     }
 
+    // 6b. Catálogo y rubros (en producción los escribe scripts/build.js)
+    if (pathname === '/catalogo' || pathname === '/catalogo/') {
+      return send(res, 200, renderHome({ products: visible, settings, mode: 'catalog' }));
+    }
+    // Laboratorio de filtros (no se publica salvo build con LAB=1)
+    if (pathname === '/lab/filtros' || pathname === '/lab/filtros/') {
+      const labFiltros = (html) => html.replace('</head>', '<meta name="robots" content="noindex"><link rel="stylesheet" href="/src/lab-filtros.css"></head>').replace('</body>', '<script type="module" src="/src/lab-filtros.js"></script></body>');
+      return send(res, 200, labFiltros(renderHome({ products: visible, settings, mode: 'catalog' })));
+    }
+    const c = /^\/c\/([^/]+)\/?$/.exec(pathname);
+    if (c) {
+      const { renderCategory, categorySlug } = await templates();
+      const category = settings.categories.find((x) => categorySlug(x) === c[1]);
+      const inCategory = visible.filter((p) => p.category === category);
+      if (!category || !inCategory.length) return send(res, 404, notFoundPage(settings));
+      return send(res, 200, renderCategory({ category, products: inCategory, all: visible, settings }));
+    }
+
     // 6. robots y sitemap, para que en local se vean igual que publicados
     if (pathname === '/robots.txt') {
       return send(res, 200, `User-agent: *\nAllow: /\n\nSitemap: ${settings.siteUrl}/sitemap.xml\n`, MIME['.txt']);
