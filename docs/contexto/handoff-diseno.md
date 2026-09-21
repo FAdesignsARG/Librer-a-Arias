@@ -2,6 +2,13 @@
 
 Actualizado: 20/09/2026. Leer esto primero al retomar en un chat nuevo;
 
+## NOVEDADES DEL 20–21/09/2026 (leer antes que lo de abajo)
+- **Se trabaja directo en `main`** (pedido de Fran). Etiquetar antes de cada push; último respaldo `prod-antes-20260920c`.
+- **NUNCA publicar a producción con `netlify deploy --prod --no-build`**: en los deploys por CLI las rutas `/api/*` dan 404 (las funciones quedan, los redireccionamientos no). Pasó el 20/09 y dejó caídos el asistente y la IA del panel. El alias `diseno` tiene el mismo problema: sirve para mirar diseño, no para probar `/api`. Producción sólo por `git push origin main`, y verificar `/api/ai/status` después.
+- **Cuota de Firestore**: cada carga del servidor local, cada build y cada apertura del panel leen los 565 productos. El 20/09 se agotó la cuota gratuita diaria (builds y panel caídos hasta ~04:00 AR). El servidor local ahora cachea 5 min; para medir diseño usar `dist/` estático en :4322 (`tmp/serve-dist.mjs`).
+- Hecho: filtros del catálogo en celular en **2×2** (elegidos por Fran), texto de "Pedido" legible sobre amarillo, panel: stock/visibilidad/orden republican el sitio, Base44 verificado (bridge `2026-09-20.1`, todo 201, CORS de `diseno` OK).
+- Pendiente: probar el panel con sesión (Fran entra; no se crean cuentas ni se escriben contraseñas), ponerle sesión a `/api/rebuild` (hoy abierto), prueba punta a punta del pedido con Rodri, ronda 3 de críticos, limpieza de CSS.
+
 ## ESTADO AL 20/09/2026 — EMPEZAR POR ACÁ
 **Antes de nada, cargar la skill `libreria-arias-control`** (`.claude/skills/`): tiene el
 criterio de diseño, movimiento, marca, referencias y flujo de trabajo que Fran aprobó.

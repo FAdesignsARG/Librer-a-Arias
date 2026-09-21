@@ -4,9 +4,20 @@
     {
       "name": "catalogo",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 4321,
       "autoPort": true
+    },
+    {
+      "name": "dist",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tmp/serve-dist.mjs"
+      ],
+      "port": 4322
     }
   ]
 }
