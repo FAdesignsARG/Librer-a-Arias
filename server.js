@@ -82,7 +82,10 @@ const templates = () => hot('templates');
    y sin esto cada uno pegaría a Firestore por separado. Sólo importa para
    el servidor de desarrollo local — el sitio publicado es HTML estático
    generado por scripts/build.js, no pasa por acá. */
-const CACHE_MS = 4000;
+// 5 minutos: cada lectura trae todo el catálogo (una lectura por producto) y
+// con 4 s unas pocas recargas agotaban la cuota diaria gratuita de Firestore
+// (pasó el 20/09: panel y builds caídos hasta el reinicio de la cuota).
+const CACHE_MS = 5 * 60 * 1000;
 let cache = { at: 0, data: null };
 
 export async function readData() {
@@ -221,11 +224,6 @@ const server = http.createServer(async (req, res) => {
     // 6b. Catálogo y rubros (en producción los escribe scripts/build.js)
     if (pathname === '/catalogo' || pathname === '/catalogo/') {
       return send(res, 200, renderHome({ products: visible, settings, mode: 'catalog' }));
-    }
-    // Laboratorio de filtros (no se publica salvo build con LAB=1)
-    if (pathname === '/lab/filtros' || pathname === '/lab/filtros/') {
-      const labFiltros = (html) => html.replace('</head>', '<meta name="robots" content="noindex"><link rel="stylesheet" href="/src/lab-filtros.css"></head>').replace('</body>', '<script type="module" src="/src/lab-filtros.js"></script></body>');
-      return send(res, 200, labFiltros(renderHome({ products: visible, settings, mode: 'catalog' })));
     }
     const c = /^\/c\/([^/]+)\/?$/.exec(pathname);
     if (c) {

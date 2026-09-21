@@ -105,17 +105,6 @@ for (const category of categoriesInCatalog) {
 }
 console.log(`${String(categoryCount).padStart(3)} páginas de rubro          ${kb(categoryBytes)}`);
 
-/* Laboratorio de filtros: sólo para el alias de diseño (LAB=1 npm run build). */
-if (process.env.LAB === '1') {
-  const labFiltros = (html) => html.replace('</head>', '<meta name="robots" content="noindex"><link rel="stylesheet" href="/src/lab-filtros.css"></head>').replace('</body>', '<script type="module" src="/src/lab-filtros.js"></script></body>');
-  await write(path.join('lab', 'filtros', 'index.html'), labFiltros(renderHome({ products: visible, settings, mode: 'catalog' })));
-  for (const f of ['lab-filtros.css', 'lab-filtros.js']) {
-    await fs.mkdir(path.join(DIST, 'src'), { recursive: true });
-    await fs.copyFile(path.join(ROOT, 'src', f), path.join(DIST, 'src', f));
-  }
-  console.log('lab/filtros/index.html        ok');
-}
-
 /* ---------- estáticos ----------
    Sólo lo que el sitio público necesita. Nada de src/admin ni scripts. */
 

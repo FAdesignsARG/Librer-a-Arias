@@ -395,6 +395,7 @@ strong,b,h1,h2,h3,h4,h5,h6,th {font-weight:600;}
    el contador de 24px; a 1280 era el botón entero. Ahora es igual en los dos. */
 .home-search .island__order:has(.island__count[data-empty='false']) {background:var(--gold);color:var(--gold-ink);box-shadow:var(--glass-glow);}
 .home-search .island__order:has(.island__count[data-empty='false']) svg {color:inherit;}
+.home-search .island__order:has(.island__count[data-empty='false']) .island__orderLabel {color:inherit;}
 .home-search .island__order:has(.island__count[data-empty='false']) .island__count {background:rgba(0,0,0,.14);color:inherit;box-shadow:none;}
 
 /* Al abrir el panel de ideas, Pedido y Menú saltaban al medio del formulario
@@ -1240,10 +1241,11 @@ body:has(dialog[open]) .dock > * {pointer-events:none;}
   .footer a,.footer p,.footer li {font-size:16px;line-height:1.5;}
   .footer__bottom {font-size:14px;margin-top:28px;}
 
-  /* Catálogo: un filtro por fila, grande y a todo el ancho. */
-  #catalogo .filters {grid-template-columns:minmax(0,1fr);gap:10px;}
-  #catalogo .filters .filterpill {min-height:56px;padding:0 20px;font-size:17px;}
-  #catalogo .filters #featuredBtn[hidden] + #sortBtn {grid-column:auto;}
+  /* Catálogo: filtros en grilla 2×2 (elegida por Fran el 20/09): los cuatro
+     a la vista y entra una fila entera de productos en la primera pantalla. */
+  #catalogo .filters {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  #catalogo .filters .filterpill {min-height:48px;padding:0 16px;font-size:16px;}
+  body.page-catalog #catalogo {padding-top:12px;}
   body.page-catalog #catalogTitle {font-size:30px;}
   body.page-catalog .results-line {font-size:16px;}
 }
