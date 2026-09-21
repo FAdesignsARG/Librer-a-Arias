@@ -240,6 +240,38 @@ function createOrderCode() {
   return `LAWEB-${hex.slice(0, 8).padEnd(8, '0')}`;
 }
 
+/* Estado del pedido (código, "ya se inició", "ya se envió"): vive en
+   localStorage, IGUAL que el carrito (CART_KEY). Antes estaba en
+   sessionStorage, que es por pestaña: agregar en una pestaña y enviar desde
+   otra (una ficha abierta aparte, volver más tarde) encontraba el carrito
+   pero no el código, y "Enviado a WhatsApp" salía con un LAWEB-* distinto al
+   de "Iniciado" (reportado por Rodri el 21/09). Se lee también
+   sessionStorage para no perder el código de un pedido ya en curso. */
+const orderStore = {
+  get(key) {
+    try {
+      return localStorage.getItem(key) ?? sessionStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* el pedido sigue funcionando sin storage */
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    } catch {
+      /* nada que limpiar */
+    }
+  },
+};
+
 /** El código vive mientras dura EL PEDIDO (desde "Iniciado" hasta que se
     vacía o se envía), no atado a qué productos/cantidades tiene en un
     momento dado — así agregar un segundo producto después de arrancar
@@ -248,7 +280,7 @@ function createOrderCode() {
     queda vacío (ver wireCartEvents). */
 function currentOrderCode() {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(ORDER_KEY) || '{}');
+    const saved = JSON.parse(orderStore.get(ORDER_KEY) || '{}');
     if (saved.code) return saved.code;
   } catch {
     /* se genera uno nuevo */
@@ -259,11 +291,7 @@ function ensureOrderCode() {
   const existing = currentOrderCode();
   if (existing) return existing;
   const code = createOrderCode();
-  try {
-    sessionStorage.setItem(ORDER_KEY, JSON.stringify({ code }));
-  } catch {
-    /* el código sigue funcionando sin storage */
-  }
+  orderStore.set(ORDER_KEY, JSON.stringify({ code }));
   return code;
 }
 
@@ -346,8 +374,10 @@ function wireCartEvents() {
     // en cualquier click — así se limpian solos cuando el pedido se
     // vacía, sin tener que engancharse a cada botón de quitar/vaciar.
     if (readCart().length === 0) {
-      sessionStorage.removeItem(CART_STARTED_KEY);
-      sessionStorage.removeItem(ORDER_KEY);
+      const done = currentOrderCode();
+      if (done) orderStore.remove(`arias.catalog.order.sent.${done}`);
+      orderStore.remove(CART_STARTED_KEY);
+      orderStore.remove(ORDER_KEY);
     }
 
     const addButton = event.target.closest('[data-add]');
@@ -360,9 +390,19 @@ function wireCartEvents() {
           total: snapshot.total,
         });
 
+        // Sumar algo DESPUÉS de haber enviado (el cliente eligió "seguir
+        // comprando" sin vaciar) es un pedido nuevo: código nuevo, para que
+        // no pise en Base44 al que ya figura como "Enviado a WhatsApp".
+        const sentCode = currentOrderCode();
+        if (sentCode && orderStore.get(`arias.catalog.order.sent.${sentCode}`)) {
+          orderStore.remove(`arias.catalog.order.sent.${sentCode}`);
+          orderStore.remove(ORDER_KEY);
+          orderStore.remove(CART_STARTED_KEY);
+        }
+
         // Primer producto desde carrito vacío: arranca el pedido.
-        if (!sessionStorage.getItem(CART_STARTED_KEY)) {
-          sessionStorage.setItem(CART_STARTED_KEY, '1');
+        if (!orderStore.get(CART_STARTED_KEY)) {
+          orderStore.set(CART_STARTED_KEY, '1');
           sendPedidoState('Iniciado', ensureOrderCode(), snapshot);
         }
       }, 0);
@@ -376,8 +416,8 @@ function wireCartEvents() {
       const code = ensureOrderCode();
       addCodeToWhatsAppLink(send, code);
       const sentKey = `arias.catalog.order.sent.${code}`;
-      if (!sessionStorage.getItem(sentKey)) {
-        sessionStorage.setItem(sentKey, '1');
+      if (!orderStore.get(sentKey)) {
+        orderStore.set(sentKey, '1');
         sendPedidoState('Enviado a WhatsApp', code, snapshot);
       }
       return;
