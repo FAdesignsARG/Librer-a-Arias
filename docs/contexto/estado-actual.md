@@ -799,3 +799,12 @@ ya acepta `visible` / `visible_web` / `habilitado_web` / `publicado` (booleanos)
 
 **Pendiente menor**: el asistente (`/api/ai/ask`) indexa leyendo Firestore directo, no
 `products.json`, así que todavía no usa los alias.
+
+### Publicado en producción (22/09/2026)
+`origin/main` = `c852dfe`. Respaldo: etiqueta `prod-antes-20260922`. Push por git (no por
+CLI). Verificado en https://libreria-arias.netlify.app: home, catálogo y ficha 200;
+`products.json` 581 sin ocultos adentro; sitemap 581 URLs de `/p/`;
+`data/search-aliases.json` 200 (hoy `[]`); `/api/ai/status` → `{"enabled":true}`;
+canonical y JSON-LD intactos; el buscador devuelve 26 resultados para "cafetera".
+El único error de consola es el SDK de Base44 pidiendo `entities/User/me` (403 en una
+visita anónima): es de siempre y no afecta nada.
