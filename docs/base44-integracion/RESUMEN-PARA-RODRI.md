@@ -1,10 +1,85 @@
 # Integración Base44 ↔ página de Librería Arias — estado
 
-**Fecha:** 11/9/2026 · **Última actualización:** 18/9/2026 (ver "LEER PRIMERO")
+**Fecha:** 11/9/2026 · **Última actualización:** 22/9/2026 (ver "LEER PRIMERO")
 **Para:** equipo de marketing (Rodri / Gonza)
 **Web:** `libreriaarias.com.ar` (sigue en Netlify, sin migrar)
 
 Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
+
+---
+
+## LEER PRIMERO — 22/09/2026: `catalogo_auxiliar` integrado en la web
+
+**Smoke test, medido hoy desde producción:**
+- `configuracion_pagina` → 200, `bridge_version: "2026-09-21.2"` ✅
+- `catalogo_auxiliar` → 200, `success:true`, con `aliases_globales`, `productos` y `relacionados` ✅
+  (se puede llamar por HTTP directo sin SDK: `POST https://base44.app/api/apps/<appId>/functions/catalogo-metricas`
+  con `{"action":"catalogo_auxiliar"}` — así lo consume el build.)
+
+**Contenido que devuelve hoy:** 15 productos (todos con `search_aliases: []`, `etiqueta: ""`,
+`destacado: false`), **0 aliases globales** y **0 relacionados**. O sea: la cañería está,
+los datos todavía no. Los 15 slugs existen de verdad en el catálogo, así que la clave de
+cruce (`slug`) es correcta.
+
+### Lo que ya quedó hecho del lado de la web
+
+La arquitectura no cambió: **`products.json` + las páginas estáticas `/p/<slug>/` siguen
+siendo la fuente del catálogo público**, generadas en el build desde Firestore. El auxiliar
+se consume **durante el build** y sólo enriquece por `slug`. Si Base44 no contesta, el
+build sale igual y el sitio queda como estaba (probado).
+
+1. **`search_aliases`** → entran al índice del buscador con peso casi de nombre real (90
+   contra 100 del nombre): amplían coincidencias, nunca reemplazan el nombre.
+2. **`aliases_globales`** → el build los baja a `/data/search-aliases.json` y el buscador
+   los registra antes de indexar. Al buscar un sinónimo se le suman a la consulta los
+   términos reales. Probado: "moka pot" (que no está en ningún nombre) devuelve las
+   cafeteras moka primero.
+3. **`etiqueta`** → chapa en la tarjeta, arriba de "Oferta"/"Nuevo". Si la etiqueta repite
+   lo que ya dice otra chapa no se muestra dos veces.
+4. **`destacado`** → suma a los destacados (nunca apaga uno de Firestore).
+5. **`relacionados`** → "También te podría gustar" en `/p/<slug>/`, ordenados por
+   `prioridad` y agrupados por tipo ("Complementos", "Alternativas", "Similares",
+   "Repuestos"), y debajo "Más de <rubro>" con los automáticos. Enlazan a
+   `/p/<related_slug>/`. Un `related_slug` inexistente u oculto se descarta en el build
+   (la ficha nunca enlaza a un 404). Si no hay relaciones cargadas, la ficha queda
+   exactamente igual que antes.
+6. **`products.json` ahora trae SÓLO lo público.** Antes se escribían todos los productos
+   de Firestore, ocultos incluidos (el front los filtraba por su cuenta). Como el centro de
+   salud de Base44 lo compara contra los productos internos habilitados, ahora coincide
+   exactamente con las páginas, el listado, los rubros y el sitemap. Medido hoy:
+   581 / 581 / 581.
+7. **`/api/rebuild`** ya cumple lo pedido y no se tocó: `POST` sin body, responde
+   `200 {"ok":true}` **sólo** si el build hook de Netlify aceptó; `502` si Netlify
+   rechazó, `503` si falta la variable. No espera a que termine el build.
+8. Eventos, nombres de métricas, códigos `LAWEB-*` y la regla del carrito modificado:
+   **sin cambios**, como pediste.
+
+### LO QUE FALTA DE TU LADO (bloquea los puntos 4 y 5 de tu mensaje)
+
+**`catalogo_auxiliar.productos` no trae visibilidad ni estado de publicación.** Cada
+elemento hoy tiene sólo `slug`, `search_aliases`, `etiqueta` y `destacado`. Sin un campo
+de visibilidad no hay forma de que "si un producto deja de estar habilitado para web desde
+Base44, en el próximo rebuild no aparezca": la web no puede adivinarlo.
+
+El código ya está listo para recibirlo, en cualquiera de estas formas (la primera que
+aparezca gana):
+- un booleano `visible`, `visible_web`, `habilitado_web` o `publicado`, **o**
+- un string `estado` / `estado_publicacion` con los estados que manejás
+  ("Publicado", "Pendiente", "Publicando", "Oculto", "Error").
+
+Criterio que aplica la web: **sólo `"Oculto"` (o el booleano en `false`) saca el producto**.
+"Pendiente", "Publicando" y "Error" son estados de tu circuito de publicación, no una orden
+de despublicar. Y un producto que Base44 **no** mencione queda como diga Firestore — la
+ausencia nunca se interpreta como "ocultalo", porque un payload vacío vaciaría el catálogo
+entero de un rebuild.
+
+En cuanto agregues el campo, se prueba sin tocar código.
+
+### Detalle menor
+
+El asistente de IA (`/api/ai/ask`) arma su índice leyendo Firestore directo, no
+`products.json`, así que todavía no ve los alias. Si querés que el asistente también los
+use, se le agrega — decime y lo hago.
 
 ---
 

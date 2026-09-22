@@ -1110,6 +1110,52 @@ export function renderCategory({ category, products, all = [], settings: s }) {
    LANDING DE PRODUCTO
    ========================================================================== */
 
+/* ---------- relacionados ----------
+   Base44 puede marcar a mano qué productos se relacionan y cómo (Complemento,
+   Alternativa, Similar, Repuesto), con una prioridad. Cuando los hay, se
+   muestran primero y agrupados por tipo, y los automáticos de siempre quedan
+   abajo bajo "Más del rubro". Cuando NO hay ninguno —hoy, hasta que Rodri los
+   cargue— sale exactamente la misma grilla única de antes: la ficha no cambia
+   de forma por una función que todavía no tiene datos.                     */
+const RELACION_TITULO = {
+  complemento: 'Complementos',
+  alternativa: 'Alternativas',
+  similar: 'Similares',
+  repuesto: 'Repuestos',
+};
+
+const grupoTitulo = (relacion) =>
+  RELACION_TITULO[String(relacion).trim().toLowerCase()] || String(relacion).trim();
+
+function relatedGroupsHtml(related, p) {
+  const grid = (list) => `<div class="grid">
+      ${list.map((r) => cardHtml(r)).join('\n      ')}
+    </div>`;
+
+  const curated = related.filter((r) => r.relacion);
+  if (!curated.length) return grid(related);
+
+  // Se respeta el orden en que vinieron (ya ordenados por prioridad): el
+  // primer grupo es el del relacionado más prioritario.
+  const grupos = [];
+  for (const r of curated) {
+    const titulo = grupoTitulo(r.relacion);
+    let g = grupos.find((x) => x.titulo === titulo);
+    if (!g) grupos.push((g = { titulo, items: [] }));
+    g.items.push(r);
+  }
+
+  const autos = related.filter((r) => !r.relacion);
+  if (autos.length) grupos.push({ titulo: `Más de ${p.category}`, items: autos });
+
+  return grupos
+    .map(
+      (g) => `<h3 class="related__group">${esc(g.titulo)}</h3>
+    ${grid(g.items)}`
+    )
+    .join('\n    ');
+}
+
 export function renderProduct({ product: p, related, settings: s }) {
   const url = `${s.siteUrl}/p/${p.slug}/`;
   const main = p.images[0];
@@ -1271,9 +1317,7 @@ ${
       <a class="related__all" href="/c/${categorySlug(p.category)}/">Ver todo ${esc(p.category)} ${ico.chevron}</a>
     </div>
     ${similar.length ? `<div class="related__tags" aria-label="Más como este">${similar.map((t) => `<a href="/catalogo/?q=${encodeURIComponent(t)}">${ico.search}${esc(t)}</a>`).join('')}</div>` : ''}
-    <div class="grid">
-      ${related.map((r) => cardHtml(r)).join('\n      ')}
-    </div>
+    ${relatedGroupsHtml(related, p)}
   </div>
 </section>`
     : ''
@@ -1339,9 +1383,18 @@ export function cardHtml(p) {
   // Prioridad de badges cuando hay varios: sin stock tapa todo (no importa
   // si es nuevo o está en oferta si no lo podés comprar); si hay stock,
   // oferta y "nuevo" pueden convivir apiladas.
+  // La etiqueta comercial la escribe una persona en Base44 ("Más consultado",
+  // "Últimas unidades"). Va primera porque es lo que el local quiere contar,
+  // pero NO en amarillo pleno: el amarillo es de "Agregar". Si repite algo que
+  // ya dice otra chapa ("Nuevo", "Oferta") no se muestra dos veces.
+  const etiqueta = String(p.etiqueta || '').trim();
+  const etiquetaDuplica =
+    (onOffer && /^oferta$/i.test(etiqueta)) || (isNew(p) && /^nuevo$/i.test(etiqueta));
+
   const flags = !p.inStock
     ? `<span class="flag flag--out">Sin stock</span>`
     : [
+        etiqueta && !etiquetaDuplica ? `<span class="flag flag--label">${esc(etiqueta)}</span>` : '',
         onOffer ? `<span class="flag flag--offer">${ico.tag}Oferta</span>` : '',
         isNew(p) ? `<span class="flag flag--new">Nuevo</span>` : '',
       ].join('');

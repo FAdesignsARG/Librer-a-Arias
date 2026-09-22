@@ -126,12 +126,63 @@ for (const canon in SYNONYMS) {
 }
 const canonical = t => SYN.get(t) || t;
 
+/* ---------- 2b. Sinónimos globales administrados desde Base44 ----------
+   `catalogo_auxiliar` devuelve pares { termino, sinonimos[] }: "freidora de
+   aire" también responde a "air fryer" o "freidora sin aceite". NO reemplazan
+   el nombre real de ningún producto: sólo AMPLÍAN las coincidencias, porque
+   al buscar se agregan los términos reales a la consulta (ver expandQuery).
+   Hay que llamarla ANTES de buildIndex() — la registra el que carga los datos
+   (app.js en el navegador), y si Base44 no contestó no se llama y el buscador
+   queda exactamente como estaba.                                          */
+const GLOBAL_ALIASES = [];
+
+export function registerAliases(list) {
+  if (!Array.isArray(list)) return 0;
+  let added = 0;
+  for (const row of list) {
+    const termino = typeof row?.termino === "string" ? row.termino.trim() : "";
+    const sinonimos = Array.isArray(row?.sinonimos) ? row.sinonimos : [];
+    const tk = key(termino);
+    if (!tk || !sinonimos.length) continue;
+    const variantes = [];
+    for (const raw of sinonimos) {
+      const vk = key(typeof raw === "string" ? raw : "");
+      if (!vk || vk === tk) continue;
+      // No se pisa un sinónimo que ya existe en el diccionario propio: lo
+      // de acá amplía, nunca reescribe lo que ya funcionaba.
+      if (!SYN.has(vk)) SYN.set(vk, tk);
+      variantes.push(vk);
+    }
+    if (!variantes.length) continue;
+    GLOBAL_ALIASES.push({ termino: tk, variantes });
+    added++;
+  }
+  if (added) {
+    SYN_KEYS = [...SYN.keys()].filter(k => !k.includes(" ") && k.length >= 5);
+    fuzzyCanonCache.clear();
+  }
+  return added;
+}
+
+/** Términos reales que hay que sumarle a la consulta por los alias globales. */
+function expandQuery(rest) {
+  if (!GLOBAL_ALIASES.length) return [];
+  const hay = " " + key(rest) + " ";
+  const extra = new Set();
+  for (const { termino, variantes } of GLOBAL_ALIASES) {
+    if (hay.includes(" " + termino + " ")) continue;   // ya lo escribió
+    if (!variantes.some(v => hay.includes(" " + v + " "))) continue;
+    termino.split(" ").forEach(w => { if (w.length > 1) extra.add(w); });
+  }
+  return [...extra];
+}
+
 /* Igual que canonical(), pero si el término no está en el diccionario prueba
    con distancia de edición contra las claves conocidas. Así "jugete",
    "masajedor" o "linterna" mal tipeados siguen encontrando su categoría.
    Sólo se usa al consultar (nunca al indexar) y va memoizado, porque
    scoreToken lo llama una vez por producto y por token. */
-const SYN_KEYS = [...SYN.keys()].filter(k => !k.includes(' ') && k.length >= 5);
+let SYN_KEYS = [...SYN.keys()].filter(k => !k.includes(' ') && k.length >= 5);
 const fuzzyCanonCache = new Map();
 
 function canonicalFuzzy(t) {
@@ -228,7 +279,11 @@ const FACETS = ['tags','aliases','audience','ages','occasions','environments','u
 /* ---------- 4. Enriquecimiento automático ---------- */
 const W = { name:100, namePrefix:80, cat:70, sub:65, intent:60, tags:55,
             useCases:50, audience:45, environments:45, occasions:40,
-            aliases:40, ages:35, features:35, desc:30, nameFuzzy:45, fuzzy:22 };
+            aliases:40, ages:35, features:35, desc:30, nameFuzzy:45, fuzzy:22,
+            // search_aliases de Base44: los escribió una persona pensando en
+            // cómo lo pide el cliente, así que pesan casi como el nombre real
+            // (pero por debajo: el nombre verdadero sigue ganando).
+            aliasWeb:90 };
 
 /**
  * Deriva los metadatos internos de un producto a partir de
@@ -293,6 +348,10 @@ export function buildIndex(products) {
       p, idx: i, price: priceOf(p),
       nameToks, nameSet: new Set(nameToks),
       hayToks: [...new Set(toks(p.name + ' ' + p.description))],
+      // Alias administrados desde Base44 (p.searchAliases). Van aparte y no
+      // se mezclan con el nombre para que el orden por relevancia no cambie
+      // cuando no hay alias cargados.
+      aliasToks: new Set((p.searchAliases || []).flatMap(a => stems(a)).filter(w => w.length > 1)),
       descToks: new Set(stems(p.description + ' ' + (p.tags || ''))),
       terms: e.terms, intents: e.facets.intents, facets: e.facets
     };
@@ -380,6 +439,8 @@ function scoreToken(entry, t) {
   if (entry.nameSet.has(t)) best = W.name;
   else if (t.length >= 5 && entry.nameToks.some(w => w.startsWith(t))) best = W.namePrefix;
 
+  if (best < W.aliasWeb && entry.aliasToks.has(t)) best = W.aliasWeb;
+
   const c = canonicalFuzzy(t);
   const fw = entry.terms.get(c);
   if (fw && fw > best) best = fw;
@@ -400,6 +461,9 @@ const REL_CUTOFF = 0.45;  // umbral relativo al mejor resultado
 function searchProducts(raw, pool) {
   const money = parsePriceIntent(raw);
   let qt = toks(money.rest).filter(t => !STOPWORDS.has(t)).map(stem).filter(t => t.length > 1);
+  // Alias globales: si escribió "air fryer", se suman los tokens de
+  // "freidora de aire" para que el producto real aparezca igual.
+  for (const t of expandQuery(money.rest)) if (!qt.includes(t)) qt.push(t);
 
   const inRange = e =>
     (money.min == null || e.price >= money.min) &&

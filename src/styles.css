@@ -1859,6 +1859,11 @@ dialog:focus-visible {
   align-items: flex-start;
   gap: 5px;
   z-index: 2;
+  /* El boton de compartir vive arriba a la derecha (44px + 8px de aire):
+     las chapas se cortan antes de llegar ahi. Sin esto, una etiqueta larga
+     de Base44 ("Mas consultado") se metia debajo del boton y quedaba
+     ilegible. Medido a 375: 150px de tarjeta - 61px = 89px utiles.      */
+  max-width: calc(100% - 61px);
 }
 .flag {
   padding: 4px 9px;
@@ -1908,6 +1913,29 @@ dialog:focus-visible {
 .flag--featured svg {
   width: 11px;
   height: 11px;
+}
+
+/* Etiqueta comercial administrada desde Base44 ("Mas consultado", "Ultimas
+   unidades"). A proposito NO va en amarillo pleno como "Nuevo" o el
+   destacado: el amarillo lleno es del boton "Agregar" y de lo que es accion,
+   y una etiqueta que el local puede poner en cualquier producto lo dejaria
+   compitiendo en toda la grilla. Superficie suave dorada + texto dorado, que
+   es el par que el sistema ya usa para "informativo con acento".         */
+.flag--label {
+  /* La escribe una persona y puede ser larga: antes que achicar la letra
+     (piso de 14px) o cortarla con puntos suspensivos, se parte en dos
+     renglones dentro de la misma pastilla. */
+  white-space: normal;
+  line-height: 1.25;
+  /* Superficie OPACA (--surface), no un lavado dorado ni un vidrio al 85%:
+     la chapa va encima de la foto del producto, y con cualquier cosa
+     translucida el fondo real depende de la foto. Medido: con --gold-wash
+     era ilegible sobre foto clara, y con --glass-solid el tema claro sobre
+     una foto oscura daba 3.47:1 (no llega a 4.5). Opaca da 11.15:1 en oscuro
+     y 5.07:1 en claro, pase lo que pase detras. */
+  background: var(--surface);
+  color: var(--gold-text);
+  border: 1px solid var(--gold-edge);
 }
 
 /* Botón de agregar: aparece sobre la foto al pasar el cursor.

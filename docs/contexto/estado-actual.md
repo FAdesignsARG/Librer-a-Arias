@@ -742,3 +742,60 @@ Rodri avisó bridge `2026-09-19.2`. Medido: `bridge_version` sigue en `2026-09-1
 "Producto compartido" 422; CORS de `diseno--` 403; además "Impresión de tarjeta" y
 "Consulta por WhatsApp" dan 422 en la prueba directa (a revisar por Rodri). Sin cambios
 de código del lado de la web. Detalle y mensaje en `RESUMEN-PARA-RODRI.md`.
+
+## Capa auxiliar de Base44 en el catálogo (22/09/2026)
+Rodri amplió la integración y publicó `catalogo_auxiliar`. Smoke test del día:
+`configuracion_pagina` → `bridge_version 2026-09-21.2`; `catalogo_auxiliar` → 200 con
+`aliases_globales`, `productos` y `relacionados` (hoy: 15 productos sin contenido,
+0 alias, 0 relacionados — la cañería está, los datos no).
+
+- **`src/base44-auxiliar.js`** (nuevo): pide la capa por HTTP directo (la acción es
+  pública y de sólo lectura; el SDK es del navegador y esto corre en Node), con timeout
+  de 15 s. **Nunca lanza**: ante cualquier problema devuelve la capa vacía y el build
+  sigue. Normaliza listas, ordena relaciones por `prioridad` y traduce visibilidad/
+  estado a `true` / `false` / `null` (null = "Base44 no opina, manda Firestore": la
+  ausencia no puede significar "ocultalo" o un payload vacío borraría el catálogo).
+- **`scripts/build.js`**: aplica la capa sobre los productos de Firestore por `slug`
+  (un slug que Base44 mande y no exista se ignora); `relatedTo()` pone primero los
+  relacionados curados —ordenados por prioridad, con su tipo de relación— y completa
+  con los automáticos de siempre, descartando los que estén ocultos o no existan;
+  escribe `data/search-aliases.json`; y **`data/products.json` pasa a tener sólo los
+  visibles** (antes iban todos, ocultos incluidos: el archivo mentía sobre el catálogo
+  público y ahora Base44 lo usa como fuente de verdad para comparar).
+- **`src/search-engine.js`**: `registerAliases()` suma sinónimos globales al diccionario
+  sin pisar los propios, y al buscar se le agregan a la consulta los términos reales
+  (`expandQuery`) — amplían coincidencias, no reemplazan nombres. Los `search_aliases`
+  de cada producto entran al índice con peso 90 (el nombre real sigue en 100).
+- **`src/app.js`**: baja `search-aliases.json` junto con el catálogo y registra los
+  alias **antes** de indexar. Si el archivo no está, el buscador anda igual.
+- **`src/templates.js`**: la etiqueta comercial es una chapa más de la tarjeta (no se
+  repite si ya hay "Nuevo" u "Oferta"); los relacionados se agrupan por tipo
+  ("Complementos", "Alternativas", "Similares", "Repuestos") y debajo "Más de <rubro>".
+  **Sin relaciones cargadas la ficha queda idéntica a antes** (una sola grilla):
+  verificado en una ficha sin curados (0 encabezados, 1 grilla, 12 tarjetas).
+
+Probado con un bridge simulado (`BASE44_AUX_URL`, que sólo existe para pruebas):
+ocultar un producto lo saca de products.json, de `/p/`, del sitemap, del catálogo y de
+la página de rubro a la vez (580/580/580); "moka pot" devuelve las cafeteras moka
+aunque esas palabras no estén en ningún nombre; un alias inventado por producto
+("chiripiorca") devuelve exactamente ese producto; los grupos salen en orden de
+prioridad y no enlazan a ocultos ni a slugs inexistentes.
+
+Dos defectos propios encontrados y corregidos mientras se miraba en el navegador:
+la etiqueta larga ("Más consultado") se metía debajo del botón de compartir (ahora
+`.card__flags` corta a `calc(100% - 61px)` y la chapa parte en dos renglones, sin
+achicar la letra), y la chapa tenía fondo dorado al 10% sobre la foto del producto —
+medido daba 3,47:1 en tema claro sobre una foto oscura. Ahora es opaca (`--surface`):
+11,15:1 en oscuro y 5,07:1 en claro, pase lo que pase detrás.
+
+Sin cambios (como pidió Rodri): eventos y sus nombres, `LAWEB-*` y su regla al
+modificar el carrito, `configuracion_pagina`, y `/api/rebuild` —que ya respondía
+`200 {"ok":true}` sólo cuando el hook de Netlify acepta, 502/503 si no—.
+
+**Pendiente de Base44**: `catalogo_auxiliar.productos` no trae visibilidad ni estado
+de publicación, así que ocultar desde Base44 todavía no funciona de verdad. El código
+ya acepta `visible` / `visible_web` / `habilitado_web` / `publicado` (booleanos) o
+`estado` / `estado_publicacion` con "Oculto". Detalle en `RESUMEN-PARA-RODRI.md`.
+
+**Pendiente menor**: el asistente (`/api/ai/ask`) indexa leyendo Firestore directo, no
+`products.json`, así que todavía no usa los alias.

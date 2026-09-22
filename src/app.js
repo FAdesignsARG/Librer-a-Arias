@@ -5,7 +5,7 @@ import { initHomeSearchMotion } from './home-search-motion.js';
  * El mismo archivo corre en la portada y en las landings de producto; cada
  * bloque se activa sólo si encuentra los elementos que necesita.
  */
-import { buildIndex, getIndex, searchProducts } from './search-engine.js';
+import { buildIndex, getIndex, searchProducts, registerAliases } from './search-engine.js';
 import { rotatingPicks, rotationSlot, ROTATION_MS } from './recommend.js';
 import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // cardHtml es la MISMA función que arma las tarjetas en el servidor: antes
@@ -67,13 +67,19 @@ let SETTINGS = {};
 let bySlug = new Map();
 
 async function loadData() {
-  const [p, s] = await Promise.all([
+  const [p, s, alias] = await Promise.all([
     fetch('/data/products.json').then((r) => r.json()),
     fetch('/data/settings.json').then((r) => r.json()),
+    // Sinónimos globales del buscador, que el build bajó de Base44. Es
+    // opcional a propósito: si el archivo no está o viene roto, el buscador
+    // funciona igual que siempre con su diccionario propio.
+    fetch('/data/search-aliases.json').then((r) => (r.ok ? r.json() : [])).catch(() => []),
   ]);
   PRODUCTS = p.filter((x) => x.visible !== false);
   SETTINGS = s;
   bySlug = new Map(PRODUCTS.map((x) => [x.slug, x]));
+  // Los alias se registran ANTES de indexar: buildIndex canoniza términos.
+  registerAliases(alias);
   buildIndex(PRODUCTS);
 }
 

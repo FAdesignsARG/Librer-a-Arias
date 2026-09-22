@@ -1777,6 +1777,11 @@ dialog.notify .notify__empty svg {width:44px;height:44px;opacity:.7;color:var(--
 .related__all svg {width:16px;height:16px;}
 .related__tags {display:flex;gap:8px;margin:0 calc(var(--gutter, 20px) * -1) 18px;padding:2px var(--gutter, 20px);overflow-x:auto;scrollbar-width:none;}
 .related__tags::-webkit-scrollbar {display:none;}
+/* Titulo de grupo de relacionados ("Complementos", "Alternativas"): solo
+   sale cuando Base44 cargo relaciones a mano. Sin ellas la ficha sigue con
+   una sola grilla y este selector no existe en el HTML. */
+.related__group {margin:26px 0 14px;font-size:17px;font-weight:600;letter-spacing:-0.01em;color:var(--text);}
+.related__group:first-of-type {margin-top:4px;}
 .related__tags a {flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--fill-hi, rgba(255,255,255,.1));font-size:15px;color:var(--text);text-decoration:none;text-transform:capitalize;transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
 .related__tags a svg {width:16px;height:16px;color:var(--text-2);}
 .related__tags a:active {scale:.96;}

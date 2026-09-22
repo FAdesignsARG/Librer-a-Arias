@@ -1,6 +1,27 @@
 # Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 20/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
+
+## NOVEDADES DEL 22/09/2026 — capa auxiliar de Base44 (leer antes que todo lo de abajo)
+- **`catalogo_auxiliar` integrado en el build.** Bridge `2026-09-21.2` verificado hoy.
+  `src/base44-auxiliar.js` (nuevo) baja la capa por HTTP en cada build y enriquece los
+  productos de Firestore **por `slug`**: alias de búsqueda, etiqueta comercial,
+  destacados, visibilidad web y relacionados curados.
+- **La arquitectura NO cambió y no se negocia**: `products.json` + `/p/<slug>/` siguen
+  siendo la fuente del catálogo público (SEO, vista previa de WhatsApp, JSON-LD).
+  Base44 enriquece, nunca reemplaza. Si el bridge no contesta, el build sale igual.
+- **`data/products.json` ahora tiene SÓLO los productos públicos** (antes traía también
+  los ocultos). Lo pidió Rodri porque el centro de salud de Base44 lo compara contra sus
+  productos habilitados. Medido: 581 en json = 581 páginas = 581 URLs del sitemap.
+- **Falta de parte de Rodri**: `catalogo_auxiliar.productos` no trae visibilidad ni
+  estado de publicación, así que los puntos 4 y 5 de su mensaje (ocultar desde Base44)
+  todavía no se pueden usar. El código ya lo acepta en cuanto lo mande — el criterio y
+  los nombres de campo aceptados están en `RESUMEN-PARA-RODRI.md` (arriba de todo).
+- Probado con datos simulados (`BASE44_AUX_URL` apunta el build a un bridge de prueba):
+  alias globales, alias por producto, etiqueta, destacado, ocultar y relacionados
+  agrupados. Falta probarlo con datos reales cuando Rodri los cargue.
+- Sin tocar: eventos y sus nombres, códigos `LAWEB-*`, regla del carrito modificado,
+  `configuracion_pagina` y `/api/rebuild` (que ya cumplía lo pedido).
 
 ## NOVEDADES DEL 20–21/09/2026 (leer antes que lo de abajo)
 - **Se trabaja directo en `main`** (pedido de Fran). Etiquetar antes de cada push; último respaldo `prod-antes-20260920c`.

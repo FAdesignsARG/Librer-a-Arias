@@ -19,6 +19,7 @@ import path from 'node:path';
 import { renderHome, renderProduct, renderCategory, categorySlug } from '../src/templates.js';
 import { buildSitemap } from '../src/sitemap.js';
 import { getDb } from '../src/firebase-admin.js';
+import { fetchAuxiliar } from '../src/base44-auxiliar.js';
 import { loadEnv } from '../src/ai.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -37,8 +38,42 @@ const [productsSnap, settingsDoc] = await Promise.all([
   db.collection('products').get(),
   db.collection('settings').doc('main').get(),
 ]);
-const products = productsSnap.docs.map((d) => d.data());
+const rawProducts = productsSnap.docs.map((d) => d.data());
 const settings = settingsDoc.data();
+
+/* ---------- capa auxiliar de Base44 ----------
+   Enriquece por `slug` los productos que ya existen en Firestore: alias de
+   búsqueda, etiqueta comercial, destacados y visibilidad web. NO agrega ni
+   inventa productos — un slug que Base44 mande y acá no exista se ignora.
+   Si Base44 no contesta, `aux.ok` es false y el build sigue igual que
+   siempre: el catálogo público nunca depende del bridge (eso es lo que
+   mantiene el SEO y las vistas previas de WhatsApp a salvo).            */
+const aux = await fetchAuxiliar();
+console.log(
+  aux.ok
+    ? `Base44 catalogo_auxiliar      bridge ${aux.bridgeVersion} · ${aux.bySlug.size} productos, ${aux.aliases.length} alias globales, ${aux.relatedBySlug.size} con relacionados`
+    : `Base44 catalogo_auxiliar      sin datos (${aux.error}) — se publica sin la capa auxiliar`
+);
+
+let auxAplicados = 0;
+let auxOcultos = 0;
+const products = rawProducts.map((p) => {
+  const extra = aux.bySlug.get(p.slug);
+  if (!extra) return p;
+  auxAplicados++;
+  // visibleWeb === null significa que Base44 no opina de este producto:
+  // manda Firestore. Sólo un `false` explícito lo saca de la web.
+  const oculto = extra.visibleWeb === false;
+  if (oculto && p.visible !== false) auxOcultos++;
+  return {
+    ...p,
+    ...(oculto ? { visible: false } : {}),
+    ...(extra.searchAliases.length ? { searchAliases: extra.searchAliases } : {}),
+    ...(extra.etiqueta ? { etiqueta: extra.etiqueta } : {}),
+    // `destacado` de Base44 sólo suma: nunca apaga un destacado de Firestore.
+    ...(extra.destacado ? { featured: true } : {}),
+  };
+});
 
 const visible = products
   .filter((p) => p.visible !== false)
@@ -46,12 +81,34 @@ const visible = products
 
 const hidden = products.length - visible.length;
 
-const relatedTo = (product) =>
-  visible
-    .filter((p) => p.slug !== product.slug && p.category === product.category)
+const bySlug = new Map(visible.map((p) => [p.slug, p]));
+
+/* Relacionados de la ficha. Primero los que eligió una persona en Base44
+   (ordenados por `prioridad`, con su tipo de relación para agruparlos en la
+   ficha); después se completa con los automáticos de siempre — mismo rubro y
+   precio parecido — sin repetir. Un related_slug que no exista o que esté
+   oculto se descarta acá mismo, así la ficha nunca enlaza a un 404.       */
+const relatedTo = (product) => {
+  const curated = [];
+  const vistos = new Set([product.slug]);
+  for (const rel of aux.relatedBySlug.get(product.slug) || []) {
+    const target = bySlug.get(rel.slug);
+    if (!target || vistos.has(rel.slug)) continue;
+    vistos.add(rel.slug);
+    curated.push({ ...target, relacion: rel.relacion });
+  }
+
+  const autos = visible
+    .filter((p) => !vistos.has(p.slug) && p.category === product.category)
     .sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price))
-    .concat(visible.filter((p) => p.category !== product.category && p.inStock).sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price)))
-    .slice(0, 12);
+    .concat(
+      visible
+        .filter((p) => !vistos.has(p.slug) && p.category !== product.category && p.inStock)
+        .sort((a, b) => Math.abs(a.price - product.price) - Math.abs(b.price - product.price))
+    );
+
+  return curated.concat(autos).slice(0, 12);
+};
 
 /* ---------- limpiar dist ---------- */
 
@@ -108,8 +165,17 @@ console.log(`${String(categoryCount).padStart(3)} páginas de rubro          ${k
 /* ---------- estáticos ----------
    Sólo lo que el sitio público necesita. Nada de src/admin ni scripts. */
 
-await write('data/products.json', JSON.stringify(products));
+// products.json = EXACTAMENTE lo que está publicado, ni uno más.
+// Antes se escribían todos los productos de Firestore, incluidos los
+// ocultos: el buscador y el asistente los filtraban por su cuenta, pero
+// el archivo mentía sobre el catálogo público. Ahora el centro de salud de
+// Base44 lo compara contra sus productos habilitados, así que tiene que
+// coincidir con las páginas, el listado, los rubros y el sitemap.
+await write('data/products.json', JSON.stringify(visible));
 await write('data/settings.json', JSON.stringify(settings));
+// Sinónimos globales del buscador (Base44). Archivo aparte y chiquito: lo
+// pide app.js junto con el catálogo y, si no está, el buscador anda igual.
+await write('data/search-aliases.json', JSON.stringify(aux.aliases));
 
 const copies = [
   ['assets', 'assets'],
@@ -213,5 +279,8 @@ async function dirSize(dir) {
 const total = await dirSize(DIST);
 console.log(`\nListo — dist/ ${(total / 1024 / 1024).toFixed(1)} MB`);
 console.log(`  ${visible.length} productos publicados${hidden ? `, ${hidden} ocultos sin publicar` : ''}`);
+if (aux.ok) {
+  console.log(`  capa Base44: ${auxAplicados} productos enriquecidos${auxOcultos ? `, ${auxOcultos} ocultados desde Base44` : ''}`);
+}
 console.log(`  URL configurada: ${settings.siteUrl}`);
 console.log(`\n  Subí el contenido de dist/ al servidor.`);
