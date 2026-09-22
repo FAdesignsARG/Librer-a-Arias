@@ -13,6 +13,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { webPromo } from './templates.js';
+// El asistente de stock usa el mismo motor del catálogo para encontrar de qué
+// producto le están hablando: entiende sinónimos, alias y errores de tipeo.
+import { buildIndex, getIndex, searchProducts } from './search-engine.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -256,22 +259,153 @@ Devolvé JSON: {"acciones":[{"nombre":"","cambio":"","motivo":""}],"no_encontrad
    catálogo pueda seguir creciendo sin volver a romperse. */
 const STALE_RE = /actualiz|hace tiempo|hace rato|hace mucho|viejo|antiguo|desde cuando|sin tocar/i;
 const VISIBILITY_RE = /ocult|mostr|visible/i;
+const DUP_RE = /repetid|duplicad|dos veces|misma? nombre/i;
+const NOSTOCK_RE = /sin stock|no tienen? stock|falta.{0,12}stock|agotad|se acabaron?/i;
+const SUMMARY_RE = /resumen|resumi|estado del cat|c[oó]mo (est[aá]|va) el cat|panorama/i;
 
-function buildCatalogLines(products, instruction) {
-  if (STALE_RE.test(instruction)) {
-    return products.map((p) => `- ${p.name} | ${(p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha'}`).join('\n');
+/* Tope duro de la lista que se le manda al modelo. El plan gratis de Groq da
+   ~8K tokens por minuto contando ida y vuelta; 12.000 caracteres son ~3.300
+   tokens, que con el prompt del sistema y los 900 de respuesta deja aire de
+   sobra para que el catálogo siga creciendo. */
+const MAX_CHARS = 12000;
+
+const recortar = (lineas) => {
+  let total = 0;
+  const out = [];
+  for (const l of lineas) {
+    if (total + l.length > MAX_CHARS) break;
+    out.push(l);
+    total += l.length + 1;
   }
-  if (VISIBILITY_RE.test(instruction)) {
-    return products.map((p) => `- ${p.name} | ${p.visible === false ? 'oculto' : 'visible'}`).join('\n');
+  return { lista: out.join('\n'), recortados: lineas.length - out.length };
+};
+
+const fecha = (p) => (p.updatedAt || p.createdAt || '').slice(0, 10) || 'sin fecha';
+
+/**
+ * Arma el pedazo de catálogo que le toca ver al modelo.
+ *
+ * Antes se le mandaba el catálogo ENTERO, una línea por producto. Con 351
+ * productos ya había que recortar los campos; con 581 dejó de entrar del todo
+ * y el asistente de stock devolvía "413: Request too large" en el 100% de los
+ * pedidos — o sea, estaba roto en producción aunque el botón se viera.
+ *
+ * El arreglo no es recortar más campos (el catálogo va a seguir creciendo):
+ * es dejar de mandar lo que no hace falta. Cada tipo de pregunta necesita un
+ * subconjunto chico, y lo que se puede contar exacto se cuenta acá, en código,
+ * en vez de pedirle a un modelo que escanee 581 renglones — que además lo hace
+ * mal. El modelo queda para lo que sí sabe hacer: entender el pedido en
+ * criollo y redactar.
+ *
+ * Devuelve el bloque de texto ya armado, listo para el prompt.
+ */
+export function buildCatalogBlock(products, instruction) {
+  const total = products.length;
+  const cab = (t) => `(catálogo: ${total} productos en total) ${t}`;
+
+  // ¿Es una ORDEN de cambiar algo, o una PREGUNTA?
+  // No es un detalle: "ocultá el organizador de calzado" y "¿qué está oculto?"
+  // comparten la palabra, y si gana la pregunta el modelo recibe la lista de
+  // ocultos en vez del producto que le nombraron, y no puede proponer nada.
+  // Por eso la orden se detecta por el VERBO en imperativo y gana primero.
+  // Ojo con los límites de palabra: `\b` después de una vocal acentuada NO
+  // funciona (para JS la "á" no es carácter de palabra, así que entre "á" y
+  // el espacio no hay frontera). Por eso se delimita a mano con espacios y
+  // puntuación — con `\b` final, "ocultá el organizador" no matcheaba y el
+  // pedido terminaba tratado como la pregunta "¿qué está oculto?".
+  const ACCION_RE =
+    /(^|\s)(sac[aá]|saque|quit[aá]|ocult[aá]|ocultar|mostr[aá]|mostrar|pon[eé]|marc[aá]|activ[aá]|desactiv[aá]|habilit[aá]|deshabilit[aá]|repon[eé]|dar de baja|dale de baja)(\s|,|\.|$)/i;
+  const esOrden = ACCION_RE.test(instruction) && !/^\s*¿/.test(instruction.trim());
+
+  // 1. Resumen: no hace falta NINGÚN producto, sólo los números.
+  if (!esOrden && SUMMARY_RE.test(instruction)) {
+    const sinStock = products.filter((p) => !p.inStock).length;
+    const ocultos = products.filter((p) => p.visible === false).length;
+    const destacados = products.filter((p) => p.featured).length;
+    const rubros = [...new Set(products.map((p) => p.category))];
+    const porRubro = rubros
+      .map((c) => `${c}: ${products.filter((p) => p.category === c).length}`)
+      .join(', ');
+    return cab(
+      `Números exactos del catálogo, ya calculados: ${total} productos, ${sinStock} sin stock, ` +
+        `${ocultos} ocultos, ${destacados} destacados. Por rubro: ${porRubro}. ` +
+        `Contá esto en criollo, no inventes otros números.`
+    );
   }
-  // Default: cubre preguntas de stock, cambios ("sacá del stock X"),
-  // duplicados y resúmenes generales — ninguno de esos necesita fecha
-  // ni visibilidad para ser útil.
-  return products.map((p) => `- ${p.name} | ${p.inStock ? 'con stock' : 'sin stock'}`).join('\n');
+
+  // 2. Duplicados: se calculan acá y sólo viajan los grupos repetidos.
+  if (!esOrden && DUP_RE.test(instruction)) {
+    const byName = new Map();
+    for (const p of products) {
+      const k = p.name.trim().toLowerCase();
+      byName.set(k, (byName.get(k) || 0) + 1);
+    }
+    const repes = [...byName.entries()].filter(([, n]) => n > 1);
+    if (!repes.length) {
+      return cab('No hay ningún nombre repetido en el catálogo. Decíselo así, sin listar nada.');
+    }
+    const { lista } = recortar(
+      repes.map(([k, n]) => {
+        const real = products.find((p) => p.name.trim().toLowerCase() === k).name;
+        return `- ${real} | aparece ${n} veces`;
+      })
+    );
+    return cab(`Nombres repetidos (calculado exacto):\n${lista}`);
+  }
+
+  // 3. Sin stock: sólo los que no tienen.
+  if (!esOrden && NOSTOCK_RE.test(instruction)) {
+    const sin = products.filter((p) => !p.inStock);
+    if (!sin.length) return cab('Todos los productos tienen stock. Decíselo así.');
+    const { lista, recortados } = recortar(sin.map((p) => `- ${p.name}`));
+    return cab(
+      `Productos SIN stock (${sin.length} en total):\n${lista}` +
+        (recortados ? `\n(y ${recortados} más que no entran acá)` : '')
+    );
+  }
+
+  // 4. Visibilidad: sólo los ocultos.
+  if (!esOrden && VISIBILITY_RE.test(instruction)) {
+    const ocultos = products.filter((p) => p.visible === false);
+    if (!ocultos.length) {
+      return cab('No hay ningún producto oculto: están todos publicados. Decíselo así.');
+    }
+    const { lista, recortados } = recortar(ocultos.map((p) => `- ${p.name} | oculto`));
+    return cab(
+      `Productos OCULTOS (${ocultos.length} en total):\n${lista}` +
+        (recortados ? `\n(y ${recortados} más)` : '')
+    );
+  }
+
+  // 5. Sin actualizar hace rato: los 40 más viejos, ya ordenados.
+  if (!esOrden && STALE_RE.test(instruction)) {
+    const viejos = [...products]
+      .sort((a, b) => String(a.updatedAt || a.createdAt || '').localeCompare(String(b.updatedAt || b.createdAt || '')))
+      .slice(0, 40);
+    const { lista } = recortar(viejos.map((p) => `- ${p.name} | ${fecha(p)}`));
+    return cab(`Los 40 que hace más tiempo no se tocan, del más viejo al menos viejo:\n${lista}`);
+  }
+
+  // 6. Pedido de cambio sobre productos concretos ("sacá del stock el
+  //    dinosaurio y la mochila"): se buscan con el mismo motor del catálogo,
+  //    que entiende sinónimos y errores de tipeo, y viajan sólo los candidatos.
+  buildIndex(products);
+  const encontrados = searchProducts(instruction, getIndex()).slice(0, 50);
+  const elegidos = encontrados.length ? encontrados : products.slice(0, 50);
+  const { lista } = recortar(
+    elegidos.map((p) => `- ${p.name} | ${p.inStock ? 'con stock' : 'sin stock'} | ${p.visible === false ? 'oculto' : 'visible'}`)
+  );
+  return cab(
+    `Productos del catálogo que coinciden con lo que pidió` +
+      (encontrados.length ? '' : ' (no coincidió ninguno; va una muestra)') +
+      `:\n${lista}\n` +
+      `Si el producto que nombró NO está en esta lista, va a "no_encontrados": ` +
+      `no propongas otro parecido.`
+  );
 }
 
 export async function proposeStockActions({ instruction, products }) {
-  const lista = buildCatalogLines(products, instruction);
+  const lista = buildCatalogBlock(products, instruction);
 
   const messages = [
     { role: 'system', content: SYSTEM_STOCK() },

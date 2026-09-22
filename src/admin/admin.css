@@ -2567,8 +2567,14 @@
 /* Asistente de stock: la acción estrella de la barra — más grande, con un
    resplandor propio que respira despacio para que el ojo caiga ahí primero. */
 #btnStockAI {
-  width: 60px;
+  /* Era un circulo con una estrellita y nada mas: al lado del otro
+     circulo no se entendia que era el asistente. Ahora dice su nombre. */
+  width: auto;
+  min-width: 60px;
   height: 60px;
+  padding: 0 22px;
+  grid-auto-flow: column;
+  gap: 10px;
   background: var(--gold);
   color: var(--gold-ink);
   box-shadow: 0 12px 34px -6px rgba(246, 190, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -2577,6 +2583,29 @@
 #btnStockAI svg {
   width: 27px;
   height: 27px;
+}
+.adminfab__label {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Apagado: cuando /api/ai/status no contesta. Antes el boton se escondia
+   y parecia que habiamos sacado el asistente; ahora se queda, apagado, y
+   al tocarlo explica por que. Sin amarillo, que es de lo que funciona. */
+#btnStockAI.adminfab--off {
+  background: var(--surface);
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+  animation: none;
+}
+@media (hover: hover) {
+  #btnStockAI.adminfab--off:hover {
+    background: var(--surface-hi);
+    color: var(--text);
+  }
 }
 @media (hover: hover) {
   #btnStockAI:hover {
@@ -2984,7 +3013,10 @@ body.admin .adminmenu__item:hover {background:var(--fill-hi);}
 body.admin .adminmenu__email {font-size:14px;color:var(--text-2);}
 
 /* Botones flotantes: mismo bloque que los del catálogo */
-body.admin .adminfab {min-height:60px;border-radius:999px;font-size:16px;font-weight:600;}
+/* Cada flotante define su propio tamano mas abajo (Reportes 46x46, el
+   asistente 60 de alto). Forzar min-height aca le estiraba el alto a
+   Reportes sin tocarle el ancho y lo dejaba ovalado: 46x60, medido. */
+body.admin .adminfab {border-radius:999px;font-size:16px;font-weight:600;}
 
 /* ---------- Celular ---------- */
 @media (max-width:720px) {

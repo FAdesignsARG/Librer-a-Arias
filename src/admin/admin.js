@@ -1104,12 +1104,26 @@ fetch('/api/ai/status')
   .then((r) => r.json())
   .then((d) => {
     aiOn = !!d.enabled;
+  })
+  .catch(() => {
+    aiOn = false;
+  })
+  .finally(() => {
+    // Los ayudantes que viven DENTRO de un diálogo se siguen escondiendo: no
+    // tiene sentido un botón muerto adentro de un formulario.
     $('#bulkAI').hidden = !aiOn;
     $('#bulkAIHint').hidden = !aiOn;
-    $('#btnStockAI').hidden = !aiOn;
     $('#reportAI').hidden = !aiOn;
-  })
-  .catch(() => {});
+
+    // El asistente NO. Antes también desaparecía, y cuando /api/* se cayó
+    // (deploy por CLI del 20/09) el panel se quedó sin asistente sin decir
+    // una palabra: parecía que lo habíamos sacado. Ahora queda a la vista,
+    // apagado, y al tocarlo explica qué pasa.
+    const fab = $('#btnStockAI');
+    fab.hidden = false;
+    fab.classList.toggle('adminfab--off', !aiOn);
+    fab.setAttribute('aria-disabled', String(!aiOn));
+  });
 
 const api = async (url, opts = {}) => {
   const res = await fetch(url, { ...opts, headers: { 'content-type': 'application/json' } });
@@ -1248,6 +1262,13 @@ function autoGrowStockAI() {
 }
 
 $('#btnStockAI').addEventListener('click', () => {
+  if (!aiOn) {
+    toast(
+      'El asistente está apagado: el servidor no contesta en /api/ai/status. ' +
+        'Suele pasar cuando el sitio se publicó sin las funciones. Probá recargar en un rato.'
+    );
+    return;
+  }
   stockAIChat.innerHTML = '';
   stockAIText.value = '';
   autoGrowStockAI();
