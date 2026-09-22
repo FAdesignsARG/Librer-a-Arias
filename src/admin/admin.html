@@ -425,7 +425,7 @@ document.documentElement.dataset.theme=t;
         <div class="shots" id="shots"></div>
         <p class="field__hint" id="shotsHint" hidden>La primera foto es la que se ve en el catálogo. Arrastrá para reordenar.</p>
         <button type="button" class="btn btn--ghost btn--sm" id="aiFromPhoto" hidden style="margin-top:10px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
+          <img class="aimark" src="/assets/brand/adolfito-chat@128.webp" width="22" height="22" alt="" aria-hidden="true">
           Completar ficha desde la foto
         </button>
         <p class="field__hint" id="aiPhotoNote" hidden>
@@ -533,8 +533,8 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
     <div class="bulk__actions">
       <button type="button" class="btn btn--ghost btn--sm" id="bulkParse">Revisar lista</button>
       <button type="button" class="btn btn--ghost btn--sm" id="bulkAI" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
-        Interpretar con IA
+        <img class="aimark" src="/assets/brand/adolfito-chat@128.webp" width="22" height="22" alt="" aria-hidden="true">
+        Interpretar con el asistente
       </button>
       <span class="bulk__count" id="bulkCount"></span>
     </div>
@@ -570,7 +570,7 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 <!-- ====================== ASISTENTE DE STOCK ====================== -->
 <dialog class="editor bulk stockai" id="stockAI" aria-labelledby="stockAITitle" tabindex="-1">
   <div class="editor__head">
-    <h2 id="stockAITitle">Asistente de stock</h2>
+    <h2 id="stockAITitle">Asistente</h2>
     <button type="button" class="sheet__close" id="stockAIClose" aria-label="Cerrar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
@@ -641,8 +641,8 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 
   <div class="editor__foot reports__foot">
     <button type="button" class="btn btn--ghost btn--sm" id="reportAI">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
-      Resumen con IA
+      <img class="aimark" src="/assets/brand/adolfito-chat@128.webp" width="22" height="22" alt="" aria-hidden="true">
+      Resumen con el asistente
     </button>
     <span class="editor__spacer"></span>
     <button type="button" class="btn btn--ghost btn--sm" id="reportCopy">Copiar</button>
@@ -677,8 +677,8 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
   <button type="button" class="adminfab" id="btnReports" aria-haspopup="dialog" aria-label="Reportes de actividad" title="Reportes de actividad">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-3-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
   </button>
-  <button type="button" class="adminfab" id="btnStockAI" hidden aria-haspopup="dialog" aria-label="Asistente de stock" title="Asistente de stock">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z"/><path d="M18 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9L18 15z"/></svg>
+  <button type="button" class="adminfab" id="btnStockAI" hidden aria-haspopup="dialog" aria-label="Asistente" title="Asistente">
+    <img class="adminfab__face" src="/assets/brand/adolfito-chat@128.webp" width="34" height="34" alt="" aria-hidden="true">
     <span class="adminfab__label">Asistente</span>
   </button>
 </div>

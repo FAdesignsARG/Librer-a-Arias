@@ -7,7 +7,7 @@
  * el mismo mecanismo que ya usa scripts/build.js, y traducir los errores
  * de src/ai.js a un código HTTP con mensaje en criollo.
  */
-import { getDb } from '../../src/firebase-admin.js';
+import { getDb, verifyIdToken } from '../../src/firebase-admin.js';
 
 export const json = (statusCode, obj) => ({
   statusCode,
@@ -47,3 +47,36 @@ export const noKeyResponse = () =>
     error: 'SIN_CLAVE',
     mensaje: 'Falta configurar GROQ_API_KEY en las variables de entorno de Netlify.',
   });
+
+/**
+ * Exige sesión del panel.
+ *
+ * Hasta el 22/09/2026 las funciones de IA del panel no pedían nada: medido
+ * desde afuera, cualquiera podía llamarlas. Ninguna escribe (el asistente
+ * propone y una persona confirma), pero gastaban la cuota de Groq de quien
+ * quisiera y una pregunta como "¿qué está oculto?" devolvía los nombres de
+ * los productos que el local decidió NO publicar.
+ *
+ * El panel ya usa Firebase Auth para entrar: el navegador manda su ID token
+ * en `Authorization: Bearer …` y acá se valida contra el mismo proyecto. No
+ * hay nada nuevo que configurar ni una clave más que cuidar.
+ *
+ * Devuelve `null` si está todo bien, o la respuesta 401 lista para devolver.
+ */
+export async function requireAdmin(event) {
+  const raw = event.headers?.authorization || event.headers?.Authorization || '';
+  const token = raw.startsWith('Bearer ') ? raw.slice(7).trim() : '';
+  const user = await verifyIdToken(process.cwd(), token);
+  if (user) return null;
+  return json(401, {
+    error: 'SIN_SESION',
+    mensaje: 'Esto es sólo para el panel. Iniciá sesión y volvé a intentar.',
+  });
+}
+
+/** Igual que requireAdmin pero sin cortar: sólo dice si hay sesión válida. */
+export async function hasAdminSession(event) {
+  const raw = event.headers?.authorization || event.headers?.Authorization || '';
+  const token = raw.startsWith('Bearer ') ? raw.slice(7).trim() : '';
+  return Boolean(await verifyIdToken(process.cwd(), token));
+}

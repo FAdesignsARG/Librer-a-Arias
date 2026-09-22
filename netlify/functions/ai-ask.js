@@ -1,7 +1,7 @@
 import { aiEnabled, askCatalog } from '../../src/ai.js';
 import { buildIndex, getIndex, searchProducts, registerAliases } from '../../src/search-engine.js';
 import { offerActive, offerHasDiscount } from '../../src/templates.js';
-import { json, loadCatalog, aiErrorResponse, noKeyResponse } from './_helpers.js';
+import { json, loadCatalog, aiErrorResponse, noKeyResponse, hasAdminSession } from './_helpers.js';
 import { fetchAuxiliar, applyAuxiliar, EMPTY_AUX } from '../../src/base44-auxiliar.js';
 
 /* ---------- capa auxiliar de Base44 para el asistente ----------
@@ -37,8 +37,15 @@ export const handler = async (event) => {
   if (!aiEnabled()) return noKeyResponse();
 
   try {
-    const { question, history = [], modo = 'cliente' } = JSON.parse(event.body || '{}');
+    const { question, history = [], modo: modoPedido = 'cliente' } = JSON.parse(event.body || '{}');
     if (!String(question || '').trim()) return json(400, { error: 'Falta la pregunta.' });
+
+    // Este endpoint SÍ es público: es el asistente del catálogo. Pero el modo
+    // "interno" (habla con el equipo del local, más directo y técnico) no lo
+    // puede pedir cualquiera desde afuera — hasta hoy alcanzaba con mandar
+    // modo:"interno" en el cuerpo. Ahora hay que tener sesión del panel; sin
+    // ella se atiende como cliente, que es lo que corresponde.
+    const modo = modoPedido === 'interno' && (await hasAdminSession(event)) ? 'interno' : 'cliente';
 
     const [{ products, settings }, aux] = await Promise.all([
       loadCatalog(),

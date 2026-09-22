@@ -15,6 +15,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 
 let dbInstance = null;
 
@@ -52,4 +53,26 @@ export async function getDb(root) {
   const app = getApps()[0] || initializeApp({ credential: cert(serviceAccount) });
   dbInstance = getFirestore(app);
   return dbInstance;
+}
+
+/**
+ * Verifica un ID token de Firebase Auth y devuelve el usuario, o `null` si
+ * no es válido. Lo usan las funciones de `/api/*` que sólo tiene que poder
+ * usar quien inició sesión en el panel.
+ *
+ * Es el mismo proyecto de Firebase que ya usa el panel para el login, así
+ * que no hay nada nuevo que configurar: la clave de servicio que ya está en
+ * Netlify alcanza para validar los tokens que emite ese login.
+ */
+export async function verifyIdToken(root, token) {
+  if (!token) return null;
+  try {
+    const serviceAccount = await loadServiceAccount(root);
+    const app = getApps()[0] || initializeApp({ credential: cert(serviceAccount) });
+    return await getAuth(app).verifyIdToken(token);
+  } catch {
+    // Token vencido, firmado por otro proyecto, o mal formado: para el caso
+    // es lo mismo que no haber mandado nada.
+    return null;
+  }
 }

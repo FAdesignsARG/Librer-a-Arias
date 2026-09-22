@@ -1125,8 +1125,23 @@ fetch('/api/ai/status')
     fab.setAttribute('aria-disabled', String(!aiOn));
   });
 
+/** El ID token de la sesión del panel, para que /api/* sepa que sos vos.
+    Firebase lo renueva solo; getIdToken() devuelve uno vigente. Si no hay
+    sesión devuelve '' y la función del servidor contesta 401. */
+async function authHeader() {
+  try {
+    const token = await auth.currentUser?.getIdToken();
+    return token ? { authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 const api = async (url, opts = {}) => {
-  const res = await fetch(url, { ...opts, headers: { 'content-type': 'application/json' } });
+  const res = await fetch(url, {
+    ...opts,
+    headers: { 'content-type': 'application/json', ...(await authHeader()) },
+  });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     // .message queda con el CÓDIGO ("LIMITE"/"CLAVE_INVALIDA"/"SIN_CLAVE"/
@@ -2058,7 +2073,7 @@ async function getApproxLocation() {
 let rebuildTimer = null;
 async function triggerRebuild() {
   try {
-    const res = await fetch('/api/rebuild', { method: 'POST' });
+    const res = await fetch('/api/rebuild', { method: 'POST', headers: await authHeader() });
     return res.ok;
   } catch {
     return false;

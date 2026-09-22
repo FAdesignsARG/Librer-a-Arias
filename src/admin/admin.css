@@ -3166,6 +3166,12 @@ body.admin .stockchat__msg--user {background:var(--gold);color:var(--gold-ink);b
 /* Piso mas bajo que el original (220px): con el titulo y los dos renglones
    de chips, en un telefono corto (568 de alto) el chat ya no entraba. */
 body.admin .stockchat {min-height:150px;}
+/* Una sola cara para el asistente en todo el panel: el flotante y los tres
+   ayudantes que viven dentro de un dialogo (carga masiva, foto, reportes)
+   llevan a Adolfito, que ya es la cara del asistente en la web. Antes cada
+   uno tenia una estrellita generica y no se leian como la misma cosa. */
+body.admin .aimark {width:22px;height:22px;flex:none;object-fit:contain;}
+body.admin .adminfab__face {width:34px;height:34px;flex:none;object-fit:contain;}
 body.admin .stockchat__quicktitle {margin:0;padding:16px 20px 0;font-size:14px;font-weight:600;color:var(--text-2);letter-spacing:-0.01em;}
 body.admin .stockchat__quick {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:10px 20px 0;overflow:visible;}
 body.admin .stockchat__chip {flex:none;width:100%;min-height:48px;padding:0 14px;border:0;border-radius:999px;background:var(--fill-hi);font-size:15px;font-weight:500;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:background var(--dur-fast) var(--ease-soft),box-shadow var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
