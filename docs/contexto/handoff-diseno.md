@@ -20,16 +20,17 @@ Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
 - Probado con datos simulados (`BASE44_AUX_URL` apunta el build a un bridge de prueba):
   alias globales, alias por producto, etiqueta, destacado, ocultar y relacionados
   agrupados. Falta probarlo con datos reales cuando Rodri los cargue.
-### Publicado en producción (22/09/2026)
-  `origin/main` = `c852dfe`. Respaldo: etiqueta `prod-antes-20260922`. Push por git (no por
-  CLI). Verificado en https://libreria-arias.netlify.app: home, catálogo y ficha 200;
-  `products.json` 581 sin ocultos adentro; sitemap 581 URLs de `/p/`;
-  `data/search-aliases.json` 200 (hoy `[]`); `/api/ai/status` → `{"enabled":true}`;
-  canonical y JSON-LD intactos; el buscador devuelve 26 resultados para "cafetera".
-  El único error de consola es el SDK de Base44 pidiendo `entities/User/me` (403 en una
-  visita anónima): es de siempre y no afecta nada.
 - Sin tocar: eventos y sus nombres, códigos `LAWEB-*`, regla del carrito modificado,
   `configuracion_pagina` y `/api/rebuild` (que ya cumplía lo pedido).
+
+### Publicado en producción (22/09/2026)
+`origin/main` = `c852dfe`. Respaldo: etiqueta `prod-antes-20260922`. Push por git (no por
+CLI). Verificado en https://libreria-arias.netlify.app: home, catálogo y ficha 200;
+`products.json` 581 sin ocultos adentro; sitemap 581 URLs de `/p/`;
+`data/search-aliases.json` 200 (hoy `[]`); `/api/ai/status` → `{"enabled":true}`;
+canonical y JSON-LD intactos; el buscador devuelve 26 resultados para "cafetera".
+El único error de consola es el SDK de Base44 pidiendo `entities/User/me` (403 en una
+visita anónima): es de siempre y no afecta nada.
 
 ## NOVEDADES DEL 20–21/09/2026 (leer antes que lo de abajo)
 - **Se trabaja directo en `main`** (pedido de Fran). Etiquetar antes de cada push; último respaldo `prod-antes-20260920c`.
