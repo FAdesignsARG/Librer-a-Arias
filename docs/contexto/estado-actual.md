@@ -842,3 +842,61 @@ y por producto ya vienen `visible`, `visible_web` y `estado_publicacion`
 - Detalle para Rodri: los `search_aliases` por producto que manda hoy son palabras del
   propio nombre y del rubro (ej. "cafetera, moka, cuk, gadnic, bazar"), que el buscador
   ya indexaba. No molestan, pero el valor real está en los alias globales.
+
+## El asistente del panel estaba roto, no escondido (22/09/2026)
+Fran preguntó por qué el panel "ya no tiene asistente de IA". Medido en producción:
+el botón estaba y se veía, pero **los 5 pedidos de prueba a `/api/ai/stock-actions`
+devolvían `Groq 413: Request too large`** — o sea, estaba 100% roto.
+
+Causa: se le mandaba el catálogo entero al modelo, una línea por producto. Con 351
+productos ya se habían recortado los campos; con 581 el bloque pesa ~7.430 tokens y el
+plan gratis de Groq da ~8K por minuto contando ida y vuelta. Se rompió solo al crecer
+el catálogo, sin que nadie tocara nada.
+
+- **Arreglo de fondo**: dejar de mandar lo que no hace falta. Lo que se puede contar
+  exacto se cuenta en código (resumen, duplicados, sin stock, ocultos, los 40 más
+  desactualizados) y sólo viaja ese pedacito ya calculado; para un pedido de cambio se
+  buscan los productos con el motor del catálogo y viajan hasta 50 candidatos. El bloque
+  pasó de 7.430 tokens fijos a entre 27 y 546 según la pregunta. De paso las respuestas
+  son exactas: contar 581 renglones es justo lo que un modelo hace mal.
+- **Orden vs pregunta**: "ocultá el organizador de calzado" y "¿qué está oculto?"
+  comparten la palabra y antes ganaba la pregunta, así que un pedido de ocultar recibía
+  la lista de ocultos y el modelo no podía proponer nada. Ahora el verbo en imperativo
+  gana primero. Trampa encontrada en el camino: **`\b` después de vocal acentuada no
+  funciona** (para JS la "á" no es carácter de palabra), así que `\bocultá\b` nunca
+  matcheaba. Se delimita a mano con espacios y puntuación.
+- **Ya no desaparece en silencio**: los botones de IA se escondían si `/api/ai/status`
+  no contestaba. Eso es exactamente lo que pasó el 20/09 con el deploy por CLI, y el
+  panel se quedó sin asistente sin decir una palabra. Ahora el asistente queda a la
+  vista, apagado, y al tocarlo explica por qué. El `.catch(() => {})` que había también
+  se tragaba cualquier error de JS de esa cadena; pasó a `.finally`.
+- **Se entiende qué es**: el botón dice "Asistente" en vez de ser un círculo con una
+  estrellita al lado de otro círculo casi igual. Pastilla dorada de 60 de alto, entra a 320.
+- **Reportes volvió a ser redondo**: la capa v2 (`body.admin .adminfab`) le forzaba
+  `min-height:60px` sin tocarle el ancho y lo dejaba ovalado, 46×60. Medido.
+
+Verificado en producción después de publicar: los 5 casos responden 200. Resumen con
+números exactos, duplicados (encuentra el único nombre repetido), sin stock, y las dos
+órdenes proponen la acción correcta sobre el producto correcto.
+
+### PENDIENTE DE SEGURIDAD (encontrado en el camino, no corregido)
+Las funciones de IA del panel **no piden sesión**: `/api/ai/stock-actions`,
+`/api/ai/summarize-activity` y `/api/ai/draft-text` responden a cualquiera desde
+cualquier lado (probado sin sesión: llegan al handler). `/api/ai/ask` con
+`modo: "interno"` también. Y `/api/rebuild` sigue abierto desde el 20/09.
+Hoy ninguna de esas escribe nada —el asistente sólo PROPONE y Fran confirma—, pero:
+gastan la cuota de Groq de cualquiera que las llame, `/api/rebuild` gasta minutos de
+build, y una pregunta tipo "¿qué está oculto?" devolvería los nombres de los productos
+que el local decidió no publicar. La separación hoy es sólo que los botones viven
+dentro del panel, no una separación de verdad.
+
+### Lo que Fran pidió para el asistente del panel (pendiente, acordado 22/09)
+1. Que vea el catálogo enriquecido (alias, etiquetas, destacados, relacionados, estado
+   de publicación de Base44). Hoy lee Firestore crudo.
+2. Que pueda cambiar más que stock y visibilidad: precio, rubro, destacado, etiqueta
+   comercial y pedir la republicación — siempre proponiendo.
+3. Que traiga las métricas y alertas de Base44 (búsquedas sin resultado, productos muy
+   vistos sin consulta, pedidos sin seguimiento, diferencias catálogo interno vs web).
+4. Unificar los 4 botones de IA sueltos en un solo asistente con la cara de Adolfito.
+Y que quede **sólo para el panel**, separado del asistente público (ver el pendiente de
+seguridad de arriba: hoy no lo está).

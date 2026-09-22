@@ -2,6 +2,19 @@
 
 Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
 
+## NOVEDADES DEL 22/09/2026 (noche) — el asistente del panel
+- Estaba **roto**, no escondido: `/api/ai/stock-actions` devolvía `413 Request too
+  large` en el 100% de los pedidos porque se le mandaba el catálogo entero (581
+  productos, ~7.430 tokens, y Groq gratis da ~8K por minuto). Arreglado: ahora viaja
+  sólo el pedacito que hace falta (27 a 546 tokens) y lo contable se cuenta en código.
+- El botón ya no desaparece cuando `/api` no contesta (que es lo que pasó el 20/09 con
+  el deploy por CLI): queda apagado y explica por qué. Y dice "Asistente".
+- **Pendiente de seguridad**: las funciones de IA del panel y `/api/rebuild` no piden
+  sesión — responden a cualquiera. Hoy no escriben nada, pero gastan cuota y
+  "¿qué está oculto?" filtraría los productos despublicados. Detalle en `estado-actual.md`.
+- **Pedido de Fran (pendiente)**: potenciar el asistente del panel — catálogo
+  enriquecido, más acciones, métricas de Base44 y unificar los 4 botones de IA en uno,
+  con Adolfito. Y que quede separado de verdad del asistente público.
 ## NOVEDADES DEL 22/09/2026 (tarde) — bridge 2026-09-22.3 con datos reales
 - El auxiliar ya trae contenido: 563 productos resueltos, 8 grupos de alias globales,
   4 relaciones reales y, por producto, `visible` + `visible_web` + `estado_publicacion`.
