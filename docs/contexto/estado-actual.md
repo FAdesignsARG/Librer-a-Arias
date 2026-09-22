@@ -900,3 +900,51 @@ dentro del panel, no una separación de verdad.
 4. Unificar los 4 botones de IA sueltos en un solo asistente con la cara de Adolfito.
 Y que quede **sólo para el panel**, separado del asistente público (ver el pendiente de
 seguridad de arriba: hoy no lo está).
+
+## Sesión en las funciones del panel y un solo asistente (22/09/2026, noche)
+
+Pedido de Fran: "arrancá y unificá".
+
+### Sesión
+Las funciones de IA del panel no pedían nada (medido desde afuera el mismo día).
+Ahora `/api/ai/stock-actions`, `/api/ai/draft-text`, `/api/ai/draft-image` y
+`/api/ai/summarize-activity` exigen el ID token de Firebase Auth — el mismo login
+que el panel ya usaba, así que no hay clave nueva ni nada que configurar.
+
+- `verifyIdToken()` en `src/firebase-admin.js` y `requireAdmin()` /
+  `hasAdminSession()` en `netlify/functions/_helpers.js`. El cliente y el servidor
+  son el mismo proyecto (`libreria-arias`, verificado), así que la clave de servicio
+  que ya está en Netlify alcanza para validar los tokens.
+- El token se agrega en `api()` de admin.js, que es por donde pasan TODAS las
+  llamadas del panel. Una sola línea cubre las cuatro.
+- `/api/ai/ask` sigue público (es el asistente del catálogo), pero el modo
+  `"interno"` ya no se consigue mandándolo en el cuerpo: sin sesión se atiende
+  como cliente.
+- **`/api/rebuild` NO se cerró de golpe, a propósito**: lo llama también Base44
+  (su botón de publicación y su centro de salud). Acepta sesión del panel **o** el
+  secreto `REBUILD_TOKEN` por el header `x-rebuild-token`, y **mientras esa
+  variable no esté cargada en Netlify sigue abierto como hasta hoy**. Cargarla es
+  lo que activa el candado, y recién cuando Rodri tenga el token. Verificado
+  después de publicar: `POST /api/rebuild` sin nada sigue dando `200 {"ok":true}`.
+
+Verificado en producción sin sesión: las cuatro dan **401 SIN_SESION**, con token
+inválido también; `/api/ai/status` y el asistente público siguen andando.
+
+**Lo que no se pudo probar desde acá**: el camino positivo (con sesión iniciada),
+porque no se escriben contraseñas. Si al entrar al panel los botones de IA dieran
+401, se vuelve atrás con la etiqueta `prod-antes-20260922d`. El riesgo está
+acotado: publicar no depende de esto y el resto del panel tampoco.
+
+### Un solo asistente
+Los 4 accesos de IA tenían la misma estrellita genérica y no se leían como la
+misma cosa. Ahora todos llevan a **Adolfito**, que ya es la cara del asistente en
+la web: el flotante (34px) y los tres ayudantes que viven dentro de un diálogo
+(22px). "Interpretar con IA" y "Resumen con IA" pasan a "con el asistente", y el
+diálogo se llama "Asistente", no "Asistente de stock" — hace rato que contesta
+sobre el catálogo entero.
+
+**Los tres ayudantes siguen donde están, y es a propósito**: actúan sobre el
+formulario que tenés abierto (la foto que subiste, la lista que pegaste, la
+actividad de la sesión). Meterlos dentro del chat obligaría a describir con
+palabras lo que hoy se resuelve con un click. Unificamos la identidad, no la
+plomería.

@@ -2,6 +2,18 @@
 
 Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
 
+## NOVEDADES DEL 22/09/2026 (noche 2) — sesión y asistente unificado
+- Las 4 funciones de IA del panel ya **exigen sesión** (ID token de Firebase, el
+  mismo login del panel). Verificado: 401 sin sesión y con token inválido.
+- **`/api/rebuild` sigue abierto a propósito**: lo usa Base44. Se cierra recién
+  cuando se cargue `REBUILD_TOKEN` en Netlify y Rodri tenga el token. Verificado
+  después de publicar: sigue dando 200.
+- Un solo asistente: Adolfito es la cara de los 4 accesos de IA; el diálogo se
+  llama "Asistente". Los ayudantes contextuales siguen en su lugar (actúan sobre
+  el formulario abierto).
+- **Falta probar el camino con sesión iniciada** (Fran entra). Si diera 401,
+  volver con `prod-antes-20260922d`.
+
 ## NOVEDADES DEL 22/09/2026 (noche) — el asistente del panel
 - Estaba **roto**, no escondido: `/api/ai/stock-actions` devolvía `413 Request too
   large` en el 100% de los pedidos porque se le mandaba el catálogo entero (581
