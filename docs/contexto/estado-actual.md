@@ -948,3 +948,45 @@ formulario que tenés abierto (la foto que subiste, la lista que pegaste, la
 actividad de la sesión). Meterlos dentro del chat obligaría a describir con
 palabras lo que hoy se resuelve con un click. Unificamos la identidad, no la
 plomería.
+
+## Buscador predictivo (22/09/2026)
+
+Pedido de Rodri para el bridge 2026-09-22.4. **Ese bridge todavía no está
+publicado**: `catalogo_auxiliar` y `configuracion_pagina` siguen devolviendo
+`2026-09-22.3` y ninguno manda el campo `busqueda`. Se implementó con los
+valores acordados por mensaje, y el código ya lee la config del bridge para
+cuando aparezca (sin tocar código).
+
+- `suggest()` en `src/search-engine.js`: sólo PREFIJO, y sólo sobre nombre,
+  alias (del producto y globales) y rubro. La descripción queda afuera a
+  propósito — con 586 productos cualquier prefijo de 3 letras aparece en
+  decenas de descripciones. Pesos: nombre 100, alias 90, rubro 60. Desde 3
+  caracteres, hasta 12 sugerencias, 150ms de espera entre teclas.
+- **Dos defectos propios, encontrados probando y no suponiendo**:
+  1. Con todos los nombres valiendo 100 desempataba el orden del catálogo:
+     "caf" traía el molinillo antes que las cafeteras, y "mas" el cepillo para
+     MAScotas antes que los masajeadores. Ahora, a igual peso, gana lo que
+     EMPIEZA con lo escrito.
+  2. El camino de alias globales pedía UNA palabra del término: "ket" ->
+     "kettle" -> "pava eléctrica" dejaba entrar cualquier cosa que dijera
+     "Eléctrica", y se colaba "Motor para Bicicleta Eléctrica" arriba de las
+     pavas. Ahora se exigen todas las palabras del término.
+- **Trampa que costó un rato**: `home.css` tenía
+  `.home-search.has-text .home-search__suggestions>:not(.home-search__results){display:none}`,
+  puesta para esconder las ideas fijas al escribir. Apagaba las sugerencias
+  nuevas en silencio (`hidden=false` pero `display:none`). Corregido en la
+  raíz, excluyendo también `.home-search__hits`.
+- UI: las filas viven dentro del mismo panel de vidrio de la isla — foto de 44,
+  nombre de 16, rubro de 14, alto de 56, con tope de altura y desplazamiento
+  cuando son muchas. Tocar una lleva a `/p/<slug>/` (verificado).
+- `data/search-aliases.json` pasó de arreglo a `{aliases, busqueda}`; app.js
+  acepta las dos formas, así un archivo viejo en la caché de alguien no puede
+  romperle el buscador.
+
+Verificado en producción: caf → cafeteras, lam → lámparas, asp → aspiradoras,
+imp → impresoras, zap → zapateros/zapatos, mok → las 2 Cafetera Moka,
+ket → las 3 pavas eléctricas.
+
+**Para avisarle a Rodri**: dos alias globales parecen cargados a medias —
+`horno → "hor"` y `taza agitadora → "bat"`. El segundo mete ruido real: "bat"
+es prefijo de batidora y de batería.

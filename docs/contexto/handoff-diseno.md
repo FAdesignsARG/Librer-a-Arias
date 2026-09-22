@@ -2,6 +2,16 @@
 
 Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
 
+## NOVEDADES DEL 22/09/2026 (noche 3) — buscador predictivo
+- Sugerencias mientras se escribe, desde el 3er carácter, hasta 12, con 150ms
+  de espera. Sólo prefijo sobre nombre, alias y rubro (la descripción NO).
+- **El bridge 2026-09-22.4 que anunció Rodri no está publicado**: sigue el
+  `.3` y no manda `busqueda`. El código ya lo lee para cuando aparezca.
+- Trampa: una regla vieja de `home.css` (`.has-text ... {display:none}`)
+  apagaba las sugerencias en silencio. Corregida en la raíz.
+- Avisarle a Rodri: los alias `horno → "hor"` y `taza agitadora → "bat"`
+  parecen cargados a medias; "bat" mete ruido (batidora, batería).
+
 ## NOVEDADES DEL 22/09/2026 (noche 2) — sesión y asistente unificado
 - Las 4 funciones de IA del panel ya **exigen sesión** (ID token de Firebase, el
   mismo login del panel). Verificado: 401 sin sesión y con token inválido.
