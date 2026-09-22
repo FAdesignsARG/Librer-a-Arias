@@ -352,6 +352,15 @@ export function buildIndex(products) {
       p, idx: i, price: priceOf(p),
       nameToks, nameSet: new Set(nameToks),
       hayToks: [...new Set(toks(p.name + ' ' + p.description))],
+      // Para el predictivo: palabras SIN stemming (compara por prefijo, y el
+      // stem le come letras) y el nombre entero, para consultas de dos
+      // palabras ("moka pot"). La descripción queda afuera a propósito: es la
+      // que mete ruido y por eso Rodri la excluyó del prefijo.
+      nameRaw: toks(p.name),
+      nameFull: norm(p.name),
+      catRaw: toks(p.category),
+      aliasRaw: [...new Set((p.searchAliases || []).flatMap((a) => toks(a)))],
+      aliasFull: (p.searchAliases || []).map(norm),
       // Alias administrados desde Base44 (p.searchAliases). Van aparte y no
       // se mezclan con el nombre para que el orden por relevancia no cambie
       // cuando no hay alias cargados.
@@ -514,3 +523,69 @@ function searchProducts(raw, pool) {
 }
 
 export { searchProducts, parsePriceIntent, norm, toks, stems, key };
+
+/* ---------- 9. Búsqueda predictiva ----------
+   Mientras la persona escribe, desde el 3er carácter, sin apretar Enter.
+
+   Sólo compara por PREFIJO y sólo contra nombre, alias y rubro. La
+   descripción queda afuera a propósito: con 580 productos, cualquier prefijo
+   de 3 letras aparece en decenas de descripciones y las sugerencias se
+   vuelven ruido.
+
+   Pesos (los acordados con Base44): nombre 100, alias 90, rubro 60. El alias
+   incluye los del producto y los globales — por eso "mok" sigue llevando a
+   Cafetera Moka y "ket" a las pavas eléctricas, aunque no sean prefijo de
+   ningún nombre.
+
+   No toca nada del producto: sólo elige y ordena. */
+
+const SUG_W = { nombre: 100, alias: 90, rubro: 60 };
+
+export function suggest(raw, opts = {}) {
+  const { minChars = 3, limit = 12, weights = SUG_W } = opts;
+  const q = norm(raw);
+  if (q.length < minChars || !INDEX.length) return [];
+
+  // Alias globales cuyo término o alguno de sus sinónimos empieza con lo
+  // escrito: de ahí salen las palabras REALES que hay que buscar.
+  //
+  // Se exigen TODAS las palabras del término, no cualquiera: "ket" lleva a
+  // "kettle" -> "pava eléctrica", y con una sola palabra alcanzaba que el
+  // producto dijera "Eléctrica" para entrar. Así se colaba "Motor para
+  // Bicicleta Eléctrica" arriba de las pavas (medido).
+  const gruposAlias = [];
+  for (const { termino, variantes } of GLOBAL_ALIASES) {
+    if (termino.startsWith(q) || variantes.some((v) => v.startsWith(q))) {
+      const palabras = termino.split(' ').filter((w) => w.length > 2);
+      if (palabras.length) gruposAlias.push(palabras);
+    }
+  }
+  const porAlias = (e) => gruposAlias.some((g) => g.every((t) => e.nameRaw.includes(t)));
+
+  // Dentro del mismo peso, primero lo que EMPIEZA con lo escrito. Sin esto,
+  // "caf" devolvía "Molinillo Manual para Café" antes que las cafeteras, y
+  // "mas" el cepillo para MAScotas antes que los masajeadores: todos valen
+  // 100 y desempataba el orden del catálogo.
+  const cercania = (e) => {
+    if (e.nameFull.startsWith(q)) return 8;
+    const i = e.nameRaw.findIndex((t) => t.startsWith(q));
+    return i < 0 ? 0 : Math.max(0, 6 - i * 2);
+  };
+
+  const out = [];
+  for (const e of INDEX) {
+    let w = 0;
+
+    if (e.nameFull.startsWith(q) || e.nameRaw.some((t) => t.startsWith(q))) w = weights.nombre + cercania(e);
+    else if (e.aliasFull.some((a) => a.startsWith(q)) || e.aliasRaw.some((t) => t.startsWith(q))) w = weights.alias;
+    else if (gruposAlias.length && porAlias(e)) w = weights.alias;
+    else if (e.catRaw.some((t) => t.startsWith(q))) w = weights.rubro;
+
+    if (w) out.push({ p: e.p, w, idx: e.idx });
+  }
+
+  // A igual peso manda el orden del catálogo, que es el que eligió el local.
+  out.sort((a, b) => b.w - a.w || a.idx - b.idx);
+  return out.slice(0, limit).map((x) => x.p);
+}
+

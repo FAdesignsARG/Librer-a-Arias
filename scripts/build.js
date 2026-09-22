@@ -160,9 +160,10 @@ console.log(`${String(categoryCount).padStart(3)} páginas de rubro          ${k
 // coincidir con las páginas, el listado, los rubros y el sitemap.
 await write('data/products.json', JSON.stringify(visible));
 await write('data/settings.json', JSON.stringify(settings));
-// Sinónimos globales del buscador (Base44). Archivo aparte y chiquito: lo
-// pide app.js junto con el catálogo y, si no está, el buscador anda igual.
-await write('data/search-aliases.json', JSON.stringify(aux.aliases));
+// Sinónimos globales + configuración del buscador predictivo (Base44).
+// Archivo aparte y chiquito: lo pide app.js junto con el catálogo y, si no
+// está, el buscador anda igual con sus valores por defecto.
+await write('data/search-aliases.json', JSON.stringify({ aliases: aux.aliases, busqueda: aux.busqueda }));
 
 const copies = [
   ['assets', 'assets'],

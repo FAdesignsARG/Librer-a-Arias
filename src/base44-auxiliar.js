@@ -34,6 +34,7 @@ export const EMPTY_AUX = {
   bridgeVersion: null,
   generatedAt: null,
   aliases: [],
+  busqueda: null,
   bySlug: new Map(),
   relatedBySlug: new Map(),
 };
@@ -151,11 +152,37 @@ export async function fetchAuxiliar({ url, timeout = TIMEOUT_MS } = {}) {
     list.sort((a, b) => a.prioridad - b.prioridad || a.slug.localeCompare(b.slug));
   }
 
+  /* ---------- configuración del buscador predictivo ----------
+     Anunciada por Rodri para el bridge 2026-09-22.4. Al 22/09 el bridge
+     publicado sigue siendo el .3 y NO la manda, así que esto queda listo y
+     mientras tanto mandan los valores acordados por mensaje (3 caracteres,
+     12 sugerencias, 150ms, nombre 100 / alias 90 / rubro 60). Cuando el
+     campo aparezca se aplica solo, sin tocar código. */
+  const b = payload.busqueda && typeof payload.busqueda === 'object' ? payload.busqueda : null;
+  const num = (v, min, max) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n >= min && n <= max ? n : null;
+  };
+  const busqueda = b
+    ? {
+        activa: b.activa !== false && b.predictiva !== false,
+        minChars: num(b.min_caracteres ?? b.minimo_caracteres ?? b.min_chars, 1, 6),
+        limit: num(b.max_sugerencias ?? b.maximo_sugerencias ?? b.limite, 1, 50),
+        debounce: num(b.debounce_ms ?? b.debounce, 0, 2000),
+        weights: {
+          nombre: num(b.prioridad_nombre ?? b.peso_nombre, 0, 1000),
+          alias: num(b.prioridad_alias ?? b.peso_alias, 0, 1000),
+          rubro: num(b.prioridad_categoria ?? b.peso_categoria ?? b.prioridad_rubro, 0, 1000),
+        },
+      }
+    : null;
+
   return {
     ok: true,
     bridgeVersion: txt(payload.bridge_version) || null,
     generatedAt: txt(payload.generated_at) || null,
     aliases,
+    busqueda,
     bySlug,
     relatedBySlug,
   };

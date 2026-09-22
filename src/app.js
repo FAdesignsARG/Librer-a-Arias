@@ -5,7 +5,7 @@ import { initHomeSearchMotion } from './home-search-motion.js';
  * El mismo archivo corre en la portada y en las landings de producto; cada
  * bloque se activa sólo si encuentra los elementos que necesita.
  */
-import { buildIndex, getIndex, searchProducts, registerAliases } from './search-engine.js';
+import { buildIndex, getIndex, searchProducts, registerAliases, suggest } from './search-engine.js';
 import { rotatingPicks, rotationSlot, ROTATION_MS } from './recommend.js';
 import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // cardHtml es la MISMA función que arma las tarjetas en el servidor: antes
@@ -13,7 +13,7 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
 // aplicado en una sola. templates.js no toca nada de Node, así que se
 // puede importar tal cual también en el navegador.
-import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, ico as tIco } from './templates.js';
+import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, thumbSrc, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 
 // root?. (no sólo el default `= document`): un default de parámetro sólo
@@ -64,6 +64,9 @@ if (IS_HOME) {
 
 let PRODUCTS = [];
 let SETTINGS = {};
+/* Config del buscador predictivo. Por defecto, lo acordado con Base44; si el
+   bridge manda `busqueda`, gana lo que diga el bridge. */
+let BUSQUEDA = null;
 let bySlug = new Map();
 
 async function loadData() {
@@ -78,8 +81,11 @@ async function loadData() {
   PRODUCTS = p.filter((x) => x.visible !== false);
   SETTINGS = s;
   bySlug = new Map(PRODUCTS.map((x) => [x.slug, x]));
-  // Los alias se registran ANTES de indexar: buildIndex canoniza términos.
-  registerAliases(alias);
+  // El archivo era un arreglo de alias y pasó a ser un objeto con la config
+  // del predictivo adentro. Se aceptan las dos formas: un archivo viejo en
+  // la caché de alguien no puede romperle el buscador.
+  registerAliases(Array.isArray(alias) ? alias : alias?.aliases);
+  if (alias && !Array.isArray(alias) && alias.busqueda) BUSQUEDA = alias.busqueda;
   buildIndex(PRODUCTS);
 }
 
@@ -1884,6 +1890,55 @@ if ($('#homeSearch')) {
   const syncHasText = () => form.classList.toggle('has-text', !!searchEl.value.trim());
   searchEl.addEventListener('input', syncHasText);
   syncHasText();
+
+  /* ---------- Búsqueda predictiva ----------
+     Desde el 3er carácter aparecen sugerencias del catálogo sin apretar
+     Enter. Corre entera en el navegador, contra el índice que ya está en
+     memoria: no hay un pedido al servidor por tecla.
+
+     Los 150ms de espera no son decoración — sin ellos se redibuja la lista
+     en cada tecla y en un teléfono se ve temblar. Con el campo vacío o con
+     menos de 3 letras vuelven las ideas fijas de siempre. */
+  const hits = $('#homeSuggestHits');
+  const ideas = $('#homeSuggestIdeas');
+  const MIN_CHARS = BUSQUEDA?.minChars ?? 3;
+  const LIMITE = BUSQUEDA?.limit ?? 12;
+  const ESPERA = BUSQUEDA?.debounce ?? 150;
+  const PESOS = BUSQUEDA?.weights?.nombre ? BUSQUEDA.weights : undefined;
+  const PREDICTIVA = BUSQUEDA?.activa !== false;
+  let sugTimer = null;
+
+  const pintarSugerencias = () => {
+    const q = searchEl.value.trim();
+    const lista =
+      PREDICTIVA && q.length >= MIN_CHARS
+        ? suggest(q, { minChars: MIN_CHARS, limit: LIMITE, ...(PESOS ? { weights: PESOS } : {}) })
+        : [];
+
+    if (!lista.length) {
+      hits.hidden = true;
+      hits.innerHTML = '';
+      if (ideas) ideas.hidden = false;
+      return;
+    }
+
+    if (ideas) ideas.hidden = true;
+    hits.innerHTML = lista
+      .map(
+        (p) => `<a class="home-search__hit" href="/p/${p.slug}/" role="option">
+      <img src="${thumbSrc(p.images[0])}" width="44" height="44" alt="" loading="lazy" decoding="async">
+      <span class="home-search__hit-text"><strong>${p.name}</strong><small>${p.category}</small></span>
+      ${tIco.chevron}
+    </a>`
+      )
+      .join('');
+    hits.hidden = false;
+  };
+
+  searchEl.addEventListener('input', () => {
+    clearTimeout(sugTimer);
+    sugTimer = setTimeout(pintarSugerencias, ESPERA);
+  });
   // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9).
   // La regla cubre cada entrada de la home: acceso, menú y chip del catálogo.
   if (!PRODUCTS.some(offerActive)) {

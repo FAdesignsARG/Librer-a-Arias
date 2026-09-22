@@ -1379,6 +1379,25 @@ body .picks__head .picks__timer {width:100%;height:4px;margin-top:10px;margin-bo
 .home-search .home-search__suggestions button svg {width:22px;height:22px;}
 .home-search .home-search__suggestions button:active {background:var(--fill-hi);}
 
+/* Sugerencias del catálogo mientras se escribe (desde el 3er carácter).
+   Viven dentro del mismo panel de vidrio de la isla: no es un cartel nuevo
+   al lado, es lo de adentro que cambia. Con 12 filas de 56px no entrarían
+   en un teléfono, así que la lista tiene tope y se desplaza: los bordes
+   cortados avisan que hay más, sin gesto escondido. */
+.home-search__hits {display:flex;flex-direction:column;gap:2px;max-height:min(46vh,320px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;}
+.home-search__hit {display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 12px;border-radius:18px;color:var(--text);text-decoration:none;}
+.home-search__hit img {flex:none;width:44px;height:44px;border-radius:12px;object-fit:contain;background:var(--media,#fff);}
+.home-search__hit-text {flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.home-search__hit strong {font-size:16px;font-weight:500;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.home-search__hit small {font-size:14px;color:var(--text-2);}
+.home-search__hit svg {flex:none;width:18px;height:18px;color:var(--text-2);}
+.home-search__hit:active {background:var(--fill-hi);}
+.home-search__hit:focus-visible {outline:2px solid var(--gold);outline-offset:-2px;}
+@media (hover:hover) {.home-search__hit:hover {background:var(--fill-hi);}}
+/* Cada fila entra apenas después de la anterior, como el resto del panel. */
+.home-search__hits .home-search__hit {animation:isla-fila .28s var(--ease-out, ease) both;}
+@media (prefers-reduced-motion: reduce) {.home-search__hits .home-search__hit {animation:none;}}
+
 /* Vidrio de la isla acoplada: más luz que atraviesa, borde de luz arriba y
    sombra de apoyo. El texto del campo sube a blanco para sostener el contraste
    también sobre fotos claras. */

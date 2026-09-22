@@ -311,7 +311,10 @@ body:has([data-arias-section="hero"][hidden]) .home-message {display:none;}
 @media(max-width:720px){.home-message .hero__headline {font-size:22px;}}
 
 /* Sugerencias: con texto escrito, sólo "Ver resultados". */
-.home-search.has-text .home-search__suggestions>:not(.home-search__results) {display:none;}
+/* Con texto escrito, las ideas fijas confundian (no tienen nada que ver con lo
+   que se busca) y quedaba solo Ver resultados. Las sugerencias reales del
+   catalogo SI tienen que verse: si no, esta regla las apagaba en silencio. */
+.home-search.has-text .home-search__suggestions>:not(.home-search__results):not(.home-search__hits) {display:none;}
 .home-search.has-text .home-search__results {border-top:0;margin-top:0;}
 
 @media(max-width:720px){
