@@ -2,6 +2,17 @@
 
 Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
 
+## NOVEDADES DEL 22/09/2026 (tarde) — bridge 2026-09-22.3 con datos reales
+- El auxiliar ya trae contenido: 563 productos resueltos, 8 grupos de alias globales,
+  4 relaciones reales y, por producto, `visible` + `visible_web` + `estado_publicacion`.
+- **La lógica de visibilidad quedó activa.** Ojo con esto: el payload manda los tres
+  campos a la vez, así que **cualquiera que diga ocultar gana**. Tomar el primer
+  booleano que aparece era un error (apagar `visible_web` no hacía nada) y ya está
+  corregido en `webVisibility()`. "Pendiente", "Publicando" y "Error" NO despublican.
+- **Los alias también van al asistente** (`/api/ai/ask`): pide el auxiliar en paralelo
+  con el catálogo, con caché de 5 min. Sólo para encontrar, nunca para nombrar: al
+  modelo no le llegan los alias.
+- `applyAuxiliar()` es compartida entre el build y el asistente (una sola regla).
 ## NOVEDADES DEL 22/09/2026 — capa auxiliar de Base44 (leer antes que todo lo de abajo)
 - **`catalogo_auxiliar` integrado en el build.** Bridge `2026-09-21.2` verificado hoy.
   `src/base44-auxiliar.js` (nuevo) baja la capa por HTTP en cada build y enriquece los

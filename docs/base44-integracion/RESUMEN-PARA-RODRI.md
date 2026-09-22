@@ -1,10 +1,53 @@
 # Integración Base44 ↔ página de Librería Arias — estado
 
-**Fecha:** 11/9/2026 · **Última actualización:** 22/9/2026 (ver "LEER PRIMERO")
+**Fecha:** 11/9/2026 · **Última actualización:** 22/9/2026 (tarde — ver "LEER PRIMERO")
 **Para:** equipo de marketing (Rodri / Gonza)
 **Web:** `libreriaarias.com.ar` (sigue en Netlify, sin migrar)
 
 Sobre el paquete `integracion_control_pagina_libreria_arias.zip` que mandaron.
+
+---
+
+## LEER PRIMERO — 22/09/2026 (tarde): bridge `2026-09-22.3` con datos reales
+
+Medido: `catalogo_auxiliar` devuelve `success:true`, `version:2`, **563 productos**,
+**8 grupos de alias globales**, **4 relaciones**, y por producto `visible`,
+`visible_web` y `estado_publicacion` (498 Publicado / 65 Pendiente / 0 Oculto).
+Coincide con lo que anunciaste.
+
+### Lo que respondemos a tus 5 puntos
+
+1. **products.json**: 581. Igual que las páginas `/p/` y que las URLs del sitemap.
+   De esas 581, el auxiliar resuelve 563; las otras 18 quedan como diga nuestra base
+   (ausencia nunca se interpreta como ocultar).
+2. **"moka pot"** → Cafetera Moka Gris Premium, Cafetera Moka CUK by Gadnic. Probados
+   los 8 grupos y sus 24 sinónimos: todos devuelven lo que corresponde ("zapatero" →
+   Organizador de Calzado MELECH, "kettle" → pavas eléctricas, "massage gun" →
+   masajeadores, "desk lamp" → lámparas de escritorio, etc.).
+3. **Relacionados**: las 4 relaciones salen en la ficha, en el primer lugar y agrupadas
+   ("Complementos" / "Alternativas"), y debajo "Más de <rubro>" con los automáticos.
+4. **`visible` interpretado**: sí. Encontramos y corregimos un error nuestro: tomábamos
+   el primer booleano que aparecía, y como mandás `visible` y `visible_web` juntos,
+   apagar `visible_web` no hacía nada. Ahora **cualquier señal que diga ocultar gana**.
+   Probado sobre tu payload real, los 6 casos: `visible:false` oculta, `visible_web:false`
+   oculta, `estado_publicacion:"Oculto"` oculta, `"Pendiente"` y `"Error"` NO despublican,
+   y un producto ausente del auxiliar sigue publicado. Un build completo ocultando por
+   `visible_web` lo saca a la vez de products.json, `/p/`, sitemap, catálogo y rubro.
+5. **Alias en `/api/ai/ask`**: integrados. La función pide `catalogo_auxiliar` en paralelo
+   con el catálogo (timeout de 4 s, caché de 5 minutos) y registra los alias antes de armar
+   el índice. Son **sólo recuperación**: al modelo se le siguen mandando únicamente slug,
+   nombre, rubro, precio, stock y descripción, así que no puede usar un alias como nombre,
+   inventar un producto ni tocar precio o stock. Si el bridge falla, el asistente trabaja
+   igual con la base actual.
+
+### Un detalle sobre `search_aliases`
+
+Los que mandás hoy por producto son palabras del propio nombre y del rubro (ejemplo real:
+`["cafetera","moka","cuk","gadnic","bazar"]`). No molestan, pero eso el buscador ya lo
+indexaba: no suma búsquedas nuevas. Donde sí se nota muchísimo es en los
+**alias globales**, que son los que traen el término que el cliente escribe de verdad.
+Si vas a cargar alias por producto, que sean de ese tipo ("air fryer", "pendrive",
+"zapatillas de lluvia"), no el nombre partido en palabras.
 
 ---
 

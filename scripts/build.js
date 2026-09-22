@@ -19,7 +19,7 @@ import path from 'node:path';
 import { renderHome, renderProduct, renderCategory, categorySlug } from '../src/templates.js';
 import { buildSitemap } from '../src/sitemap.js';
 import { getDb } from '../src/firebase-admin.js';
-import { fetchAuxiliar } from '../src/base44-auxiliar.js';
+import { fetchAuxiliar, applyAuxiliar } from '../src/base44-auxiliar.js';
 import { loadEnv } from '../src/ai.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -55,25 +55,12 @@ console.log(
     : `Base44 catalogo_auxiliar      sin datos (${aux.error}) — se publica sin la capa auxiliar`
 );
 
-let auxAplicados = 0;
-let auxOcultos = 0;
-const products = rawProducts.map((p) => {
-  const extra = aux.bySlug.get(p.slug);
-  if (!extra) return p;
-  auxAplicados++;
-  // visibleWeb === null significa que Base44 no opina de este producto:
-  // manda Firestore. Sólo un `false` explícito lo saca de la web.
-  const oculto = extra.visibleWeb === false;
-  if (oculto && p.visible !== false) auxOcultos++;
-  return {
-    ...p,
-    ...(oculto ? { visible: false } : {}),
-    ...(extra.searchAliases.length ? { searchAliases: extra.searchAliases } : {}),
-    ...(extra.etiqueta ? { etiqueta: extra.etiqueta } : {}),
-    // `destacado` de Base44 sólo suma: nunca apaga un destacado de Firestore.
-    ...(extra.destacado ? { featured: true } : {}),
-  };
-});
+// Misma función que usa el asistente de IA: la regla de visibilidad y de
+// enriquecimiento vive en un solo lugar (src/base44-auxiliar.js).
+const { products, aplicados: auxAplicados, ocultados: auxOcultos } = applyAuxiliar(
+  rawProducts,
+  aux
+);
 
 const visible = products
   .filter((p) => p.visible !== false)

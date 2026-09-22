@@ -19,7 +19,8 @@
  * duda se devuelve la capa vacía y el sitio queda exactamente como antes.
  *
  * Se llama por HTTP directo (no por el SDK del navegador) porque esto corre en
- * Node durante el build. La acción es pública y de sólo lectura: no hay tokens.
+ * Node: en el build del sitio y en la función del asistente. La acción es
+ * pública y de sólo lectura: no hay tokens.
  */
 
 const BRIDGE_URL =
@@ -48,17 +49,33 @@ const strList = (v) => {
 /**
  * Estado de publicación / visibilidad que manda Base44, si lo manda.
  * Devuelve `true` (publicar), `false` (ocultar) o `null` (Base44 no opina:
- * manda lo que diga Firestore). El `null` es importante: hoy el bridge NO
- * envía estos campos, y ausencia NO puede significar "ocultalo" — vaciaría
- * el catálogo entero de un rebuild.
+ * manda lo que diga Firestore). El `null` es importante: un producto que el
+ * auxiliar no menciona, o que viene sin estos campos, NO se puede tomar como
+ * "ocultalo" — un payload incompleto vaciaría el catálogo de un rebuild.
+ *
+ * Desde el bridge `2026-09-22.3` llegan `visible`, `visible_web` y
+ * `estado_publicacion` ("Publicado", "Pendiente", "Publicando", "Oculto",
+ * "Error"), los tres a la vez en el mismo producto.
+ *
+ * CUALQUIER señal que diga "ocultalo" gana, aunque otra diga que sí. Esto no
+ * es un detalle: el payload real manda `visible` y `visible_web` juntos, y
+ * quedarse con el primero que aparezca haría que apagar `visible_web` no
+ * hiciera nada (pasó, medido). Ocultar de más es un producto que no se ve;
+ * ocultar de menos es un producto que Base44 dio de baja y la web sigue
+ * ofreciendo — el segundo error es el caro.
  */
 function webVisibility(row) {
-  for (const k of ['visible', 'visible_web', 'habilitado_web', 'publicado']) {
-    if (typeof row?.[k] === 'boolean') return row[k];
-  }
   const estado = txt(row?.estado || row?.estado_publicacion).toLowerCase();
-  if (!estado) return null;
   if (estado === 'oculto') return false;
+
+  const flags = ['visible', 'visible_web', 'habilitado_web', 'publicado']
+    .map((k) => row?.[k])
+    .filter((v) => typeof v === 'boolean');
+
+  if (flags.includes(false)) return false;
+  if (flags.length) return true;
+
+  if (!estado) return null;
   // "Publicado", "Pendiente", "Publicando" y "Error" son estados del circuito
   // de publicación de Base44, no una orden de despublicar: sólo "Oculto" saca
   // el producto de la web.
@@ -71,9 +88,9 @@ function webVisibility(row) {
  */
 export async function fetchAuxiliar({ url, timeout = TIMEOUT_MS } = {}) {
   // BASE44_AUX_URL permite apuntar a un bridge de prueba sin tocar el código
-  // (se usa para probar alias, etiquetas, relacionados y ocultos con datos
-  // simulados, porque el bridge real todavía viene vacío). En Netlify no está
-  // definida, así que producción siempre habla con Base44.
+  // (sirve para probar casos que el bridge real todavía no tiene cargados,
+  // como ocultar un producto). En Netlify no está definida, así que
+  // producción siempre habla con Base44.
   url = url || process.env.BASE44_AUX_URL || BRIDGE_URL;
   let payload;
   try {
@@ -142,4 +159,39 @@ export async function fetchAuxiliar({ url, timeout = TIMEOUT_MS } = {}) {
     bySlug,
     relatedBySlug,
   };
+}
+
+/**
+ * Aplica la capa auxiliar sobre los productos que vienen de Firestore.
+ *
+ * Vive acá y no en el build porque lo usan dos lugares con la misma regla: el
+ * build del sitio y el asistente de IA (`/api/ai/ask`), que arma su índice en
+ * cada invocación. Una sola definición = no se pueden despegar.
+ *
+ * Enriquece por `slug`; un slug que Base44 mande y acá no exista se ignora
+ * (no inventa productos). Devuelve la lista nueva y el conteo, sin mutar nada.
+ */
+export function applyAuxiliar(products, aux) {
+  let aplicados = 0;
+  let ocultados = 0;
+
+  const out = products.map((p) => {
+    const extra = aux?.bySlug?.get(p.slug);
+    if (!extra) return p;
+    aplicados++;
+    // visibleWeb === null significa que Base44 no opina de este producto:
+    // manda Firestore. Sólo un `false` explícito lo saca de la web.
+    const oculto = extra.visibleWeb === false;
+    if (oculto && p.visible !== false) ocultados++;
+    return {
+      ...p,
+      ...(oculto ? { visible: false } : {}),
+      ...(extra.searchAliases.length ? { searchAliases: extra.searchAliases } : {}),
+      ...(extra.etiqueta ? { etiqueta: extra.etiqueta } : {}),
+      // `destacado` de Base44 sólo suma: nunca apaga un destacado de Firestore.
+      ...(extra.destacado ? { featured: true } : {}),
+    };
+  });
+
+  return { products: out, aplicados, ocultados };
 }

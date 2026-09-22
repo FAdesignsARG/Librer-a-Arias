@@ -808,3 +808,37 @@ CLI). Verificado en https://libreria-arias.netlify.app: home, catálogo y ficha 
 canonical y JSON-LD intactos; el buscador devuelve 26 resultados para "cafetera".
 El único error de consola es el SDK de Base44 pidiendo `entities/User/me` (403 en una
 visita anónima): es de siempre y no afecta nada.
+
+## Bridge 2026-09-22.3: datos reales, visibilidad y alias en el asistente (22/09/2026)
+Rodri publicó la versión con datos: 563 productos resueltos (el bridge cruza por slug,
+ID y nombre normalizado exacto único), 8 grupos de alias globales, 4 relaciones reales,
+y por producto ya vienen `visible`, `visible_web` y `estado_publicacion`
+(498 Publicado / 65 Pendiente / 0 Oculto). De las 581 fichas públicas resuelve 563; los
+18 restantes no los vincula a ciegas porque no tienen equivalente exacto en Base44.
+
+- **Defecto propio encontrado y corregido**: `webVisibility()` devolvía el PRIMER
+  booleano que encontraba. Como el payload real manda `visible` y `visible_web` juntos,
+  apagar `visible_web` no hacía nada (medido: el producto seguía publicado). Ahora
+  **cualquier señal que diga ocultar gana** — estado "Oculto", o cualquiera de los
+  booleanos en false —; "Pendiente", "Publicando" y "Error" no despublican; y la
+  ausencia del auxiliar sigue siendo `null` (manda la base web). Sobre el payload real
+  los 6 casos dan bien, y un build completo ocultando por `visible_web` saca el producto
+  de products.json, `/p/`, sitemap, catálogo y página de rubro a la vez (580/580/580).
+- **`applyAuxiliar()`** se movió a `src/base44-auxiliar.js`: la usan el build y el
+  asistente, así la regla de visibilidad y de enriquecimiento vive en un solo lugar.
+- **Alias en `/api/ai/ask`**: la función pide `catalogo_auxiliar` en paralelo con el
+  catálogo (timeout de 4 s porque hay alguien esperando, y caché de 5 min a nivel módulo
+  porque Netlify reusa el proceso entre invocaciones tibias), aplica la capa y registra
+  los alias antes de indexar. Son sólo recuperación: al modelo se le siguen mandando
+  únicamente slug, nombre, rubro, precio, stock y descripción — los alias no llegan al
+  prompt, así que no puede usar uno como nombre ni inventar productos. Si el bridge
+  falla, la capa vuelve vacía y el asistente contesta igual con lo que hay.
+  `registerAliases()` ahora es idempotente (verificado: 8 la primera vez, 0 la segunda).
+- Probado con datos reales: los 8 grupos de alias funcionan ("moka pot" y "cafetera
+  italiana" devuelven las Cafeteras Moka primero, "zapatero" el Organizador de Calzado
+  MELECH, "kettle" las pavas eléctricas, "massage gun" los masajeadores), las 4
+  relaciones salen agrupadas y en el primer lugar de la ficha, y el camino del asistente
+  devuelve lo mismo que el buscador de la web.
+- Detalle para Rodri: los `search_aliases` por producto que manda hoy son palabras del
+  propio nombre y del rubro (ej. "cafetera, moka, cuk, gadnic, bazar"), que el buscador
+  ya indexaba. No molestan, pero el valor real está en los alias globales.

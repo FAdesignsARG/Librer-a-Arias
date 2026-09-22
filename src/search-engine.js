@@ -144,6 +144,10 @@ export function registerAliases(list) {
     const sinonimos = Array.isArray(row?.sinonimos) ? row.sinonimos : [];
     const tk = key(termino);
     if (!tk || !sinonimos.length) continue;
+    // Idempotente a propósito: la función del asistente reusa este módulo
+    // entre invocaciones tibias y vuelve a registrar los mismos alias en
+    // cada pregunta. Sin esto GLOBAL_ALIASES crecería sin límite.
+    if (GLOBAL_ALIASES.some((g) => g.termino === tk)) continue;
     const variantes = [];
     for (const raw of sinonimos) {
       const vk = key(typeof raw === "string" ? raw : "");
