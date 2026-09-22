@@ -583,16 +583,20 @@ También funciona si copiás una lista de precios del proveedor."></textarea>
 
   <div class="stockchat" id="stockAIChat" aria-live="polite"></div>
 
+  <p class="stockchat__quicktitle">Preguntas rápidas</p>
+  <!-- Etiquetas cortas a propósito: la pregunta completa viaja en data-quick.
+       Con los textos largos, a 375 la fila pedía 834px y 3 de los 4 chips
+       quedaban fuera de pantalla (medido) — había que arrastrar para verlos. -->
   <div class="stockchat__quick" id="stockAIQuick">
-    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no tienen stock?">¿Qué no tiene stock?</button>
-    <button type="button" class="stockchat__chip" data-quick="¿Hay productos repetidos o duplicados en el catálogo?">Productos duplicados</button>
-    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no se actualizan hace más tiempo?">Sin actualizar hace rato</button>
-    <button type="button" class="stockchat__chip" data-quick="Dame un resumen rápido del estado del catálogo">Resumen del catálogo</button>
+    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no tienen stock?">Sin stock</button>
+    <button type="button" class="stockchat__chip" data-quick="¿Hay productos repetidos o duplicados en el catálogo?">Duplicados</button>
+    <button type="button" class="stockchat__chip" data-quick="¿Qué productos no se actualizan hace más tiempo?">Sin actualizar</button>
+    <button type="button" class="stockchat__chip" data-quick="Dame un resumen rápido del estado del catálogo">Resumen</button>
   </div>
 
   <div class="stockchat__composer">
     <textarea id="stockAIText" rows="1"
-              placeholder="Escribí qué cambió o preguntá algo del stock…"
+              placeholder="Preguntá o pedí un cambio…"
               aria-label="Mensaje para el asistente de stock"></textarea>
     <button type="button" class="stockchat__send" id="stockAIAsk" aria-label="Enviar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>

@@ -3158,9 +3158,28 @@ body.admin .stockchat__notice {font-size:14px;line-height:1.45;color:var(--text-
 body.admin .stockchat__msg {max-width:86%;padding:12px 16px;border-radius:22px;font-size:16px;line-height:1.5;}
 body.admin .stockchat__msg--bot {background:var(--fill-hi);border:0;border-bottom-left-radius:8px;}
 body.admin .stockchat__msg--user {background:var(--gold);color:var(--gold-ink);border:0;border-bottom-right-radius:8px;}
-body.admin .stockchat__chip {min-height:48px;padding:0 18px;border:0;border-radius:999px;background:var(--fill-hi);font-size:15px;font-weight:500;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:background var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
-body.admin .stockchat__chip:hover {background:var(--glass-edge);}
-body.admin .stockchat__chip:active {scale:.96;}
+/* Preguntas rapidas: GRILLA, no fila que se arrastra.
+   Con las etiquetas largas y overflow-x:auto, a 375 la fila pedia 834px y
+   solo se veia 1 de los 4 chips (medido): habia que descubrir que se
+   arrastraba. auto-fit con minimo de 140px da 2 columnas en celular y 4 en
+   escritorio, sin media query y sin gesto escondido. */
+/* Piso mas bajo que el original (220px): con el titulo y los dos renglones
+   de chips, en un telefono corto (568 de alto) el chat ya no entraba. */
+body.admin .stockchat {min-height:150px;}
+body.admin .stockchat__quicktitle {margin:0;padding:16px 20px 0;font-size:14px;font-weight:600;color:var(--text-2);letter-spacing:-0.01em;}
+body.admin .stockchat__quick {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:10px 20px 0;overflow:visible;}
+body.admin .stockchat__chip {flex:none;width:100%;min-height:48px;padding:0 14px;border:0;border-radius:999px;background:var(--fill-hi);font-size:15px;font-weight:500;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);transition:background var(--dur-fast) var(--ease-soft),box-shadow var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
+/* El amarillo pleno es del boton de enviar: el chip solo se insinua al
+   tocarlo, con la superficie suave dorada del sistema. */
+body.admin .stockchat__chip:hover {background:var(--gold-wash);box-shadow:inset 0 0 0 1px var(--gold-edge);}
+body.admin .stockchat__chip:active {scale:.96;background:var(--gold-wash);box-shadow:inset 0 0 0 1px var(--gold-edge);}
+body.admin .stockchat__chip:focus-visible {outline:2px solid var(--gold);outline-offset:2px;}
+
+/* Estado vacio: lo recibe Adolfito, que es la cara del asistente en toda la
+   app. Antes era un parrafo suelto de 13.76px, por debajo del piso de 14. */
+body.admin .stockchat:empty {display:grid;place-content:center;justify-items:center;gap:14px;padding:28px 24px;}
+body.admin .stockchat:empty::before {content:'';display:block;width:92px;height:92px;margin:0;background:url('/assets/brand/adolfito-chat@128.webp') center/contain no-repeat;}
+body.admin .stockchat:empty::after {content:'Escribí qué cambió, o preguntame algo del stock.';max-width:26ch;text-align:center;font-size:15px;line-height:1.5;color:var(--text-2);}
 body.admin .stockchat__composer {gap:10px;padding:12px 16px max(14px, env(safe-area-inset-bottom));border-top:0;box-shadow:0 -1px 0 var(--line);}
 body.admin .stockchat__composer textarea {min-height:54px;padding:15px 18px;border:0;border-radius:27px;background:var(--fill-hi);font-size:17px;line-height:1.4;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
 body.admin .stockchat__composer textarea:focus {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}
