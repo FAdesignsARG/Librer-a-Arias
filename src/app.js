@@ -1901,6 +1901,7 @@ if ($('#homeSearch')) {
      menos de 3 letras vuelven las ideas fijas de siempre. */
   const hits = $('#homeSuggestHits');
   const ideas = $('#homeSuggestIdeas');
+  let ultimaSugerencia = { q: '', lista: [] };
   const MIN_CHARS = BUSQUEDA?.minChars ?? 3;
   const LIMITE = BUSQUEDA?.limit ?? 12;
   const ESPERA = BUSQUEDA?.debounce ?? 150;
@@ -1910,10 +1911,18 @@ if ($('#homeSearch')) {
 
   const pintarSugerencias = () => {
     const q = searchEl.value.trim();
-    const lista =
+    const conMeta =
       PREDICTIVA && q.length >= MIN_CHARS
-        ? suggest(q, { minChars: MIN_CHARS, limit: LIMITE, ...(PESOS ? { weights: PESOS } : {}) })
+        ? suggest(q, { minChars: MIN_CHARS, limit: LIMITE, withMeta: true, ...(PESOS ? { weights: PESOS } : {}) })
         : [];
+    const lista = conMeta.map((x) => x.p);
+    // La medición vive en analytics.js: acá sólo se avisa qué se mostró. Se
+    // avisa siempre, incluso con la lista vacía, porque "búsqueda sin
+    // sugerencias" también es un dato que Base44 quiere.
+    ultimaSugerencia = { q, lista: conMeta };
+    window.dispatchEvent(
+      new CustomEvent('arias:suggest', { detail: { consulta: q, mostradas: conMeta.length } })
+    );
 
     if (!lista.length) {
       hits.hidden = true;
@@ -1938,6 +1947,30 @@ if ($('#homeSearch')) {
   searchEl.addEventListener('input', () => {
     clearTimeout(sugTimer);
     sugTimer = setTimeout(pintarSugerencias, ESPERA);
+  });
+
+  // Elegir una sugerencia: se avisa ANTES de que el navegador cambie de
+  // página. El evento se manda sin esperar respuesta, así que no demora la
+  // navegación ni la frena si Base44 no contesta.
+  hits.addEventListener('click', (e) => {
+    const fila = e.target.closest('.home-search__hit');
+    if (!fila) return;
+    const posicion = [...hits.children].indexOf(fila) + 1;
+    const elegido = ultimaSugerencia.lista[posicion - 1];
+    if (!elegido) return;
+    window.dispatchEvent(
+      new CustomEvent('arias:suggest-pick', {
+        detail: {
+          consulta: ultimaSugerencia.q,
+          slug: elegido.p.slug,
+          nombre: elegido.p.name,
+          categoria: elegido.p.category,
+          posicion,
+          motivo: elegido.motivo,
+          mostradas: ultimaSugerencia.lista.length,
+        },
+      })
+    );
   });
   // Ofertas sólo se ofrece si hay alguna activa (decisión de Fran, 16/9).
   // La regla cubre cada entrada de la home: acceso, menú y chip del catálogo.

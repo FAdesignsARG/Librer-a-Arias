@@ -89,17 +89,67 @@ function deviceType() {
   return 'Computadora';
 }
 
-function campaignData() {
+/* ---------- Atribución de campañas ----------
+   ESTO ESTABA ROTO y por eso se hizo. campaignData() leía las UTM de la URL
+   de la página actual, nada más: el visitante entraba por un anuncio, la
+   "Visita" viajaba con la campaña bien, y desde la SEGUNDA página en adelante
+   todos los eventos —incluido el pedido— iban con las UTM vacías y origen
+   "Catálogo web". O sea, el pedido que salía de un anuncio figuraba como
+   tráfico directo. Medido el 22/09 y confirmado con Rodri.
+
+   Contrato acordado con Base44 (23/09):
+   - FIRST TOUCH: manda la campaña con la que entró, y se mantiene toda la
+     navegación aunque las páginas siguientes no lleven parámetros.
+   - Una entrada nueva CON otra UTM pisa a la anterior: es otra visita.
+   - La ventana de sesión son 30 minutos sin actividad, que es el corte
+     estándar en analítica. Cada evento la renueva.
+   - Cinco campos de punta a punta: source, medium, campaign, content, term.
+
+   Si el navegador no deja guardar (modo privado, cuota llena), se cae al
+   comportamiento viejo: se usa lo que haya en la URL y listo. Perder la
+   atribución nunca puede romper la medición ni la navegación. */
+const CAMPAIGN_KEY = 'arias.catalog.campaign.v1';
+const CAMPAIGN_TTL_MS = 30 * 60 * 1000;
+const UTM_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+
+function utmFromUrl() {
   const params = new URLSearchParams(location.search);
-  return {
-    utm_source: safeText(params.get('utm_source'), 80),
-    utm_medium: safeText(params.get('utm_medium'), 80),
-    utm_campaign: safeText(params.get('utm_campaign'), 100),
-  };
+  const out = {};
+  for (const k of UTM_FIELDS) {
+    const v = safeText(params.get(k), k === 'utm_campaign' ? 100 : 80);
+    if (v) out[k] = v;
+  }
+  return out;
+}
+
+function campaignData() {
+  const fromUrl = utmFromUrl();
+  const ahora = Date.now();
+
+  try {
+    // Entró con campaña: es una visita nueva y pisa lo guardado.
+    if (Object.keys(fromUrl).length) {
+      localStorage.setItem(CAMPAIGN_KEY, JSON.stringify({ utm: fromUrl, at: ahora }));
+      return { ...fromUrl };
+    }
+
+    const raw = localStorage.getItem(CAMPAIGN_KEY);
+    if (!raw) return {};
+    const guardado = JSON.parse(raw);
+    if (!guardado?.utm || ahora - Number(guardado.at || 0) > CAMPAIGN_TTL_MS) {
+      localStorage.removeItem(CAMPAIGN_KEY);
+      return {};
+    }
+    // Sigue viva: se renueva la ventana y se devuelve la campaña de entrada.
+    localStorage.setItem(CAMPAIGN_KEY, JSON.stringify({ utm: guardado.utm, at: ahora }));
+    return { ...guardado.utm };
+  } catch {
+    return { ...fromUrl };
+  }
 }
 
 function campaignOrigin() {
-  const source = campaignData().utm_source.toLowerCase();
+  const source = (campaignData().utm_source || '').toLowerCase();
   if (source.includes('instagram')) return 'Instagram';
   if (source.includes('facebook') || source.includes('meta')) return 'Facebook';
   if (source.includes('tiktok')) return 'TikTok';
@@ -161,8 +211,22 @@ function trackCatalogEvent(tipo, details = {}) {
           cart_count: Number(details.cantidad || 0),
           cart_total: Number(details.total || 0),
           canal: safeText(details.canal, 20),
+          // Buscador predictivo (contrato acordado con Base44 el 23/09).
+          posicion: Number(details.posicion || 0),
+          match_por: safeText(details.match_por, 20),
           ...campaign,
         }),
+        // Estos dos van FUERA de clean() a propósito: clean descarta 0 y '',
+        // y acá el cero y el false son justamente los datos que interesan —
+        // "se buscó y no apareció ninguna sugerencia" y "se mostraron pero no
+        // eligió ninguna" son las dos señales que Base44 quiere para mejorar
+        // los alias. Si se colaran dentro de clean se perderían en silencio.
+        ...(Number.isFinite(details.sugerencias_mostradas)
+          ? { sugerencias_mostradas: Number(details.sugerencias_mostradas) }
+          : {}),
+        ...(typeof details.hubo_seleccion === 'boolean'
+          ? { hubo_seleccion: details.hubo_seleccion }
+          : {}),
         tracking_version: '2',
         es_prueba: isTestTraffic(),
       },
@@ -338,6 +402,36 @@ function wireHomeEvents() {
   const gridEl = document.getElementById('grid');
   let searchTimer = null;
 
+  /* ---------- Buscador predictivo ----------
+     app.js avisa por un evento de ventana qué sugerencias mostró y cuál se
+     eligió; acá se mide. Están separados a propósito: el buscador no sabe de
+     analítica y la analítica no sabe de interfaz.
+
+     A propósito NO se manda un evento por tecla. Hay un tope de 120 eventos
+     por sesión y gastarlo en el tipeo dejaría afuera lo que de verdad
+     importa (el pedido). Acordado con Rodri el 23/09. */
+  let sugMostradas = 0;
+  let sugElegida = false;
+
+  window.addEventListener('arias:suggest', (e) => {
+    // Tanda nueva de sugerencias: se reinicia el "hubo selección".
+    sugMostradas = Number(e.detail?.mostradas || 0);
+    sugElegida = false;
+  });
+
+  window.addEventListener('arias:suggest-pick', (e) => {
+    const d = e.detail || {};
+    sugElegida = true;
+    trackCatalogEvent('Sugerencia elegida', {
+      consulta: d.consulta,
+      product_name: d.nombre,
+      categoria: d.categoria,
+      posicion: d.posicion,
+      match_por: d.motivo,
+      sugerencias_mostradas: d.mostradas,
+    });
+  });
+
   // 400ms de espera desde la última tecla — mide la búsqueda, no cada letra
   // (pedido de Rodri 15/9: antes 1.2s, colapsaba tipeos incrementales pero
   // tardaba de más en registrar la búsqueda real).
@@ -351,6 +445,8 @@ function wireHomeEvents() {
         consulta: query,
         categoria: chipsEl?.querySelector('.chip[aria-pressed="true"]')?.dataset.cat || '',
         resultados: results,
+        sugerencias_mostradas: sugMostradas,
+        hubo_seleccion: sugElegida,
       });
     }, 400);
   });

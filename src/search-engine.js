@@ -542,7 +542,7 @@ export { searchProducts, parsePriceIntent, norm, toks, stems, key };
 const SUG_W = { nombre: 100, alias: 90, rubro: 60 };
 
 export function suggest(raw, opts = {}) {
-  const { minChars = 3, limit = 12, weights = SUG_W } = opts;
+  const { minChars = 3, limit = 12, weights = SUG_W, withMeta = false } = opts;
   const q = norm(raw);
   if (q.length < minChars || !INDEX.length) return [];
 
@@ -575,17 +575,28 @@ export function suggest(raw, opts = {}) {
   const out = [];
   for (const e of INDEX) {
     let w = 0;
+    let motivo = '';
 
-    if (e.nameFull.startsWith(q) || e.nameRaw.some((t) => t.startsWith(q))) w = weights.nombre + cercania(e);
-    else if (e.aliasFull.some((a) => a.startsWith(q)) || e.aliasRaw.some((t) => t.startsWith(q))) w = weights.alias;
-    else if (gruposAlias.length && porAlias(e)) w = weights.alias;
-    else if (e.catRaw.some((t) => t.startsWith(q))) w = weights.rubro;
+    if (e.nameFull.startsWith(q) || e.nameRaw.some((t) => t.startsWith(q))) {
+      w = weights.nombre + cercania(e);
+      motivo = 'nombre';
+    } else if (e.aliasFull.some((a) => a.startsWith(q)) || e.aliasRaw.some((t) => t.startsWith(q))) {
+      w = weights.alias;
+      motivo = 'alias';
+    } else if (gruposAlias.length && porAlias(e)) {
+      w = weights.alias;
+      motivo = 'alias';
+    } else if (e.catRaw.some((t) => t.startsWith(q))) {
+      w = weights.rubro;
+      motivo = 'categoria';
+    }
 
-    if (w) out.push({ p: e.p, w, idx: e.idx });
+    if (w) out.push({ p: e.p, w, idx: e.idx, motivo });
   }
 
   // A igual peso manda el orden del catálogo, que es el que eligió el local.
   out.sort((a, b) => b.w - a.w || a.idx - b.idx);
-  return out.slice(0, limit).map((x) => x.p);
+  const top = out.slice(0, limit);
+  return withMeta ? top.map((x) => ({ p: x.p, motivo: x.motivo })) : top.map((x) => x.p);
 }
 
