@@ -27,8 +27,19 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 // también el fix de api()/aiErrorText() en admin.js, mismo hallazgo).
 // openai/gpt-oss-120b es el reemplazo que recomienda Groq mismo para esto.
 const MODEL_TEXT = process.env.GROQ_MODEL_TEXT || 'openai/gpt-oss-120b';
-// Multimodal: hasta 5 imágenes por pedido, 20 MB en total. No deprecado.
-const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'qwen/qwen3.6-27b';
+// Multimodal, para "Completar ficha desde la foto".
+//
+// Segunda vez que pasa lo mismo: Groq retira un modelo y la función deja de
+// andar de un día para el otro, sin que nadie toque nada. El 23/9/2026
+// `qwen/qwen3.6-27b` empezó a devolver "Groq 404: The model does not exist or
+// you do not have access to it" (lo encontró Fran probando el panel); el
+// reemplazo es `qwen/qwen3.8-27b`. Antes había pasado con
+// llama-3.3-70b-versatile, ver la nota de MODEL_TEXT acá arriba.
+//
+// Si vuelve a pasar, NO hace falta un deploy: `GROQ_MODEL_VISION` en las
+// variables de entorno de Netlify pisa este valor. El modelo vigente está en
+// https://console.groq.com/docs/vision
+const MODEL_VISION = process.env.GROQ_MODEL_VISION || 'qwen/qwen3.8-27b';
 
 /** Lee .env sin dependencias. Se llama una vez al arrancar el servidor. */
 export async function loadEnv(root) {
