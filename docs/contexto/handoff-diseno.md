@@ -1,6 +1,47 @@
 # Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 22/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 23/09/2026. Leer esto primero al retomar en un chat nuevo;
+
+## ESTADO AL 23/09/2026 — EMPEZAR POR ACÁ
+
+**Cargar la skill `libreria-arias-control`** antes de tocar nada.
+
+### Base44: cerrado de los dos lados
+Bridge `2026-09-23.1`. Quedó congelado y verificado contra producción:
+capa auxiliar (alias, etiquetas, destacados, relacionados, visibilidad),
+buscador predictivo con su config, atribución UTM first touch de 5 campos,
+sesión real de 30 minutos, `datos.visitante`, `reemplaza_a`, marca de prueba
+y los tres campos del descuento web. Rodri dejó listo su lado hasta POS y
+venta; no pide más cambios de la web.
+
+**Pendiente de Rodri**: probar LAWEB → POS → venta (dijo que lo hacía la
+tarde/noche del 23/09). Si sale, pasa un código para comparar.
+
+**Cabo suelto**: `LAWEB-08F2D977` (la prueba real de Fran por WhatsApp) le
+llegó a Base44 como pedido REAL, porque la marca de prueba se perdía al
+navegar. Ya está corregido, pero ese pedido hay que marcarlo a mano.
+
+### Lo que verificó Fran el 23/09
+- Panel con sesión iniciada: las 4 funciones de IA andan (el candado de
+  sesión deja pasar). Salió el bug del modelo de visión retirado por Groq.
+- Sitio en **teléfono real**: buscador predictivo, vuelo de la isla, filtros
+  2×2, splash y banners. Todo bien. Cierra pendientes que venían del 18/09.
+- Pedido de prueba real hasta WhatsApp.
+
+### Pendientes, en orden
+1. **Panel con datos reales, lo que falta**: guardar un cambio y ver que
+   republique, carga masiva con una lista de verdad, y decidir si se arma un
+   selector propio de fecha/hora para "Válida hasta" (hoy es el del navegador).
+2. **Vista previa al compartir por WhatsApp**: nunca se vio con un enlace
+   real. Es prioridad declarada de Fran y quedó colgado su comentario de que
+   "habría que mejorarla un poco".
+3. **Ronda 3 de críticos** (`criticos-arias`) sobre lo que nunca pasó por
+   críticos: Mi pedido v2, Novedades v2, botón de pedido, ficha v3 y panel.
+4. **`REBUILD_TOKEN`**: procedimiento acordado de 6 pasos, esperando que Fran
+   genere el valor. Hasta entonces `/api/rebuild` sigue abierto a propósito.
+5. **Limpieza técnica**: CSS muerto y consolidar `glass.css` y `admin.css`.
+6. Decisiones abiertas de Fran: tarjeta de horarios en amarillo pleno, isla en
+   tema claro, si los flotantes esperan al scroll en la ficha.
 
 ## NOVEDADES DEL 22/09/2026 (noche 3) — buscador predictivo
 - Sugerencias mientras se escribe, desde el 3er carácter, hasta 12, con 150ms
