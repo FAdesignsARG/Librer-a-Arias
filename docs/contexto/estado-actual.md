@@ -1016,3 +1016,66 @@ la web (0 en esa dirección), así que no es una brecha: es una alta reciente.
 `x-rebuild-token` en cuanto exista el secreto. Falta que Fran genere el valor,
 lo cargue en Netlify como `REBUILD_TOKEN` y se lo pase a Rodri por canal
 privado; recién ahí se cierra, y hay que hacerlo coordinado en los dos lados.
+
+## Atribución de campañas y métricas del predictivo (23/09/2026)
+
+Contrato congelado con Rodri (bridge `2026-09-23.1`) e implementado.
+
+### La atribución estaba ROTA (no era una mejora a futuro)
+
+`campaignData()` leía las UTM de la URL de la página actual y nada más. El
+visitante entraba por un anuncio, la "Visita" viajaba con la campaña bien, y
+**desde la segunda página en adelante todos los eventos —incluido el pedido
+`LAWEB-*`— iban con las UTM vacías y `origen: "Catálogo web"`**. O sea: el
+pedido que salía de un anuncio figuraba como tráfico directo.
+
+Regla nueva, acordada con Base44:
+- **First touch**: se guarda la campaña de entrada y se mantiene toda la
+  navegación.
+- Una entrada nueva **con** otra UTM pisa a la anterior (es otra visita).
+- Ventana de **30 minutos sin actividad**; cada evento la renueva.
+- Cinco campos: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`,
+  `utm_term`.
+- Si el navegador no deja guardar (modo privado, cuota), cae al
+  comportamiento viejo. Perder atribución nunca puede romper la medición.
+
+Verificado en producción, en una ficha **sin UTM en la URL**: Visita, Vista
+de producto, Agregado a pedido y el `pedido` con su `LAWEB-*` salen los
+cuatro con las 5 UTM y `origen: "Instagram"`. Antes los cuatro salían vacíos.
+
+### Métricas del predictivo
+
+- `suggest()` acepta `withMeta: true` y devuelve **por qué** coincidió cada
+  sugerencia (`nombre` / `alias` / `categoria`): es el peso con el que entró,
+  así que se sabe exacto y no hay que adivinarlo después.
+- `app.js` avisa por eventos de ventana (`arias:suggest`,
+  `arias:suggest-pick`) y `analytics.js` mide. Separados a propósito: el
+  buscador no sabe de analítica y la analítica no sabe de interfaz.
+- Evento nuevo **"Sugerencia elegida"**: consulta, producto, categoría,
+  `datos.posicion`, `datos.match_por`, `datos.sugerencias_mostradas`.
+  Se probó contra producción **antes** de escribir el código (201).
+- **"Búsqueda"** suma `sugerencias_mostradas` y `hubo_seleccion`.
+- **Sin eventos por tecla**: hay un tope de 120 eventos por sesión
+  (`MAX_EVENTS_PER_SESSION`) y gastarlo en el tipeo dejaría afuera el pedido.
+
+**Trampa**: `clean()` descarta `0` y `''` del payload. `sugerencias_mostradas`
+y `hubo_seleccion` van **fuera** de `clean()` a propósito, porque el cero y el
+false son justamente los datos que interesan ("se buscó y no apareció
+ninguna sugerencia", "se mostraron y no eligió ninguna").
+
+**Límite conocido de `hubo_seleccion`**: el evento "Búsqueda" sale 400ms
+después de la última tecla, o sea **antes** de que a nadie le dé tiempo de
+hacer click. En la práctica casi siempre va `false`. Se manda igual porque
+está en el contrato, pero lo confiable para "búsqueda sin selección" es
+correlacionar: Búsqueda sin una "Sugerencia elegida" posterior con la misma
+`sesion` y `consulta`. Avisado a Rodri.
+
+### Eventos que la web emite hoy (inventario completo)
+
+Visita · Búsqueda · Búsqueda sin resultados · Vista de producto · Impresión
+de tarjeta · Agregado a pedido · Producto compartido · Consulta por WhatsApp
+· **Sugerencia elegida** (nuevo), más `action:"pedido"` con estados
+"Iniciado" y "Enviado a WhatsApp".
+
+No emite "Consulta", "Click en WhatsApp", "Pedido abandonado" ni "Compra
+confirmada": las cuatro las deriva Base44 (acordado el 23/09).
