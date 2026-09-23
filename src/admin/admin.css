@@ -2950,7 +2950,14 @@ body.admin .item {grid-template-columns:28px 22px 72px minmax(0,1fr) auto;gap:14
 body.admin .item[data-selected='true'] {background:var(--gold-wash);box-shadow:inset 0 0 0 1.5px var(--gold-edge);}
 body.admin .item__img {width:72px;height:72px;border-radius:18px;background:#fff;object-fit:contain;}
 body.admin .item__img--none {display:grid;place-items:center;background:var(--fill-hi);font-size:14px;line-height:1.15;color:var(--text-2);text-align:center;}
+/* El nombre entraba en UN renglon con puntos suspensivos: a 375 quedaban
+   203px para nombres de hasta 541px, o sea se veia el 37% y no se podian
+   distinguir dos productos parecidos (medido). En celular pasa a dos
+   renglones; en escritorio la columna es ancha y entra igual. */
 body.admin .item__name {font-size:17px;font-weight:560;letter-spacing:-.015em;line-height:1.28;}
+@media (max-width:720px) {
+  body.admin .item__name {white-space:normal;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+}
 body.admin .item__meta {gap:6px 10px;margin-top:4px;font-size:15px;color:var(--text-2);}
 body.admin .item__price {font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--gold-text);font-variant-numeric:tabular-nums;}
 body.admin .tag {padding:3px 10px;border-radius:999px;font-size:14px;font-weight:500;}
@@ -3104,13 +3111,13 @@ body.admin select.aselect__native {position:absolute !important;width:1px !impor
 /* ---------- Casillas: dibujadas, grandes, con el amarillo de la acción ---------- */
 body.admin .item__check,body.admin .checkall {cursor:pointer;}
 body.admin .item__check {display:grid;place-items:center;min-width:44px;min-height:44px;margin:-8px;}
-body.admin input[type='checkbox'][data-select],body.admin #selectAll {appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;flex:none;border-radius:8px;background:var(--fill-hi);
+body.admin input[type='checkbox'][data-select],body.admin input[type='checkbox'][data-check],body.admin #selectAll {appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;flex:none;border-radius:8px;background:var(--fill-hi);
   box-shadow:inset 0 0 0 1.5px var(--line-strong, rgba(255,255,255,.22));cursor:pointer;display:inline-grid;place-items:center;transition:background var(--dur-fast) var(--ease-soft),box-shadow var(--dur-fast) var(--ease-soft),scale var(--dur-fast) var(--ease-pop);}
-body.admin input[type='checkbox'][data-select]::after,body.admin #selectAll::after {content:'';width:12px;height:7px;margin-top:-3px;border-left:2.5px solid var(--gold-ink);border-bottom:2.5px solid var(--gold-ink);rotate:-45deg;scale:0;transition:scale var(--dur-fast) var(--ease-pop);}
-body.admin input[type='checkbox'][data-select]:checked,body.admin #selectAll:checked {background:var(--gold);box-shadow:none;}
-body.admin input[type='checkbox'][data-select]:checked::after,body.admin #selectAll:checked::after {scale:1;}
+body.admin input[type='checkbox'][data-select]::after,body.admin input[type='checkbox'][data-check]::after,body.admin #selectAll::after {content:'';width:12px;height:7px;margin-top:-3px;border-left:2.5px solid var(--gold-ink);border-bottom:2.5px solid var(--gold-ink);rotate:-45deg;scale:0;transition:scale var(--dur-fast) var(--ease-pop);}
+body.admin input[type='checkbox'][data-select]:checked,body.admin input[type='checkbox'][data-check]:checked,body.admin #selectAll:checked {background:var(--gold);box-shadow:none;}
+body.admin input[type='checkbox'][data-select]:checked::after,body.admin input[type='checkbox'][data-check]:checked::after,body.admin #selectAll:checked::after {scale:1;}
 body.admin input[type='checkbox'][data-select]:active,body.admin #selectAll:active {scale:.9;}
-body.admin input[type='checkbox'][data-select]:focus-visible,body.admin #selectAll:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
+body.admin input[type='checkbox'][data-select]:focus-visible,body.admin input[type='checkbox'][data-check]:focus-visible,body.admin #selectAll:focus-visible {outline:2px solid var(--text);outline-offset:3px;}
 /* El dibujo viejo de "seleccionar todo" (un <span> vacío al lado) ya no hace falta. */
 body.admin .checkall > span:empty {display:none;}
 body.admin .checkall {display:inline-flex;align-items:center;gap:12px;min-height:44px;}
@@ -3186,6 +3193,26 @@ body.admin .stockchat__chip:focus-visible {outline:2px solid var(--gold);outline
 body.admin .stockchat:empty {display:grid;place-content:center;justify-items:center;gap:14px;padding:28px 24px;}
 body.admin .stockchat:empty::before {content:'';display:block;width:92px;height:92px;margin:0;background:url('/assets/brand/adolfito-chat@128.webp') center/contain no-repeat;}
 body.admin .stockchat:empty::after {content:'Escribí qué cambió, o preguntame algo del stock.';max-width:26ch;text-align:center;font-size:15px;line-height:1.5;color:var(--text-2);}
+/* Propuesta de cambios del asistente. Antes era una <table> con scroll
+   horizontal: a 375 pedía 260px en 255 disponibles y la columna "Cambio"
+   quedaba cortada. Ahora es una lista de filas completas; cada una es un
+   <label>, así que se marca tocando en cualquier lado. */
+body.admin .stockacts {display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+body.admin .stockact {display:flex;align-items:flex-start;gap:12px;min-height:56px;padding:12px 14px;border-radius:16px;background:var(--fill);cursor:pointer;transition:background var(--dur-fast) var(--ease-soft);}
+body.admin .stockact:active {background:var(--fill-hi);}
+@media (hover:hover) {body.admin .stockact:hover {background:var(--fill-hi);}}
+body.admin .stockact input[type=checkbox] {margin-top:1px;}
+body.admin .stockact__txt {display:flex;flex-direction:column;gap:3px;min-width:0;}
+body.admin .stockact__txt strong {font-size:15px;font-weight:500;line-height:1.3;color:var(--text);}
+/* El cambio es información, no acción: por eso no lleva amarillo pleno,
+   que en esta pantalla es del botón "Aplicar". */
+body.admin .stockact__chg {align-self:flex-start;padding:3px 10px;border-radius:999px;background:var(--gold-wash);border:1px solid var(--gold-edge);color:var(--gold-text);font-size:14px;font-weight:500;white-space:nowrap;}
+/* El botón principal de la propuesta: era btn--sm y competía con la lista. */
+body.admin .stockchat__apply {min-height:48px;padding:0 22px;font-size:16px;}
+/* Las notas estaban en 13,12px y en --text-3, que el sistema reserva para
+   lo decorativo: es texto que hay que poder leer. */
+body.admin .stockchat__meta {margin-top:10px;font-size:14px;line-height:1.45;color:var(--text-2);}
+
 body.admin .stockchat__composer {gap:10px;padding:12px 16px max(14px, env(safe-area-inset-bottom));border-top:0;box-shadow:0 -1px 0 var(--line);}
 body.admin .stockchat__composer textarea {min-height:54px;padding:15px 18px;border:0;border-radius:27px;background:var(--fill-hi);font-size:17px;line-height:1.4;color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-edge-2);}
 body.admin .stockchat__composer textarea:focus {outline:0;box-shadow:inset 0 0 0 1px rgba(254,206,1,.55),0 0 0 4px rgba(254,206,1,.14);}

@@ -1293,11 +1293,14 @@ $('#btnStockAI').addEventListener('click', () => {
 });
 $('#stockAIClose').addEventListener('click', () => closeDialog(stockAIDlg));
 
+// Cortas a propósito: van en una pastilla al lado del nombre del producto y
+// con los textos largos se partían en dos renglones, que en una pastilla
+// queda torpe. En el contexto (el panel del catálogo) se entienden igual.
 const CAMBIO_LABEL = {
-  sin_stock: 'Pasa a SIN stock',
-  con_stock: 'Pasa a CON stock',
-  ocultar: 'Se oculta del catálogo',
-  mostrar: 'Se muestra en el catálogo',
+  sin_stock: 'Queda sin stock',
+  con_stock: 'Queda con stock',
+  ocultar: 'Se oculta',
+  mostrar: 'Se muestra',
 };
 const CAMBIO_PATCH = {
   sin_stock: { inStock: false },
@@ -1344,24 +1347,26 @@ function addStockAIBotMsg({ respuesta = '', acciones = [], notas = [] } = {}) {
   if (acciones.length) {
     const idx = stockAIThread.push({ acciones }) - 1;
     el.dataset.msg = String(idx);
+    // Una lista, no una tabla. La tabla pedía 260px de ancho en los 255 que
+    // hay a 375: la columna "Cambio" quedaba cortada y había que arrastrarla
+    // al costado, adentro de una burbuja, adentro de un diálogo. Cada fila es
+    // un <label>, así que se marca tocando en cualquier parte y no apuntando
+    // a una casilla de 14px.
     parts.push(`
-      <div class="stockchat__table">
-        <table class="btable">
-          <thead><tr><th></th><th>Producto</th><th>Cambio</th></tr></thead>
-          <tbody>
-            ${acciones
-              .map(
-                (a, i) => `<tr data-i="${i}">
-                <td><input type="checkbox" data-check checked></td>
-                <td>${esc(a.name || a.slug)}</td>
-                <td>${esc(CAMBIO_LABEL[a.cambio] || a.cambio)}</td>
-              </tr>`
-              )
-              .join('')}
-          </tbody>
-        </table>
+      <div class="stockacts">
+        ${acciones
+          .map(
+            (a, i) => `<label class="stockact" data-i="${i}">
+            <input type="checkbox" data-check checked>
+            <span class="stockact__txt">
+              <strong>${esc(a.name || a.slug)}</strong>
+              <span class="stockact__chg">${esc(CAMBIO_LABEL[a.cambio] || a.cambio)}</span>
+            </span>
+          </label>`
+          )
+          .join('')}
       </div>
-      <button type="button" class="btn btn--gold btn--sm stockchat__apply" data-apply>Aplicar ${acciones.length}</button>
+      <button type="button" class="btn btn--gold stockchat__apply" data-apply>Aplicar ${acciones.length}</button>
     `);
   }
 
@@ -1440,7 +1445,7 @@ stockAIChat.addEventListener('click', async (e) => {
 
   const msgEl = btn.closest('.stockchat__msg');
   const thread = stockAIThread[Number(msgEl.dataset.msg)];
-  const checked = $$('tr', msgEl).filter((tr) => $('[data-check]', tr)?.checked);
+  const checked = $('[data-i]', msgEl).filter((fila) => $('[data-check]', fila)?.checked);
   if (!thread || !checked.length) return;
 
   btn.disabled = true;
@@ -1450,8 +1455,8 @@ stockAIChat.addEventListener('click', async (e) => {
     const batch = writeBatch(db);
     const now = new Date().toISOString();
     const applied = [];
-    for (const tr of checked) {
-      const a = thread.acciones[Number(tr.dataset.i)];
+    for (const fila of checked) {
+      const a = thread.acciones[Number(fila.dataset.i)];
       const patch = { ...CAMBIO_PATCH[a.cambio], updatedAt: now };
       batch.update(productRef(a.slug), patch);
       applied.push({ slug: a.slug, patch });
