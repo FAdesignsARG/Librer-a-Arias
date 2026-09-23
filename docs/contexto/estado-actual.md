@@ -1079,3 +1079,51 @@ de tarjeta · Agregado a pedido · Producto compartido · Consulta por WhatsApp
 
 No emite "Consulta", "Click en WhatsApp", "Pedido abandonado" ni "Compra
 confirmada": las cuatro las deriva Base44 (acordado el 23/09).
+
+## `sesion` de verdad y cadena de pedidos (23/09/2026)
+
+### El hallazgo
+
+El campo `sesion` que la web manda en cada evento era el **id permanente del
+visitante**: no caducaba nunca. Base44 acababa de congelar "30 minutos sin
+actividad = nueva sesión" y **confía en ese campo** (no vuelve a sessionizar),
+así que un mismo navegador le parecía **una única sesión infinita**, con todas
+las campañas de meses mezcladas adentro. Es la misma ambigüedad que Rodri
+quería evitar al pedir que un cambio de UTM abriera sesión nueva, pero mucho
+más grande.
+
+### Cómo quedó
+
+Una sola función (`visitaActual()`, `src/analytics.js`) decide sesión y
+campaña juntas, para que no puedan quedar en desacuerdo:
+
+- 30 minutos sin actividad cierran la visita; cada evento la renueva.
+- La navegación interna (sin UTM en la URL) conserva sesión y campaña.
+- Una entrada con una UTM **distinta** a la vigente abre sesión nueva en el
+  acto, aunque no hayan pasado los 30 minutos (pedido de Rodri).
+- El id permanente **no se pierde**: viaja aparte como `datos.visitante`.
+
+Probado: `instagram/uno` → navegación interna sin UTM (misma sesión, misma
+campaña) → `tiktok/dos` (sesión nueva).
+
+### `datos.reemplaza_a`
+
+Cuando el cliente sigue comprando después de haber mandado el pedido, se
+genera un LAWEB nuevo (eso ya era así) y ahora el nuevo dice **a cuál
+reemplaza**. Base44 enlaza los dos y cierra el anterior como Reemplazado,
+salvo que ya esté Confirmado o Convertido. Antes el primero quedaba abierto
+para siempre y le contaba como abandono falso.
+
+### Prueba de punta a punta en producción (23/09)
+
+Con `test=1` y las 5 UTM, sin mandar ningún WhatsApp — el pedido nace al
+agregar al carrito, que es puro evento:
+
+- `LAWEB-4C5601A4` — Iniciado, 1 ítem, $18.500
+- `LAWEB-55F53462` — Iniciado, 2 ítems, $47.000, `reemplaza_a: LAWEB-4C5601A4`
+
+Los dos con la misma `sesion`, `origen: "Instagram"`, las 5 UTM,
+`tracking_version: "2"` y `es_prueba: true`. El "ya fue enviado" del primero
+se simuló por storage: **no se abrió WhatsApp ni se mandó ningún mensaje**,
+así que del lado de Base44 el primero figura en "Iniciado", no en "Enviado a
+WhatsApp".
