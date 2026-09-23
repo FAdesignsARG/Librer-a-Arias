@@ -1152,3 +1152,21 @@ función del panel deja de andar sin que nadie toque nada.
 Queda anotado en `src/ai.js`: **la próxima no necesita deploy**,
 `GROQ_MODEL_TEXT` y `GROQ_MODEL_VISION` en las variables de entorno de
 Netlify pisan los valores del código.
+
+## Verificado en teléfono real (23/09/2026) — Fran
+
+Pendiente desde la Ronda 4 ("falta probar en teléfono real") y desde el
+rediseño del 18–19/09: todo lo que se había medido en un navegador simulado a
+375px nunca se había visto en un teléfono de verdad. Fran lo probó y **anda
+todo**:
+
+- Buscador predictivo: al escribir "caf" las sugerencias aparecen solas y el
+  teclado no las tapa.
+- Vuelo de la isla del buscador con el scroll.
+- Filtros 2×2 del catálogo.
+- Splash de entrada.
+- Banners: alternan cada 10 s y se arrastran.
+
+Con esto quedan cerrados los pendientes de "mirar en el deploy" que venían
+arrastrándose desde el 18/09 (splash, rotación, fundido de banners, vuelo de
+la isla), más el predictivo nuevo.
