@@ -1127,3 +1127,28 @@ Los dos con la misma `sesion`, `origen: "Instagram"`, las 5 UTM,
 se simuló por storage: **no se abrió WhatsApp ni se mandó ningún mensaje**,
 así que del lado de Base44 el primero figura en "Iniciado", no en "Enviado a
 WhatsApp".
+
+## Panel probado con sesión real (23/09/2026) — Fran
+
+Por fin se probó lo único que no se podía verificar desde acá. **El candado de
+sesión anda**: con Fran logueado, las cuatro funciones de IA del panel
+responden (si el token no valiera, darían 401).
+
+Funcionando, verificado por Fran:
+- Asistente: las 4 preguntas rápidas contestan con números exactos (592
+  productos, 0 sin stock, 0 ocultos, 2 destacados, desglose por rubro), y
+  encuentra los 2 nombres repetidos.
+- Órdenes: "sacá del stock la Cafetera Moka Gris Premium" propone la acción
+  con su casilla y el botón "Aplicar 1" — no aplica nada solo.
+- Reportes → "Resumen con el asistente": anda.
+
+**Un defecto encontrado y ya corregido**: "Completar ficha desde la foto"
+devolvía `Groq 404: The model \`qwen/qwen3.6-27b\` does not exist or you do not
+have access to it`. Groq retiró ese modelo de visión; el vigente es
+`qwen/qwen3.8-27b`. **Es la segunda vez que pasa** (en agosto fue
+`llama-3.3-70b-versatile` con los de texto): un modelo se retira y una
+función del panel deja de andar sin que nadie toque nada.
+
+Queda anotado en `src/ai.js`: **la próxima no necesita deploy**,
+`GROQ_MODEL_TEXT` y `GROQ_MODEL_VISION` en las variables de entorno de
+Netlify pisan los valores del código.
