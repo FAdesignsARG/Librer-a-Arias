@@ -13,7 +13,7 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // mantener sincronizadas a mano — ya causó una vez que un ajuste quedara
 // aplicado en una sola. templates.js no toca nada de Node, así que se
 // puede importar tal cual también en el navegador.
-import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, thumbSrc, ico as tIco } from './templates.js';
+import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, webDiscount as calcWebDiscount, thumbSrc, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 
 // root?. (no sólo el default `= document`): un default de parámetro sólo
@@ -250,10 +250,9 @@ const sheetSend = $('#sheetSend');
 /** { percent, ahorro, totalConDescuento } o null si no hay promo o el
     pedido está vacío. */
 function webDiscount(total) {
-  const promo = webPromo(SETTINGS);
-  if (!promo || !(total > 0)) return null;
-  const ahorro = Math.round((total * promo.percent) / 100);
-  return { percent: promo.percent, ahorro, totalConDescuento: total - ahorro, disclaimer: promo.disclaimer };
+  // La cuenta vive en templates.js y la comparten el panel del pedido, el
+  // mensaje de WhatsApp y el payload que va a Base44.
+  return calcWebDiscount(total, SETTINGS);
 }
 
 /** Las líneas de texto del descuento — mismas para el panel del pedido y

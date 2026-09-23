@@ -47,6 +47,18 @@ export const offerHasDiscount = (p) => offerActive(p) && Number(p.offer.price) >
     acumulable con nada. Nada de tramos por monto ni de descuentos por medio
     de pago: eso no existe. Devuelve null sólo si el admin lo puso en 0.
     Si el dato falta (deploy viejo), vale el 10% que definió el negocio. */
+/** El descuento web de un total, calculado UNA sola vez para todos.
+    Lo usan el panel del pedido, el mensaje de WhatsApp y el payload que se
+    manda a Base44: si cada uno lo calculara por su lado, el cliente podría
+    ver un número y el local recibir otro.
+    Devuelve { percent, ahorro, totalConDescuento, disclaimer } o null. */
+export const webDiscount = (total, s) => {
+  const promo = webPromo(s);
+  if (!promo || !(total > 0)) return null;
+  const ahorro = Math.round((total * promo.percent) / 100);
+  return { percent: promo.percent, ahorro, totalConDescuento: total - ahorro, disclaimer: promo.disclaimer };
+};
+
 export const webPromo = (s) => {
   const percent = Number(s?.promos?.webPercent ?? 10);
   if (!(percent > 0)) return null;

@@ -40,6 +40,7 @@
  */
 
 import { getBase44 } from './base44-client.js';
+import { webDiscount } from './templates.js';
 
 const MAX_EVENTS_PER_SESSION = 120;
 const CART_KEY = 'arias.pedido.v1';
@@ -50,6 +51,7 @@ const CART_STARTED_KEY = 'arias.catalog.cart_started.v1';
 let eventCount = 0;
 let base44 = null;
 let productsBySlug = new Map();
+let siteSettings = {};
 
 /** UUID con fallback para navegadores/contextos sin crypto.randomUUID. */
 function uuid() {
@@ -97,6 +99,12 @@ function visitaActual() {
   const enUrl = utmFromUrl();
   const traeCampania = Object.keys(enUrl).length > 0;
   const ahora = Date.now();
+  let esPrueba = false;
+  try {
+    esPrueba = new URLSearchParams(location.search).get('test') === '1';
+  } catch {
+    /* sin URLSearchParams no se puede marcar: queda como tráfico normal */
+  }
 
   try {
     const raw = localStorage.getItem(VISITA_KEY);
@@ -106,20 +114,27 @@ function visitaActual() {
     const cambioCampania = traeCampania && previa && !mismaCampania(enUrl, previa.utm);
 
     if (vencida || cambioCampania) {
-      const visita = { sid: uuid(), utm: traeCampania ? enUrl : {}, at: ahora };
+      const visita = { sid: uuid(), utm: traeCampania ? enUrl : {}, prueba: esPrueba, at: ahora };
       localStorage.setItem(VISITA_KEY, JSON.stringify(visita));
       return visita;
     }
 
     // Misma visita: si llegó con la misma campaña no cambia nada, y si vino
     // sin UTM se conserva la de entrada (first touch).
-    const visita = { sid: previa.sid, utm: traeCampania ? enUrl : previa.utm || {}, at: ahora };
+    const visita = {
+      sid: previa.sid,
+      utm: traeCampania ? enUrl : previa.utm || {},
+      // Una vez que la visita es de prueba, lo sigue siendo: nunca se
+      // "despruebra" al navegar a una página sin el parámetro.
+      prueba: esPrueba || previa.prueba === true,
+      at: ahora,
+    };
     localStorage.setItem(VISITA_KEY, JSON.stringify(visita));
     return visita;
   } catch {
     // Sin storage no hay forma de sostener una sesión: se devuelve una
     // efímera por carga de página en vez de romper la medición.
-    return { sid: uuid(), utm: enUrl, at: ahora };
+    return { sid: uuid(), utm: enUrl, prueba: esPrueba, at: ahora };
   }
 }
 
@@ -193,13 +208,18 @@ function campaignOrigin() {
     localhost) o `?test=1` explícito se marca como tráfico de prueba, para
     que se pueda filtrar en vez de mezclarlo con datos reales. */
 function isTestTraffic() {
-  try {
-    if (new URLSearchParams(location.search).get('test') === '1') return true;
-  } catch {
-    /* se ignora, sigue con el chequeo de dominio */
-  }
   const host = location.hostname || '';
-  return !(host === 'libreria-arias.netlify.app' || /(^|\.)libreriaarias\.com\.ar$/i.test(host));
+  const fueraDeProduccion = !(
+    host === 'libreria-arias.netlify.app' || /(^|\.)libreriaarias\.com\.ar$/i.test(host)
+  );
+  if (fueraDeProduccion) return true;
+  // El ?test=1 se pega a la visita, no a la URL. Antes se leía de la página
+  // actual: se entraba con ?test=1, los eventos de esa página salían marcados,
+  // y al navegar el parámetro se perdía — el PEDIDO llegaba como real. Pasó en
+  // la prueba de Fran (LAWEB-08F2D977) y lo detectó Rodri. Es el mismo error
+  // que teníamos con las UTM, y acá es peor: un pedido de prueba sin marcar
+  // puede terminar descontando stock en el punto de venta.
+  return visitaActual().prueba === true;
 }
 
 /** Filtro básico: navegadores automatizados (Selenium/Puppeteer/Playwright
@@ -420,9 +440,13 @@ function sendPedidoState(estado, code, snapshot, reemplazaA = '') {
       dispositivo: deviceType(),
       origen: campaignOrigin(),
       items: snapshot.items,
+      // total_estimado es el BRUTO del carrito, a pedido de Base44: el
+      // descuento web viaja aparte para poder seguir bruto -> descuento ->
+      // total ofrecido -> total cobrado en caja sin mezclar conceptos.
       total_estimado: snapshot.total,
       datos: {
         ...clean(campaign),
+        ...descuentoWeb(snapshot.total),
         // Cuando el cliente sigue comprando después de haber mandado el
         // pedido, se genera un LAWEB nuevo (para no pisar el que ya figura
         // como enviado) y acá va el anterior. Base44 los enlaza y cierra el
@@ -647,6 +671,20 @@ function wireShareEvents() {
   });
 }
 
+/** Los tres campos del descuento web que pide Base44. Vacío si no hay promo
+    vigente: la cuenta sale de la misma función que usa el panel del pedido y
+    el mensaje de WhatsApp, así el cliente y el local nunca ven números
+    distintos. */
+function descuentoWeb(total) {
+  const d = webDiscount(total, siteSettings);
+  if (!d) return {};
+  return {
+    descuento_web_porcentaje: d.percent,
+    descuento_web_monto: d.ahorro,
+    total_con_descuento: d.totalConDescuento,
+  };
+}
+
 async function loadProducts() {
   try {
     const products = await fetch('/data/products.json').then((response) => response.json());
@@ -656,10 +694,20 @@ async function loadProducts() {
   }
 }
 
+/** Hace falta para el porcentaje del descuento web. Si no carga, el pedido
+    viaja sin los campos del descuento en vez de inventarlos. */
+async function loadSettings() {
+  try {
+    siteSettings = await fetch('/data/settings.json').then((response) => response.json());
+  } catch {
+    siteSettings = {};
+  }
+}
+
 async function init() {
   if (looksLikeBot()) return;
 
-  const [client] = await Promise.all([getBase44(), loadProducts()]);
+  const [client] = await Promise.all([getBase44(), loadProducts(), loadSettings()]);
   if (!client) return; // sin SDK no se manda nada — nunca rompe la navegación del catálogo
   base44 = client;
 
