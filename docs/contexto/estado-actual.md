@@ -990,3 +990,29 @@ ket → las 3 pavas eléctricas.
 **Para avisarle a Rodri**: dos alias globales parecen cargados a medias —
 `horno → "hor"` y `taza agitadora → "bat"`. El segundo mete ruido real: "bat"
 es prefijo de batidora y de batería.
+
+## Bridge 2026-09-22.4 verificado y predictivo cerrado (22/09/2026)
+
+Rodri publicó el `.4`. Verificado contra producción, sin tocar código:
+
+- `configuracion_pagina` y `catalogo_auxiliar` → `bridge_version 2026-09-22.4`,
+  los dos con el bloque `busqueda` (`activa`, `min_caracteres: 3`,
+  `max_sugerencias: 12`, `debounce_ms: 150`, prioridades 100/90/60,
+  `descripcion_por_prefijo: false`).
+- `fetchAuxiliar()` lo mapea correcto a `{activa, minChars, limit, debounce,
+  weights}` — los nombres de campo que eligió Rodri ya estaban contemplados.
+- Se disparó un rebuild: `data/search-aliases.json` ya publica la config y el
+  buscador la usa (leído desde el navegador en producción).
+- Los alias `horno → "hor"` y `taza agitadora → "bat"` quedaron corregidos de su
+  lado. Medido después: "hor" devuelve hornos y "bat" batidoras, sin el ruido.
+- Las 7 consultas de la prueba siguen bien, y "vap" ya levanta el producto nuevo.
+
+**Diferencia de conteo, explicada**: Rodri informó 586/586 y la web publica 587.
+El sobrante es **un solo producto cargado el 23/09** (`vaporizador-nano-mist-facial`)
+que Base44 todavía no ingirió. No hay ningún producto en el auxiliar que falte en
+la web (0 en esa dirección), así que no es una brecha: es una alta reciente.
+
+**`/api/rebuild` sigue abierto.** Base44 ya está preparado para mandar
+`x-rebuild-token` en cuanto exista el secreto. Falta que Fran genere el valor,
+lo cargue en Netlify como `REBUILD_TOKEN` y se lo pase a Rodri por canal
+privado; recién ahí se cierra, y hay que hacerlo coordinado en los dos lados.
