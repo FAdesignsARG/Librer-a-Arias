@@ -56,8 +56,10 @@ function uuid() {
   return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 }
 
-/** Visitante anónimo persistente — sobrevive entre visitas, a propósito. */
-function sessionId() {
+/** Visitante anónimo permanente — sobrevive entre visitas, a propósito.
+    Ya NO es lo que viaja como `sesion`: viaja aparte, en `datos.visitante`,
+    para no perder el análisis de quién vuelve. */
+function visitorId() {
   try {
     let value = localStorage.getItem(SESSION_KEY);
     if (!value) {
@@ -70,6 +72,59 @@ function sessionId() {
     // página en vez de romper el resto de la analítica.
     return uuid();
   }
+}
+
+/* ---------- Sesión y campaña: una sola decisión ----------
+   Hasta el 23/09 el campo `sesion` era el id permanente del visitante: no
+   caducaba NUNCA. Base44 confía en ese campo para sessionizar, así que un
+   mismo navegador le parecía una única sesión infinita, con todas las
+   campañas de meses mezcladas adentro. Es la misma ambigüedad que Rodri
+   quería evitar, pero mucho más grande.
+
+   Reglas acordadas (23/09), las tres resueltas acá para que la sesión y la
+   campaña no puedan quedar en desacuerdo:
+   - 30 minutos sin actividad => sesión nueva. Cada evento renueva.
+   - Entrada con una UTM DISTINTA a la vigente => sesión nueva en el acto,
+     aunque no hayan pasado los 30 minutos.
+   - La navegación interna (sin UTM en la URL) conserva sesión y campaña. */
+const VISITA_KEY = 'arias.catalog.visit.v1';
+const VISITA_TTL_MS = 30 * 60 * 1000;
+
+const mismaCampania = (a, b) => UTM_FIELDS.every((k) => (a?.[k] || '') === (b?.[k] || ''));
+
+/** Lee, decide y renueva. Devuelve { sid, utm } — el estado de ESTA visita. */
+function visitaActual() {
+  const enUrl = utmFromUrl();
+  const traeCampania = Object.keys(enUrl).length > 0;
+  const ahora = Date.now();
+
+  try {
+    const raw = localStorage.getItem(VISITA_KEY);
+    const previa = raw ? JSON.parse(raw) : null;
+
+    const vencida = !previa || ahora - Number(previa.at || 0) > VISITA_TTL_MS;
+    const cambioCampania = traeCampania && previa && !mismaCampania(enUrl, previa.utm);
+
+    if (vencida || cambioCampania) {
+      const visita = { sid: uuid(), utm: traeCampania ? enUrl : {}, at: ahora };
+      localStorage.setItem(VISITA_KEY, JSON.stringify(visita));
+      return visita;
+    }
+
+    // Misma visita: si llegó con la misma campaña no cambia nada, y si vino
+    // sin UTM se conserva la de entrada (first touch).
+    const visita = { sid: previa.sid, utm: traeCampania ? enUrl : previa.utm || {}, at: ahora };
+    localStorage.setItem(VISITA_KEY, JSON.stringify(visita));
+    return visita;
+  } catch {
+    // Sin storage no hay forma de sostener una sesión: se devuelve una
+    // efímera por carga de página en vez de romper la medición.
+    return { sid: uuid(), utm: enUrl, at: ahora };
+  }
+}
+
+function sessionId() {
+  return visitaActual().sid;
 }
 
 /** Elimina emails y teléfonos antes de enviar texto libre. */
@@ -108,8 +163,6 @@ function deviceType() {
    Si el navegador no deja guardar (modo privado, cuota llena), se cae al
    comportamiento viejo: se usa lo que haya en la URL y listo. Perder la
    atribución nunca puede romper la medición ni la navegación. */
-const CAMPAIGN_KEY = 'arias.catalog.campaign.v1';
-const CAMPAIGN_TTL_MS = 30 * 60 * 1000;
 const UTM_FIELDS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 
 function utmFromUrl() {
@@ -123,29 +176,7 @@ function utmFromUrl() {
 }
 
 function campaignData() {
-  const fromUrl = utmFromUrl();
-  const ahora = Date.now();
-
-  try {
-    // Entró con campaña: es una visita nueva y pisa lo guardado.
-    if (Object.keys(fromUrl).length) {
-      localStorage.setItem(CAMPAIGN_KEY, JSON.stringify({ utm: fromUrl, at: ahora }));
-      return { ...fromUrl };
-    }
-
-    const raw = localStorage.getItem(CAMPAIGN_KEY);
-    if (!raw) return {};
-    const guardado = JSON.parse(raw);
-    if (!guardado?.utm || ahora - Number(guardado.at || 0) > CAMPAIGN_TTL_MS) {
-      localStorage.removeItem(CAMPAIGN_KEY);
-      return {};
-    }
-    // Sigue viva: se renueva la ventana y se devuelve la campaña de entrada.
-    localStorage.setItem(CAMPAIGN_KEY, JSON.stringify({ utm: guardado.utm, at: ahora }));
-    return { ...guardado.utm };
-  } catch {
-    return { ...fromUrl };
-  }
+  return { ...visitaActual().utm };
 }
 
 function campaignOrigin() {
@@ -227,6 +258,7 @@ function trackCatalogEvent(tipo, details = {}) {
         ...(typeof details.hubo_seleccion === 'boolean'
           ? { hubo_seleccion: details.hubo_seleccion }
           : {}),
+        visitante: visitorId(),
         tracking_version: '2',
         es_prueba: isTestTraffic(),
       },
@@ -375,7 +407,7 @@ function addCodeToWhatsAppLink(link, code) {
 /** Registro del pedido en sí — un solo tipo de llamada, action:'pedido',
     que se repite con distinto `estado` a medida que el pedido avanza
     (Iniciado -> Enviado a WhatsApp), siempre con el mismo código. */
-function sendPedidoState(estado, code, snapshot) {
+function sendPedidoState(estado, code, snapshot, reemplazaA = '') {
   if (!base44) return;
   const campaign = campaignData();
   base44.functions
@@ -389,7 +421,19 @@ function sendPedidoState(estado, code, snapshot) {
       origen: campaignOrigin(),
       items: snapshot.items,
       total_estimado: snapshot.total,
-      datos: { ...clean(campaign), tracking_version: '2', es_prueba: isTestTraffic() },
+      datos: {
+        ...clean(campaign),
+        // Cuando el cliente sigue comprando después de haber mandado el
+        // pedido, se genera un LAWEB nuevo (para no pisar el que ya figura
+        // como enviado) y acá va el anterior. Base44 los enlaza y cierra el
+        // viejo como Reemplazado, salvo que ya esté Confirmado o Convertido.
+        // Sin esto, el primero le quedaba abierto para siempre y contaba
+        // como abandono falso.
+        ...(reemplazaA ? { reemplaza_a: reemplazaA } : {}),
+        visitante: visitorId(),
+        tracking_version: '2',
+        es_prueba: isTestTraffic(),
+      },
     })
     .catch(() => {
       /* La medición nunca debe interrumpir la navegación del catálogo. */
@@ -489,8 +533,10 @@ function wireCartEvents() {
         // Sumar algo DESPUÉS de haber enviado (el cliente eligió "seguir
         // comprando" sin vaciar) es un pedido nuevo: código nuevo, para que
         // no pise en Base44 al que ya figura como "Enviado a WhatsApp".
+        let reemplazaA = '';
         const sentCode = currentOrderCode();
         if (sentCode && orderStore.get(`arias.catalog.order.sent.${sentCode}`)) {
+          reemplazaA = sentCode;
           orderStore.remove(`arias.catalog.order.sent.${sentCode}`);
           orderStore.remove(ORDER_KEY);
           orderStore.remove(CART_STARTED_KEY);
@@ -499,7 +545,7 @@ function wireCartEvents() {
         // Primer producto desde carrito vacío: arranca el pedido.
         if (!orderStore.get(CART_STARTED_KEY)) {
           orderStore.set(CART_STARTED_KEY, '1');
-          sendPedidoState('Iniciado', ensureOrderCode(), snapshot);
+          sendPedidoState('Iniciado', ensureOrderCode(), snapshot, reemplazaA);
         }
       }, 0);
       return;
