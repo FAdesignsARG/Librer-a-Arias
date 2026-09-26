@@ -1850,6 +1850,19 @@ dialog:focus-visible {
   transform: scale(1.045);
 }
 
+/* Producto sin foto. Se reconoce por el nombre del archivo, así una sola
+   regla cubre la tarjeta, la ficha, la galería, la isla de compra, el
+   carrito, el buscador y el asistente, sin tocar el marcado de ninguno.
+   En gris y chica a propósito: una grulla dorada del tamaño de la foto se
+   leería como el producto, y sumaría amarillo en toda la grilla. */
+img[src$="/sin-foto.webp"] {
+  box-sizing: border-box;
+  padding: 22%;
+  object-fit: contain;
+  filter: grayscale(1);
+  opacity: 0.4;
+}
+
 .card__flags {
   position: absolute;
   top: 9px;

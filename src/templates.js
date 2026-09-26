@@ -752,7 +752,9 @@ const productLd = (s, p) => ({
   '@id': `${s.siteUrl}/p/${p.slug}/#product`,
   name: p.name,
   description: p.description,
-  image: p.images.map((id) => fullSrc(id)),
+  // Sin fotos se omite: una lista vacía no es válida para los datos
+  // estructurados de producto y es mejor no mandar nada que mandar mal.
+  ...(p.images?.length ? { image: p.images.map((id) => fullSrc(id)) } : {}),
   sku: p.slug,
   category: p.category,
   brand: { '@type': 'Brand', name: s.storeName },
@@ -1346,15 +1348,22 @@ ${footer(s)}`;
       ogTitle: `${p.name} — ${displayPrice}${offerActive(p) ? ' (Oferta)' : ''}`,
       description: clamp(`${p.description} ${p.category} en ${s.storeName}, La Rioja. Consultá por WhatsApp.`, 158),
       canonical: url,
-      image: shareCardUrl({ imageId: main, name: p.name, priceText: displayPrice, note: webPromo(s) ? `${webPromo(s).percent}% OFF comprando por la web` : '' }),
-      imageWidth: 1200,
-      imageHeight: 630,
+      // Sin foto no hay tarjeta 1200x630: se omite y la cabecera usa la
+      // imagen de la marca (layout lo resuelve solo), sin declarar medidas que
+      // no serían ciertas.
+      ...(main
+        ? {
+            image: shareCardUrl({ imageId: main, name: p.name, priceText: displayPrice, note: webPromo(s) ? `${webPromo(s).percent}% OFF comprando por la web` : '' }),
+            imageWidth: 1200,
+            imageHeight: 630,
+          }
+        : {}),
       imageAlt: `${p.name} — ${displayPrice} en ${s.storeName}`,
       price: offerHasDiscount(p) ? p.offer.price : p.price,
       inStock: p.inStock,
       ogType: 'product',
       jsonLd,
-      preload: `<link rel="preload" as="image" href="${esc(fullSrc(main))}" fetchpriority="high">`,
+      preload: main ? `<link rel="preload" as="image" href="${esc(fullSrc(main))}" fetchpriority="high">` : '',
     },
     body,
     settings: s,

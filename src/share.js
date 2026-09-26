@@ -13,7 +13,7 @@
  *
  * No depende de app.js ni de products.json: los datos viajan en el botón.
  */
-import { shareCardUrl } from './cloudinary-config.js';
+import { shareCardUrl, PLACEHOLDER } from './cloudinary-config.js';
 import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 
 const sheet = document.getElementById('shareSheet');
@@ -86,7 +86,9 @@ if (sheet) {
       download: shareCardUrl({ imageId: d.shareImg, name: d.shareName, priceText: d.sharePrice, note: note(), download: true }),
     };
     const p = current;
-    preview.src = p.card;
+    // Sin foto no hay tarjeta armada: se muestra la marca y no se ofrece la
+    // descarga, que bajaría una imagen rota.
+    preview.src = p.card || PLACEHOLDER;
     preview.alt = `Vista previa de ${p.name}`;
     nameEl.textContent = p.name;
     priceEl.textContent = [p.price, note()].filter(Boolean).join(' · ');
@@ -95,7 +97,8 @@ if (sheet) {
     $('#shareWa').href = `https://wa.me/?text=${encodeURIComponent(message(p))}`;
     $('#shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(p.url)}`;
     $('#shareMail').href = `mailto:?subject=${encodeURIComponent(`${p.name} — Librería Arias`)}&body=${encodeURIComponent(message(p, { bold: false }))}`;
-    $('#shareDownload').href = p.download;
+    $('#shareDownload').href = p.download || '#';
+    $('#shareDownload').hidden = !p.download;
 
     sheet.showModal();
     sheet.focus();

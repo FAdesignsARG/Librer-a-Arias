@@ -21,7 +21,18 @@ export const cloudinaryConfig = {
  * hace falta un tamaño puntual (miniatura de grilla vs. foto de ficha);
  * sin él, Cloudinary entrega el original ya optimizado.
  */
+/** Imagen para un producto sin foto. Es local (no está en Cloudinary) y
+    es la grulla de la marca: el CSS la reconoce por el nombre del archivo
+    y la muestra chica, en gris y con aire, para que se lea como "todavía no
+    hay foto" y no como si el producto fuera una grulla. */
+export const PLACEHOLDER = '/assets/brand/sin-foto.webp';
+
 export function cloudinaryUrl(publicId, { width } = {}) {
+  // Sin id, la URL terminaba en ".../upload/f_auto,q_auto,w_400/undefined":
+  // una imagen rota en la tarjeta, la ficha, el carrito y el asistente. Hasta
+  // el 26/09 no pasaba porque no había productos sin foto, pero el panel
+  // permite guardarlos y Base44 manda 157 sin imagen.
+  if (!publicId) return PLACEHOLDER;
   const t = ['f_auto', 'q_auto', width ? `w_${width}` : null].filter(Boolean).join(',');
   return `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/image/upload/${t}/${publicId}`;
 }
@@ -38,6 +49,10 @@ export function cloudinaryUrl(publicId, { width } = {}) {
 const cardText = (s) => encodeURIComponent(s).replace(/%2C/g, '%252C').replace(/%2F/g, '%252F');
 
 export function shareCardUrl({ imageId, name, priceText, note = '', download = false }) {
+  // La tarjeta la arma Cloudinary tomando la foto del producto como BASE: sin
+  // foto no hay sobre qué dibujar y sale rota. Devuelve null y quien la usa
+  // cae a otra cosa (la marca en la vista previa, sin botón de descarga).
+  if (!imageId) return null;
   const title = name.length > 64 ? `${name.slice(0, 61).trimEnd()}…` : name;
   const layers = [
     'c_pad,w_1200,h_630,b_rgb:151515,g_east',
