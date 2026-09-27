@@ -38,7 +38,16 @@ Base44 apunta a OTRO producto de la web. Lista completa para Rodri en
 **27/09 — estado de publicación**: `/api/rebuild` devuelve `accepted_at`, y el
 build escribe `data/publicacion.json` (`datos_leidos_en`, `generado_en`,
 `commit`, `deploy_id`, `productos`). Base44 compara `datos_leidos_en >=
-accepted_at`.
+accepted_at`. Publicado el 27/09 (`f63b5ec`, respaldo `prod-antes-20260927`).
+
+**27/09 — Rodri aceptó todo**: va a guardar un `web_slug` permanente en Base44
+(primero los 5 cruzados, después los 18), corregir la descripción de la
+estantería de 5 niveles, dejar Linterna Lambo Tech y Cámara Blackbox en
+revisión manual, y armar "Verificar web" y la detección futura con la regla
+foto → slug → nombre+precio → revisión manual. **Nuestro próximo paso**: cuando
+avise que terminó, rehacer el cruce; tiene que dar 0 slugs distintos, 0
+repetidos y sólo los nuevos. Recién ahí, la carga masiva de los 38 (esperando
+descripciones).
 
 ### Carga masiva pendiente (Fran)
 `output/carga-masiva-desde-base44.txt` (no versionado): los **38 productos
