@@ -62,9 +62,12 @@ export const handler = async (event) => {
   }
 
   try {
+    // La hora se toma antes de llamar al hook: cualquier build que publique
+    // data/publicacion.json con `datos_leidos_en` posterior incluye este pedido.
+    const accepted_at = new Date().toISOString();
     const res = await fetch(hookUrl, { method: 'POST' });
     if (!res.ok) return json(502, { error: 'FALLO', mensaje: `Netlify respondió ${res.status}` });
-    return json(200, { ok: true });
+    return json(200, { ok: true, accepted_at });
   } catch (err) {
     return json(502, { error: 'FALLO', mensaje: err?.message || 'No se pudo contactar a Netlify' });
   }

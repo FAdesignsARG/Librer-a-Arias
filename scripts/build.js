@@ -32,6 +32,9 @@ const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
    cualquier PC, así que el build siempre tiene que leer de ahí y no de
    data/products.json (que quedó de la versión anterior, sin sincronizar). */
 
+// Hora de lectura de los datos (no la de fin del build): es la que dice
+// qué cambios del panel y qué pedidos de publicación entraron en esta versión.
+const leidoEn = new Date().toISOString();
 await loadEnv(ROOT);
 const db = await getDb(ROOT);
 const [productsSnap, settingsDoc] = await Promise.all([
@@ -164,6 +167,18 @@ await write('data/settings.json', JSON.stringify(settings));
 // Archivo aparte y chiquito: lo pide app.js junto con el catálogo y, si no
 // está, el buscador anda igual con sus valores por defecto.
 await write('data/search-aliases.json', JSON.stringify({ aliases: aux.aliases, busqueda: aux.busqueda }));
+// Estado de la publicación, para el botón "Verificar web" de Base44.
+// Este archivo sólo se ve cuando el deploy ya quedó en línea, así que si
+// `datos_leidos_en` es posterior al `accepted_at` que devolvió /api/rebuild,
+// la publicación que se pidió ya terminó. Si es anterior, sigue en curso
+// (o falló: Netlify deja la versión anterior en línea).
+await write('data/publicacion.json', JSON.stringify({
+  datos_leidos_en: leidoEn,
+  generado_en: new Date().toISOString(),
+  commit: process.env.COMMIT_REF || null,
+  deploy_id: process.env.DEPLOY_ID || null,
+  productos: visible.length,
+}));
 
 const copies = [
   ['assets', 'assets'],

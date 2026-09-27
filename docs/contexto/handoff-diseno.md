@@ -27,6 +27,19 @@ etiqueta, alias) llega a esos 13. **Se le pidió a Rodri que use el slug de
 `products.json` como clave y no lo recalcule.** Cuando confirme, volver a
 cruzar las dos puntas: la diferencia tiene que bajar a sólo altas recientes.
 
+**27/09 — cruce rehecho por foto de Cloudinary**: no son 13 sino **18** slugs
+distintos, y Base44 tiene **4 slugs repetidos** (dos productos con el mismo
+slug: mochila-wilson, smartwatch-s9-ultra-reloj-inteligente,
+estanteria-multifuncional-de-cocina, juego-3-en-1-…). En 5 casos el slug de
+Base44 apunta a OTRO producto de la web. Lista completa para Rodri en
+`output/para-rodri-slugs-27-09.txt` (no versionado). Regla de emparejado: foto
+→ slug → nombre+precio.
+
+**27/09 — estado de publicación**: `/api/rebuild` devuelve `accepted_at`, y el
+build escribe `data/publicacion.json` (`datos_leidos_en`, `generado_en`,
+`commit`, `deploy_id`, `productos`). Base44 compara `datos_leidos_en >=
+accepted_at`.
+
 ### Carga masiva pendiente (Fran)
 `output/carga-masiva-desde-base44.txt` (no versionado): los **38 productos
 nuevos de verdad** que están en Base44 y no en la web (36 de Librería), en el
