@@ -1,8 +1,78 @@
 # Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 23/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 26/09/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 23/09/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 26/09/2026 — EMPEZAR POR ACÁ
+
+**Cargar la skill `libreria-arias-control`** y leer la memoria del proyecto
+antes de tocar nada. `main` está sincronizado con `origin`, sin nada sin
+commitear del código.
+
+### Decisión de fondo (26/09) — no reabrir sin Fran
+**El panel (Firestore) sigue siendo el dueño del catálogo.** Rodri pidió que
+`/api/rebuild` armara `products.json` desde su feed (`action:"productos"`)
+por reemplazo. Fran lo rechazó: medido ese día, habría borrado 17 productos,
+agregado 52 y publicado 157 sin foto, y todo lo editado en el panel se
+pisaba en cada publicación. Base44 enriquece (alias, etiquetas, destacados,
+relacionados, visibilidad) pero NO crea, edita precios, sube fotos ni borra.
+Detalle en la memoria `duenio-del-catalogo-panel`.
+
+### Hallazgo que quedó abierto: los slugs no coinciden
+De los 52 "nuevos" de Base44, **13 ya estaban en la web con otro slug**. Base44
+recalcula el slug desde el nombre; en la web es permanente (corta a 60
+caracteres, no cambia al renombrar, lleva `-2` si hay dos con el mismo
+nombre). Ej.: Base44 `set-de-cuchillos-x6` = web `cuchillos-para-frutas`.
+Mientras no coincidan, nada de lo que manda Base44 (ocultar, destacar,
+etiqueta, alias) llega a esos 13. **Se le pidió a Rodri que use el slug de
+`products.json` como clave y no lo recalcule.** Cuando confirme, volver a
+cruzar las dos puntas: la diferencia tiene que bajar a sólo altas recientes.
+
+### Carga masiva pendiente (Fran)
+`output/carga-masiva-desde-base44.txt` (no versionado): los **38 productos
+nuevos de verdad** que están en Base44 y no en la web (36 de Librería), en el
+formato del panel `Nombre | Precio | Rubro | Descripción`. Ya excluye los 13
+duplicados y corrige 5 que Base44 tenía como "Electrónica" (son Librería;
+"Electrónica" no es rubro del panel y los habría mandado a Juguetería).
+Antes de guardar, en la tabla de revisión: los dos acetatos 50x70 a $2.500
+parecen el mismo producto; el soporte de notebook va en Tecnología, no
+Regalería; revisar los dos acrílicos 60ml a $2.000. Entran sin foto (19) y sin
+descripción (36). Esperar a que Rodri confirme antes de pegarla.
+
+### Hecho del 23 al 26/09
+- **Panel**: la propuesta de cambios del asistente era una tabla que se
+  cortaba a 375 (pedía 260px en 255) con casilla nativa de 14px y texto de
+  13px: ahora es una lista de filas-label. Los nombres de producto se cortaban
+  al 37% en celular: dos renglones. Chips con aire (estaban pegados al campo),
+  chat de 204 a 418px en escritorio, Adolfito del flotante de 34 a 42px.
+- **Pedidos**: `?test=1` se pegaba a la URL y se perdía al navegar, así que el
+  pedido de prueba de Fran (`LAWEB-08F2D977`) le llegó a Base44 como REAL
+  (hay que marcarlo a mano). Ahora vive en la visita, como las UTM. Y el
+  pedido manda `descuento_web_porcentaje`, `descuento_web_monto` y
+  `total_con_descuento` (`total_estimado` sigue siendo el bruto); la cuenta
+  vive en `webDiscount()` de `templates.js`, compartida con el panel del
+  pedido y el mensaje de WhatsApp.
+- **Productos sin foto**: antes salían con la imagen rota (URL terminada en
+  `/undefined`). Ahora `cloudinaryUrl()` devuelve `assets/brand/sin-foto.webp`
+  y una regla de CSS la muestra chica y en gris en los siete lugares donde se
+  dibuja una foto. La ficha usa la imagen de la marca como og:image.
+- **Verificado por Fran**: panel con sesión (las 4 funciones de IA andan),
+  sitio en teléfono real (predictivo, isla, filtros 2×2, splash, banners),
+  pedido real hasta WhatsApp.
+
+### Pendientes, en orden
+1. **Rodri**: corregir slugs (ver arriba) y probar LAWEB → POS → venta.
+2. **Carga masiva** de los 38 (Fran, cuando Rodri confirme).
+3. **Vista previa al compartir** por WhatsApp: nunca se vio con un enlace
+   real; es prioridad de Fran y quedó colgado "habría que mejorarla un poco".
+4. **Panel con datos reales**: guardar un cambio y ver que republique; decidir
+   si se arma un selector propio de fecha para "Válida hasta".
+5. **Ronda 3 de críticos** sobre Mi pedido, Novedades, botón de pedido, ficha
+   v3 y panel.
+6. **`REBUILD_TOKEN`**: procedimiento de 6 pasos acordado; Rodri ya dejó Base44
+   listo para mandar el header. Falta que Fran genere el valor.
+7. **Limpieza técnica**: CSS muerto, consolidar `glass.css` y `admin.css`.
+
+## ESTADO AL 23/09/2026 (historia)
 
 **Cargar la skill `libreria-arias-control`** antes de tocar nada.
 
