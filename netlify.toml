@@ -45,6 +45,10 @@
   from = "/api/rebuild"
   to = "/.netlify/functions/rebuild"
   status = 200
+[[redirects]]
+  from = "/api/productos"
+  to = "/.netlify/functions/productos"
+  status = 200
 
 # El build (scripts/build.js) ya escribe dist/_redirects con el 404 real
 # para /p/lo-que-sea. Nada más que agregar acá.

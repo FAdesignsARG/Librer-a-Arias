@@ -130,6 +130,7 @@ function visibleList() {
     if (q && !p.name.toLowerCase().includes(q)) return false;
     if (cat && p.category !== cat) return false;
     if (state === 'oculto' && p.visible !== false) return false;
+    if (state === 'revisar' && !(p.pendingReview && p.visible === false)) return false;
     if (state === 'sinstock' && p.inStock) return false;
     if (state === 'destacado' && !p.featured) return false;
     if (state === 'oferta' && !offerActive(p)) return false;
@@ -185,7 +186,8 @@ function itemHtml(p) {
         <span class="item__price">${money(p.price)}</span>
         <span>${p.category}</span>
         ${!p.inStock ? '<span class="tag tag--out">Sin stock</span>' : ''}
-        ${p.visible === false ? '<span class="tag tag--hidden">Oculto</span>' : ''}
+        ${p.visible === false && p.pendingReview ? '<span class="tag tag--review">Para revisar · Base44</span>' : ''}
+        ${p.visible === false && !p.pendingReview ? '<span class="tag tag--hidden">Oculto</span>' : ''}
         ${p.featured ? '<span class="tag tag--featured">Destacado</span>' : ''}
         ${onOffer ? `<span class="tag tag--offer">Oferta hasta ${dateFmt(p.offer.until)}</span>` : ''}
         ${!img ? '<span class="tag tag--nophoto">Falta foto</span>' : ''}
@@ -237,8 +239,14 @@ listEl.addEventListener('click', async (e) => {
   if (e.target.closest('[data-toggle-visible]')) {
     const next = p.visible === false;
     try {
-      await updateDoc(productRef(p.slug), { visible: next, updatedAt: new Date().toISOString() });
-      p.visible = next;
+      // Publicarlo es la revisión: lo que llegó de Base44 deja de estar "para revisar".
+      const patch = {
+        visible: next,
+        updatedAt: new Date().toISOString(),
+        ...(next && p.pendingReview ? { pendingReview: false } : {}),
+      };
+      await updateDoc(productRef(p.slug), patch);
+      Object.assign(p, patch);
       render();
       toast(next ? 'Producto visible en el catálogo' : 'Producto oculto');
       logActivity('visibility_toggled', `${next ? 'Mostró' : 'Ocultó'} "${p.name}"`, p.slug);
@@ -514,6 +522,7 @@ form.addEventListener('submit', async (e) => {
   try {
     if (editing) {
       payload.updatedAt = new Date().toISOString();
+      if (payload.visible && products.find((p) => p.slug === editing)?.pendingReview) payload.pendingReview = false;
       await updateDoc(productRef(editing), payload);
       Object.assign(products.find((p) => p.slug === editing), payload);
       toast('Cambios guardados', ico.check);

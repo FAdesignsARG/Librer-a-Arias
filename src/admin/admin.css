@@ -547,6 +547,10 @@
 .tag--hidden {
   color: var(--text-3);
 }
+.tag--review {
+  color: var(--gold-text);
+  border-color: var(--gold-edge);
+}
 .tag--featured {
   color: var(--gold-text);
   border-color: var(--gold-edge);

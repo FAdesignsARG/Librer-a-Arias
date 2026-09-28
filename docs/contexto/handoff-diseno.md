@@ -49,6 +49,22 @@ avise que terminó, rehacer el cruce; tiene que dar 0 slugs distintos, 0
 repetidos y sólo los nuevos. Recién ahí, la carga masiva de los 38 (esperando
 descripciones).
 
+**28/09 — cruce rehecho: NO da limpio.** El feed `productos` sigue con 18
+slugs distintos y 4 repetidos; el backfill de Base44 informa `intentados: 15,
+persistidos: 0`. La capa auxiliar sí viene con los 636 slugs de la web, pero
+no trae el id de Base44, así que desde acá no se puede comprobar que cada slug
+esté ligado al registro correcto. Pedido a Rodri: que el feed `productos`
+exponga `catalog_slug`.
+
+**28/09 — `POST /api/productos` (alta desde Base44)**, `netlify/functions/productos.js`.
+Rodri eligió (Fran le delegó la decisión): entra OCULTO con `pendingReview`,
+etiqueta "Para revisar · Base44" y filtro propio en el panel; publicarlo desde
+el panel limpia la marca. Token propio `CATALOGO_WRITE_TOKEN` (sin él, 503:
+cerrado). `publish:true` da 403 hasta `CATALOGO_PUBLICAR_DIRECTO=1`.
+Idempotente por `fuentes_externas/base44_<source_id>` (si se borró en el panel,
+409 y no se recrea). 409 por misma foto o mismo nombre normalizado. Sólo crea.
+Probado con Firestore falso (13 casos); falta la prueba real con un producto.
+
 ### Carga masiva pendiente (Fran)
 `output/carga-masiva-desde-base44.txt` (no versionado): los **38 productos
 nuevos de verdad** que están en Base44 y no en la web (36 de Librería), en el
