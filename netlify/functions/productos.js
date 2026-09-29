@@ -22,6 +22,10 @@
  * devuelve ese slug y no se crea nada — aunque el producto se haya borrado
  * en el panel (no se resucita lo que alguien sacó a propósito).
  *
+ * Fotos: si `image_url` no es de nuestro Cloudinary (las del canal de
+ * WhatsApp quedan en Base44), se descarga y se sube a Cloudinary antes de
+ * crear; si eso falla, responde error y no crea nada (29/09, pedido de Rodri).
+ *
  * Colisiones (409, no crea nada): misma foto de Cloudinary que un producto
  * existente, o mismo nombre normalizado. Se busca con consultas puntuales y
  * no leyendo el catálogo entero: la cuota de Firestore ya se agotó una vez.
@@ -29,6 +33,7 @@
 import crypto from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '../../src/firebase-admin.js';
+import { cloudinaryConfig } from '../../src/cloudinary-config.js';
 import { json as jsonBase } from './_helpers.js';
 
 /** Base44 lee `success`; el resto del contrato usa `ok`. Van los dos. */
@@ -107,18 +112,87 @@ export function validar(body) {
   const description = String(body.description ?? '').trim();
   if (description.length > 3000) return mal('DESCRIPCION_LARGA', 'description admite hasta 3000 caracteres.');
 
+  // Foto de nuestro Cloudinary: se usa tal cual. Cualquier otra URL https
+  // (p. ej. las del canal de WhatsApp, guardadas en Base44) se importa a
+  // Cloudinary en el handler antes de crear nada.
   const imageUrl = String(body.image_url ?? '').trim();
   let imagen = null;
+  let imagenExterna = null;
   if (imageUrl) {
     imagen = cloudinaryPublicId(imageUrl);
-    if (!imagen)
-      return mal('IMAGEN_INVALIDA', `image_url tiene que ser de Cloudinary (cuenta ${CLOUD}) o venir vacía.`);
+    if (!imagen) {
+      if (!urlExternaValida(imageUrl))
+        return mal('IMAGEN_INVALIDA', 'image_url tiene que ser una URL https pública o venir vacía.');
+      imagenExterna = imageUrl;
+    }
   }
 
   if (body.publish !== undefined && typeof body.publish !== 'boolean')
     return mal('PUBLISH_INVALIDO', 'publish tiene que ser true o false.');
 
-  return { datos: { sourceId, name, price, category: body.category, description, imagen, publish: body.publish === true } };
+  return {
+    datos: { sourceId, name, price, category: body.category, description, imagen, imagenExterna, publish: body.publish === true },
+  };
+}
+
+/** https y no apuntando a la máquina ni a redes internas. */
+function urlExternaValida(url) {
+  let u;
+  try {
+    u = new URL(url);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== 'https:' || u.username || u.password) return false;
+  const h = u.hostname.toLowerCase();
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.internal') || h.endsWith('.local')) return false;
+  // IPs literales: sólo se aceptan nombres de dominio.
+  if (/^[\d.]+$/.test(h) || h.includes(':') || h.startsWith('[')) return false;
+  return true;
+}
+
+const MAX_FOTO = 10 * 1024 * 1024;
+
+/**
+ * Baja la foto de `url` y la sube a nuestro Cloudinary con el mismo preset
+ * "unsigned" que usa el panel (no hay credenciales que guardar). Devuelve
+ * el public_id o tira un Error con `codigo` para la respuesta.
+ */
+export async function importarImagen(url, fetchImpl = fetch) {
+  const falla = (codigo, mensaje) => Object.assign(new Error(mensaje), { codigo });
+
+  let res;
+  try {
+    res = await fetchImpl(url, { redirect: 'follow', signal: AbortSignal.timeout(15000) });
+  } catch {
+    throw falla('IMAGEN_NO_DESCARGADA', 'No se pudo descargar image_url (no respondió a tiempo o no existe).');
+  }
+  if (!res.ok) throw falla('IMAGEN_NO_DESCARGADA', `No se pudo descargar image_url (respondió ${res.status}).`);
+  const tipo = (res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+  if (!tipo.startsWith('image/')) throw falla('IMAGEN_NO_ES_FOTO', `image_url no es una imagen (llegó ${tipo || 'sin tipo'}).`);
+  if (Number(res.headers.get('content-length')) > MAX_FOTO) throw falla('IMAGEN_PESADA', 'La foto pesa más de 10 MB.');
+  const bytes = await res.arrayBuffer();
+  if (!bytes.byteLength) throw falla('IMAGEN_NO_DESCARGADA', 'image_url llegó vacía.');
+  if (bytes.byteLength > MAX_FOTO) throw falla('IMAGEN_PESADA', 'La foto pesa más de 10 MB.');
+
+  const form = new FormData();
+  form.append('file', new Blob([bytes], { type: tipo }), 'foto');
+  form.append('upload_preset', cloudinaryConfig.uploadPreset);
+  let up;
+  try {
+    up = await fetchImpl(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+      method: 'POST',
+      body: form,
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch {
+    throw falla('IMAGEN_NO_SUBIDA', 'No se pudo subir la foto a Cloudinary. Probá de nuevo.');
+  }
+  const data = await up.json().catch(() => ({}));
+  if (!up.ok || !data.public_id) {
+    throw falla('IMAGEN_NO_SUBIDA', `Cloudinary rechazó la foto: ${data?.error?.message || up.status}.`);
+  }
+  return data.public_id;
 }
 
 /**
@@ -254,7 +328,23 @@ export const handler = async (event) => {
 
   try {
     const db = await getDb(process.cwd());
-    const r = await crearProducto(db, v.datos);
+    const datos = v.datos;
+    if (datos.imagenExterna) {
+      // Si el source_id ya existe, no se sube nada: crearProducto responde
+      // igual (200 o 409) y no queda una foto huérfana por cada reintento.
+      const ya = await db.collection('fuentes_externas').doc(`base44_${datos.sourceId}`).get();
+      if (!ya.exists) {
+        try {
+          datos.imagen = await importarImagen(datos.imagenExterna);
+        } catch (err) {
+          if (!err.codigo) throw err;
+          // 422 si el problema es la foto; 502 si falló la descarga o Cloudinary.
+          const status = err.codigo === 'IMAGEN_NO_ES_FOTO' || err.codigo === 'IMAGEN_PESADA' ? 422 : 502;
+          return json(status, { ok: false, error: err.codigo, mensaje: `${err.message} No se creó el producto.` });
+        }
+      }
+    }
+    const r = await crearProducto(db, datos);
     if (r.product) {
       // Queda en el historial del panel, como cualquier alta. Los reportes
       // filtran por año/mes/día en hora de Argentina (el panel usa la del
