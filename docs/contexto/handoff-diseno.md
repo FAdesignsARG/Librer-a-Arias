@@ -45,7 +45,17 @@ Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
    (330 vacíos + pares de los 137 duplicados) para que Rodri limpie de una
    vez. **Esperando respuesta de Rodri.** Pendiente: OK de Fran para push y
    que genere/cargue el token.
-5. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
+5. **29/09 noche — PUBLICADO** (`a530dda`, respaldo `prod-antes-20260929` =
+   `f63b5ec`). `/api/productos` responde en producción: 503 "falta
+   CATALOGO_WRITE_TOKEN" hasta que Fran lo genere y cargue; GET da 405.
+   Suma importación de fotos externas a Cloudinary (preset unsigned; si
+   falla, 422/502 y no crea). Tropiezo: la ruta sólo estaba en
+   `netlify.toml` y el `/* 404` de `dist/_redirects` (que Netlify lee
+   primero) la tapaba; toda `/api/*` nueva va también en `scripts/build.js`.
+   Rodri: bridge `2026-09-29.1`, dice que corrigió la tanda duplicada →
+   **volver a correr el cruce**. Falta: token en ambos lados, cruce limpio,
+   alta de prueba (y ver si el preset de Cloudinary acepta jpg/png).
+6. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
 
 ## ESTADO AL 26/09/2026
 
