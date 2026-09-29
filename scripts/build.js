@@ -260,6 +260,7 @@ await write(
 /api/ai/draft-image         /.netlify/functions/ai-draft-image         200
 /api/ai/summarize-activity  /.netlify/functions/ai-summarize-activity  200
 /api/rebuild                /.netlify/functions/rebuild                200
+/api/productos              /.netlify/functions/productos              200
 
 # Cualquier otra ruta desconocida cae en la portada con código 404 real
 /*  /index.html  404

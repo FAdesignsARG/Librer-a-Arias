@@ -50,5 +50,7 @@
   to = "/.netlify/functions/productos"
   status = 200
 
-# El build (scripts/build.js) ya escribe dist/_redirects con el 404 real
-# para /p/lo-que-sea. Nada más que agregar acá.
+# OJO: el build (scripts/build.js) escribe dist/_redirects con el 404 real
+# (/* → 404), y Netlify lee _redirects ANTES que este archivo. Toda ruta
+# /api/* nueva tiene que ir también allá, o la tapa ese 404 (pasó el 29/09
+# con /api/productos).
