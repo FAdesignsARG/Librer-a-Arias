@@ -1,8 +1,41 @@
 # Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 26/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 29/09/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 26/09/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 29/09/2026 — EMPEZAR POR ACÁ
+
+Cargar la skill `libreria-arias-control` y la memoria. Se trabaja en `main`.
+`origin/main` = `f63b5ec` (publicado el 27/09, respaldo `prod-antes-20260927`).
+**Hay 2 commits locales SIN publicar** (`ff4f85d` docs, `fc8548e` endpoint
+`/api/productos` + etiqueta "Para revisar" del panel) y este handoff.
+Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
+
+### Dónde quedamos
+1. **Cruce Base44 ↔ web con el feed v2 de Rodri** (`catalog_slug`, `base44_id`).
+   Correrlo: `node --use-system-ca tmp/cruce-base44.mjs` (deja el detalle en
+   `tmp/cruce-base44.json`). Resultado del 29/09, informe completo para Rodri
+   en `output/cruce-base44-29-09.txt` (**todavía no se lo mandamos**):
+   - Mal ligados: **0** (los 18 cruzados quedaron corregidos).
+   - **137 productos duplicados en Base44**: el feed pasó de 675 a 812; los
+     137 nuevos son de una misma tanda (ids `6ab9cb04…`), todos con slug, y
+     cada uno repite un registro viejo (122 viejos con slug vacío, 15 con el
+     mismo slug → los "15 repetidos"). Parece que su reconciliación CREÓ en
+     vez de actualizar.
+   - 208 registros más con `catalog_slug` vacío que sí existen en la web.
+   - Nuevos de verdad: 39 (los 38 + Linterna Lambo Tech). Web sin par: 0.
+   Objetivo para habilitar altas: 0 cruzados, 0 repetidos, 1 registro por
+   producto, vacíos resueltos.
+2. **`POST /api/productos`** (ver nota del 28/09 abajo): hecho y probado con
+   Firestore falso (`node tmp/test-productos.mjs`), sin publicar. Falta: OK de
+   Fran para push, que Fran genere `CATALOGO_WRITE_TOKEN` y lo cargue en
+   Netlify, y la prueba real con UN producto junto a Rodri cuando el cruce dé
+   limpio. La etiqueta del panel no se vio con sesión: que la mire Fran.
+3. **Carga de los 38**: borrador con descripciones en
+   `output/carga-masiva-borrador-descripciones.txt` (37; la Cámara Blackbox
+   queda en revisión). Puede que termine entrando por `/api/productos`.
+4. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
+
+## ESTADO AL 26/09/2026
 
 **Cargar la skill `libreria-arias-control`** y leer la memoria del proyecto
 antes de tocar nada. `main` está sincronizado con `origin`, sin nada sin
