@@ -23,6 +23,8 @@ Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
      vez de actualizar.
    - 208 registros más con `catalog_slug` vacío que sí existen en la web.
    - Nuevos de verdad: 39 (los 38 + Linterna Lambo Tech). Web sin par: 0.
+   Re-corrido el 29/09 con bridge `2026-09-27.2` (Rodri dijo "ya quedó
+   publicado"): **resultado idéntico**; Base44 todavía no limpió duplicados.
    Objetivo para habilitar altas: 0 cruzados, 0 repetidos, 1 registro por
    producto, vacíos resueltos.
 2. **`POST /api/productos`** (ver nota del 28/09 abajo): hecho y probado con

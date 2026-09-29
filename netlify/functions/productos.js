@@ -29,7 +29,10 @@
 import crypto from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '../../src/firebase-admin.js';
-import { json } from './_helpers.js';
+import { json as jsonBase } from './_helpers.js';
+
+/** Base44 lee `success`; el resto del contrato usa `ok`. Van los dos. */
+const json = (status, body) => jsonBase(status, { success: body.ok, ...body });
 
 export const RUBROS = ['Juguetería', 'Tecnología', 'Regalería', 'Bazar', 'Librería'];
 const CLOUD = 'nzyq1xgf';
@@ -144,7 +147,7 @@ export async function crearProducto(db, datos, ahora = new Date()) {
         };
       }
       const p = prod.data();
-      return { status: 200, body: { ok: true, id: p.id || slug, slug, creado: false, estado: estadoDe(p) } };
+      return { status: 200, body: { ok: true, id: p.id || slug, slug, creado: false, estado: estadoDe(p), requiere_rebuild: false } };
     }
 
     // Colisión por foto: la misma imagen ya está en otro producto.
@@ -207,7 +210,13 @@ export async function crearProducto(db, datos, ahora = new Date()) {
     tx.set(productos.doc(slug), product);
     tx.set(fuenteRef, { source: 'base44', sourceId: datos.sourceId, slug, createdAt: iso });
 
-    return { status: 201, body: { ok: true, id: slug, slug, creado: true, estado: estadoDe(product) }, product };
+    // Oculto no cambia nada público: no hace falta rebuild (al publicarlo, el
+    // panel republica solo). Publicado directo: Base44 llama a /api/rebuild.
+    return {
+      status: 201,
+      body: { ok: true, id: slug, slug, creado: true, estado: estadoDe(product), requiere_rebuild: product.visible },
+      product,
+    };
   });
 }
 
