@@ -35,7 +35,17 @@ Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
 3. **Carga de los 38**: borrador con descripciones en
    `output/carga-masiva-borrador-descripciones.txt` (37; la Cámara Blackbox
    queda en revisión). Puede que termine entrando por `/api/productos`.
-4. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
+4. **29/09 tarde:** Rodri pidió `/api/productos` en producción (le daba 404).
+   Se sumó `success` y `requiere_rebuild` (`54117e1`, sin publicar). Se le
+   armó mensaje: contrato, precio >0, 5 rubros, foto de Cloudinary propia,
+   actualizar/ocultar desde Base44 queda para decidir (cambia el dueño del
+   catálogo). Fran preguntó si conectar Base44 al GitHub simplificaría: no
+   (el repo es código, los productos están en Firestore; y cada push sale a
+   producción). Idea ofrecida: archivo de correspondencias `base44_id → slug`
+   (330 vacíos + pares de los 137 duplicados) para que Rodri limpie de una
+   vez. **Esperando respuesta de Rodri.** Pendiente: OK de Fran para push y
+   que genere/cargue el token.
+5. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
 
 ## ESTADO AL 26/09/2026
 
