@@ -49,6 +49,10 @@
   from = "/api/productos"
   to = "/.netlify/functions/productos"
   status = 200
+[[redirects]]
+  from = "/api/base44/aviso"
+  to = "/.netlify/functions/base44-aviso"
+  status = 200
 
 # OJO: el build (scripts/build.js) escribe dist/_redirects con el 404 real
 # (/* → 404), y Netlify lee _redirects ANTES que este archivo. Toda ruta

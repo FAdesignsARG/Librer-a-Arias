@@ -1,10 +1,11 @@
 /**
- * Alta controlada de productos desde Base44 — `POST /api/productos`.
+ * Productos desde Base44 — `POST /api/productos`.
  *
- * El panel (Firestore) sigue siendo el dueño del catálogo: este endpoint
- * crea el producto en la misma colección y con la misma forma que la carga
- * del panel, y a partir de ahí se edita, publica o borra desde el panel.
- * Sólo CREA. No modifica precios, fotos ni borra nada existente.
+ * `action: "crear"`: alta en la misma colección y con la misma forma que la
+ * carga del panel. `actualizar` / `ocultar` / `habilitar` (30/09): por
+ * `source_id`, sólo precio, stock y visibilidad — lo operativo lo manda el
+ * POS; nombre, descripción, rubro y foto siguen siendo del panel (decisión
+ * de Fran). Nunca borra: dar de baja es ocultar.
  *
  * Decisión del 27/09/2026 (Rodri, con el OK de Fran): lo que llega de
  * Base44 entra OCULTO y marcado "para revisar" (`pendingReview`). Alguien
@@ -89,15 +90,28 @@ function tokenValido(event) {
 }
 
 /** Valida y normaliza el cuerpo. Devuelve { datos } o { error, mensaje }. */
+export const ACCIONES = ['crear', 'actualizar', 'ocultar', 'habilitar'];
+
+/**
+ * Qué manda cada lado en un producto vinculado (decisión de Fran, 30/09):
+ * Base44/POS manda precio, stock y visibilidad; nombre, descripción, rubro
+ * y foto se editan en el panel. Si Base44 los manda en `actualizar`, se
+ * ignoran y se avisa en `ignorados` (no es error, para no trabar su envío).
+ */
+const CAMPOS_DEL_PANEL = ['name', 'description', 'category', 'image_url'];
+
 export function validar(body) {
   const mal = (error, mensaje) => ({ error, mensaje });
   if (!body || typeof body !== 'object') return mal('CUERPO_INVALIDO', 'El cuerpo tiene que ser JSON.');
-  if (body.action !== 'crear') return mal('ACCION_INVALIDA', 'Este endpoint sólo acepta action: "crear".');
+  if (!ACCIONES.includes(body.action))
+    return mal('ACCION_INVALIDA', `action tiene que ser uno de: ${ACCIONES.join(', ')}.`);
   if (body.source !== 'base44') return mal('ORIGEN_INVALIDO', 'source tiene que ser "base44".');
 
   const sourceId = String(body.source_id ?? '').trim();
   if (!/^[A-Za-z0-9_-]{1,100}$/.test(sourceId))
     return mal('SOURCE_ID_INVALIDO', 'source_id es obligatorio (letras, números, - o _).');
+
+  if (body.action !== 'crear') return validarCambio(body, sourceId, mal);
 
   const name = String(body.name ?? '').trim().replace(/\s+/g, ' ');
   if (!name || name.length > 200 || !slugify(name))
@@ -131,8 +145,48 @@ export function validar(body) {
     return mal('PUBLISH_INVALIDO', 'publish tiene que ser true o false.');
 
   return {
-    datos: { sourceId, name, price, category: body.category, description, imagen, imagenExterna, publish: body.publish === true },
+    datos: {
+      accion: 'crear',
+      sourceId,
+      name,
+      price,
+      category: body.category,
+      description,
+      imagen,
+      imagenExterna,
+      publish: body.publish === true,
+    },
   };
+}
+
+/** actualizar / ocultar / habilitar. */
+function validarCambio(body, sourceId, mal) {
+  // slug = el catalog_slug de Base44. Sólo hace falta la primera vez, para
+  // vincular un producto que se cargó en el panel (no nació por `crear`).
+  const slug = String(body.slug ?? body.catalog_slug ?? '').trim();
+  if (slug && !/^[a-z0-9-]{1,80}$/.test(slug)) return mal('SLUG_INVALIDO', 'slug no tiene el formato de la web.');
+
+  const cambios = {};
+  if (body.action === 'ocultar') cambios.visible = false;
+  else if (body.action === 'habilitar') cambios.visible = true;
+  else {
+    if (body.price !== undefined) {
+      const price = Number(body.price);
+      if (!Number.isFinite(price) || price <= 0) return mal('PRECIO_INVALIDO', 'price tiene que ser un número mayor a 0.');
+      cambios.price = price;
+    }
+    if (body.in_stock !== undefined) {
+      if (typeof body.in_stock !== 'boolean') return mal('STOCK_INVALIDO', 'in_stock tiene que ser true o false.');
+      cambios.inStock = body.in_stock;
+    }
+    const vis = body.visible ?? body.active;
+    if (vis !== undefined) {
+      if (typeof vis !== 'boolean') return mal('VISIBLE_INVALIDO', 'visible tiene que ser true o false.');
+      cambios.visible = vis;
+    }
+  }
+  const ignorados = body.action === 'actualizar' ? CAMPOS_DEL_PANEL.filter((k) => body[k] !== undefined) : [];
+  return { datos: { accion: body.action, sourceId, slug: slug || null, cambios, ignorados } };
 }
 
 /** https y no apuntando a la máquina ni a redes internas. */
@@ -280,6 +334,8 @@ export async function crearProducto(db, datos, ahora = new Date()) {
       order: minOrder - 1,
       createdAt: iso,
       updatedAt: iso,
+      syncedAt: iso,
+      lastChangeOrigin: 'base44',
     };
     tx.set(productos.doc(slug), product);
     tx.set(fuenteRef, { source: 'base44', sourceId: datos.sourceId, slug, createdAt: iso });
@@ -291,6 +347,104 @@ export async function crearProducto(db, datos, ahora = new Date()) {
       body: { ok: true, id: slug, slug, creado: true, estado: estadoDe(product), requiere_rebuild: product.visible },
       product,
     };
+  });
+}
+
+/**
+ * actualizar / ocultar / habilitar por `source_id`. Nunca borra: ocultar es
+ * `visible: false` y el vínculo queda, así una sincronización posterior no
+ * resucita ni duplica nada. El slug no cambia jamás. Mandar el mismo estado
+ * otra vez responde 200 con `actualizado: false` y no escribe nada.
+ *
+ * Primer contacto de un producto que se cargó en el panel: no hay vínculo,
+ * así que Base44 manda también `slug` (su catalog_slug) y se ata acá. Si ese
+ * producto ya está atado a OTRO source_id, 409: es justo el caso de los
+ * registros duplicados de Base44, y no se decide solo cuál gana.
+ */
+export async function actualizarProducto(db, datos, { ahora = new Date(), publicarDirecto = false } = {}) {
+  const productos = db.collection('products');
+  const fuenteRef = db.collection('fuentes_externas').doc(`base44_${datos.sourceId}`);
+  const error = (status, codigo, mensaje, extra = {}) => ({ status, body: { ok: false, error: codigo, mensaje, ...extra } });
+
+  return db.runTransaction(async (tx) => {
+    const fuente = await tx.get(fuenteRef);
+    let slug;
+    let vincular = false;
+    if (fuente.exists) {
+      slug = fuente.data().slug;
+      if (datos.slug && datos.slug !== slug) {
+        return error(409, 'VINCULO_DISTINTO', `Este source_id ya está atado a "${slug}", no a "${datos.slug}". El slug no cambia.`, { slug });
+      }
+    } else {
+      if (!datos.slug) {
+        return error(404, 'NO_VINCULADO', 'Este source_id no está vinculado. Mandá también slug (catalog_slug) o usá action "crear".');
+      }
+      slug = datos.slug;
+      vincular = true;
+    }
+
+    const doc = await tx.get(productos.doc(slug));
+    if (!doc.exists) {
+      return vincular
+        ? error(404, 'SLUG_INEXISTENTE', `No hay ningún producto con slug "${slug}" en la web.`)
+        : error(409, 'ELIMINADO_EN_PANEL', 'Este producto se borró desde el panel. No se vuelve a crear solo.', { slug });
+    }
+    const p = doc.data();
+    if (vincular && p.sourceId && p.sourceId !== datos.sourceId) {
+      return error(409, 'VINCULO_DISTINTO', `"${slug}" ya está atado a otro registro de Base44 (${p.sourceId}).`, {
+        slug,
+        source_id_vinculado: p.sourceId,
+      });
+    }
+
+    const avisos = [];
+    const pedido = { ...datos.cambios };
+    // Lo que entró "para revisar" se publica desde el panel (o con
+    // publicación directa habilitada). `habilitar` explícito es error; un
+    // `visible: true` dentro de una actualización completa se ignora y se
+    // aplica el resto, para no trabar precio y stock.
+    if (pedido.visible === true && p.pendingReview && !publicarDirecto) {
+      if (datos.accion === 'habilitar') {
+        return error(409, 'PENDIENTE_REVISION', 'Este producto está para revisar: se publica desde el panel.', { slug });
+      }
+      delete pedido.visible;
+      avisos.push('visible_ignorado_pendiente_revision');
+    }
+
+    const patch = {};
+    if (pedido.price !== undefined && pedido.price !== p.price) patch.price = pedido.price;
+    if (pedido.inStock !== undefined && pedido.inStock !== (p.inStock !== false)) patch.inStock = pedido.inStock;
+    if (pedido.visible !== undefined && pedido.visible !== (p.visible !== false)) patch.visible = pedido.visible;
+    if (patch.visible && p.pendingReview) patch.pendingReview = false;
+
+    const iso = ahora.toISOString();
+    const hayCambios = Object.keys(patch).length > 0;
+    if (vincular) {
+      tx.set(fuenteRef, { source: 'base44', sourceId: datos.sourceId, slug, createdAt: iso, vinculadoPor: 'actualizar' });
+      Object.assign(patch, { source: 'base44', sourceId: datos.sourceId });
+    }
+    if (hayCambios || vincular) {
+      tx.update(productos.doc(slug), { ...patch, ...(hayCambios ? { updatedAt: iso } : {}), syncedAt: iso, lastChangeOrigin: 'base44' });
+    }
+
+    const final = { ...p, ...patch };
+    const publico = final.visible !== false;
+    // Sólo hace falta rebuild si cambia algo que se ve en la web.
+    const requiereRebuild = 'visible' in patch || (publico && ('price' in patch || 'inStock' in patch));
+    const cambios = Object.keys(patch).filter((k) => !['source', 'sourceId', 'pendingReview'].includes(k));
+    const body = {
+      ok: true,
+      id: p.id || slug,
+      slug,
+      estado: estadoDe(final),
+      actualizado: hayCambios,
+      requiere_rebuild: requiereRebuild,
+      cambios,
+    };
+    if (vincular) body.vinculado = true;
+    if (datos.ignorados.length) body.ignorados = datos.ignorados;
+    if (avisos.length) body.avisos = avisos;
+    return { status: 200, body, antes: p, patch: hayCambios ? patch : null };
   });
 }
 
@@ -329,6 +483,20 @@ export const handler = async (event) => {
   try {
     const db = await getDb(process.cwd());
     const datos = v.datos;
+
+    if (datos.accion !== 'crear') {
+      const r = await actualizarProducto(db, datos, { publicarDirecto: process.env.CATALOGO_PUBLICAR_DIRECTO === '1' });
+      if (r.patch) {
+        const que = [
+          'price' in r.patch && `precio ${r.antes.price} → ${r.patch.price}`,
+          'inStock' in r.patch && (r.patch.inStock ? 'con stock' : 'sin stock'),
+          'visible' in r.patch && (r.patch.visible ? 'visible' : 'oculto'),
+        ].filter(Boolean);
+        await registrarActividad(db, 'product_synced', r.body.slug, `Base44 actualizó "${r.antes.name}": ${que.join(', ')}`);
+      }
+      return json(r.status, r.body);
+    }
+
     if (datos.imagenExterna) {
       // Si el source_id ya existe, no se sube nada: crearProducto responde
       // igual (200 o 409) y no queda una foto huérfana por cada reintento.
@@ -346,30 +514,42 @@ export const handler = async (event) => {
     }
     const r = await crearProducto(db, datos);
     if (r.product) {
-      // Queda en el historial del panel, como cualquier alta. Los reportes
-      // filtran por año/mes/día en hora de Argentina (el panel usa la del
-      // navegador; acá el servidor está en UTC).
-      const ar = new Date(Date.now() - 3 * 60 * 60 * 1000);
-      await db
-        .collection('activity')
-        .add({
-          uid: 'base44',
-          email: 'Base44',
-          action: 'product_created',
-          target: r.product.slug,
-          summary: `Base44 agregó "${r.product.name}"${r.product.pendingReview ? ' (para revisar)' : ''}`,
-          year: ar.getUTCFullYear(),
-          month: ar.getUTCMonth() + 1,
-          quarter: Math.floor(ar.getUTCMonth() / 3) + 1,
-          day: ar.getUTCDate(),
-          createdAt: FieldValue.serverTimestamp(),
-          clientTime: r.product.createdAt,
-        })
-        .catch((err) => console.error('No se pudo registrar la actividad:', err));
+      await registrarActividad(
+        db,
+        'product_created',
+        r.product.slug,
+        `Base44 agregó "${r.product.name}"${r.product.pendingReview ? ' (para revisar)' : ''}`
+      );
     }
     return json(r.status, r.body);
   } catch (err) {
-    console.error('alta de producto:', err);
-    return json(500, { ok: false, error: 'FALLO', mensaje: 'No se pudo crear el producto. Probá de nuevo.' });
+    console.error('productos:', err);
+    return json(500, { ok: false, error: 'FALLO', mensaje: 'No se pudo guardar el producto. Probá de nuevo.' });
   }
 };
+
+/**
+ * Queda en el historial del panel, como cualquier cambio. Los reportes
+ * filtran por año/mes/día en hora de Argentina (el panel usa la del
+ * navegador; acá el servidor está en UTC). Si falla, no corta la respuesta.
+ */
+function registrarActividad(db, action, target, summary) {
+  const ahora = new Date();
+  const ar = new Date(ahora.getTime() - 3 * 60 * 60 * 1000);
+  return db
+    .collection('activity')
+    .add({
+      uid: 'base44',
+      email: 'Base44',
+      action,
+      target,
+      summary,
+      year: ar.getUTCFullYear(),
+      month: ar.getUTCMonth() + 1,
+      quarter: Math.floor(ar.getUTCMonth() / 3) + 1,
+      day: ar.getUTCDate(),
+      createdAt: FieldValue.serverTimestamp(),
+      clientTime: ahora.toISOString(),
+    })
+    .catch((err) => console.error('No se pudo registrar la actividad:', err));
+}

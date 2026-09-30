@@ -225,11 +225,12 @@ listEl.addEventListener('click', async (e) => {
   if (e.target.closest('[data-toggle-stock]')) {
     const next = !p.inStock;
     try {
-      await updateDoc(productRef(p.slug), { inStock: next, updatedAt: new Date().toISOString() });
+      await updateDoc(productRef(p.slug), { inStock: next, updatedAt: new Date().toISOString(), lastChangeOrigin: 'panel' });
       p.inStock = next;
       render();
       toast(next ? 'Marcado con stock' : 'Marcado sin stock');
       logActivity('stock_toggled', `Marcó ${next ? 'con' : 'sin'} stock "${p.name}"`, p.slug);
+      avisarBase44('stock', [p], ['inStock']);
     } catch (err) {
       toast(err.message);
     }
@@ -243,6 +244,7 @@ listEl.addEventListener('click', async (e) => {
       const patch = {
         visible: next,
         updatedAt: new Date().toISOString(),
+        lastChangeOrigin: 'panel',
         ...(next && p.pendingReview ? { pendingReview: false } : {}),
       };
       await updateDoc(productRef(p.slug), patch);
@@ -250,6 +252,7 @@ listEl.addEventListener('click', async (e) => {
       render();
       toast(next ? 'Producto visible en el catálogo' : 'Producto oculto');
       logActivity('visibility_toggled', `${next ? 'Mostró' : 'Ocultó'} "${p.name}"`, p.slug);
+      avisarBase44(next ? 'publicado' : 'oculto', [p], ['visible']);
     } catch (err) {
       toast(err.message);
     }
@@ -351,8 +354,10 @@ $('#selbar').addEventListener('click', async (e) => {
     try {
       const batch = writeBatch(db);
       const now = new Date().toISOString();
-      slugs.forEach((slug) => batch.update(productRef(slug), { [field]: value, updatedAt: now }));
+      slugs.forEach((slug) => batch.update(productRef(slug), { [field]: value, updatedAt: now, lastChangeOrigin: 'panel' }));
       await batch.commit();
+      const evento = field === 'inStock' ? 'stock' : field === 'visible' ? (value ? 'publicado' : 'oculto') : 'modificado';
+      avisarBase44(evento, slugs, [field]);
 
       slugs.forEach((slug) => {
         const p = products.find((x) => x.slug === slug);
@@ -387,9 +392,11 @@ $('#selbar').addEventListener('click', async (e) => {
 
     try {
       const slugs = [...selected];
+      const borrados = products.filter((p) => selected.has(p.slug));
       const batch = writeBatch(db);
       slugs.forEach((slug) => batch.delete(productRef(slug)));
       await batch.commit();
+      avisarBase44('eliminado', borrados);
       products = products.filter((p) => !selected.has(p.slug));
       selected.clear();
       render();
@@ -521,12 +528,21 @@ form.addEventListener('submit', async (e) => {
 
   try {
     if (editing) {
+      const antes = products.find((p) => p.slug === editing);
+      // Qué cambió, para el aviso a Base44 (incluye "images" si se tocó la foto).
+      const cambios = Object.keys(payload).filter((k) => JSON.stringify(payload[k] ?? null) !== JSON.stringify(antes?.[k] ?? null));
       payload.updatedAt = new Date().toISOString();
-      if (payload.visible && products.find((p) => p.slug === editing)?.pendingReview) payload.pendingReview = false;
+      payload.lastChangeOrigin = 'panel';
+      if (payload.visible && antes?.pendingReview) payload.pendingReview = false;
       await updateDoc(productRef(editing), payload);
-      Object.assign(products.find((p) => p.slug === editing), payload);
+      const eraVisible = antes?.visible !== false;
+      Object.assign(antes, payload);
       toast('Cambios guardados', ico.check);
       logActivity('product_updated', `Editó "${payload.name}"`, editing);
+      if (cambios.length) {
+        const evento = eraVisible === payload.visible ? 'modificado' : payload.visible ? 'publicado' : 'oculto';
+        avisarBase44(evento, [antes], cambios);
+      }
     } else {
       const slug = await uniqueSlug(name);
       const now = new Date().toISOString();
@@ -539,10 +555,12 @@ form.addEventListener('submit', async (e) => {
         createdAt: now,
         updatedAt: now,
       };
+      product.lastChangeOrigin = 'panel';
       await setDoc(productRef(slug), product);
       products.unshift(product);
       toast('Producto agregado', ico.check);
       logActivity('product_created', `Agregó "${product.name}"`, slug);
+      avisarBase44('creado', [product]);
     }
     render();
     closeDialog(editor);
@@ -577,6 +595,7 @@ $('#btnDelete').addEventListener('click', async () => {
 
   try {
     await deleteDoc(productRef(editing));
+    avisarBase44('eliminado', [p]);
     products = products.filter((x) => x.slug !== editing);
     render();
     closeDialog(editor);
@@ -1041,6 +1060,7 @@ $('#bulkSave').addEventListener('click', async () => {
     const now = new Date().toISOString();
     const taken = new Set(products.map((p) => p.slug));
     let order = Math.min(0, ...products.map((p) => p.order ?? 0));
+    const nuevos = [];
 
     for (const r of newItems) {
       let slug = slugify(r.name);
@@ -1066,9 +1086,11 @@ $('#bulkSave').addEventListener('click', async () => {
         order: --order,
         createdAt: now,
         updatedAt: now,
+        lastChangeOrigin: 'panel',
       };
       batch.set(productRef(slug), product);
       products.push(product);
+      nuevos.push(slug);
     }
 
     for (const r of updateItems) {
@@ -1077,6 +1099,7 @@ $('#bulkSave').addEventListener('click', async () => {
         category: r.category,
         inStock: true,
         updatedAt: now,
+        lastChangeOrigin: 'panel',
         ...(r.description ? { description: r.description } : {}),
       };
       batch.update(productRef(r.matchSlug), patch);
@@ -1084,6 +1107,8 @@ $('#bulkSave').addEventListener('click', async () => {
     }
 
     await batch.commit();
+    avisarBase44('creado', nuevos);
+    avisarBase44('modificado', updateItems.map((r) => r.matchSlug), ['price', 'category', 'inStock']);
     render();
     closeDialog(bulkDlg);
     const partes = [];
@@ -1137,9 +1162,13 @@ fetch('/api/ai/status')
 /** El ID token de la sesión del panel, para que /api/* sepa que sos vos.
     Firebase lo renueva solo; getIdToken() devuelve uno vigente. Si no hay
     sesión devuelve '' y la función del servidor contesta 401. */
+let ultimoIdToken = '';
 async function authHeader() {
   try {
     const token = await auth.currentUser?.getIdToken();
+    // Se guarda para el aviso de publicación al cerrar la pestaña, que no
+    // puede esperar a una promesa (ver 'pagehide' más abajo).
+    if (token) ultimoIdToken = token;
     return token ? { authorization: `Bearer ${token}` } : {};
   } catch {
     return {};
@@ -1466,12 +1495,17 @@ stockAIChat.addEventListener('click', async (e) => {
     const applied = [];
     for (const fila of checked) {
       const a = thread.acciones[Number(fila.dataset.i)];
-      const patch = { ...CAMBIO_PATCH[a.cambio], updatedAt: now };
+      const patch = { ...CAMBIO_PATCH[a.cambio], updatedAt: now, lastChangeOrigin: 'panel' };
       batch.update(productRef(a.slug), patch);
       applied.push({ slug: a.slug, patch });
     }
     await batch.commit();
     for (const { slug, patch } of applied) Object.assign(products.find((p) => p.slug === slug) || {}, patch);
+    for (const cambio of Object.keys(CAMBIO_PATCH)) {
+      const slugs = thread.acciones.filter((a, i) => a.cambio === cambio && checked.some((fila) => Number(fila.dataset.i) === i)).map((a) => a.slug);
+      const evento = { sin_stock: 'stock', con_stock: 'stock', ocultar: 'oculto', mostrar: 'publicado' }[cambio];
+      avisarBase44(evento, slugs, Object.keys(CAMBIO_PATCH[cambio]));
+    }
 
     render();
     logActivity(
@@ -2101,13 +2135,40 @@ function scheduleRebuild() {
   }, 20000);
 }
 // Cerrar o cambiar de pestaña con una publicación pendiente: sale ya, sin
-// esperar la demora (sendBeacon es un POST que sobrevive al cierre).
+// esperar la demora. fetch con keepalive sobrevive al cierre igual que
+// sendBeacon, pero puede llevar la sesión: /api/rebuild ya no atiende sin
+// ella (30/09). El token es el último que se usó (dura una hora).
 window.addEventListener('pagehide', () => {
   if (!rebuildTimer) return;
   clearTimeout(rebuildTimer);
   rebuildTimer = null;
-  navigator.sendBeacon('/api/rebuild');
+  fetch('/api/rebuild', {
+    method: 'POST',
+    keepalive: true,
+    headers: ultimoIdToken ? { authorization: `Bearer ${ultimoIdToken}` } : {},
+  }).catch(() => {});
 });
+
+/* ---------- Aviso a Base44 ----------
+   Después de cada cambio guardado, se le avisa a Base44 (vía
+   netlify/functions/base44-aviso.js, que lee el estado real de Firestore y
+   guarda el token). Va "al costado", como el historial: si falla, el
+   cambio ya está hecho y la conciliación nocturna lo levanta igual. */
+function avisarBase44(evento, lista, cambios = []) {
+  const productos = lista
+    .filter(Boolean)
+    .map((p) => (typeof p === 'string' ? products.find((x) => x.slug === p) || { slug: p } : p))
+    .map((p) => ({ slug: p.slug, source_id: p.sourceId || null }));
+  if (!productos.length) return;
+  authHeader().then((h) =>
+    fetch('/api/base44/aviso', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'content-type': 'application/json', ...h },
+      body: JSON.stringify({ evento, cambios, productos }),
+    }).catch((err) => console.error('No se pudo avisar a Base44:', err))
+  );
+}
 
 function logActivity(action, summary, target = null) {
   const user = auth.currentUser;

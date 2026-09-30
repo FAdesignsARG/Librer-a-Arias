@@ -16,6 +16,7 @@
  * gastar los minutos de build del sitio con sólo mirar el código fuente
  * del panel.
  */
+import crypto from 'node:crypto';
 import { json, hasAdminSession } from './_helpers.js';
 
 /**
@@ -31,18 +32,19 @@ import { json, hasAdminSession } from './_helpers.js';
  *   - el secreto compartido `REBUILD_TOKEN`, que va en el header
  *     `x-rebuild-token` — es el que le pasamos a Base44.
  *
- * Y mientras `REBUILD_TOKEN` NO esté configurada en Netlify, el endpoint
- * sigue abierto como hasta ahora. Es a propósito: si se cerrara de golpe,
- * Base44 dejaría de poder publicar en el momento del deploy, antes de que
- * Rodri tenga el token. Cargar la variable es lo que activa el candado.
+ * Desde el 30/09 (pedido de Rodri, OK de Fran) está CERRADO para el resto:
+ * sin `REBUILD_TOKEN` cargada, sólo el panel puede pedir una publicación.
+ * Antes quedaba abierto mientras faltara la variable, para no cortarle la
+ * publicación a Base44 antes de que tuviera el token.
  */
 async function puedePedirRebuild(event) {
-  const esperado = process.env.REBUILD_TOKEN;
-  if (!esperado) return true;
-
+  const esperado = process.env.REBUILD_TOKEN || '';
   const enviado = event.headers?.['x-rebuild-token'] || event.headers?.['X-Rebuild-Token'] || '';
-  if (enviado && enviado === esperado) return true;
-
+  if (esperado && enviado) {
+    const x = Buffer.from(enviado);
+    const y = Buffer.from(esperado);
+    if (x.length === y.length && crypto.timingSafeEqual(x, y)) return true;
+  }
   return hasAdminSession(event);
 }
 

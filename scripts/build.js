@@ -261,6 +261,7 @@ await write(
 /api/ai/summarize-activity  /.netlify/functions/ai-summarize-activity  200
 /api/rebuild                /.netlify/functions/rebuild                200
 /api/productos              /.netlify/functions/productos              200
+/api/base44/aviso           /.netlify/functions/base44-aviso           200
 
 # Cualquier otra ruta desconocida cae en la portada con código 404 real
 /*  /index.html  404
