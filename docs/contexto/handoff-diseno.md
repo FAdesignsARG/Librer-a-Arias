@@ -55,7 +55,16 @@ Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
    Rodri: bridge `2026-09-29.1`, dice que corrigió la tanda duplicada →
    **volver a correr el cruce**. Falta: token en ambos lados, cruce limpio,
    alta de prueba (y ver si el preset de Cloudinary acepta jpg/png).
-6. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
+6. **30/09 — circuito bidireccional, commit `8993477` SIN PUBLICAR.** Fran
+   decidió: Base44 manda precio, stock y visible; el panel, nombre,
+   descripción, rubro y foto. `/api/productos` suma `actualizar`/`ocultar`/
+   `habilitar` (vincula con `slug` la 1.ª vez; 409 si ya está atado a otro
+   source_id). `/api/base44/aviso` (panel → Base44). `/api/rebuild` cerrado
+   sin token. **Orden para publicar:** REBUILD_TOKEN cargado en Netlify Y en
+   Base44 antes del push, o Base44 recibe 401 al publicar. Pruebas: 
+   `node tmp/test-productos.mjs` y `node tmp/test-aviso-rebuild.mjs`. El
+   aviso con sesión real y el pagehide no se pudieron probar (sin login).
+7. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
 
 ## ESTADO AL 26/09/2026
 
