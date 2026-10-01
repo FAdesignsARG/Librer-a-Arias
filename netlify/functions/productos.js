@@ -37,10 +37,16 @@ import { getDb } from '../../src/firebase-admin.js';
 import { cloudinaryConfig } from '../../src/cloudinary-config.js';
 import { json as jsonBase } from './_helpers.js';
 
-/** Base44 lee `success`; el resto del contrato usa `ok`. Van los dos. */
-const json = (status, body) => jsonBase(status, { success: body.ok, ...body });
+/** Base44 lee `success` y `message`; el resto del contrato usa `ok` y
+    `mensaje`. Van los dos pares, siempre. */
+const json = (status, body) =>
+  jsonBase(status, { success: body.ok, ...body, ...(body.mensaje ? { message: body.mensaje } : {}) });
 
 export const RUBROS = ['Juguetería', 'Tecnología', 'Regalería', 'Bazar', 'Librería'];
+
+/** "Juguetería", "jugueteria", "JUGUETERÍA" o la tilde en otra codificación
+    → el nombre exacto del rubro. null si no es ninguno de los cinco. */
+export const rubroDe = (s) => RUBROS.find((r) => normName(r) === normName(s)) || null;
 const CLOUD = 'nzyq1xgf';
 
 /** Mismo slug que arma el panel (src/admin/admin.js). */
@@ -120,7 +126,8 @@ export function validar(body) {
   const price = Number(body.price);
   if (!Number.isFinite(price) || price <= 0) return mal('PRECIO_INVALIDO', 'price tiene que ser un número mayor a 0.');
 
-  if (!RUBROS.includes(body.category))
+  const category = rubroDe(body.category);
+  if (!category)
     return mal('RUBRO_INVALIDO', `category tiene que ser uno de: ${RUBROS.join(', ')}.`);
 
   const description = String(body.description ?? '').trim();
@@ -150,7 +157,7 @@ export function validar(body) {
       sourceId,
       name,
       price,
-      category: body.category,
+      category,
       description,
       imagen,
       imagenExterna,

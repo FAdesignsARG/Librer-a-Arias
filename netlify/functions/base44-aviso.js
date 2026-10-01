@@ -24,7 +24,11 @@
  */
 import { getDb } from '../../src/firebase-admin.js';
 import { cloudinaryUrl } from '../../src/cloudinary-config.js';
-import { json, hasAdminSession } from './_helpers.js';
+import { json as jsonBase, hasAdminSession } from './_helpers.js';
+
+/** Mismo formato que /api/productos: success/ok, error, message/mensaje. */
+const json = (status, body) =>
+  jsonBase(status, { success: body.ok, ...body, ...(body.mensaje ? { message: body.mensaje } : {}) });
 
 export const EVENTOS = ['creado', 'modificado', 'publicado', 'oculto', 'stock', 'eliminado'];
 const MAX_PRODUCTOS = 500;
