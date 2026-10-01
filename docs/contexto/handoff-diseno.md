@@ -64,7 +64,12 @@ Publicar = `git push origin main` con OK explícito de Fran (etiquetar antes).
    Base44 antes del push, o Base44 recibe 401 al publicar. Pruebas: 
    `node tmp/test-productos.mjs` y `node tmp/test-aviso-rebuild.mjs`. El
    aviso con sesión real y el pagehide no se pudieron probar (sin login).
-7. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
+7. **01/10:** Rodri tiene el receptor listo (sin publicar):
+   `BASE44_PRODUCT_SYNC_URL` = `https://base44.app/api/apps/6a7e432be6e59ad993e40158/functions/producto-web-sync`
+   (hoy responde 503 `SYNC_CERRADO` hasta tener el token). Acepta la regla
+   de autoridad. `/api/productos` en producción sigue en 503: falta cargar
+   `CATALOGO_WRITE_TOKEN`. Faltan los 3 secretos (los genera Fran).
+8. Siguen los pendientes de abajo (vista previa de WhatsApp, críticos, etc.).
 
 ## ESTADO AL 26/09/2026
 
