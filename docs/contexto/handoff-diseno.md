@@ -1,8 +1,68 @@
 # Handoff — web-app de Librería Arias (rama `preview`)
 
-Actualizado: 29/09/2026. Leer esto primero al retomar en un chat nuevo;
+Actualizado: 05/10/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 29/09/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 05/10/2026 — EMPEZAR POR ACÁ
+
+Cargar la skill `libreria-arias-control` y la memoria. Se trabaja en `main`.
+**Todo publicado**: `origin/main` = `main` = `41a9dec` (push del 01/10;
+respaldo `prod-antes-20261001` = `a530dda`). Nada local sin subir.
+
+### Qué hay en producción (integración Base44 ↔ web)
+- `POST /api/productos` (`netlify/functions/productos.js`), token
+  `x-catalogo-token` = `CATALOGO_WRITE_TOKEN`:
+  - `crear`: idempotente por `source_id` (`fuentes_externas/base44_<id>`),
+    slug permanente, 409 `POSIBLE_DUPLICADO`, foto externa → se importa a
+    Cloudinary (preset unsigned; si falla 422/502 y no crea). Entra oculto
+    "para revisar" salvo `publish:true` con `CATALOGO_PUBLICAR_DIRECTO=1`.
+  - `actualizar` / `ocultar` / `habilitar` por `source_id`. **Decisión de
+    Fran 30/09: Base44 manda precio, stock y visible; el panel manda nombre,
+    descripción, rubro y foto** (si Base44 los manda, vuelven en
+    `ignorados`). Primera vez: `slug` para vincular; 409 `VINCULO_DISTINTO`
+    si ya está atado a otro source_id. Nunca borra. `requiere_rebuild` sólo
+    si cambia algo público. Rubro tolerante a tildes/mayúsculas.
+- `POST /api/rebuild`: **cerrado**; sólo `x-rebuild-token` (= `REBUILD_TOKEN`)
+  o sesión del panel. Deduplica pedidos dentro de 20 s (`deduplicado:true`,
+  doc `sistema/rebuild` en Firestore).
+- `POST /api/base44/aviso` (`base44-aviso.js`): el panel avisa
+  creado/modificado/publicado/oculto/stock/eliminado → reenvía a
+  `BASE44_PRODUCT_SYNC_URL` con `x-sync-token`. Receptor de Rodri:
+  `.../functions/producto-web-sync`.
+- Todas las respuestas: `success`/`ok`, `error`, `message`/`mensaje`.
+- Toda ruta `/api/*` nueva va en `scripts/build.js` (`dist/_redirects`) Y en
+  `netlify.toml`: el `/* 404` de `_redirects` la tapa (pasó el 29/09).
+- Pruebas: `node tmp/test-productos.mjs`, `node tmp/test-aviso-rebuild.mjs`.
+
+### Dónde quedamos (01/10 → 05/10)
+- Fran cargó en Netlify las 5 variables (3 secretas + URL + publicar
+  directo). Rodri cargó sus claves: su token pasó la autenticación.
+- Smoke test de Rodri con la taza (`source_id 6abdd0f9b6ccebc1457ac9bf`,
+  Bazar, `publish:true`) dio 403 `PUBLICAR_DESHABILITADO`: la función no
+  veía `CATALOGO_PUBLICAR_DIRECTO=1` (faltaba o se cargó después del
+  deploy). Se le pidió a Fran revisarla en Production + "Trigger deploy".
+- **Al 05/10 hubo deploys nuevos (703 productos) y la taza ya está en la web**
+  (`/p/taza-de-vidrio-con-asa-y-plato-de-madera/`). No se pudo confirmar si
+  entró por `/api/productos` (products.json no expone `sourceId`).
+
+### Próximos pasos
+1. Preguntar a Fran/Rodri si el smoke test se repitió y salió bien; en el
+   panel, la taza debería tener `source: base44` y su `sourceId`.
+2. Verificar en producción sin token: 401 en `/api/productos`,
+   `/api/rebuild` y `/api/base44/aviso`; `/api/ai/status` 200.
+3. Probar el resto con Rodri: actualizar precio/stock, ocultar/habilitar,
+   aviso panel → Base44 (con sesión de Fran; nunca se probó en real), y que
+   el panel publique al cerrar la pestaña (fetch keepalive con sesión).
+4. Cruce Base44: Rodri dijo que conciliaba los 137 duplicados; volver a
+   correr `node --use-system-ca tmp/cruce-base44.mjs`.
+5. Opcional ofrecido: aviso en la ficha del panel "precio y stock los
+   maneja Base44" para productos con `sourceId`.
+6. Siguen los pendientes de diseño de más abajo (vista previa WhatsApp, etc.).
+
+Reglas aprendidas: no compartir claves en el chat (Fran mandó una captura;
+se le pidió regenerarlas). Antes de publicar algo coordinado con Base44,
+confirmar que **los dos lados** están listos.
+
+## ESTADO AL 29/09/2026 (historia)
 
 Cargar la skill `libreria-arias-control` y la memoria. Se trabaja en `main`.
 `origin/main` = `f63b5ec` (publicado el 27/09, respaldo `prod-antes-20260927`).
