@@ -2,7 +2,28 @@
 
 Actualizado: 05/10/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 05/10/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 05/10/2026 (noche) — EMPEZAR POR ACÁ
+
+Prioridad de Fran: circuito **WhatsApp → Base44 → web**. Contrato y tareas
+de Base44 en `docs/contexto/contrato-base44-whatsapp-web.md` (pasárselo a
+Rodri).
+- Causa: Base44 manda `publish:true`; la web daba 403 porque
+  `CATALOGO_PUBLICAR_DIRECTO` **no está** en Producción (verificado con
+  `netlify env:get`). Base44 quedaba sin slug. La taza la cargó Fran a mano
+  en el panel el 02/10 (sin `sourceId`): un reintento daba 409.
+- Arreglo en `productos.js`: publicación directa por defecto (decisión de
+  Fran: el Alta rápida es la revisión; `=0` la apaga); `crear` nunca se
+  rechaza por `publish`; `crear` **adopta** un producto cargado a mano
+  (un candidato, sin vínculo, mismo rubro, mismo nombre+precio o misma
+  foto); `crear` repetido publica lo que estaba "para revisar" pero no lo
+  ocultado; respuestas con `source_id` y `url`.
+- Pruebas: `node tmp/test-productos.mjs` (bloque "whatsapp -> web", Tests
+  1–6 simulados) OK.
+- Falta: que Rodri ajuste `publicar-producto-web`, "Publicar cambios",
+  rutina 23:00 y estados del canal, y correr los Tests 1–6 reales. Después
+  verificar en Firestore que la taza tenga `sourceId` = Product.id.
+
+## ESTADO AL 05/10/2026 (mañana, historia)
 
 Cargar la skill `libreria-arias-control` y la memoria. Se trabaja en `main`.
 **Todo publicado**: `origin/main` = `main` = `41a9dec` (push del 01/10;

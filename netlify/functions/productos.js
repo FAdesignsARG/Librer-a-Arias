@@ -7,11 +7,17 @@
  * POS; nombre, descripción, rubro y foto siguen siendo del panel (decisión
  * de Fran). Nunca borra: dar de baja es ocultar.
  *
- * Decisión del 27/09/2026 (Rodri, con el OK de Fran): lo que llega de
- * Base44 entra OCULTO y marcado "para revisar" (`pendingReview`). Alguien
- * lo mira en el panel y lo publica. `publish: true` ya es parte del
- * contrato, pero está apagado hasta que se cargue
- * `CATALOGO_PUBLICAR_DIRECTO=1` en Netlify.
+ * Publicación (Fran, 05/10/2026, reemplaza la del 27/09): la revisión es el
+ * "Alta rápida" de Base44, así que `publish: true` y `habilitar` publican
+ * directo. `CATALOGO_PUBLICAR_DIRECTO=0` en Netlify vuelve al modo "entra
+ * oculto para revisar" — y aun así `crear` nunca se rechaza por `publish`:
+ * crea oculto y devuelve el slug, para que Base44 no quede sin vínculo
+ * (eso dejó trabada la taza del canal de WhatsApp: 403 y sin slug).
+ *
+ * Recuperación: si el producto ya se cargó a mano en el panel (mismo nombre
+ * y precio o misma foto, mismo rubro, sin vínculo, un solo candidato),
+ * `crear` lo adopta: lo ata a ese source_id y devuelve su slug en vez de
+ * responder 409. Cualquier otra coincidencia sigue siendo 409 para revisar.
  *
  * Seguridad: token propio `CATALOGO_WRITE_TOKEN` (NO es el de /api/rebuild),
  * en `x-catalogo-token` o `Authorization: Bearer`. A diferencia de
@@ -261,9 +267,35 @@ export async function importarImagen(url, fetchImpl = fetch) {
  * Todo corre en una transacción: dos pedidos iguales al mismo tiempo no
  * pueden crear dos productos.
  */
-export async function crearProducto(db, datos, ahora = new Date()) {
+export async function crearProducto(db, datos, { ahora = new Date(), publicarDirecto = true } = {}) {
   const productos = db.collection('products');
   const fuenteRef = db.collection('fuentes_externas').doc(`base44_${datos.sourceId}`);
+  const publicar = datos.publish && publicarDirecto;
+  const iso = ahora.toISOString();
+  const avisos = datos.publish && !publicarDirecto ? ['publish_ignorado_pendiente_revision'] : [];
+
+  /** Producto que ya existe en la web (por vínculo o adoptado): se devuelve
+      su slug y, si se pidió publicar y estaba "para revisar", se publica.
+      Un producto ocultado a propósito no se publica con `crear`: para eso
+      está `habilitar`. */
+  const existente = (tx, slug, p, { adoptado = null } = {}) => {
+    const patch = {};
+    if (publicar && p.visible === false && p.pendingReview) Object.assign(patch, { visible: true, pendingReview: false });
+    if (adoptado) {
+      Object.assign(patch, { source: 'base44', sourceId: datos.sourceId });
+      if (datos.price !== p.price) patch.price = datos.price;
+      tx.set(fuenteRef, { source: 'base44', sourceId: datos.sourceId, slug, createdAt: iso, vinculadoPor: 'crear' });
+    }
+    if (Object.keys(patch).length) {
+      tx.update(productos.doc(slug), { ...patch, updatedAt: iso, syncedAt: iso, lastChangeOrigin: 'base44' });
+    }
+    const final = { ...p, ...patch };
+    const requiereRebuild = 'visible' in patch || (final.visible !== false && 'price' in patch);
+    const body = { ok: true, id: p.id || slug, slug, source_id: datos.sourceId, creado: false, estado: estadoDe(final), requiere_rebuild: requiereRebuild, url: urlDe(slug) };
+    if (adoptado) Object.assign(body, { vinculado: true, adoptado: adoptado.motivo });
+    if (avisos.length) body.avisos = avisos;
+    return { status: 200, body, antes: p, adoptado: !!adoptado };
+  };
 
   return db.runTransaction(async (tx) => {
     const fuente = await tx.get(fuenteRef);
@@ -281,15 +313,18 @@ export async function crearProducto(db, datos, ahora = new Date()) {
           },
         };
       }
-      const p = prod.data();
-      return { status: 200, body: { ok: true, id: p.id || slug, slug, creado: false, estado: estadoDe(p), requiere_rebuild: false } };
+      return existente(tx, slug, prod.data());
     }
 
     // Colisión por foto: la misma imagen ya está en otro producto.
     const candidatos = [];
+    const docs = new Map();
     if (datos.imagen) {
       const porFoto = await tx.get(productos.where('images', 'array-contains', datos.imagen).limit(5));
-      porFoto.forEach((d) => candidatos.push({ ...resumen(d.data()), motivo: 'misma_foto' }));
+      porFoto.forEach((d) => {
+        docs.set(d.data().slug, d.data());
+        candidatos.push({ ...resumen(d.data()), motivo: 'misma_foto' });
+      });
     }
 
     // Colisión por nombre y slug libre, en una sola pasada por la cadena
@@ -301,9 +336,20 @@ export async function crearProducto(db, datos, ahora = new Date()) {
       if (!doc.exists) break;
       const p = doc.data();
       if (normName(p.name) === normName(datos.name) && !candidatos.some((c) => c.slug === p.slug)) {
+        docs.set(p.slug, p);
         candidatos.push({ ...resumen(p), motivo: p.price === datos.price ? 'mismo_nombre_y_precio' : 'mismo_nombre' });
       }
       slug = `${base}-${n}`;
+    }
+
+    // Un solo candidato claro, sin vínculo y del mismo rubro: es el mismo
+    // producto cargado a mano en el panel. Se adopta en vez de duplicarlo.
+    if (candidatos.length === 1) {
+      const c = candidatos[0];
+      const p = docs.get(c.slug);
+      if (!c.source_id && p.category === datos.category && c.motivo !== 'mismo_nombre') {
+        return existente(tx, c.slug, p, { adoptado: c });
+      }
     }
 
     if (candidatos.length) {
@@ -320,7 +366,6 @@ export async function crearProducto(db, datos, ahora = new Date()) {
 
     const primero = await tx.get(productos.orderBy('order', 'asc').limit(1));
     const minOrder = primero.empty ? 0 : Math.min(0, primero.docs[0].data().order ?? 0);
-    const iso = ahora.toISOString();
     const product = {
       id: slug,
       slug,
@@ -331,8 +376,8 @@ export async function crearProducto(db, datos, ahora = new Date()) {
       images: datos.imagen ? [datos.imagen] : [],
       inStock: true,
       featured: false,
-      visible: datos.publish,
-      pendingReview: !datos.publish,
+      visible: publicar,
+      pendingReview: !publicar,
       source: 'base44',
       sourceId: datos.sourceId,
       tags: '',
@@ -349,11 +394,9 @@ export async function crearProducto(db, datos, ahora = new Date()) {
 
     // Oculto no cambia nada público: no hace falta rebuild (al publicarlo, el
     // panel republica solo). Publicado directo: Base44 llama a /api/rebuild.
-    return {
-      status: 201,
-      body: { ok: true, id: slug, slug, creado: true, estado: estadoDe(product), requiere_rebuild: product.visible },
-      product,
-    };
+    const body = { ok: true, id: slug, slug, source_id: datos.sourceId, creado: true, estado: estadoDe(product), requiere_rebuild: product.visible, url: urlDe(slug) };
+    if (avisos.length) body.avisos = avisos;
+    return { status: 201, body, product };
   });
 }
 
@@ -443,7 +486,9 @@ export async function actualizarProducto(db, datos, { ahora = new Date(), public
       ok: true,
       id: p.id || slug,
       slug,
+      source_id: datos.sourceId,
       estado: estadoDe(final),
+      url: urlDe(slug),
       actualizado: hayCambios,
       requiere_rebuild: requiereRebuild,
       cambios,
@@ -456,6 +501,11 @@ export async function actualizarProducto(db, datos, { ahora = new Date(), public
 }
 
 const estadoDe = (p) => (p.visible === false ? (p.pendingReview ? 'pendiente_revision' : 'oculto') : 'publicado');
+/** Ficha pública ("Ver web"). Existe recién cuando el rebuild termina y el
+    slug aparece en /data/products.json: eso es lo que hay que verificar. */
+const urlDe = (slug) => `${process.env.URL || 'https://libreria-arias.netlify.app'}/p/${slug}/`;
+/** Publicación directa salvo que Fran la apague con `CATALOGO_PUBLICAR_DIRECTO=0`. */
+const publicarDirecto = () => process.env.CATALOGO_PUBLICAR_DIRECTO !== '0';
 const resumen = (p) => ({ slug: p.slug, name: p.name, price: p.price, source_id: p.sourceId || null });
 
 export const handler = async (event) => {
@@ -479,20 +529,12 @@ export const handler = async (event) => {
   const v = validar(body);
   if (v.error) return json(422, { ok: false, error: v.error, mensaje: v.mensaje });
 
-  if (v.datos.publish && process.env.CATALOGO_PUBLICAR_DIRECTO !== '1') {
-    return json(403, {
-      ok: false,
-      error: 'PUBLICAR_DESHABILITADO',
-      mensaje: 'Por ahora los productos de Base44 entran ocultos para revisar. Mandá publish: false.',
-    });
-  }
-
   try {
     const db = await getDb(process.cwd());
     const datos = v.datos;
 
     if (datos.accion !== 'crear') {
-      const r = await actualizarProducto(db, datos, { publicarDirecto: process.env.CATALOGO_PUBLICAR_DIRECTO === '1' });
+      const r = await actualizarProducto(db, datos, { publicarDirecto: publicarDirecto() });
       if (r.patch) {
         const que = [
           'price' in r.patch && `precio ${r.antes.price} → ${r.patch.price}`,
@@ -519,7 +561,7 @@ export const handler = async (event) => {
         }
       }
     }
-    const r = await crearProducto(db, datos);
+    const r = await crearProducto(db, datos, { publicarDirecto: publicarDirecto() });
     if (r.product) {
       await registrarActividad(
         db,
@@ -527,6 +569,10 @@ export const handler = async (event) => {
         r.product.slug,
         `Base44 agregó "${r.product.name}"${r.product.pendingReview ? ' (para revisar)' : ''}`
       );
+    } else if (r.adoptado) {
+      await registrarActividad(db, 'product_synced', r.body.slug, `Base44 vinculó "${r.antes.name}" (ya estaba cargado en el panel)`);
+    } else if (r.body.requiere_rebuild) {
+      await registrarActividad(db, 'product_synced', r.body.slug, `Base44 publicó "${r.antes.name}"`);
     }
     return json(r.status, r.body);
   } catch (err) {
