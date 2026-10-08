@@ -11,10 +11,11 @@ bloque "Destacado" nuevo (estilo `calido` opcional). Todo en
 configuración real de Gestión + `product_slugs` simulados (celular y
 desktop, claro y oscuro, búsqueda dentro de la colección, carrito, bloque
 vencido, sin slugs).
-- **Bloqueante para que la colección funcione en producción:** Rodri tiene
-  que mandar `product_slugs` (hoy `product_ids` son IDs de Base44 y ninguno
-  está vinculado en la web). Mientras tanto el CTA vuelve a `/catalogo/` y
-  la colección muestra "no disponible".
+- **Publicado y verificado en producción el 08/10** (`b2f6a65`, respaldo
+  `prod-antes-20261008`): Rodri ya manda `product_slugs` (30, todos
+  existen) y `estilo: "calido"`. La colección muestra los 30 en orden y
+  nada más; la home arranca por los 15 destacados de Gestión; Fraunces
+  carga; sin errores de consola.
 - Prueba local sin Firestore: servidor del scratchpad que renderiza con
   `src/templates.js` y datos bajados de producción, con
   `ARIAS_PAGE_CONTROL.previewPayload` (sólo en localhost).
