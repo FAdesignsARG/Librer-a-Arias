@@ -440,3 +440,31 @@
 .catalog-exit svg { width: 18px; height: 18px; }
 .catalog-lead[hidden], .catalog-exit[hidden] { display: none; }
 body.is-collection #catalogo .catalog-head { flex-wrap: wrap; align-items: baseline; justify-content: flex-start; column-gap: 16px; row-gap: 0; }
+
+/* "Volver a regalos para mamá": aparece al buscar dentro de una colección
+   (la búsqueda sale a todo el catálogo). Pastilla secundaria: la acción
+   principal de la pantalla siguen siendo los productos. */
+.catalog-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  margin: 10px 0 0;
+  padding: 0 20px 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur-fast, .16s) var(--ease-out, ease), transform var(--dur-fast, .16s) var(--ease-out, ease);
+}
+.catalog-back svg { width: 20px; height: 20px; flex: none; color: var(--gold-text); }
+.catalog-back:hover { background: color-mix(in srgb, var(--gold) 20%, transparent); }
+.catalog-back:active { transform: scale(.98); }
+.catalog-back:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.catalog-back[hidden] { display: none; }
+body.is-collection #catalogo .catalog-back { flex: 0 0 auto; }
+@media (prefers-reduced-motion: reduce) { .catalog-back { transition: none; } }

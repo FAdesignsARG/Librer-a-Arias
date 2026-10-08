@@ -15,16 +15,20 @@ Prueba: `node tmp/test-colecciones.mjs`.
   carga muestra tarjetas vacías (nunca el catálogo entero). Si el bloque no
   existe, venció o no tiene productos en la web: aviso + "Ver todo el
   catálogo".
-- Funcionan búsqueda, rubro, precio, orden, carrito, ficha y WhatsApp,
-  siempre dentro de la selección.
+- Rubro, precio y orden filtran dentro de la selección.
+- **Buscar no se limita a la colección (08/10):** con texto en el buscador se
+  busca en todo el catálogo público ("6 productos en todo el catálogo") y
+  aparece "Volver a …" (sale del `cta_texto`: "Ver regalos para mamá" →
+  "Volver a regalos para mamá"). Al borrar la búsqueda vuelve la selección.
+  Vale para todas las colecciones.
+- Carrito, ficha y WhatsApp funcionan igual en los dos modos.
 - Productos borrados u ocultos se omiten.
 - El CTA del bloque va solo a su colección si `cta_url` está vacío o es
   `/catalogo/`. Cualquier otro `cta_url` se respeta.
 
-### Campo que falta: `product_slugs`
-Hoy `product_ids` trae IDs de Product de Base44, y la web no los reconoce:
-ninguno de los 30 del Mes de la Madre está vinculado (sin `sourceId` en la
-web). **Pedido a Rodri:** en cada bloque, sumar
+### Campo `product_slugs` (Base44 lo manda desde el 08/10)
+`product_ids` trae IDs de Product de Base44, que la web no reconoce si el
+producto no está vinculado (sin `sourceId`). Por eso cada bloque manda
 
 ```json
 "product_slugs": ["espejo-con-luz-led-exxtra-tech", "..."]

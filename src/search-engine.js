@@ -442,6 +442,9 @@ function editDist(a, b, max) {
 }
 const fuzzyOk = (a, b) => {
   if (a.length < 4 || b.length < 4) return false;
+  // "pava" está a una letra de "para": una palabra vacía nunca es un
+  // parecido válido (sumaba "candado para bicicleta" a buscar pava).
+  if (STOPWORDS.has(a) || STOPWORDS.has(b)) return false;
   const max = a.length <= 5 ? 1 : 2;
   return editDist(a, b, max) <= max;
 };

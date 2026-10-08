@@ -943,10 +943,17 @@ window.addEventListener('arias:featured-products', (e) => {
    /catalogo/?coleccion=<clave> muestra SÓLO los productos que Gestión eligió
    en ese bloque (src/collections.js). Mientras llega la configuración se ven
    las tarjetas de carga — nunca el catálogo entero —; si el bloque no
-   existe o terminó, un aviso con salida al catálogo. Búsqueda, rubros,
-   precio y orden siguen andando, pero dentro de la selección.
+   existe o terminó, un aviso con salida al catálogo. Rubros, precio y orden
+   filtran dentro de la selección.
+   Buscar NO se limita a la colección (Fran, 08/10): con texto en el
+   buscador se busca en todo el catálogo público; al borrarlo, o con
+   "Volver a …", vuelve la selección. La colección decide qué se destaca al
+   entrar, nunca el alcance del buscador.
    ========================================================================== */
 let dataReady = false;
+// La grilla no se dibuja antes de que el arranque lea ?q=, ?cat= y el
+// historial: dibujarla antes borraba la búsqueda de la dirección.
+let gridBooted = false;
 let ariasPayload = null;
 const rawCollection = IS_CATALOG ? new URLSearchParams(location.search).get(COLLECTION_PARAM) : null;
 const COLLECTION_KEY = rawCollection && validKey(rawCollection) ? rawCollection : null;
@@ -957,7 +964,7 @@ if (COLLECTION_KEY) {
   setTimeout(() => {
     if (collection.status !== 'loading') return;
     collection = { status: 'missing' };
-    if (dataReady) render();
+    if (gridBooted) render();
   }, 10_000);
 }
 
@@ -969,6 +976,10 @@ function syncCollection() {
     ? {
         status: 'ready',
         title: String(block.titulo || '').trim() || 'Selección especial',
+        // "Ver regalos para mamá" -> "Volver a regalos para mamá".
+        back: /^ver\s+\S/i.test(String(block.cta_texto || '').trim())
+          ? String(block.cta_texto).trim().replace(/^ver\s+/i, 'Volver a ')
+          : 'Volver a la selección',
         text: String(block.texto || '').trim(),
         slugs: new Set(list.map((p) => p.slug)),
         rank: new Map(list.map((p, i) => [p.slug, i])),
@@ -980,7 +991,7 @@ function syncCollection() {
       [...next.slugs].join() === [...collection.slugs].join()));
   if (same) return;
   collection = next;
-  render();
+  if (gridBooted) render();
 }
 
 /** Fotos y cantidad real en los bloques "Destacado" que tienen colección. Si
@@ -1025,6 +1036,14 @@ function onPageConfig(payload) {
   syncCollection();
 }
 window.addEventListener('arias:page-config-updated', (e) => onPageConfig(e.detail));
+
+// "Volver a regalos para mamá": borra la búsqueda y vuelve a la selección.
+$('#collectionBack')?.addEventListener('click', () => {
+  searchEl.value = '';
+  searchEl.dispatchEvent(new Event('input', { bubbles: true }));
+  render();
+  $('#catalogo')?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+});
 
 /** Colección todavía cargando o no disponible: nada del catálogo general. */
 function renderCollectionState() {
@@ -1140,12 +1159,15 @@ function filterByPrice(list, range) {
 
 function render() {
   if (!grid) return;
-  if (COLLECTION_KEY && collection.status !== 'ready') {
+  // En una colección, buscar sale de la selección y busca en todo el catálogo.
+  const searching = IS_CATALOG && !!searchEl.value.trim();
+  const inCollection = !!COLLECTION_KEY && !searching;
+  if (inCollection && collection.status !== 'ready') {
     renderCollectionState();
     return;
   }
 
-  const base = COLLECTION_KEY ? getIndex().filter((e) => collection.slugs.has(e.p.slug)) : getIndex();
+  const base = inCollection ? getIndex().filter((e) => collection.slugs.has(e.p.slug)) : getIndex();
   const pool =
     activeCat === 'Todos'
       ? base
@@ -1156,7 +1178,7 @@ function render() {
   const found = filterByPrice(searchProducts(query, pool), priceEl?.value);
   let list = sortList(found, IS_HOME ? 'destacados' : sortEl?.value || 'relevancia');
 
-  if (COLLECTION_KEY && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
+  if (inCollection && (sortEl?.value || 'relevancia') === 'relevancia') {
     // En una colección manda el orden elegido en Gestión.
     list = [...list].sort((a, b) => collection.rank.get(a.slug) - collection.rank.get(b.slug));
   } else if (ariasFeaturedSlugs.length && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
@@ -1207,15 +1229,20 @@ function render() {
   if (COLLECTION_KEY) {
     const lead = $('#catalogLead');
     if (lead) {
-      lead.textContent = collection.text;
-      lead.hidden = !collection.text;
+      lead.textContent = collection.text || '';
+      lead.hidden = !inCollection || !collection.text;
     }
     const exit = $('#catalogExit');
     if (exit) exit.hidden = false;
+    const back = $('#collectionBack');
+    if (back) {
+      back.hidden = !searching || collection.status !== 'ready';
+      if (collection.back) $('#collectionBackLabel').textContent = collection.back;
+    }
   }
   resultsLine.hidden = IS_HOME;
   resultsLine.textContent = total
-    ? `${total} ${total === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}${COLLECTION_KEY ? ' de esta selección' : ''}`
+    ? `${total} ${total === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}${inCollection ? ' de esta selección' : COLLECTION_KEY ? ' en todo el catálogo' : ''}`
     : '';
 
   searchWrap.dataset.filled = String(searchEl.value.length > 0);
@@ -1999,6 +2026,7 @@ if (grid) {
     render();
   }
 }
+gridBooted = true;
 
 // One search field, shared by the hero and the floating capsule.
 if ($('#homeSearch')) {
