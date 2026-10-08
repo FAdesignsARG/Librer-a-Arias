@@ -15,6 +15,7 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 // puede importar tal cual también en el navegador.
 import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, webDiscount as calcWebDiscount, thumbSrc, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
+import { COLLECTION_PARAM, validKey, findBlock, resolveCollection, collectionIds } from './collections.js';
 
 // root?. (no sólo el default `= document`): un default de parámetro sólo
 // entra en juego con `undefined`, nunca con `null` explícito — y varios
@@ -932,9 +933,124 @@ let activeCat = 'Todos';
 let ariasFeaturedSlugs = [];
 window.addEventListener('arias:featured-products', (e) => {
   ariasFeaturedSlugs = Array.isArray(e.detail?.productIds) ? e.detail.productIds : [];
+  if (!dataReady) return; // se aplica al terminar de cargar (ver ARRANQUE)
   if (grid) render();
   rotatePicks({ animate: false });
 });
+
+/* ==========================================================================
+   COLECCIONES DE GESTIÓN (08/10/2026)
+   /catalogo/?coleccion=<clave> muestra SÓLO los productos que Gestión eligió
+   en ese bloque (src/collections.js). Mientras llega la configuración se ven
+   las tarjetas de carga — nunca el catálogo entero —; si el bloque no
+   existe o terminó, un aviso con salida al catálogo. Búsqueda, rubros,
+   precio y orden siguen andando, pero dentro de la selección.
+   ========================================================================== */
+let dataReady = false;
+let ariasPayload = null;
+const rawCollection = IS_CATALOG ? new URLSearchParams(location.search).get(COLLECTION_PARAM) : null;
+const COLLECTION_KEY = rawCollection && validKey(rawCollection) ? rawCollection : null;
+let collection = { status: COLLECTION_KEY ? 'loading' : 'off' };
+if (COLLECTION_KEY) {
+  document.body.classList.add('is-collection');
+  // Si Gestión no responde en 10 s, se avisa en vez de dejar la carga eterna.
+  setTimeout(() => {
+    if (collection.status !== 'loading') return;
+    collection = { status: 'missing' };
+    if (dataReady) render();
+  }, 10_000);
+}
+
+function syncCollection() {
+  if (!COLLECTION_KEY || !ariasPayload) return;
+  const block = findBlock(ariasPayload, COLLECTION_KEY);
+  const list = block ? resolveCollection(block, PRODUCTS) : [];
+  const next = list.length
+    ? {
+        status: 'ready',
+        title: String(block.titulo || '').trim() || 'Selección especial',
+        text: String(block.texto || '').trim(),
+        slugs: new Set(list.map((p) => p.slug)),
+        rank: new Map(list.map((p, i) => [p.slug, i])),
+      }
+    : { status: 'missing' };
+  // La configuración se vuelve a pedir cada 60 s: sólo se redibuja si cambió.
+  const same = next.status === collection.status &&
+    (next.status !== 'ready' || (next.title === collection.title && next.text === collection.text &&
+      [...next.slugs].join() === [...collection.slugs].join()));
+  if (same) return;
+  collection = next;
+  render();
+}
+
+/** Fotos y cantidad real en los bloques "Destacado" que tienen colección. Si
+    ninguno de sus productos está en la web, el botón vuelve a su destino
+    original (no se ofrece una selección vacía). */
+function fillBlockProducts() {
+  if (!ariasPayload) return;
+  $$('[data-arias-dynamic-block]').forEach((article) => {
+    const block = findBlock(ariasPayload, article.dataset.ariasDynamicBlock);
+    if (!block || !collectionIds(block).length) return;
+    const list = resolveCollection(block, PRODUCTS);
+    const cta = article.querySelector('[data-cta-fallback]');
+    if (!list.length) {
+      if (cta) cta.href = cta.dataset.ctaFallback;
+      return;
+    }
+    const tag = article.querySelector('[data-arias-block-count]');
+    if (tag) {
+      tag.textContent = `${list.length} ${list.length === 1 ? 'producto elegido' : 'productos elegidos'}`;
+      tag.hidden = false;
+    }
+    const media = article.querySelector('[data-arias-block-products]');
+    if (media && !media.childElementCount) {
+      // 4 o 2 fotos: el mosaico siempre queda parejo (2×2 o 2 lado a lado).
+      const conFoto = list.filter((p) => p.images?.[0]);
+      const fotos = conFoto.slice(0, conFoto.length >= 4 ? 4 : 2);
+      if (fotos.length >= 2) {
+        media.innerHTML = fotos
+          .map((p) => `<span class="arias-pc-feature__ph"><img src="${thumbOf(p.images[0])}" alt="" loading="lazy" decoding="async"></span>`)
+          .join('');
+        media.dataset.count = String(fotos.length);
+        media.hidden = false;
+      }
+    }
+  });
+}
+
+function onPageConfig(payload) {
+  ariasPayload = payload;
+  if (!dataReady) return;
+  fillBlockProducts();
+  syncCollection();
+}
+window.addEventListener('arias:page-config-updated', (e) => onPageConfig(e.detail));
+
+/** Colección todavía cargando o no disponible: nada del catálogo general. */
+function renderCollectionState() {
+  const missing = collection.status === 'missing';
+  const filtersRow = $('#filters');
+  if (filtersRow) filtersRow.hidden = true;
+  const more = $('#catalogMore');
+  if (more) more.hidden = true;
+  resultsLine.hidden = missing;
+  resultsLine.textContent = missing ? '' : 'Cargando la selección…';
+  emptyEl.hidden = !missing;
+  const catalogTitle = $('#catalogTitle');
+  if (missing) {
+    grid.innerHTML = '';
+    if (catalogTitle) catalogTitle.textContent = 'Esta selección no está disponible';
+    emptyEl.querySelector('h3').textContent = 'No encontramos esta selección';
+    emptyEl.querySelector('.t-body').textContent = 'Puede que la campaña haya terminado. Mirá todo el catálogo o escribinos y te ayudamos.';
+    const wrap = $('#emptyClearWrap');
+    if (wrap) wrap.hidden = true;
+  }
+  const lead = $('#catalogLead');
+  if (lead) lead.hidden = true;
+  const exit = $('#catalogExit');
+  if (exit) exit.hidden = !missing;
+  syncCartUI();
+}
 
 /* ==========================================================================
    "ELEGIDOS PARA VOS" — rota cada 5 minutos, en tiempo real
@@ -1024,18 +1140,26 @@ function filterByPrice(list, range) {
 
 function render() {
   if (!grid) return;
+  if (COLLECTION_KEY && collection.status !== 'ready') {
+    renderCollectionState();
+    return;
+  }
 
+  const base = COLLECTION_KEY ? getIndex().filter((e) => collection.slugs.has(e.p.slug)) : getIndex();
   const pool =
     activeCat === 'Todos'
-      ? getIndex()
+      ? base
       : activeCat === 'Ofertas'
-        ? getIndex().filter((e) => offerActive(e.p))
-        : getIndex().filter((e) => e.p.category === activeCat);
+        ? base.filter((e) => offerActive(e.p))
+        : base.filter((e) => e.p.category === activeCat);
   const query = IS_HOME ? '' : searchEl.value;
   const found = filterByPrice(searchProducts(query, pool), priceEl?.value);
   let list = sortList(found, IS_HOME ? 'destacados' : sortEl?.value || 'relevancia');
 
-  if (ariasFeaturedSlugs.length && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
+  if (COLLECTION_KEY && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
+    // En una colección manda el orden elegido en Gestión.
+    list = [...list].sort((a, b) => collection.rank.get(a.slug) - collection.rank.get(b.slug));
+  } else if (ariasFeaturedSlugs.length && !query.trim() && (sortEl?.value || 'relevancia') === 'relevancia') {
     const rank = new Map(ariasFeaturedSlugs.map((slug, i) => [slug, i]));
     list = [...list].sort(
       (a, b) => (rank.has(a.slug) ? rank.get(a.slug) : Infinity) - (rank.has(b.slug) ? rank.get(b.slug) : Infinity)
@@ -1076,11 +1200,22 @@ function render() {
   const catalogTitle = $('#catalogTitle');
   if (catalogTitle && IS_CATALOG) {
     const q = query.trim();
-    catalogTitle.textContent = q ? `Resultados para “${q}”` : activeCat === 'Todos' ? 'Catálogo' : activeCat;
+    catalogTitle.textContent = q
+      ? `Resultados para “${q}”`
+      : COLLECTION_KEY ? collection.title : activeCat === 'Todos' ? 'Catálogo' : activeCat;
+  }
+  if (COLLECTION_KEY) {
+    const lead = $('#catalogLead');
+    if (lead) {
+      lead.textContent = collection.text;
+      lead.hidden = !collection.text;
+    }
+    const exit = $('#catalogExit');
+    if (exit) exit.hidden = false;
   }
   resultsLine.hidden = IS_HOME;
   resultsLine.textContent = total
-    ? `${total} ${total === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}`
+    ? `${total} ${total === 1 ? 'producto' : 'productos'}${activeCat !== 'Todos' ? ` en ${activeCat}` : ''}${COLLECTION_KEY ? ' de esta selección' : ''}`
     : '';
 
   searchWrap.dataset.filled = String(searchEl.value.length > 0);
@@ -1821,6 +1956,21 @@ if (lightboxDlg && $('#stage')) {
    ========================================================================== */
 
 await loadData();
+dataReady = true;
+{
+  // Si Gestión respondió antes de que terminara de cargar el catálogo, sus
+  // avisos ya pasaron: se toma lo último que llegó.
+  const early = window.AriasPageControl?.getPayload?.();
+  if (early) {
+    const ids = early.config?.productos_destacados;
+    ariasFeaturedSlugs = Array.isArray(ids) ? ids.filter(Boolean).map(String) : ariasFeaturedSlugs;
+    ariasPayload = early;
+  }
+  if (ariasPayload) {
+    fillBlockProducts();
+    syncCollection();
+  }
+}
 rotatePicks({ animate: false });
 if (!PRODUCTS.some(offerActive)) $$('#rail [data-rail="offers"]').forEach((el) => { el.hidden = true; });
 loadCart();

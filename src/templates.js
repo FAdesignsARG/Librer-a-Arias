@@ -877,7 +877,7 @@ ${
 
 <!--catalog-only--><div class="controls" id="catalogo"${category ? ` data-initial-cat="${esc(category)}"` : ''}>
   <div class="shell">
-    <div class="home-section-head catalog-head"><h1 id="catalogTitle">${category ? esc(category) : 'Catálogo'}</h1></div>
+    <div class="home-section-head catalog-head"><h1 id="catalogTitle">${category ? esc(category) : 'Catálogo'}</h1><p class="catalog-lead" id="catalogLead" hidden></p><a class="catalog-exit" id="catalogExit" href="/catalogo/" hidden>Ver todo el catálogo ${ico.chevron}</a></div>
     <div class="filters" id="filters" role="group" aria-label="Filtros del catálogo">
       <button type="button" class="filterpill" id="catBtn" aria-haspopup="dialog" aria-controls="catSheet"><span id="catBtnLabel">Categoría</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <button type="button" class="filterpill" id="priceBtn" aria-haspopup="dialog" aria-controls="priceSheet"><span id="priceBtnLabel">Precio</span><svg class="filterpill__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>

@@ -202,6 +202,8 @@ const copies = [
   // Control remoto de página desde Base44 (marketing) + su cliente compartido.
   ['src/page-control.js', 'src/page-control.js'],
   ['src/base44-client.js', 'src/base44-client.js'],
+  // Colecciones de Gestión: la importan page-control.js y app.js.
+  ['src/collections.js', 'src/collections.js'],
   // templates.js importa dailyPicks de acá (Ronda 1) — mismo problema que ya
   // pasó antes con cloudinary-config.js: sin esto, templates.js falla al
   // resolver su propio import en el navegador (404) y como app.js importa

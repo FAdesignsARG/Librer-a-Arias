@@ -2,7 +2,24 @@
 
 Actualizado: 05/10/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 05/10/2026 (noche) — EMPEZAR POR ACÁ
+## ESTADO AL 08/10/2026 — EMPEZAR POR ACÁ
+
+Campañas manejadas desde Gestión (pedido de Fran): colección por bloque
+(`/catalogo/?coleccion=<clave>`), destacados de la home con prioridad y
+bloque "Destacado" nuevo (estilo `calido` opcional). Todo en
+`docs/contexto/contrato-base44-campanas.md`. Probado en local con la
+configuración real de Gestión + `product_slugs` simulados (celular y
+desktop, claro y oscuro, búsqueda dentro de la colección, carrito, bloque
+vencido, sin slugs).
+- **Bloqueante para que la colección funcione en producción:** Rodri tiene
+  que mandar `product_slugs` (hoy `product_ids` son IDs de Base44 y ninguno
+  está vinculado en la web). Mientras tanto el CTA vuelve a `/catalogo/` y
+  la colección muestra "no disponible".
+- Prueba local sin Firestore: servidor del scratchpad que renderiza con
+  `src/templates.js` y datos bajados de producción, con
+  `ARIAS_PAGE_CONTROL.previewPayload` (sólo en localhost).
+
+## ESTADO AL 05/10/2026 (noche, historia)
 
 Prioridad de Fran: circuito **WhatsApp → Base44 → web**. Contrato y tareas
 de Base44 en `docs/contexto/contrato-base44-whatsapp-web.md` (pasárselo a

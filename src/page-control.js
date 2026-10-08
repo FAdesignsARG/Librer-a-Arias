@@ -25,6 +25,7 @@
  */
 
 import { getBase44 } from './base44-client.js';
+import { COLLECTION_PARAM, blockActive, collectionHref, collectionIds, validKey } from './collections.js';
 
 const DEFAULT_REFRESH_MS = 60_000;
 const MIN_REFRESH_MS = 30_000;
@@ -32,6 +33,8 @@ const MAX_BACKOFF_MS = 15 * 60_000;
 const GIVE_UP_AFTER = 5; // fallos seguidos -> se corta el polling hasta recargar
 
 let currentConfig = null;
+let currentPayload = null;
+let blocksSignature = '';
 let refreshTimer = null;
 let consecutiveFails = 0;
 let sectionSlots = null;
@@ -70,6 +73,10 @@ const deviceAllows = (block) => {
 /* ---------- pedir la configuración ---------- */
 
 async function requestConfig() {
+  // Sólo en la máquina local: probar una campaña sin tocar Gestión.
+  const preview = window.ARIAS_PAGE_CONTROL?.previewPayload;
+  if (preview && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return preview;
+
   const client = await getBase44();
   if (!client) return null;
 
@@ -398,7 +405,119 @@ function ensureSectionSlots(sections) {
 
 /* ---------- bloques dinámicos en slots ---------- */
 
+/** Un bloque con productos elegidos abre su colección. Si Gestión cargó un
+    CTA propio que no sea el catálogo pelado, se respeta tal cual. */
+function blockHref(block) {
+  const href = safeUrl(block.cta_url);
+  const tieneColeccion = validKey(block.clave) && collectionIds(block).length > 0;
+  if (!tieneColeccion) return href;
+  const path = href.startsWith('/') ? href : '';
+  if (!href || path === '/catalogo/' || path === '/catalogo') return collectionHref(block.clave);
+  return href;
+}
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function arrowIcon() {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', 'arias-pc-feature__arrow');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', 'M5 12h14m-6-6 6 6-6 6');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', 'currentColor');
+  path.setAttribute('stroke-width', '2.2');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  svg.append(path);
+  return svg;
+}
+
+/* Estilos de campaña que Gestión puede pedir con `estilo` (o `tema`).
+   Cualquier otro valor, o ninguno, usa el de la marca (amarillo y negro). */
+const ESTILOS = new Set(['marca', 'calido']);
+let displayFontLoaded = false;
+function loadDisplayFont() {
+  if (displayFontLoaded) return;
+  displayFontLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&display=swap';
+  document.head.append(link);
+}
+
+/** "Destacado": tarjeta de campaña. Título grande, texto, CTA amarillo
+    bien visible y, a la derecha (abajo en celular), la imagen de Gestión o
+    las fotos de los primeros productos de la colección (las pone app.js). */
+function createFeatureNode(block) {
+  const article = document.createElement('article');
+  article.dataset.ariasDynamicBlock = block.clave || block.id || 'bloque';
+  article.className = 'arias-pc-block arias-pc-feature';
+  const estilo = String(block.estilo || block.tema || '').trim().toLowerCase();
+  article.dataset.estilo = ESTILOS.has(estilo) ? estilo : 'marca';
+  if (article.dataset.estilo === 'calido') loadDisplayFont();
+
+  const body = document.createElement('div');
+  body.className = 'arias-pc-feature__body';
+
+  // Se llena con la cantidad real cuando app.js resuelve la colección.
+  const tag = document.createElement('p');
+  tag.className = 'arias-pc-feature__tag';
+  tag.dataset.ariasBlockCount = '';
+  tag.hidden = true;
+  body.append(tag);
+
+  if (block.titulo) {
+    const h = document.createElement('h2');
+    h.className = 'arias-pc-feature__title';
+    h.textContent = block.titulo;
+    body.append(h);
+  }
+  if (block.texto) {
+    const p = document.createElement('p');
+    p.className = 'arias-pc-feature__text';
+    p.textContent = block.texto;
+    body.append(p);
+  }
+  const href = blockHref(block);
+  if (block.cta_texto && href) {
+    const a = document.createElement('a');
+    a.className = 'arias-pc-feature__cta';
+    a.href = href;
+    // Si la colección queda vacía en la web, app.js vuelve a este destino.
+    a.dataset.ctaFallback = safeUrl(block.cta_url) || '/catalogo/';
+    const span = document.createElement('span');
+    span.textContent = block.cta_texto;
+    a.append(span, arrowIcon());
+    body.append(a);
+  }
+  article.append(body);
+
+  const media = document.createElement('div');
+  media.className = 'arias-pc-feature__media';
+  media.setAttribute('aria-hidden', 'true');
+  const img = safeUrl(block.imagen_url);
+  if (img) {
+    const image = document.createElement('img');
+    image.src = img;
+    image.alt = '';
+    image.loading = 'lazy';
+    image.className = 'arias-pc-feature__img';
+    media.append(image);
+    article.classList.add('has-image');
+  } else if (collectionIds(block).length && validKey(block.clave)) {
+    media.dataset.ariasBlockProducts = block.clave;
+    media.hidden = true; // hasta que haya fotos reales
+  } else {
+    media.hidden = true;
+  }
+  article.append(media);
+  return article;
+}
+
 function createBlockNode(block) {
+  if (String(block.tipo || '') === 'Destacado') return createFeatureNode(block);
+
   const article = document.createElement('article');
   article.dataset.ariasDynamicBlock = block.clave || block.id || 'bloque';
   article.className = 'arias-pc-block';
@@ -426,11 +545,12 @@ function createBlockNode(block) {
     article.append(p);
   }
 
-  const href = safeUrl(block.cta_url);
+  const href = blockHref(block);
   if (block.cta_texto && href) {
     const a = document.createElement('a');
     a.className = 'arias-pc-block__cta btn btn--gold btn--sm';
     a.href = href;
+    a.dataset.ctaFallback = safeUrl(block.cta_url) || '/catalogo/';
     a.textContent = block.cta_texto;
     article.append(a);
   }
@@ -438,9 +558,21 @@ function createBlockNode(block) {
 }
 
 function applyBlocks(blocks) {
+  // En la página de una colección, su propio bloque no se repite arriba de
+  // la grilla: el título y el texto ya son la cabecera de la página.
+  const enColeccion = new URLSearchParams(location.search).get(COLLECTION_PARAM);
+  const visibles = (Array.isArray(blocks) ? blocks : [])
+    .filter(deviceAllows)
+    .filter((b) => blockActive(b))
+    .filter((b) => !enColeccion || b.clave !== enColeccion);
+
+  // Sin cambios desde la última consulta (cada 60 s): no se redibuja nada.
+  const firma = JSON.stringify(visibles);
+  if (firma === blocksSignature && document.querySelector('[data-arias-dynamic-block]')) return;
+  blocksSignature = firma;
   document.querySelectorAll('[data-arias-dynamic-block]').forEach((n) => n.remove());
 
-  (Array.isArray(blocks) ? blocks : []).filter(deviceAllows).forEach((block) => {
+  visibles.forEach((block) => {
     const slotName = String(block.ubicacion || '');
     if (!slotName) return;
     const slot = document.querySelector(`[data-arias-slot="${CSS.escape(slotName)}"]`);
@@ -485,6 +617,7 @@ function decorateProductCard(cardElement, product) {
 
 function apply(payload) {
   currentConfig = payload.config;
+  currentPayload = payload;
 
   applySiteState(payload.config);
   applyAnnouncement(payload.config.barra_aviso);
@@ -542,6 +675,7 @@ window.AriasPageControl = {
   refresh,
   decorateProductCard,
   getConfig: () => currentConfig,
+  getPayload: () => currentPayload,
 };
 
 if (document.readyState === 'loading') {

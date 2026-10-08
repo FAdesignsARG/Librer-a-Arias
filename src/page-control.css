@@ -219,3 +219,224 @@
 @media (max-width: 720px) {
   .arias-pc-bar { padding-block: 6px; line-height: 1.25; }
 }
+
+/* ==========================================================================
+   BLOQUE "DESTACADO" — tarjeta de campaña (08/10/2026)
+   Genérica: cualquier campaña de Gestión con tipo "Destacado". Título con
+   jerarquía, texto corto, CTA amarillo de acción principal y, al costado
+   (abajo en celular), la imagen de Gestión o fotos reales de la colección.
+   Contenido plano (no vidrio): el vidrio queda para lo que flota.
+   `estilo` = "calido" suma tonos durazno y un título display, sin cambiar el
+   amarillo del botón (la identidad de Arias se mantiene).
+   ========================================================================== */
+.arias-pc-block.arias-pc-feature {
+  --feat-tint: var(--gold);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  gap: 20px;
+  width: calc(100% - 2 * var(--gutter, 16px));
+  max-width: calc(var(--page) - 2 * var(--gutter, 16px));
+  margin: 28px auto;
+  padding: 24px 20px 20px;
+  border-radius: 28px;
+  border: 1px solid var(--gold-edge);
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--feat-tint) 16%, transparent), transparent 58%),
+    radial-gradient(90% 70% at 0% 100%, color-mix(in srgb, var(--gold) 9%, transparent), transparent 62%),
+    var(--surface);
+  box-shadow: var(--shadow-card);
+}
+/* Ornamento: un aro fino que asoma por la esquina. Decorativo, no compite. */
+.arias-pc-feature::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 260px;
+  height: 260px;
+  top: -130px;
+  right: -90px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--feat-tint) 30%, transparent);
+  box-shadow: 0 0 0 28px color-mix(in srgb, var(--feat-tint) 5%, transparent);
+  pointer-events: none;
+}
+.arias-pc-feature__body {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 12px;
+  min-width: 0;
+}
+.arias-pc-feature__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 14px 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-edge);
+  background: var(--gold-wash);
+  color: var(--gold-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.arias-pc-feature__tag::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.arias-pc-feature__tag[hidden] { display: none; }
+.arias-pc-feature__title {
+  margin: 4px 0 0;
+  font-size: clamp(30px, 7.6vw, 46px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+.arias-pc-feature__text {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.arias-pc-feature__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 8px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--gold) 70%, transparent);
+  transition: background-color var(--dur-fast, .16s) var(--ease-out, ease),
+              transform var(--dur-fast, .16s) var(--ease-out, ease);
+}
+.arias-pc-feature__cta:hover { background: var(--gold-hi, var(--gold)); }
+.arias-pc-feature__cta:active { transform: scale(.98); }
+.arias-pc-feature__cta:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.arias-pc-feature__arrow {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  transition: transform .28s var(--ease-premium, ease);
+}
+.arias-pc-feature__cta:hover .arias-pc-feature__arrow { transform: translateX(4px); }
+
+/* Fotos de la colección: fila de 4 en celular, mosaico 2×2 en desktop. */
+.arias-pc-feature__media {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+.arias-pc-feature__media[hidden] { display: none; }
+.arias-pc-feature__media[data-count='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.arias-pc-feature__ph {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background: #fff;
+  overflow: hidden;
+  animation: arias-pc-feat-in .5s var(--ease-premium, ease) both;
+}
+.arias-pc-feature__ph:nth-child(2) { animation-delay: 60ms; }
+.arias-pc-feature__ph:nth-child(3) { animation-delay: 120ms; }
+.arias-pc-feature__ph:nth-child(4) { animation-delay: 180ms; }
+.arias-pc-feature__ph img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10%;
+  display: block;
+}
+@keyframes arias-pc-feat-in {
+  from { opacity: 0; transform: translateY(10px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+.arias-pc-feature__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+@media (min-width: 768px) {
+  .arias-pc-block.arias-pc-feature {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+    border-radius: 32px;
+  }
+  .arias-pc-block.arias-pc-feature:has(> .arias-pc-feature__media[hidden]) { grid-template-columns: 1fr; }
+  .arias-pc-feature__cta { width: auto; padding: 0 28px 0 30px; }
+  .arias-pc-feature__media { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 400px; justify-self: end; width: 100%; }
+  .arias-pc-feature__ph { border-radius: 22px; }
+  .arias-pc-feature__img { aspect-ratio: auto; height: 100%; max-height: 360px; }
+  .arias-pc-feature::before { width: 420px; height: 420px; top: -210px; right: -120px; }
+}
+
+/* Estilo "calido" (lo pide Gestión): durazno suave + título display. */
+.arias-pc-feature[data-estilo='calido'] {
+  --feat-tint: #ff9f8a;
+  border-color: color-mix(in srgb, #ff9f8a 34%, transparent);
+}
+.arias-pc-feature[data-estilo='calido'] .arias-pc-feature__title {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+.arias-pc-feature[data-estilo='calido'] .arias-pc-feature__tag {
+  border-color: color-mix(in srgb, #ff9f8a 40%, transparent);
+  background: color-mix(in srgb, #ff9f8a 14%, transparent);
+  color: #ffc2b5;
+}
+:root[data-theme='light'] .arias-pc-feature[data-estilo='calido'] .arias-pc-feature__tag { color: #9a3b2a; }
+/* En claro la foto blanca se pierde contra la tarjeta blanca: borde y sombra suaves. */
+:root[data-theme='light'] .arias-pc-feature__ph { box-shadow: 0 0 0 1px rgba(0, 0, 0, .07), 0 10px 24px -14px rgba(0, 0, 0, .35); }
+
+@media (prefers-reduced-motion: reduce) {
+  .arias-pc-feature__ph { animation: none; }
+  .arias-pc-feature__arrow, .arias-pc-feature__cta { transition: none; }
+}
+
+/* ---------- cabecera de una colección (/catalogo/?coleccion=…) ---------- */
+.catalog-lead {
+  flex: 0 0 100%;
+  margin: 8px 0 0;
+  max-width: 60ch;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.catalog-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold-text);
+  text-decoration: none;
+}
+.catalog-exit svg { width: 18px; height: 18px; }
+.catalog-lead[hidden], .catalog-exit[hidden] { display: none; }
+body.is-collection #catalogo .catalog-head { flex-wrap: wrap; align-items: baseline; justify-content: flex-start; column-gap: 16px; row-gap: 0; }
