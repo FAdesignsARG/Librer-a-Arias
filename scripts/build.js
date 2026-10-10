@@ -19,7 +19,8 @@ import path from 'node:path';
 import { renderHome, renderProduct, renderCategory, categorySlug } from '../src/templates.js';
 import { buildSitemap } from '../src/sitemap.js';
 import { getDb } from '../src/firebase-admin.js';
-import { fetchAuxiliar, applyAuxiliar } from '../src/base44-auxiliar.js';
+import { fetchAuxiliar, applyAuxiliar, fetchDescuentoWeb } from '../src/base44-auxiliar.js';
+import { aplicarDescuento } from '../src/descuento-web.js';
 import { loadEnv } from '../src/ai.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -43,6 +44,16 @@ const [productsSnap, settingsDoc] = await Promise.all([
 ]);
 const rawProducts = productsSnap.docs.map((d) => d.data());
 const settings = settingsDoc.data();
+
+/* ---------- descuento web de Gestión (09/10) ----------
+   Si Gestión manda config.descuento_web activo y vigente, ese porcentaje
+   queda en el HTML y en settings.json; si no, el del panel. El navegador lo
+   vuelve a evaluar con el dato en vivo (src/descuento-web.js). */
+{
+  const dw = await fetchDescuentoWeb();
+  const pct = aplicarDescuento(settings, dw.ok ? dw.descuento : undefined);
+  console.log(`Descuento web                ${pct}% (${settings.promos.origen}${dw.ok ? '' : ` — Gestión sin respuesta: ${dw.error}`})`);
+}
 
 /* ---------- capa auxiliar de Base44 ----------
    Enriquece por `slug` los productos que ya existen en Firestore: alias de
@@ -204,6 +215,8 @@ const copies = [
   ['src/base44-client.js', 'src/base44-client.js'],
   // Colecciones de Gestión: la importan page-control.js y app.js.
   ['src/collections.js', 'src/collections.js'],
+  // Descuento web de Gestión: lo importan app.js, analytics.js y assistant.js.
+  ['src/descuento-web.js', 'src/descuento-web.js'],
   // templates.js importa dailyPicks de acá (Ronda 1) — mismo problema que ya
   // pasó antes con cloudinary-config.js: sin esto, templates.js falla al
   // resolver su propio import en el navegador (404) y como app.js importa

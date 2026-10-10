@@ -87,6 +87,28 @@ function webVisibility(row) {
  * Pide la capa auxiliar. Nunca lanza: ante cualquier problema devuelve
  * EMPTY_AUX con `ok:false` y el motivo en `error`.
  */
+/** `config.descuento_web` de la configuración de página (09/10). Devuelve
+    { ok, descuento } — descuento null si Gestión no lo manda. Si Base44 no
+    responde, ok:false y quien llama sigue con el porcentaje del panel. */
+export async function fetchDescuentoWeb({ url, timeout = TIMEOUT_MS } = {}) {
+  url = url || process.env.BASE44_AUX_URL || BRIDGE_URL;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'configuracion_pagina' }),
+      signal: AbortSignal.timeout(timeout),
+    });
+    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+    const payload = await res.json();
+    if (!payload?.success) return { ok: false, error: 'success:false' };
+    const d = payload.config?.descuento_web;
+    return { ok: true, descuento: d && typeof d === 'object' ? d : null };
+  } catch (err) {
+    return { ok: false, error: err?.message || 'sin respuesta' };
+  }
+}
+
 export async function fetchAuxiliar({ url, timeout = TIMEOUT_MS } = {}) {
   // BASE44_AUX_URL permite apuntar a un bridge de prueba sin tocar el código
   // (sirve para probar casos que el bridge real todavía no tiene cargados,

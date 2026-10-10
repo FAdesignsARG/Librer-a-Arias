@@ -2,7 +2,8 @@ import { aiEnabled, askCatalog } from '../../src/ai.js';
 import { buildIndex, getIndex, searchProducts, registerAliases } from '../../src/search-engine.js';
 import { offerActive, offerHasDiscount } from '../../src/templates.js';
 import { json, loadCatalog, aiErrorResponse, noKeyResponse, hasAdminSession } from './_helpers.js';
-import { fetchAuxiliar, applyAuxiliar, EMPTY_AUX } from '../../src/base44-auxiliar.js';
+import { fetchAuxiliar, applyAuxiliar, EMPTY_AUX, fetchDescuentoWeb } from '../../src/base44-auxiliar.js';
+import { aplicarDescuento } from '../../src/descuento-web.js';
 
 /* ---------- capa auxiliar de Base44 para el asistente ----------
    El asistente arma su índice leyendo Firestore en cada invocación, así que
@@ -21,6 +22,16 @@ import { fetchAuxiliar, applyAuxiliar, EMPTY_AUX } from '../../src/base44-auxili
    igual con lo que hay. */
 const AUX_TTL_MS = 5 * 60 * 1000;
 let auxCache = { at: 0, aux: EMPTY_AUX };
+
+/** El descuento de Gestión, con la misma caché corta que la capa auxiliar:
+    el asistente tiene que decir el mismo porcentaje que la página. */
+let descuentoCache = { at: 0, d: undefined };
+async function descuentoParaElAsistente() {
+  if (Date.now() - descuentoCache.at < AUX_TTL_MS) return descuentoCache.d;
+  const r = await fetchDescuentoWeb({ timeout: 4000 });
+  descuentoCache = { at: Date.now(), d: r.ok ? r.descuento : undefined };
+  return descuentoCache.d;
+}
 
 async function auxiliarParaElAsistente() {
   if (Date.now() - auxCache.at < AUX_TTL_MS) return auxCache.aux;
@@ -47,10 +58,12 @@ export const handler = async (event) => {
     // ella se atiende como cliente, que es lo que corresponde.
     const modo = modoPedido === 'interno' && (await hasAdminSession(event)) ? 'interno' : 'cliente';
 
-    const [{ products, settings }, aux] = await Promise.all([
+    const [{ products, settings }, aux, descuento] = await Promise.all([
       loadCatalog(),
       auxiliarParaElAsistente(),
+      descuentoParaElAsistente(),
     ]);
+    aplicarDescuento(settings, descuento);
 
     // Mismo criterio que el build del sitio: enriquecer por slug y respetar la
     // visibilidad de Base44, para que el asistente no ofrezca algo que en la

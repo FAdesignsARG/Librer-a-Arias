@@ -41,6 +41,7 @@
 
 import { getBase44 } from './base44-client.js';
 import { webDiscount } from './templates.js';
+import { aplicarDescuento } from './descuento-web.js';
 
 const MAX_EVENTS_PER_SESSION = 120;
 const CART_KEY = 'arias.pedido.v1';
@@ -699,10 +700,17 @@ async function loadProducts() {
 async function loadSettings() {
   try {
     siteSettings = await fetch('/data/settings.json').then((response) => response.json());
+    aplicarDescuento(siteSettings);
   } catch {
     siteSettings = {};
   }
 }
+
+// Mismo porcentaje que el pedido: si Gestión lo cambia en vivo, también acá.
+window.addEventListener('arias:page-config-updated', (e) => {
+  const cfg = e.detail?.config;
+  if (siteSettings && cfg && 'descuento_web' in cfg) aplicarDescuento(siteSettings, cfg.descuento_web);
+});
 
 async function init() {
   if (looksLikeBot()) return;

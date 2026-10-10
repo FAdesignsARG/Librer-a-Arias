@@ -303,7 +303,9 @@ listEl.addEventListener('drop', async (e) => {
 
   const [moved] = products.splice(from, 1);
   products.splice(to, 0, moved);
+  const ordenAntes = new Map(products.map((p) => [p.slug, p.order]));
   products.forEach((p, i) => (p.order = i));
+  const movidos = products.filter((p) => ordenAntes.get(p.slug) !== p.order);
   render();
 
   dragSlug = null;
@@ -314,6 +316,10 @@ listEl.addEventListener('drop', async (e) => {
       await batch.commit();
     }
     logActivity('products_reordered', `Movió "${moved.name}" en la lista`, moved.slug);
+    // A Gestión le llega el orden nuevo (en lotes de 100, del lado del
+    // servidor). No toca updatedAt: mover algo en la lista no es una edición
+    // que tenga que frenar los cambios de contenido que mande Gestión.
+    avisarBase44('modificado', movidos, ['order']);
   } catch (err) {
     toast(`No se pudo guardar el orden: ${err.message}`);
   }

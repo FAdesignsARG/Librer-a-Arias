@@ -1258,7 +1258,7 @@ export function renderProduct({ product: p, related, settings: s }) {
         ${offerHasDiscount(p) ? `<span class="product__price-old">${money(p.price)}</span>` : ''}
         <span class="product__price">${money(offerHasDiscount(p) ? p.offer.price : p.price)}</span>
       </p>
-      ${webPromo(s) ? `<p class="product__webprice">${ico.tag}<span>Comprando por la web: <strong>${money(Math.round((offerHasDiscount(p) ? p.offer.price : p.price) * (1 - webPromo(s).percent / 100)))}</strong> · ${webPromo(s).percent}% OFF sobre el total del pedido</span></p>` : ''}
+      ${webPromo(s) ? `<p class="product__webprice" data-base="${offerHasDiscount(p) ? p.offer.price : p.price}">${ico.tag}<span>Comprando por la web: <strong>${money(Math.round((offerHasDiscount(p) ? p.offer.price : p.price) * (1 - webPromo(s).percent / 100)))}</strong> · ${webPromo(s).percent}% OFF sobre el total del pedido</span></p>` : ''}
       ${offerActive(p) && p.offer.note ? `<p class="product__offer-note">${ico.sparkle} ${esc(p.offer.note)}</p>` : ''}
       <p class="product__stock" data-out="${!p.inStock}">${p.inStock ? 'Disponible en el local' : 'Sin stock por ahora'}</p>
       <div class="product__actions">

@@ -2,10 +2,18 @@
  * Productos desde Base44 — `POST /api/productos`.
  *
  * `action: "crear"`: alta en la misma colección y con la misma forma que la
- * carga del panel. `actualizar` / `ocultar` / `habilitar` (30/09): por
- * `source_id`, sólo precio, stock y visibilidad — lo operativo lo manda el
- * POS; nombre, descripción, rubro y foto siguen siendo del panel (decisión
- * de Fran). Nunca borra: dar de baja es ocultar.
+ * carga del panel. `actualizar` / `ocultar` / `habilitar`: por `source_id`.
+ * Nunca borra: dar de baja es ocultar. El slug no cambia jamás.
+ *
+ * Qué puede cambiar Gestión (Fran, 09/10/2026, reemplaza la del 30/09):
+ *  - Operativo — precio, stock, visible: se aplica siempre.
+ *  - Contenido — nombre, descripción, rubro, foto, etiquetas, destacado,
+ *    orden y etiqueta comercial: se aplica salvo CONFLICTO. Hay conflicto
+ *    si alguien editó el producto en el panel después del último cambio de
+ *    Gestión (`lastChangeOrigin: "panel"` y `updatedAt` posterior a
+ *    `syncedAt`). Gestión lo resuelve mandando `if_updated_at` igual al
+ *    `updated_at` que recibió en el último aviso de la web (vio la última
+ *    versión) o `forzar: true`. El conflicto nunca traba lo operativo.
  *
  * Publicación (Fran, 05/10/2026, reemplaza la del 27/09): la revisión es el
  * "Alta rápida" de Base44, así que `publish: true` y `habilitar` publican
@@ -40,7 +48,7 @@
 import crypto from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getDb } from '../../src/firebase-admin.js';
-import { cloudinaryConfig } from '../../src/cloudinary-config.js';
+import { cloudinaryConfig, cloudinaryUrl } from '../../src/cloudinary-config.js';
 import { json as jsonBase } from './_helpers.js';
 
 /** Base44 lee `success` y `message`; el resto del contrato usa `ok` y
@@ -104,13 +112,18 @@ function tokenValido(event) {
 /** Valida y normaliza el cuerpo. Devuelve { datos } o { error, mensaje }. */
 export const ACCIONES = ['crear', 'actualizar', 'ocultar', 'habilitar'];
 
-/**
- * Qué manda cada lado en un producto vinculado (decisión de Fran, 30/09):
- * Base44/POS manda precio, stock y visibilidad; nombre, descripción, rubro
- * y foto se editan en el panel. Si Base44 los manda en `actualizar`, se
- * ignoran y se avisa en `ignorados` (no es error, para no trabar su envío).
- */
-const CAMPOS_DEL_PANEL = ['name', 'description', 'category', 'image_url'];
+/** Campos de contenido de `actualizar` (los que pueden entrar en conflicto
+    con una edición del panel). Nombre del contrato -> campo en Firestore. */
+export const CAMPOS_CONTENIDO = {
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  image_url: 'images',
+  tags: 'tags',
+  featured: 'featured',
+  order: 'order',
+  label: 'etiqueta',
+};
 
 export function validar(body) {
   const mal = (error, mensaje) => ({ error, mensaje });
@@ -198,8 +211,68 @@ function validarCambio(body, sourceId, mal) {
       cambios.visible = vis;
     }
   }
-  const ignorados = body.action === 'actualizar' ? CAMPOS_DEL_PANEL.filter((k) => body[k] !== undefined) : [];
-  return { datos: { accion: body.action, sourceId, slug: slug || null, cambios, ignorados } };
+  const contenido = {};
+  let imagenExterna = null;
+  if (body.action === 'actualizar') {
+    if (body.name !== undefined) {
+      const name = String(body.name ?? '').trim().replace(/\s+/g, ' ');
+      if (!name || name.length > 200 || !slugify(name)) return mal('NOMBRE_INVALIDO', 'name no puede venir vacío (hasta 200 caracteres).');
+      contenido.name = name;
+    }
+    if (body.description !== undefined) {
+      const description = String(body.description ?? '').trim();
+      if (description.length > 3000) return mal('DESCRIPCION_LARGA', 'description admite hasta 3000 caracteres.');
+      contenido.description = description;
+    }
+    if (body.category !== undefined) {
+      const category = rubroDe(body.category);
+      if (!category) return mal('RUBRO_INVALIDO', `category tiene que ser uno de: ${RUBROS.join(', ')}.`);
+      contenido.category = category;
+    }
+    if (body.image_url !== undefined) {
+      const imageUrl = String(body.image_url ?? '').trim();
+      if (!imageUrl) return mal('IMAGEN_INVALIDA', 'image_url no puede venir vacía: la foto no se borra desde Gestión.');
+      const propia = cloudinaryPublicId(imageUrl);
+      if (propia) contenido.imagen = propia;
+      else if (urlExternaValida(imageUrl)) imagenExterna = imageUrl;
+      else return mal('IMAGEN_INVALIDA', 'image_url tiene que ser una URL https pública.');
+    }
+    if (body.tags !== undefined) {
+      const lista = Array.isArray(body.tags) ? body.tags : String(body.tags ?? '').split(',');
+      const tags = lista.map((t) => String(t ?? '').trim()).filter(Boolean).join(', ');
+      if (tags.length > 500) return mal('TAGS_LARGOS', 'tags admite hasta 500 caracteres.');
+      contenido.tags = tags;
+    }
+    if (body.featured !== undefined) {
+      if (typeof body.featured !== 'boolean') return mal('FEATURED_INVALIDO', 'featured tiene que ser true o false.');
+      contenido.featured = body.featured;
+    }
+    if (body.order !== undefined) {
+      const order = Number(body.order);
+      if (!Number.isFinite(order)) return mal('ORDEN_INVALIDO', 'order tiene que ser un número.');
+      contenido.order = order;
+    }
+    const label = body.label ?? body.etiqueta;
+    if (label !== undefined) {
+      const etiqueta = String(label ?? '').trim();
+      if (etiqueta.length > 40) return mal('ETIQUETA_LARGA', 'label admite hasta 40 caracteres.');
+      contenido.etiqueta = etiqueta;
+    }
+  }
+  if (body.forzar !== undefined && typeof body.forzar !== 'boolean') return mal('FORZAR_INVALIDO', 'forzar tiene que ser true o false.');
+  const ifUpdatedAt = body.if_updated_at == null ? null : String(body.if_updated_at).trim() || null;
+  return {
+    datos: {
+      accion: body.action,
+      sourceId,
+      slug: slug || null,
+      cambios,
+      contenido,
+      imagenExterna,
+      forzar: body.forzar === true,
+      ifUpdatedAt,
+    },
+  };
 }
 
 /** https y no apuntando a la máquina ni a redes internas. */
@@ -374,6 +447,7 @@ export async function crearProducto(db, datos, { ahora = new Date(), publicarDir
       description: datos.description,
       price: datos.price,
       images: datos.imagen ? [datos.imagen] : [],
+      ...(datos.imagenExterna ? { imageSourceUrl: datos.imagenExterna } : {}),
       inStock: true,
       featured: false,
       visible: publicar,
@@ -467,6 +541,47 @@ export async function actualizarProducto(db, datos, { ahora = new Date(), public
     if (pedido.visible !== undefined && pedido.visible !== (p.visible !== false)) patch.visible = pedido.visible;
     if (patch.visible && p.pendingReview) patch.pendingReview = false;
 
+    // Contenido: sólo lo que de verdad cambia.
+    const c = datos.contenido || {};
+    const contenido = {};
+    for (const k of ['name', 'description', 'category', 'tags', 'etiqueta']) {
+      if (c[k] !== undefined && c[k] !== (p[k] ?? '')) contenido[k] = c[k];
+    }
+    if (c.featured !== undefined && c.featured !== !!p.featured) contenido.featured = c.featured;
+    if (c.order !== undefined && c.order !== p.order) contenido.order = c.order;
+    const fotos = Array.isArray(p.images) ? p.images : [];
+    if (c.imagen && c.imagen !== fotos[0]) {
+      // Cambia la principal; las demás fotos que se cargaron en el panel quedan.
+      contenido.images = [c.imagen, ...fotos.slice(1).filter((f) => f !== c.imagen)];
+      contenido.imageSourceUrl = c.imageSourceUrl || null;
+    }
+    let conflicto = null;
+    const camposContenido = Object.keys(contenido).filter((k) => k !== 'imageSourceUrl');
+    if (camposContenido.length) {
+      const editadoEnPanel = p.lastChangeOrigin === 'panel' && (!p.syncedAt || String(p.updatedAt || '') > String(p.syncedAt));
+      const vioLaUltima = datos.ifUpdatedAt && datos.ifUpdatedAt === p.updatedAt;
+      if (editadoEnPanel && !vioLaUltima && !datos.forzar) {
+        const imagen = fotos[0] ? cloudinaryUrl(fotos[0]) : null;
+        conflicto = {
+          campos: camposContenido.map((k) => CONTRATO_DE[k] || k),
+          mensaje: 'Este producto se editó en el panel después del último cambio de Gestión. No se pisó: revisalo y mandá if_updated_at (o forzar: true).',
+          en_la_web: {
+            name: p.name,
+            description: p.description || '',
+            category: p.category,
+            image_url: imagen,
+            tags: p.tags || '',
+            featured: !!p.featured,
+            order: p.order ?? null,
+            label: p.etiqueta || '',
+            updated_at: p.updatedAt || null,
+          },
+        };
+      } else {
+        Object.assign(patch, contenido);
+      }
+    }
+
     const iso = ahora.toISOString();
     const hayCambios = Object.keys(patch).length > 0;
     if (vincular) {
@@ -480,8 +595,10 @@ export async function actualizarProducto(db, datos, { ahora = new Date(), public
     const final = { ...p, ...patch };
     const publico = final.visible !== false;
     // Sólo hace falta rebuild si cambia algo que se ve en la web.
-    const requiereRebuild = 'visible' in patch || (publico && ('price' in patch || 'inStock' in patch));
-    const cambios = Object.keys(patch).filter((k) => !['source', 'sourceId', 'pendingReview'].includes(k));
+    const requiereRebuild = 'visible' in patch || (publico && Object.keys(patch).some((k) => CAMPOS_PUBLICOS.has(k)));
+    const cambios = Object.keys(patch)
+      .filter((k) => !['source', 'sourceId', 'pendingReview', 'imageSourceUrl'].includes(k))
+      .map((k) => CONTRATO_DE[k] || k);
     const body = {
       ok: true,
       id: p.id || slug,
@@ -492,15 +609,27 @@ export async function actualizarProducto(db, datos, { ahora = new Date(), public
       actualizado: hayCambios,
       requiere_rebuild: requiereRebuild,
       cambios,
+      updated_at: hayCambios ? iso : p.updatedAt || null,
     };
     if (vincular) body.vinculado = true;
-    if (datos.ignorados.length) body.ignorados = datos.ignorados;
     if (avisos.length) body.avisos = avisos;
+    if (conflicto) {
+      body.conflicto = conflicto;
+      // Si lo único que pidió era contenido y quedó en conflicto: 409.
+      if (!hayCambios) {
+        return { status: 409, body: { ...body, ok: false, error: 'CONFLICTO', mensaje: conflicto.mensaje }, antes: p, patch: null };
+      }
+    }
     return { status: 200, body, antes: p, patch: hayCambios ? patch : null };
   });
 }
 
 const estadoDe = (p) => (p.visible === false ? (p.pendingReview ? 'pendiente_revision' : 'oculto') : 'publicado');
+/** Campo de Firestore -> nombre en el contrato con Base44. */
+// (inStock queda como siempre: Base44 ya lo lee así en cambios.)
+const CONTRATO_DE = { images: 'image_url', etiqueta: 'label' };
+/** Lo que se ve en la web: si cambia en un producto publicado, hay que reconstruir. */
+const CAMPOS_PUBLICOS = new Set(['price', 'inStock', 'name', 'description', 'category', 'images', 'tags', 'featured', 'order', 'etiqueta']);
 /** Ficha pública ("Ver web"). Existe recién cuando el rebuild termina y el
     slug aparece en /data/products.json: eso es lo que hay que verificar. */
 const urlDe = (slug) => `${process.env.URL || 'https://libreria-arias.netlify.app'}/p/${slug}/`;
@@ -534,12 +663,38 @@ export const handler = async (event) => {
     const datos = v.datos;
 
     if (datos.accion !== 'crear') {
+      if (datos.imagenExterna) {
+        // La misma URL que ya se importó no se vuelve a subir: Gestión puede
+        // mandar el producto entero en cada cambio.
+        const actual = await productoVinculado(db, datos);
+        if (actual?.imageSourceUrl === datos.imagenExterna && actual.images?.[0]) {
+          datos.contenido.imagen = actual.images[0];
+          datos.contenido.imageSourceUrl = datos.imagenExterna;
+        } else {
+          try {
+            datos.contenido.imagen = await importarImagen(datos.imagenExterna);
+            datos.contenido.imageSourceUrl = datos.imagenExterna;
+          } catch (err) {
+            if (!err.codigo) throw err;
+            const status = err.codigo === 'IMAGEN_NO_ES_FOTO' || err.codigo === 'IMAGEN_PESADA' ? 422 : 502;
+            return json(status, { ok: false, error: err.codigo, mensaje: `${err.message} No se cambió nada.` });
+          }
+        }
+      }
       const r = await actualizarProducto(db, datos, { publicarDirecto: publicarDirecto() });
       if (r.patch) {
         const que = [
           'price' in r.patch && `precio ${r.antes.price} → ${r.patch.price}`,
           'inStock' in r.patch && (r.patch.inStock ? 'con stock' : 'sin stock'),
           'visible' in r.patch && (r.patch.visible ? 'visible' : 'oculto'),
+          'name' in r.patch && `nombre → "${r.patch.name}"`,
+          'description' in r.patch && 'descripción',
+          'category' in r.patch && `rubro → ${r.patch.category}`,
+          'images' in r.patch && 'foto',
+          'tags' in r.patch && 'etiquetas',
+          'featured' in r.patch && (r.patch.featured ? 'destacado' : 'sin destacar'),
+          'order' in r.patch && 'orden',
+          'etiqueta' in r.patch && `etiqueta comercial "${r.patch.etiqueta}"`,
         ].filter(Boolean);
         await registrarActividad(db, 'product_synced', r.body.slug, `Base44 actualizó "${r.antes.name}": ${que.join(', ')}`);
       }
@@ -580,6 +735,15 @@ export const handler = async (event) => {
     return json(500, { ok: false, error: 'FALLO', mensaje: 'No se pudo guardar el producto. Probá de nuevo.' });
   }
 };
+
+/** El producto atado a ese source_id (o al slug que manda para vincularse). */
+async function productoVinculado(db, datos) {
+  const fuente = await db.collection('fuentes_externas').doc(`base44_${datos.sourceId}`).get();
+  const slug = fuente.exists ? fuente.data().slug : datos.slug;
+  if (!slug) return null;
+  const doc = await db.collection('products').doc(slug).get();
+  return doc.exists ? doc.data() : null;
+}
 
 /**
  * Queda en el historial del panel, como cualquier cambio. Los reportes

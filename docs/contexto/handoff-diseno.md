@@ -2,7 +2,22 @@
 
 Actualizado: 05/10/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 08/10/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 09/10/2026 — EMPEZAR POR ACÁ
+
+Decisión de Fran (09/10): Gestión edita todo el producto por `/api/productos`
+con control de conflictos, y manda el descuento web (`config.descuento_web`,
+con el 10% del panel de respaldo). Contrato:
+`docs/contexto/contrato-base44-edicion-y-descuento.md`.
+- Hecho: `productos.js` (contenido + conflictos + foto importada una vez),
+  `base44-aviso.js` (campos comerciales, lotes de 100, `sync_pendientes`
+  con reintentos), reordenar en el panel avisa, `src/descuento-web.js`
+  (build, página, pedido, métricas, asistente local e IA).
+- Probado: pruebas de `tmp/` y navegador local (15% simulado: ficha,
+  pedido, WhatsApp, banner; vencido vuelve a 10%).
+- Al 09/10: 55 productos vinculados; Gestión todavía no manda
+  `descuento_web`.
+
+## ESTADO AL 08/10/2026 (historia)
 
 Campañas manejadas desde Gestión (pedido de Fran): colección por bloque
 (`/catalogo/?coleccion=<clave>`), destacados de la home con prioridad y

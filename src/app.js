@@ -16,6 +16,7 @@ import { wireDialog, closeDialog, enableDragToClose } from './ui.js';
 import { cardHtml, money, offerActive, offerHasDiscount, isNew, dateFmt, webPromo, webDiscount as calcWebDiscount, thumbSrc, ico as tIco } from './templates.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 import { COLLECTION_PARAM, validKey, findBlock, resolveCollection, collectionIds } from './collections.js';
+import { aplicarDescuento } from './descuento-web.js';
 
 // root?. (no sólo el default `= document`): un default de parámetro sólo
 // entra en juego con `undefined`, nunca con `null` explícito — y varios
@@ -81,6 +82,9 @@ async function loadData() {
   ]);
   PRODUCTS = p.filter((x) => x.visible !== false);
   SETTINGS = s;
+  // El build ya eligió el porcentaje; se reevalúa con el reloj de hoy por si
+  // el descuento de Gestión venció o empezó después de publicar.
+  aplicarDescuento(SETTINGS);
   bySlug = new Map(PRODUCTS.map((x) => [x.slug, x]));
   // El archivo era un arreglo de alias y pasó a ser un objeto con la config
   // del predictivo adentro. Se aceptan las dos formas: un archivo viejo en
@@ -1029,9 +1033,40 @@ function fillBlockProducts() {
   });
 }
 
+/* ---------- descuento web en vivo (09/10) ----------
+   Gestión puede cambiar el porcentaje sin publicar: el pedido (panel,
+   WhatsApp, métricas) usa siempre el de este momento, y los textos de la
+   página que lo nombran se ponen al día. */
+function syncDescuentoWeb(payload) {
+  const cfg = payload?.config;
+  if (!cfg || !('descuento_web' in cfg) || !SETTINGS) return;
+  const antes = SETTINGS.promos?.webPercent;
+  const ahora = aplicarDescuento(SETTINGS, cfg.descuento_web);
+  if (antes === ahora) return;
+  if (antes > 0 && ahora > 0) {
+    // Sólo donde la página escribe el porcentaje (nunca descripciones de productos).
+    const cambiar = (t) => t.replaceAll(`${antes}%`, `${ahora}%`);
+    $$('#promoBanner, #shareSheet').forEach((el) => {
+      ['aria-label', 'data-promo'].forEach((a) => el.hasAttribute(a) && el.setAttribute(a, cambiar(el.getAttribute(a))));
+    });
+    $$('.promoinfo__trigger strong, .promodlg__big, .promodlg__lead, .pacc__steps').forEach((el) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) n.nodeValue = cambiar(n.nodeValue);
+    });
+    $$('.product__webprice[data-base]').forEach((el) => {
+      const strong = el.querySelector('strong');
+      if (strong) strong.textContent = money(Math.round(Number(el.dataset.base) * (1 - ahora / 100)));
+      const span = el.querySelector('span');
+      if (span) span.lastChild.nodeValue = cambiar(span.lastChild.nodeValue);
+    });
+  }
+  syncCartUI();
+}
+
 function onPageConfig(payload) {
   ariasPayload = payload;
   if (!dataReady) return;
+  syncDescuentoWeb(payload);
   fillBlockProducts();
   syncCollection();
 }
@@ -1989,6 +2024,7 @@ dataReady = true;
   // avisos ya pasaron: se toma lo último que llegó.
   const early = window.AriasPageControl?.getPayload?.();
   if (early) {
+    syncDescuentoWeb(early);
     const ids = early.config?.productos_destacados;
     ariasFeaturedSlugs = Array.isArray(ids) ? ids.filter(Boolean).map(String) : ariasFeaturedSlugs;
     ariasPayload = early;

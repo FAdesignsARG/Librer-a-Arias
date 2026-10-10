@@ -13,6 +13,7 @@ import { buildIndex, getIndex, searchProducts } from './search-engine.js';
 import { wireDialog, enableDragToClose } from './ui.js';
 import { cloudinaryUrl } from './cloudinary-config.js';
 import { offerActive, offerHasDiscount, webPromo } from './templates.js';
+import { aplicarDescuento } from './descuento-web.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
@@ -132,6 +133,8 @@ async function ensureIndex() {
   // La promo web sale de settings.json, igual que en app.js.
   if (!SETTINGS) {
     SETTINGS = await fetch('/data/settings.json').then((r) => r.json()).catch(() => ({}));
+    // El último dato de Gestión que ya leyó la página, o el del build.
+    aplicarDescuento(SETTINGS, window.AriasPageControl?.getPayload?.()?.config?.descuento_web);
   }
   if (getIndex().length) return;
   const list = await fetch('/data/products.json').then((r) => r.json());
