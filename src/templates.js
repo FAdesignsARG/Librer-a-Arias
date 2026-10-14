@@ -648,13 +648,28 @@ const orderSheet = (s) => `
       </div>
     </div>
   </div>
+  <!-- 14/10: abrir WhatsApp NO es mandar el pedido. Primero se pide tocar
+       Enviar allá; recién con "Ya lo envié" se da por terminado. -->
   <div class="sheet__sent" id="sheetSent" hidden>
-    ${ico.check}
-    <h3>¡Pedido enviado!</h3>
-    <p>En breve te responden por WhatsApp para confirmar stock y forma de pago.</p>
-    <div class="sheet__sent-actions">
-      <button type="button" class="btn btn--ghost" id="sheetSentClear">Vaciar pedido</button>
-      <button type="button" class="btn btn--gold" id="sheetSentContinue">Seguir comprando</button>
+    <div class="sheet__sent-step" data-sent-step="pendiente">
+      ${ico.wa}
+      <h3>Falta un paso: tocá Enviar en WhatsApp</h3>
+      <p>Te abrimos WhatsApp con tu pedido escrito. Si no tocás <strong>Enviar</strong>, no nos llega.</p>
+      <p class="sheet__sent-code" id="sheetSentCode" hidden>Código de pedido: <strong></strong></p>
+      <div class="sheet__sent-actions">
+        <a class="btn btn--ghost" id="sheetSentRetry" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a>
+        <button type="button" class="btn btn--gold" id="sheetSentDone">Ya lo envié</button>
+      </div>
+      <p class="sheet__sent-help">¿No se abrió? <button type="button" class="sheet__sent-link" id="sheetSentCopy">Copiar pedido</button> · <button type="button" class="sheet__sent-link" id="sheetSentBack">Ver mi pedido</button></p>
+    </div>
+    <div class="sheet__sent-step" data-sent-step="listo" hidden>
+      ${ico.check}
+      <h3>¡Gracias! Te respondemos por WhatsApp</h3>
+      <p>En ese mismo chat te confirmamos stock y forma de pago.</p>
+      <div class="sheet__sent-actions">
+        <button type="button" class="btn btn--ghost" id="sheetSentClear">Vaciar pedido</button>
+        <button type="button" class="btn btn--gold" id="sheetSentContinue">Seguir comprando</button>
+      </div>
     </div>
   </div>
 </dialog>

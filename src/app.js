@@ -194,9 +194,46 @@ function loadCart() {
 function saveCart() {
   try {
     localStorage.setItem(CART_KEY, JSON.stringify([...cart]));
+    if (!cart.size) localStorage.removeItem(WA_PENDIENTE_KEY);
   } catch {
     /* modo privado o storage lleno: el pedido igual funciona en memoria */
   }
+}
+
+/* ---- Pedido por WhatsApp: clic ≠ mensaje enviado (14/10/2026) ----
+   Tocar "Enviar pedido por WhatsApp" sólo ABRE WhatsApp con el texto: el
+   pedido no le llega al local hasta que la persona toca Enviar allá, y la
+   página no tiene forma de saber si lo hizo. Por eso:
+   - se guarda que quedó pendiente (código + hora) y la hoja pide ese paso;
+   - "Ya lo envié" lo da por terminado (lo dice el cliente, no WhatsApp);
+   - si vuelve con el pedido sin terminar, al abrir "Mi pedido" se le
+     recuerda, con el mismo código (no se crea otro pedido).
+   El registro en Base44 sigue siendo "Enviado a WhatsApp" con
+   datos.evidencia = "clic": Base44 todavía no acepta estados nuevos. */
+const WA_PENDIENTE_KEY = 'arias.pedido.whatsapp.v1';
+const WA_PENDIENTE_MAX_MS = 72 * 60 * 60 * 1000;
+const codigoPedido = () => window.AriasPedido?.codigo?.() || '';
+function leerPendiente() {
+  try {
+    return JSON.parse(localStorage.getItem(WA_PENDIENTE_KEY) || 'null');
+  } catch {
+    return null;
+  }
+}
+function guardarPendiente(p) {
+  try {
+    localStorage.setItem(WA_PENDIENTE_KEY, JSON.stringify(p));
+  } catch {
+    /* sin storage: el recordatorio no sobrevive a la recarga, el pedido sí */
+  }
+}
+/** Pedido abierto en WhatsApp, sin "Ya lo envié", del carrito actual y reciente. */
+function pendienteSinConfirmar() {
+  const p = leerPendiente();
+  if (!p || p.listo || !cart.size) return null;
+  if (Date.now() - (p.at || 0) > WA_PENDIENTE_MAX_MS) return null;
+  if (p.code && window.AriasPedido?.actual?.() && p.code !== window.AriasPedido.actual()) return null;
+  return p;
 }
 
 const cartCount = () => [...cart.values()].reduce((a, b) => a + b, 0);
@@ -516,6 +553,9 @@ function buildOrderMessage() {
   const promoBlock = promo.length
     ? ['', ...promo, ...(webDiscount(total)?.disclaimer ? [webDiscount(total).disclaimer] : [])]
     : [];
+  // El código va en el texto desde el principio: antes se agregaba recién
+  // al tocar el botón, y el camino del aviso de ofertas lo perdía.
+  const code = codigoPedido();
   return [
     '¡Hola! Quiero hacer este pedido:',
     '',
@@ -525,6 +565,7 @@ function buildOrderMessage() {
     ...promoBlock,
     '',
     '¿Me confirman stock y forma de pago?',
+    ...(code ? ['', `Código de pedido: ${code}`] : []),
   ].join('\n');
 }
 // window.__ARIAS_WA lo puede setear page-control.js si Base44 tiene un
@@ -534,10 +575,11 @@ const buildOrderLink = () =>
 
 function openSheet() {
   if (!sheet) return;
-  // Por si quedó en el estado "pedido enviado" de una visita anterior
-  // al panel — siempre se abre mostrando el pedido, no la confirmación.
+  // Se abre mostrando el pedido; salvo que haya uno abierto en WhatsApp
+  // sin "Ya lo envié": ahí se recuerda ese paso (mismo código, no otro pedido).
   showSheetCart();
   renderSheet();
+  if (pendienteSinConfirmar()) showSheetSent('pendiente');
   sheet.showModal();
   // Sin esto, showModal() enfoca solo el botón de cerrar — en mobile
   // Safari eso dispara el anillo de foco sobre un botón chico y se ve
@@ -561,11 +603,26 @@ function showSheetCart() {
   sheetBody.hidden = false;
   sheetFoot.hidden = cart.size === 0;
 }
-function showSheetSent() {
+function showSheetSent(paso = 'pendiente') {
   if (!sheetSent) return;
   sheetBody.hidden = true;
   sheetFoot.hidden = true;
   sheetSent.hidden = false;
+  $$('[data-sent-step]', sheetSent).forEach((el) => { el.hidden = el.dataset.sentStep !== paso; });
+  const code = leerPendiente()?.code || codigoPedido();
+  const codeEl = $('#sheetSentCode');
+  if (codeEl) {
+    codeEl.hidden = !code;
+    codeEl.querySelector('strong').textContent = code;
+  }
+}
+
+/** WhatsApp se abrió con el pedido: se registra el clic (una vez por
+    código, en analytics.js) y queda pendiente hasta "Ya lo envié". */
+function whatsappAbierto() {
+  window.dispatchEvent(new CustomEvent('arias:pedido-whatsapp'));
+  guardarPendiente({ code: codigoPedido(), at: Date.now(), listo: false });
+  showSheetSent('pendiente');
 }
 
 /* ---- Pop-up de "sumá algo en oferta" antes de mandar el pedido ----
@@ -629,13 +686,14 @@ function finishPromoNudge(addChecked) {
       toast(`${checked.length} producto${checked.length === 1 ? '' : 's'} agregado${checked.length === 1 ? '' : 's'}`, ico.check);
     }
   }
-  closeDialog(promoNudgeDlg).then(() => {
-    // El <a> original nunca navegó (se le hizo preventDefault más abajo):
-    // se abre la misma URL a mano, con el pedido ya actualizado si se
-    // agregó algo (buildOrderLink() lee el carrito en el momento).
-    window.open(buildOrderLink(), '_blank', 'noopener');
-    showSheetSent();
-  });
+  // El <a> original nunca navegó (se le hizo preventDefault más abajo): se
+  // abre la misma URL a mano, con el pedido ya actualizado si se agregó algo.
+  // Tiene que ser DENTRO de este toque: antes se abría después de la
+  // animación de cierre y Safari lo bloqueaba como ventana emergente, pero
+  // el pedido figuraba igual como "Enviado a WhatsApp".
+  window.open(buildOrderLink(), '_blank', 'noopener');
+  whatsappAbierto();
+  closeDialog(promoNudgeDlg);
 }
 $('#promoNudgeSkip')?.addEventListener('click', () => finishPromoNudge(false));
 $('#promoNudgeAdd')?.addEventListener('click', () => finishPromoNudge(true));
@@ -658,11 +716,23 @@ sheetSend?.addEventListener('click', (e) => {
     }
   }
 
-  // Sin ofertas elegibles, o ya mostrado esta sesión: el click funciona
-  // exactamente como antes de esta ronda — no se cancela la navegación,
-  // el <a target="_blank"> abre WhatsApp igual.
-  showSheetSent();
+  // Sin ofertas elegibles, o ya mostrado esta sesión: no se cancela la
+  // navegación, el <a target="_blank"> abre WhatsApp. El href se rearma
+  // acá para que lleve el código y el carrito de este momento.
+  sheetSend.href = buildOrderLink();
+  whatsappAbierto();
 });
+
+$('#sheetSentRetry')?.addEventListener('click', (e) => {
+  e.currentTarget.href = buildOrderLink();
+  window.dispatchEvent(new CustomEvent('arias:pedido-whatsapp'));
+});
+$('#sheetSentDone')?.addEventListener('click', () => {
+  guardarPendiente({ ...(leerPendiente() || {}), code: leerPendiente()?.code || codigoPedido(), listo: true, listoAt: Date.now() });
+  showSheetSent('listo');
+});
+$('#sheetSentBack')?.addEventListener('click', showSheetCart);
+$('#sheetSentCopy')?.addEventListener('click', () => $('#sheetCopy')?.click());
 
 $('#sheetSentContinue')?.addEventListener('click', showSheetCart);
 $('#sheetSentClear')?.addEventListener('click', () => {

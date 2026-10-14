@@ -412,23 +412,15 @@ function ensureOrderCode() {
   return code;
 }
 
-function addCodeToWhatsAppLink(link, code) {
-  try {
-    const url = new URL(link.href);
-    const current = url.searchParams.get('text') || '';
-    if (!current.includes(code)) {
-      url.searchParams.set('text', `${current}\n\nCódigo de pedido: ${code}`);
-      link.href = url.toString();
-    }
-  } catch {
-    /* WhatsApp conserva el enlace original. */
-  }
-}
+/* El código del pedido lo pide app.js para escribirlo en el mensaje de
+   WhatsApp (14/10: antes se agregaba recién al tocar el botón y el camino
+   del aviso de ofertas lo perdía). Se define aunque Base44 no cargue. */
+window.AriasPedido = { codigo: ensureOrderCode, actual: currentOrderCode };
 
 /** Registro del pedido en sí — un solo tipo de llamada, action:'pedido',
     que se repite con distinto `estado` a medida que el pedido avanza
     (Iniciado -> Enviado a WhatsApp), siempre con el mismo código. */
-function sendPedidoState(estado, code, snapshot, reemplazaA = '') {
+function sendPedidoState(estado, code, snapshot, reemplazaA = '', extra = {}) {
   if (!base44) return;
   const campaign = campaignData();
   base44.functions
@@ -455,8 +447,10 @@ function sendPedidoState(estado, code, snapshot, reemplazaA = '') {
         // Sin esto, el primero le quedaba abierto para siempre y contaba
         // como abandono falso.
         ...(reemplazaA ? { reemplaza_a: reemplazaA } : {}),
+        ...extra,
         visitante: visitorId(),
-        tracking_version: '2',
+        // 3 (14/10): "Enviado a WhatsApp" trae datos.evidencia = "clic".
+        tracking_version: '3',
         es_prueba: isTestTraffic(),
       },
     })
@@ -533,6 +527,24 @@ function wireHomeEvents() {
   });
 }
 
+/* WhatsApp se abrió con el pedido (lo avisa app.js). "Enviado a WhatsApp"
+   es el único estado de clic que acepta Base44 (probado el 14/10: uno nuevo
+   da 422), así que va con datos.evidencia = "clic": es un clic, no un
+   mensaje recibido. Una vez por código; Base44 además deduplica. */
+window.addEventListener('arias:pedido-whatsapp', () => {
+  const snapshot = cartSnapshot();
+  if (!snapshot.items.length) return;
+  const code = ensureOrderCode();
+  const sentKey = `arias.catalog.order.sent.${code}`;
+  if (orderStore.get(sentKey)) return;
+  orderStore.set(sentKey, '1');
+  sendPedidoState('Enviado a WhatsApp', code, snapshot, '', {
+    evidencia: 'clic',
+    mensaje_confirmado: false,
+    whatsapp_abierto_en: new Date().toISOString(),
+  });
+});
+
 function wireCartEvents() {
   document.addEventListener('click', (event) => {
     // Sincroniza "carrito iniciado"/código de pedido con el estado real
@@ -576,19 +588,10 @@ function wireCartEvents() {
       return;
     }
 
-    const send = event.target.closest('#sheetSend');
-    if (send) {
-      const snapshot = cartSnapshot();
-      if (!snapshot.items.length) return;
-      const code = ensureOrderCode();
-      addCodeToWhatsAppLink(send, code);
-      const sentKey = `arias.catalog.order.sent.${code}`;
-      if (!orderStore.get(sentKey)) {
-        orderStore.set(sentKey, '1');
-        sendPedidoState('Enviado a WhatsApp', code, snapshot);
-      }
-      return;
-    }
+    // El pedido por WhatsApp se registra con el evento arias:pedido-whatsapp
+    // (abajo), cuando WhatsApp de verdad se abre: tocar el botón puede
+    // mostrar antes el aviso de ofertas, y eso no es haber abierto nada.
+    if (event.target.closest('#sheetSend, #sheetSentRetry')) return;
 
     // Cualquier otro link a WhatsApp (el botón general "Consultar por
     // WhatsApp", el dock flotante, etc.) — no depende de tener carrito.
