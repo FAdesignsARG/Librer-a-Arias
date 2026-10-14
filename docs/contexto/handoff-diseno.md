@@ -2,7 +2,16 @@
 
 Actualizado: 05/10/2026. Leer esto primero al retomar en un chat nuevo;
 
-## ESTADO AL 09/10/2026 — EMPEZAR POR ACÁ
+## ESTADO AL 14/10/2026 — EMPEZAR POR ACÁ
+
+Pedidos por WhatsApp: "Enviado a WhatsApp" era sólo un clic. Publicado
+`fb63abb` (respaldo `prod-antes-20261014`): pantalla "Falta un paso",
+"Ya lo envié", recordatorio de pedidos sin confirmar, código siempre en el
+mensaje, arreglo del aviso de ofertas, `datos.evidencia: "clic"`. Informe y
+pedidos a Base44: `docs/contexto/informe-pedidos-whatsapp-20261014.md`.
+Prioridad de Fran: página actual estable hasta el 31/10.
+
+## ESTADO AL 09/10/2026 (historia)
 
 Decisión de Fran (09/10): Gestión edita todo el producto por `/api/productos`
 con control de conflictos, y manda el descuento web (`config.descuento_web`,
