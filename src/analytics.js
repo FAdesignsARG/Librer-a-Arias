@@ -421,9 +421,9 @@ window.AriasPedido = { codigo: ensureOrderCode, actual: currentOrderCode };
     que se repite con distinto `estado` a medida que el pedido avanza
     (Iniciado -> Enviado a WhatsApp), siempre con el mismo código. */
 function sendPedidoState(estado, code, snapshot, reemplazaA = '', extra = {}) {
-  if (!base44) return;
+  if (!base44) return Promise.resolve(null);
   const campaign = campaignData();
-  base44.functions
+  return base44.functions
     .invoke('catalogo-metricas', {
       action: 'pedido',
       codigo: code,
@@ -456,6 +456,7 @@ function sendPedidoState(estado, code, snapshot, reemplazaA = '', extra = {}) {
     })
     .catch(() => {
       /* La medición nunca debe interrumpir la navegación del catálogo. */
+      return null;
     });
 }
 
@@ -542,6 +543,28 @@ window.addEventListener('arias:pedido-whatsapp', () => {
     evidencia: 'clic',
     mensaje_confirmado: false,
     whatsapp_abierto_en: new Date().toISOString(),
+  });
+});
+
+/* "Ya lo envié" (lo avisa app.js): el cliente dice que tocó Enviar en
+   WhatsApp. Base44 lo admite como "Cliente indica enviado" desde el 14/10.
+   Mismo código LAWEB; una vez por código, y la marca se guarda sólo si
+   Base44 lo aceptó (si falló, otro toque lo vuelve a intentar). */
+window.addEventListener('arias:pedido-cliente-enviado', (e) => {
+  const code = e.detail?.code || currentOrderCode();
+  const snapshot = cartSnapshot();
+  if (!code || !snapshot.items.length) return;
+  const key = `arias.catalog.order.cliente.${code}`;
+  if (orderStore.get(key)) return;
+  orderStore.set(key, 'enviando');
+  sendPedidoState('Cliente indica enviado', code, snapshot, '', {
+    evidencia: 'cliente',
+    mensaje_confirmado: false,
+    cliente_indico_envio_en: new Date().toISOString(),
+  }).then((res) => {
+    const ok = (res?.data ?? res)?.success;
+    if (ok) orderStore.set(key, '1');
+    else orderStore.remove(key);
   });
 });
 

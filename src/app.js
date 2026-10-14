@@ -728,7 +728,11 @@ $('#sheetSentRetry')?.addEventListener('click', (e) => {
   window.dispatchEvent(new CustomEvent('arias:pedido-whatsapp'));
 });
 $('#sheetSentDone')?.addEventListener('click', () => {
-  guardarPendiente({ ...(leerPendiente() || {}), code: leerPendiente()?.code || codigoPedido(), listo: true, listoAt: Date.now() });
+  const code = leerPendiente()?.code || codigoPedido();
+  guardarPendiente({ ...(leerPendiente() || {}), code, listo: true, listoAt: Date.now() });
+  // Base44 lo registra como "Cliente indica enviado" (analytics.js): lo dice
+  // el cliente, no WhatsApp.
+  window.dispatchEvent(new CustomEvent('arias:pedido-cliente-enviado', { detail: { code } }));
   showSheetSent('listo');
 });
 $('#sheetSentBack')?.addEventListener('click', showSheetCart);
