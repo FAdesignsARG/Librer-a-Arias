@@ -421,43 +421,179 @@ window.AriasPedido = { codigo: ensureOrderCode, actual: currentOrderCode };
     que se repite con distinto `estado` a medida que el pedido avanza
     (Iniciado -> Enviado a WhatsApp), siempre con el mismo código. */
 function sendPedidoState(estado, code, snapshot, reemplazaA = '', extra = {}) {
-  if (!base44) return Promise.resolve(null);
   const campaign = campaignData();
-  return base44.functions
-    .invoke('catalogo-metricas', {
-      action: 'pedido',
-      codigo: code,
-      estado,
-      sesion: sessionId(),
-      pagina: safeText(location.pathname || '/', 120),
-      dispositivo: deviceType(),
-      origen: campaignOrigin(),
-      items: snapshot.items,
-      // total_estimado es el BRUTO del carrito, a pedido de Base44: el
-      // descuento web viaja aparte para poder seguir bruto -> descuento ->
-      // total ofrecido -> total cobrado en caja sin mezclar conceptos.
-      total_estimado: snapshot.total,
-      datos: {
-        ...clean(campaign),
-        ...descuentoWeb(snapshot.total),
-        // Cuando el cliente sigue comprando después de haber mandado el
-        // pedido, se genera un LAWEB nuevo (para no pisar el que ya figura
-        // como enviado) y acá va el anterior. Base44 los enlaza y cierra el
-        // viejo como Reemplazado, salvo que ya esté Confirmado o Convertido.
-        // Sin esto, el primero le quedaba abierto para siempre y contaba
-        // como abandono falso.
-        ...(reemplazaA ? { reemplaza_a: reemplazaA } : {}),
-        ...extra,
-        visitante: visitorId(),
-        // 3 (14/10): "Enviado a WhatsApp" trae datos.evidencia = "clic".
-        tracking_version: '3',
-        es_prueba: isTestTraffic(),
-      },
-    })
-    .catch(() => {
-      /* La medición nunca debe interrumpir la navegación del catálogo. */
-      return null;
-    });
+  encolarPedido({
+    action: 'pedido',
+    codigo: code,
+    estado,
+    sesion: sessionId(),
+    pagina: safeText(location.pathname || '/', 120),
+    dispositivo: deviceType(),
+    origen: campaignOrigin(),
+    items: snapshot.items,
+    // total_estimado es el BRUTO del carrito, a pedido de Base44: el
+    // descuento web viaja aparte para poder seguir bruto -> descuento ->
+    // total ofrecido -> total cobrado en caja sin mezclar conceptos.
+    total_estimado: snapshot.total,
+    datos: {
+      ...clean(campaign),
+      ...descuentoWeb(snapshot.total),
+      // Cuando el cliente sigue comprando después de haber mandado el
+      // pedido, se genera un LAWEB nuevo (para no pisar el que ya figura
+      // como enviado) y acá va el anterior. Base44 los enlaza y cierra el
+      // viejo como Reemplazado, salvo que ya esté Confirmado o Convertido.
+      // Sin esto, el primero le quedaba abierto para siempre y contaba
+      // como abandono falso.
+      ...(reemplazaA ? { reemplaza_a: reemplazaA } : {}),
+      ...extra,
+      visitante: visitorId(),
+      // 3 (14/10): "Enviado a WhatsApp" trae datos.evidencia = "clic".
+      tracking_version: '3',
+      es_prueba: isTestTraffic(),
+    },
+  });
+}
+
+/* ==========================================================================
+   COLA DE REGISTROS DE PEDIDO (15/10/2026, pedido de Rodri)
+   Base44 puede rechazar por límite (vimos 500 "Rate limit exceeded"; puede
+   ser 429) o no responder. Antes el registro se perdía. Ahora:
+   - cada registro (código + estado) se guarda en localStorage ANTES de
+     mandarlo y se borra recién con una respuesta exitosa;
+   - si falla por 429, 5xx o conexión, se reintenta con el MISMO código a
+     los 2, 5, 10, 20 y 40 s (o lo que diga Retry-After, si es más);
+   - si sigue fallando, queda guardado y se retoma en la próxima visita
+     (hasta 7 días);
+   - un 4xx que no sea 429/408 (dato inválido) no se reintenta;
+   - en orden: un estado nuevo de un código no sale antes que el anterior
+     (si no, un "Iniciado" atrasado podía pisar "Enviado a WhatsApp");
+   - un solo envío a la vez, aun con varias pestañas (navigator.locks).
+   ========================================================================== */
+const COLA_KEY = 'arias.pedidos.cola.v1';
+const REGISTRADOS_KEY = 'arias.pedidos.registrados.v1';
+const ESPERAS_S = [2, 5, 10, 20, 40];
+const DIA_MS = 24 * 60 * 60 * 1000;
+const COLA_MAX_MS = 7 * DIA_MS;
+const RETRY_AFTER_MAX_MS = 120_000;
+
+const leerJSON = (key, porDefecto) => {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? porDefecto;
+  } catch {
+    return porDefecto;
+  }
+};
+const guardarJSON = (key, valor) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(valor));
+  } catch {
+    /* sin storage: el envío se intenta igual, sólo que no sobrevive a la recarga */
+  }
+};
+const claveEnvio = (p) => `${p.codigo}|${p.estado}`;
+const leerCola = () => (Array.isArray(leerJSON(COLA_KEY, [])) ? leerJSON(COLA_KEY, []) : []).filter((e) => Date.now() - e.creado < COLA_MAX_MS);
+const quitarDeCola = (clave) => guardarJSON(COLA_KEY, leerCola().filter((e) => e.clave !== clave));
+const enColaORegistrado = (codigo, estado) => {
+  const clave = `${codigo}|${estado}`;
+  return !!leerJSON(REGISTRADOS_KEY, {})[clave] || leerCola().some((e) => e.clave === clave);
+};
+function marcarRegistrado(clave) {
+  const r = leerJSON(REGISTRADOS_KEY, {});
+  r[clave] = Date.now();
+  for (const k of Object.keys(r)) if (Date.now() - r[k] > 30 * DIA_MS) delete r[k];
+  guardarJSON(REGISTRADOS_KEY, r);
+}
+
+function encolarPedido(payload) {
+  const clave = claveEnvio(payload);
+  if (leerJSON(REGISTRADOS_KEY, {})[clave]) return;
+  const cola = leerCola();
+  if (!cola.some((e) => e.clave === clave)) {
+    cola.push({ clave, payload, intentos: 0, creado: Date.now() });
+    guardarJSON(COLA_KEY, cola);
+  }
+  procesarCola();
+}
+
+/** Un intento. { ok } o { ok:false, reintentable, retryAfterMs }. */
+async function intentarEnvio(payload) {
+  try {
+    const res = await base44.functions.invoke('catalogo-metricas', payload);
+    const body = res?.data ?? res;
+    if (body?.success) return { ok: true };
+    return { ok: false, reintentable: false };
+  } catch (err) {
+    // El SDK tira Base44Error { status, originalError: error de axios }.
+    // Sin status = no hubo respuesta (sin red, se cortó, CORS).
+    const status = Number(err?.status ?? err?.originalError?.response?.status ?? err?.response?.status ?? 0);
+    const headers = err?.originalError?.response?.headers ?? err?.response?.headers ?? {};
+    const ra = typeof headers.get === 'function' ? headers.get('retry-after') : headers['retry-after'];
+    let retryAfterMs = 0;
+    if (ra != null && ra !== '') {
+      const seg = Number(ra);
+      retryAfterMs = Number.isFinite(seg) ? seg * 1000 : Math.max(0, new Date(ra).getTime() - Date.now()) || 0;
+    }
+    const reintentable = !status || status === 408 || status === 429 || status >= 500;
+    return { ok: false, reintentable, status, retryAfterMs: Math.min(retryAfterMs, RETRY_AFTER_MAX_MS) };
+  }
+}
+
+let colaOcupada = false;
+let colaTimer = null;
+function procesarCola() {
+  if (!base44 || colaOcupada) return;
+  if (navigator.locks?.request) {
+    navigator.locks
+      .request('arias-pedidos-cola', { ifAvailable: true }, async (lock) => {
+        if (lock) await vaciarCola();
+      })
+      .catch(() => {});
+  } else {
+    vaciarCola();
+  }
+}
+
+async function vaciarCola() {
+  colaOcupada = true;
+  try {
+    for (;;) {
+      const cola = leerCola();
+      if (!cola.length) return;
+      const e = cola[0];
+      if (leerJSON(REGISTRADOS_KEY, {})[e.clave]) {
+        quitarDeCola(e.clave);
+        continue;
+      }
+      const r = await intentarEnvio(e.payload);
+      if (r.ok) {
+        marcarRegistrado(e.clave);
+        quitarDeCola(e.clave);
+        continue;
+      }
+      if (!r.reintentable) {
+        quitarDeCola(e.clave);
+        continue;
+      }
+      const intentos = (e.intentos || 0) + 1;
+      guardarJSON(COLA_KEY, leerCola().map((x) => (x.clave === e.clave ? { ...x, intentos, ultimo_error: r.status || 'sin respuesta' } : x)));
+      // Agotadas las esperas, queda guardado para la próxima visita.
+      if (intentos > ESPERAS_S.length) return;
+      const espera = Math.max(ESPERAS_S[intentos - 1] * 1000, r.retryAfterMs || 0);
+      clearTimeout(colaTimer);
+      colaTimer = setTimeout(procesarCola, espera);
+      return;
+    }
+  } finally {
+    colaOcupada = false;
+  }
+}
+
+/** Nueva visita: los pendientes vuelven a tener todas sus esperas. */
+function retomarCola() {
+  const cola = leerCola();
+  if (!cola.length) return;
+  guardarJSON(COLA_KEY, cola.map((e) => ({ ...e, intentos: 0 })));
+  procesarCola();
 }
 
 function wireHomeEvents() {
@@ -537,8 +673,11 @@ window.addEventListener('arias:pedido-whatsapp', () => {
   if (!snapshot.items.length) return;
   const code = ensureOrderCode();
   const sentKey = `arias.catalog.order.sent.${code}`;
+  // sentKey = "ya se abrió WhatsApp con este código" (lo usa el flujo del
+  // carrito); que Base44 lo tenga registrado lo decide la cola.
   if (orderStore.get(sentKey)) return;
   orderStore.set(sentKey, '1');
+  if (enColaORegistrado(code, 'Enviado a WhatsApp')) return;
   sendPedidoState('Enviado a WhatsApp', code, snapshot, '', {
     evidencia: 'clic',
     mensaje_confirmado: false,
@@ -547,24 +686,17 @@ window.addEventListener('arias:pedido-whatsapp', () => {
 });
 
 /* "Ya lo envié" (lo avisa app.js): el cliente dice que tocó Enviar en
-   WhatsApp. Base44 lo admite como "Cliente indica enviado" desde el 14/10.
-   Mismo código LAWEB; una vez por código, y la marca se guarda sólo si
-   Base44 lo aceptó (si falló, otro toque lo vuelve a intentar). */
+   WhatsApp: "Cliente indica enviado" (Base44 lo agregó el 14/10). Mismo
+   código LAWEB, una vez por código; la entrega la garantiza la cola. */
 window.addEventListener('arias:pedido-cliente-enviado', (e) => {
   const code = e.detail?.code || currentOrderCode();
   const snapshot = cartSnapshot();
   if (!code || !snapshot.items.length) return;
-  const key = `arias.catalog.order.cliente.${code}`;
-  if (orderStore.get(key)) return;
-  orderStore.set(key, 'enviando');
+  if (enColaORegistrado(code, 'Cliente indica enviado')) return;
   sendPedidoState('Cliente indica enviado', code, snapshot, '', {
     evidencia: 'cliente',
     mensaje_confirmado: false,
     cliente_indico_envio_en: new Date().toISOString(),
-  }).then((res) => {
-    const ok = (res?.data ?? res)?.success;
-    if (ok) orderStore.set(key, '1');
-    else orderStore.remove(key);
   });
 });
 
@@ -744,6 +876,8 @@ async function init() {
   const [client] = await Promise.all([getBase44(), loadProducts(), loadSettings()]);
   if (!client) return; // sin SDK no se manda nada — nunca rompe la navegación del catálogo
   base44 = client;
+  // Registros de pedido que quedaron sin confirmar en una visita anterior.
+  retomarCola();
 
   trackCatalogEvent('Visita');
   trackProductPageView();

@@ -73,3 +73,19 @@ Archivos: `src/app.js`, `src/analytics.js`, `src/templates.js`,
    guarda datos del cliente: si el mensaje no llegó, no hay a quién llamar.
 4. Si quieren registrar el "Ya lo envié" del cliente, habilitar un estado o
    evento para eso y la web lo manda.
+
+## 14–15/10: "Cliente indica enviado" y reintentos
+- "Ya lo envié" manda `estado: "Cliente indica enviado"` (mismo código,
+  `datos.evidencia: "cliente"`, `cliente_indico_envio_en`). Base44 todavía
+  responde 422: falta confirmar su despliegue. El clic sigue como
+  "Enviado a WhatsApp".
+- Cola de registros (pedido de Rodri): cada registro (código + estado) se
+  guarda en `localStorage` (`arias.pedidos.cola.v1`) antes de mandarse y se
+  borra sólo con respuesta exitosa. Con 429, 5xx o error de conexión se
+  reintenta con el mismo código a los 2, 5, 10, 20 y 40 s, respetando
+  `Retry-After` si es mayor (tope 2 min). Agotadas las esperas, queda
+  guardado y sale en la próxima visita (hasta 7 días). Otro 4xx no se
+  reintenta. Un estado nuevo no sale antes que el anterior del mismo
+  código. Un envío a la vez aun con varias pestañas (`navigator.locks`).
+- Probado en local con un Base44 simulado (500, 429 + Retry-After, sin
+  red, 422, recarga, 5 reintentos): sin envíos al Base44 real.
